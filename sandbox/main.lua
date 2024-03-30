@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.29.1"
+	scenario_version = "6.30.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1766,7 +1766,178 @@ function setConstants()
 	makePlayerShipActive("Quicksilver")		--W
 	makePlayerShipActive("Devon")			--W
 	makePlayerShipActive("Spike") 			--W 
-
+	carrier_class_launch_time = {
+		["Starfighter"] = 5,
+		["Frigate"] = 10,
+		["Corvette"] = 15,
+		["Dreadnought"] = 20,
+	}
+	carrier_ship_types = {
+		["Atlantis"] =				{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["Benedict"] =				{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["Crucible"] =				{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["Ender"] =					{carry = false,	class = "Dreadnought",	create = stockPlayer,	},
+		["Flavia P.Falcon"] =		{carry = false,	class = "Frigate",		create = stockPlayer,	},
+		["Hathcock"] =				{carry = false,	class = "Frigate",		create = stockPlayer,	},
+		["Kiriya"] =				{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["Maverick"] =				{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["MP52 Hornet"] = 			{carry = false,	class = "Starfighter",	create = stockPlayer,	},
+		["Nautilus"] =				{carry = false,	class = "Frigate",		create = stockPlayer,	},
+		["Phobos M3P"] =			{carry = false,	class = "Frigate",		create = stockPlayer,	},
+		["Piranha"] =				{carry = false,	class = "Frigate",		create = stockPlayer,	},
+		["Player Cruiser"] =		{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["Player Missile Cr."] =	{carry = false,	class = "Corvette",		create = stockPlayer,	},
+		["Player Fighter"] =		{carry = false,	class = "Starfighter",	create = stockPlayer,	},
+		["Repulse"] =				{carry = false,	class = "Frigate",		create = stockPlayer,	},
+		["Striker"] =				{carry = false,	class = "Starfighter",	create = stockPlayer,	},
+		["ZX-Lindworm"] =			{carry = false,	class = "Starfighter",	create = stockPlayer,	},
+		["Amalgam"] =				{carry = false,	class = "Corvette",		create = createPlayerShipMixer,	},
+		["Atlantis II"] =			{carry = false,	class = "Corvette",		create = createPlayerShipSpyder,	},
+		["Barrow"] =				{carry = false,	class = "Corvette",		create = createPlayerShipQuarter,	},
+		["Bermuda"] =				{carry = false,	class = "Corvette",		create = createPlayerShipEndeavor,	},
+		["Butler"] =				{carry = false,	class = "Corvette",		create = createPlayerShipJeeves,	},	--or Jarvis
+		["Caretaker"] =				{carry = false,	class = "Corvette",		create = createPlayerShipGuinevere,	},
+		["Chavez"] =				{carry = false,	class = "Frigate",		create = createPlayerShipWesson,	},
+		["Crab"] =					{carry = false,	class = "Corvette",		create = createPlayerShipThelonius,	},
+		["Deimos"] =				{carry = false,	class = "Frigate",		create = createPlayerShipAnvil,	},
+		["Destroyer III"] =			{carry = false,	class = "Corvette",		create = createPlayerShipSimian,	},
+		["Destroyer IV"] =			{carry = false,	class = "Corvette",		create = createPlayerShipDarkstar,	},	--or Raptor or Thunderbird
+		["Eldridge"] =				{carry = false,	class = "Frigate",		create = createPlayerShipFalcon,	},
+		["Era"] =					{carry = false,	class = "Frigate",		create = createPlayerShipEagle,	},		--or Vision
+		["Flavia 2C"] =				{carry = false,	class = "Frigate",		create = createPlayerShipOsprey,	},
+		["Focus"] =					{carry = false,	class = "Corvette",		create = createPlayerShipMagnum,	},
+		["Fowl"] =					{carry = false,	class = "Starfighter",	create = createPlayerShipFowl,	},
+		["Fray"] =					{carry = false,	class = "Corvette",		create = createPlayerShipEnola,	},
+		["Fresnel"] =				{carry = false,	class = "Starfighter",	create = createPlayerShipSplinter,	},
+		["Gadfly"] =				{carry = false,	class = "Starfighter",	create = createPlayerShipBling,	},
+		["Glass Cannon"] =			{carry = false,	class = "Starfighter",	create = createPlayerShipKnick,	},
+		["Gull"] =					{carry = false,	class = "Frigate",		create = createPlayerShipWiggy,	},
+		["Holmes"] =				{carry = false,	class = "Corvette",		create = createPlayerShipWatson,	},
+		["Interlock"] =				{carry = false,	class = "Frigate",		create = createPlayerShipFist,	},
+		["Kludge"] =				{carry = false,	class = "Corvette",		create = createPlayerShipBlaire,	},
+		["Lurker"] =				{carry = false,	class = "Starfighter",	create = createPlayerShipRip,	},
+		["Mantis"] =				{carry = false,	class = "Corvette",		create = createPlayerShipCrux,	},
+		["Maverick XP"] =			{carry = false,	class = "Corvette",		create = createPlayerShipRogue,	},
+		["Midian"] =				{carry = false,	class = "Corvette",		create = createPlayerShipFlipper,	},
+		["MX-Lindworm"] =			{carry = false,	class = "Starfighter",	create = createPlayerShipRattler,	},
+		["Noble"] =					{carry = false,	class = "Corvette",		create = createPlayerShipLancelot,	},
+		["Nusret"] =				{carry = false,	class = "Frigate",		create = createPlayerShipManxman,	},	--or Argonaut or Hrothgar
+		["Orca"] =					{carry = false,	class = "Frigate",		create = createPlayerShipEspadon,	},
+		["Pacu"] =					{carry = false,	class = "Frigate",		create = createPlayerShipArwine,	},
+		["Peacock"] =				{carry = false,	class = "Corvette",		create = createPlayerShipFlaire,	},
+		["Phargus"] =				{carry = false,	class = "Frigate",		create = createPlayerShipPhargus,	},
+		["Phobos T2"] =				{carry = false,	class = "Frigate",		create = createPlayerShipAmbition,	},
+		["Phobos T2.2"] =			{carry = false,	class = "Frigate",		create = createPlayerShipNimbus,	},	--or Terror
+		["Phoenix"] =				{carry = false,	class = "Corvette",		create = createPlayerShipKindling,	},
+		["Porcupine"] =				{carry = false,	class = "Frigate",		create = createPlayerShipQuill,	},
+		["Proto-Atlantis"] =		{carry = false,	class = "Corvette",		create = createPlayerShipHalberd,	},	--or Gorn
+		["Proto-Atlantis 2"] =		{carry = false,	class = "Corvette",		create = createPlayerShipNarsil,	},
+		["Raven"] =					{carry = false,	class = "Corvette",		create = createPlayerShipClaw,	},
+		["Redhook"] =				{carry = false,	class = "Frigate",		create = createPlayerShipHeadhunter,	},	--or Barracuda or Hearken
+		["Roc"] =					{carry = false,	class = "Frigate",		create = createPlayerShipRoc,	},
+		["Rodent"] =				{carry = false,	class = "Frigate",		create = createPlayerShipGeorge,	},
+		["Ronco"] =					{carry = false,	class = "Frigate",		create = createPlayerShipDial,	},
+		["Rook"] =					{carry = false,	class = "Frigate",		create = createPlayerShipYorik,	},
+		["Rotor"] =					{carry = false,	class = "Corvette",		create = createPlayerShipPinwheel,	},
+		["Safari"] =				{carry = false,	class = "Frigate",		create = createPlayerShipFlorentine,	},
+		["Scatter"] =				{carry = false,	class = "Frigate",		create = createPlayerShipOutcast,	},
+		["Skray"] =					{carry = false,	class = "Frigate",		create = createplayerShipSneak,	},
+		["Sloop"] =					{carry = false,	class = "Frigate",		create = createPlayerShipSloop,	},
+		["Squid"] =					{carry = false,	class = "Frigate",		create = createPlayerShipInk,	},	--or Gabble
+		["Striker LX"] =			{carry = false,	class = "Starfighter",	create = createPlayerShipCobra,	},
+		["Surkov"] =				{carry = false,	class = "Frigate",		create = createPlayerShipSting,	},	--or Stick or Spike
+		["Twister"] =				{carry = false,	class = "Frigate",		create = createPlayerShipTango,	},
+		["Torch"] =					{carry = false,	class = "Starfighter",	create = createPlayerShipTorch,	},
+		["Triumph"] =				{carry = false,	class = "Corvette",		create = createPlayerShipDominant,	},
+		["Vermin"] =				{carry = false,	class = "Starfighter",	create = createPlayerShipSparrow,	},
+		["Windmill"] =				{carry = false,	class = "Frigate",		create = createPlayerShipRocinante,	},
+		["Wombat"] =				{carry = false,	class = "Starfighter",	create = createPlayerShipDevon,	},
+		["Wrocket"] =				{carry = false,	class = "Frigate",		create = createPlayerShipSlingshot,	},
+		["XR-Lindworm"] =			{carry = false,	class = "Starfighter",	create = createPlayerShipQuick,	},	--or Hummer	
+	}
+	carrier_ship_names = {
+		["Atlantis"] =				{"Golga","Gorgon","Outsize"},
+		["Benedict"] =				{"Circular","Mobius","Nepotist"},
+		["Crucible"] =				{"Cannon","Artillery","Catapult"},
+		["Ender"] =					{"Galactic","Waamba","Gargantua"},
+		["Flavia P.Falcon"] =		{"Heron","Boxer","Independence"},
+		["Hathcock"] =				{"Prickly","Catcus","Needle Nose"},
+		["Kiriya"] =				{"Dissociate","Avuncular","Mirror"},
+		["Maverick"] =				{"Herald","Distilled","Surprise"},
+		["MP52 Hornet"] = 			{"Carpenter","Stinger","Nitro"},
+		["Nautilus"] =				{"Wherewithal","Puppeteer","Pidgeon"},
+		["Phobos M3P"] =			{"Elastic","Entropy","Inchoate"},
+		["Piranha"] =				{"Nibbler","Tubular","Rabid"},
+		["Player Cruiser"] =		{"Starburst","Nova","Escape"},
+		["Player Missile Cr."] =	{"Gatling","Endurance","Wary"},
+		["Player Fighter"] =		{"Pin","Torque","Flip"},
+		["Repulse"] =				{"Muscle","Spinner","Chopper"},
+		["Striker"] =				{"Rough","Shard","Angle"},
+		["ZX-Lindworm"] =			{"Pony","Trickster","Bang"},
+		["Amalgam"] =				{"Everyman","Politico","Comforter"},
+		["Atlantis II"] =			{"Borgo","Ego","Kraken"},
+		["Barrow"] =				{"Doppleganger","Twin","Clone"},
+		["Bermuda"] =				{"Persistent","Insistent","Tyrant"},
+		["Butler"] =				{"Merciless","Inperturbable","Aloof"},
+		["Caretaker"] =				{"Confidence","Inquisitorial","Response"},
+		["Chavez"] =				{"Chameleon","Blend","Camoflage"},
+		["Crab"] =					{"Pincer","Dodge","Salty"},
+		["Deimos"] =				{"Gander","Trip","Gondala"},
+		["Destroyer III"] =			{"Portent","Strand","Isometric"},
+		["Destroyer IV"] =			{"Bent","Inpenetrable","Impervious"},
+		["Eldridge"] =				{"Fortune","Sprightly","Constable"},
+		["Era"] =					{"Mindful","Peer","Star Flow"},
+		["Flavia 2C"] =				{"Trickle","Retuned","Insatiable"},
+		["Focus"] =					{"Growth","Scalar","Justice"},
+		["Fowl"] =					{"Robin","Penguin","Harrier"},
+		["Fray"] =					{"Harry","Skunk","Cappuccino"},
+		["Fresnel"] =				{"Magnified","Starlight","Techno"},
+		["Gadfly"] =				{"Zippy","Mosquito","Dart"},
+		["Glass Cannon"] =			{"Once","Mastadon","Sabretooth"},
+		["Gull"] =					{"Wingspan","Discover","Recon"},
+		["Holmes"] =				{"Yardstick","Deer Hat","Induction"},
+		["Interlock"] =				{"Traverse","Jasper","Intransigent"},
+		["Kludge"] =				{"Bullwinkle","Clouseau","Quasimodo"},
+		["Lurker"] =				{"Spark","Twinge","Scratch"},
+		["Mantis"] =				{"Ray","Nemo","Skelter"},
+		["Maverick XP"] =			{"Condensed","Impact","Compound"},
+		["Midian"] =				{"Ethereal","Torn","Zapper"},
+		["MX-Lindworm"] =			{"Tickler","Lickety","Vex"},
+		["Noble"] =					{"Word","Stature","Knight"},
+		["Nusret"] =				{"Trembler","Bright","Terse"},
+		["Orca"] =					{"Pursuer","Gnarly","Unblemished"},
+		["Pacu"] =					{"Energetic","Ardent","Frugal"},
+		["Peacock"] =				{"Kaleidoscopic","Redolent","Extravagant"},
+		["Phargus"] =				{"Defender","Dramatic","Intent"},
+		["Phobos T2"] =				{"Thorough","Portentious","Precocious"},
+		["Phobos T2.2"] =			{"Flagon","Thirsty","Trust"},
+		["Phoenix"] =				{"Firebrand","Resilient","Chaste"},
+		["Porcupine"] =				{"Bias","Mercenary","Frightful"},
+		["Proto-Atlantis"] =		{"Temporal","Literal","Spruce"},
+		["Proto-Atlantis 2"] =		{"Gertrude","Mildred","Jax"},
+		["Raven"] =					{"Nevermore","Blackened","Reflective"},
+		["Redhook"] =				{"Gatherer","Trifecta","Blender"},
+		["Roc"] =					{"Bulk","Roast","Grimwald"},
+		["Rodent"] =				{"Chirp","Muskrat","Ferret"},
+		["Ronco"] =					{"Slicer","Dicer","Grinder"},
+		["Rook"] =					{"Moors","Estuary","Fractal"},
+		["Rotor"] =					{"Prismatic","Hirsute","Fate"},
+		["Safari"] =				{"Scavenger","Guide","Traveler"},
+		["Scatter"] =				{"Frisky","Fraught","Nimble"},
+		["Skray"] =					{"Clipper","Symbolic","Provoker"},
+		["Sloop"] =					{"Effervescent","Artisan","Vaulted"},
+		["Squid"] =					{"Insidious","Trampler","Livid"},
+		["Striker LX"] =			{"Bluejay","Fencer","Basilisk"},
+		["Surkov"] =				{"Inveterate","Vertiginous","Advent"},
+		["Twister"] =				{"Bowl","Force","Leverage"},
+		["Torch"] =					{"Simmer","Boil","Blinder"},
+		["Triumph"] =				{"Veil","Crown","Dreadful"},
+		["Vermin"] =				{"Plague","Spreader","Gray Death"},
+		["Windmill"] =				{"Cervantes","Willful","Indomitable"},
+		["Wombat"] =				{"Aggravator","Fiendish","Fearless"},
+		["Wrocket"] =				{"Revisitor","Retrograde","Cycler"},
+		["XR-Lindworm"] =			{"Pointed","Poniard","Rapier"},
+	}
 	active_player_ship = true
 	--goodsList = {	{"food",0}, {"medicine",0},	{"nickel",0}, {"platinum",0}, {"gold",0}, {"dilithium",0}, {"tritanium",0}, {"luxury",0}, {"cobalt",0}, {"impulse",0}, {"warp",0}, {"shield",0}, {"tractor",0}, {"repulsor",0}, {"beam",0}, {"optic",0}, {"robotic",0}, {"filament",0}, {"transporter",0}, {"sensor",0}, {"communication",0}, {"autodoc",0}, {"lifter",0}, {"android",0}, {"nanites",0}, {"software",0}, {"circuit",0}, {"battery",0}	}
 	attackFleetFunction = {orderFleetAttack1,orderFleetAttack2,orderFleetAttack3,orderFleetAttack4,orderFleetAttack5,orderFleetAttack6,orderFleetAttack7,orderFleetAttack8}
@@ -24653,13 +24824,22 @@ function tweakPlayerShip()
 	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("+Engineering",tweakEngineering)
-	addGMFunction("+Relay",tweakRelay)
+	addGMFunction("+By Console",tweakByConsole)
 	addGMFunction("+Player Message",playerMessage)
 	addGMFunction("get hacked status",singleCPUShipFunction(GMmessageHackedStatus))
 	addGMFunction("+Sensors",playerSensors)
-	addGMFunction("+Helm",playerHelm)
 	addGMFunction("+Boarders",setBoarders)
+	addGMFunction("+Carrier",setPlayerCarrier)
+end
+function tweakByConsole()
+	clearGMFunctions()
+	addGMFunction("-Main From Console",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak",tweakPlayerShip)
+	addGMFunction("+Engineering",tweakEngineering)
+	addGMFunction("+Relay",tweakRelay)
+	addGMFunction("+Helm",playerHelm)
 end
 function setBoarders()
 	clearGMFunctions()
@@ -25063,6 +25243,7 @@ function playerHelm()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	local p = playerShipSelected()
 	if p ~= nil then
 		if p:hasSystem("warp") then
@@ -25091,7 +25272,7 @@ function playerHelm()
 		end
 	else
 		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
+		tweakByConsole()
 	end
 end
 function playerSensors()
@@ -25116,6 +25297,593 @@ function playerSensors()
 		end
 		playerSensors()
 	end)
+end
+function setPlayerCarrier()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Carrier",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		addGMFunction("+Ship Types",setCarrierShipTypes)
+		addGMFunction("+Ship Inventory",setCarrierShipInventory)
+		if p.carrier_ship_types ~= nil and p.carrier_ship_inventory ~= nil then
+			addGMFunction("+Carrier Ordnance",setCarrierOrdnance)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setCarrierOrdnance()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Carrier",initialGMFunctions)
+--	addGMFunction("-Setup",initialSetUp)
+--	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Set Carrier",setPlayerCarrier)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_inventory ~= nil or #p.carrier_ship_inventory == 0 then
+			local increment_ordnance = {}
+			local increment_ordnance_count = 0
+			for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+				local current_reputation = p:getReputationPoints()
+				local temp_fighter_max_ordnance = {}
+				local temp_fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)
+				for i,missile_type in ipairs(missile_types) do
+					temp_fighter_max_ordnance[missile_type] = temp_fighter:getWeaponStorageMax(missile_type)
+				end
+				temp_fighter:destroy()
+				p:setReputationPoints(current_reputation)
+				for i,missile_type in ipairs(missile_types) do
+					if increment_ordnance[missile_type] == nil then
+						if temp_fighter_max_ordnance[missile_type] ~= nil then
+							increment_ordnance[missile_type] = temp_fighter_max_ordnance[missile_type]
+							increment_ordnance_count = increment_ordnance_count + 1
+						end
+					else
+						if temp_fighter_max_ordnance[missile_type] ~= nil then
+							increment_ordnance[missile_type] = increment_ordnance[missile_type] + temp_fighter_max_ordnance[missile_type]
+						end
+					end
+				end
+			end
+			if increment_ordnance_count > 0 then
+				addGMFunction("Add ordnance set",function()
+					for i,missile_type in ipairs(missile_types) do
+						if increment_ordnance[missile_type] ~= nil then
+							p:setWeaponStorageMax(missile_type,p:getWeaponStorageMax(missile_type) + increment_ordnance[missile_type])
+						end
+					end
+					setCarrierOrdnance()
+				end)
+				addGMFunction("Fill Ordnance",function()
+					for i,missile_type in ipairs(missile_types) do
+						p:setWeaponStorage(missile_type,p:getWeaponStorageMax(missile_type))
+					end
+				end)
+				for i,missile_type in ipairs(missile_types) do
+					if increment_ordnance[missile_type] ~= nil then
+						addGMFunction(string.format("%s +%i to %i",missile_type,increment_ordnance[missile_type],p:getWeaponStorageMax(missile_type)),function()
+							p:setWeaponStorageMax(missile_type,p:getWeaponStorageMax(missile_type) + increment_ordnance[missile_type])
+							setCarrierOrdnance()
+						end)
+					end
+				end
+			else
+				addGMMessage(string.format("Carrier %s's fighters have no ordnance restock requirements",p:getCallSign()))
+			end
+		else
+			addGMMessage("No ships in carrier inventory")
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setCarrierShipTypes()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Carrier",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Set Carrier",setPlayerCarrier)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types == nil then
+			p.carrier_ship_types = {}
+			for template,details in pairs(carrier_ship_types) do
+				p.carrier_ship_types[template] = details
+			end
+		end
+		addGMFunction("+By Class",setCarryByClass)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setCarryByClass()
+	local p = playerShipSelected()
+	if p ~= nil then
+		local dreadnought_count = 0
+		local dreadnought_carry_count = 0
+		local corvette_count = 0
+		local corvette_carry_count = 0
+		local frigate_count = 0
+		local frigate_carry_count = 0
+		local fighter_count = 0
+		local fighter_carry_count = 0
+		for template,detail in pairs(p.carrier_ship_types) do
+			if detail.class == "Dreadnought" then
+				dreadnought_count = dreadnought_count + 1
+				if detail.carry then
+					dreadnought_carry_count = dreadnought_carry_count + 1
+				end
+			end
+			if detail.class == "Corvette" then
+				corvette_count = corvette_count + 1
+				if detail.carry then
+					corvette_carry_count = corvette_carry_count + 1
+				end
+			end
+			if detail.class == "Frigate" then
+				frigate_count = frigate_count + 1
+				if detail.carry then
+					frigate_carry_count = frigate_carry_count + 1
+				end
+			end
+			if detail.class == "Starfighter" then
+				fighter_count = fighter_count + 1
+				if detail.carry then
+					fighter_carry_count = fighter_carry_count + 1
+				end
+			end
+		end
+		clearGMFunctions()
+		addGMFunction("-Main Frm Carrier",initialGMFunctions)
+		addGMFunction("-Setup",initialSetUp)
+		addGMFunction("-Player Ship",playerShip)
+		addGMFunction("-Tweak Player",tweakPlayerShip)
+		addGMFunction("-Set Carrier",setPlayerCarrier)
+		addGMFunction("-Ship Types",setCarrierShipTypes)
+		addGMFunction(string.format("+Dreadnought %i/%i",dreadnought_carry_count,dreadnought_count),function()
+			setCarryClassSpecified("Dreadnought")
+		end)
+		addGMFunction(string.format("+Corvette %i/%i",corvette_carry_count,corvette_count),function()
+			setCarryClassSpecified("Corvette")
+		end)
+		addGMFunction(string.format("+Frigate %i/%i",frigate_carry_count,frigate_count),function()
+			setCarryClassSpecified("Frigate")
+		end)
+		addGMFunction(string.format("+Starfighter %i/%i",fighter_carry_count,fighter_count),function()
+			setCarryClassSpecified("Starfighter")
+		end)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setCarryClassSpecified(class)
+	local p = playerShipSelected()
+	if p ~= nil then
+		clearGMFunctions()
+		addGMFunction("-Carry By Class",setCarryByClass)
+		addGMFunction(string.format("All %ss",class),function()
+			for template,detail in pairs(p.carrier_ship_types) do
+				if detail.class == class then
+					detail.carry = true
+				end
+			end
+			setCarryClassSpecified(class)
+		end)
+		addGMFunction(string.format("No %ss",class),function()
+			for template,detail in pairs(p.carrier_ship_types) do
+				if detail.class == class then
+					detail.carry = false
+				end
+			end
+			setCarryClassSpecified(class)
+		end)
+		local specified_class_templates = {}
+		for template,detail in pairs(p.carrier_ship_types) do
+			if detail.class == class then
+				table.insert(specified_class_templates,{name = template, carry = detail.carry})
+			end
+		end
+		table.sort(specified_class_templates, function(a,b)
+			return a.name < b.name
+		end)
+		for i,ship in ipairs(specified_class_templates) do
+			local button_label = ship.name
+			if ship.carry then
+				button_label = string.format("%s*",button_label)
+			end
+			addGMFunction(button_label,function()
+				if ship.carry then
+					p.carrier_ship_types[ship.name].carry = false
+				else
+					p.carrier_ship_types[ship.name].carry = true
+				end
+				setCarryClassSpecified(class)
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function setCarrierShipInventory()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Inventory",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Set Carrier",setPlayerCarrier)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_inventory == nil then
+			p.carrier_ship_inventory = {}
+		end
+		if #p.carrier_ship_inventory > 0 then
+			addGMFunction(string.format("Show inventory %i",#p.carrier_ship_inventory),function()
+				showCarrierShipInventory(p)
+			end)
+		end
+		addGMFunction("+Add Ship",addShipToCarrierInventory)
+		addGMFunction("+Del Ship",deleteShipFromCarrierInventory)
+		addGMFunction("+Change Ship",changeShipInCarrierInventory)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function showCarrierShipInventory()
+	local p = playerShipSelected()
+	if p ~= nil then
+		if #p.carrier_ship_inventory > 0 then
+			local out = string.format("Carrier inventory report (%i ship):",#p.carrier_ship_inventory)
+			if #p.carrier_ship_inventory > 1 then
+				out = string.format("Carrier inventory report (%i ships):",#p.carrier_ship_inventory)
+			end
+			for i,ship in ipairs(p.carrier_ship_inventory) do
+				out = string.format("%s\n%s %s Strength:%s State:%s",out,ship.name,ship.template,playerShipStats[ship.template].strength,ship.state)
+			end
+			addGMMessage(out)
+		else
+			addGMMessage("Inventory empty")
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function addShipToCarrierInventory()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Add Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types ~= nil then
+			local sorted_carrier_ship_types = {}
+			for template, details in pairs(p.carrier_ship_types) do
+				if details.carry then
+					table.insert(sorted_carrier_ship_types,{name = template, class = details.class})
+				end
+			end
+			table.sort(sorted_carrier_ship_types, function(a,b)
+				return a.name < b.name
+			end)
+			for i,ship in ipairs(sorted_carrier_ship_types) do
+				local button_label = ship.name
+				if #p.carrier_ship_inventory > 0 then
+					for j,carrier_ship in ipairs(p.carrier_ship_inventory) do
+						if carrier_ship.template == ship.name then
+							button_label = string.format("%s*",button_label)
+							break
+						end
+					end
+				end
+				addGMFunction(button_label,function()
+					local ship_name = tableRemoveRandom(carrier_ship_names[ship.name])
+					if ship_name == nil then
+						local class_pool = {}
+						for ship_type_name,ship_type_details in pairs(p.carrier_ship_types) do
+							if ship.class == ship_type_details.class then
+								if #carrier_ship_names[ship_type_name] > 0 then
+									table.insert(class_pool,ship_type_name)
+								end
+							end
+						end
+						local selected_template = tableRemoveRandom(class_pool)
+						ship_name = tableRemoveRandom(carrier_ship_names[selected_template])
+					end
+					table.insert(p.carrier_ship_inventory,{
+						class = ship.class, 
+						template = ship.name, 
+						name = ship_name, 
+						state = "aboard", 
+						launch_button = string.format("launch_%s",ship_name),
+						launch_time = carrier_class_launch_time[ship.class],
+					})
+					showCarrierShipInventory()
+				end)
+			end
+			if #sorted_carrier_ship_types == 0 then
+				addGMMessage("Before you can add ships to the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+			end
+		else
+			addGMMessage("Before you can add ships to the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function deleteShipFromCarrierInventory()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Del Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types ~= nil then
+			if p.carrier_ship_inventory ~= nil and #p.carrier_ship_inventory > 0 then
+				for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+					addGMFunction(string.format("Del %s",carrier_ship.name),function()
+						if carrier_ship.state ~= "aboard" then
+							if carrier_ship.ship ~= nil and carrier_ship.ship:isValid() then
+								addGMMessage(string.format("%s is not aboard and valid. No delete action taken",carrier_ship.name))
+							else
+								addGMMessage(string.format("%s deleted from carrier ship inventory",carrier_ship.name))
+								p.carrier_ship_inventory[i] = p.carrier_ship_inventory[#p.carrier_ship_inventory]
+								p.carrier_ship_inventory[#p.carrier_ship_inventory] = nil
+								setCarrierShipInventory()
+							end
+						else
+							addGMMessage(string.format("%s deleted from carrier ship inventory",carrier_ship.name))
+							p.carrier_ship_inventory[i] = p.carrier_ship_inventory[#p.carrier_ship_inventory]
+							p.carrier_ship_inventory[#p.carrier_ship_inventory] = nil
+							setCarrierShipInventory()
+						end
+					end)
+				end
+			else
+				addGMMessage("Before you can delete ships from the carrier's inventory, there has to be an inventory from which you can delete a ship")
+				setCarrierShipInventory()
+			end
+		else
+			addGMMessage("Before you can delete ships from the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+			setCarrierShipInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function changeShipInCarrierInventory()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Change Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types ~= nil then
+			if p.carrier_ship_inventory ~= nil and #p.carrier_ship_inventory > 0 then
+				local change_choices_presented = 0
+				for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+					local something_can_change = false
+					if carrier_ship.state == "aboard" then
+						if carrier_ship.max_health ~= nil then
+							something_can_change = true
+						elseif carrier_ship.max_ordnance ~= nil then
+							for i,missile_type in ipairs(missile_types) do
+								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+									something_can_change = true
+								end
+							end
+						end
+					end
+					if something_can_change then
+						change_choices_presented = change_choices_presented + 1
+						addGMFunction(string.format("Change %s",carrier_ship.name),function()
+							changeSpecificShipInCarrierInventory(carrier_ship)
+						end)
+					end
+				end
+				if change_choices_presented == 0 then
+					addGMMessage("No carrier ship change options available at this time")
+					setCarrierShipInventory()
+				end
+			else
+				addGMMessage("Before you can change ships in the carrier's inventory, there has to be an inventory of ships")
+				setCarrierShipInventory()
+			end
+		else
+			addGMMessage("Before you can change ships in the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+			setCarrierShipInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function changeSpecificShipInCarrierInventory(carrier_ship)
+	clearGMFunctions()
+	addGMFunction("-Main Frm Change Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	addGMFunction("-Change Ship",changeShipInCarrierInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if carrier_ship.state == "aboard" then
+			local change_options_presented = 0
+			if carrier_ship.max_health ~= nil then
+				change_options_presented = change_options_presented + 1
+				addGMFunction("Max health",function()
+					string.format("")
+					changeCarrierShipMaxHealth(carrier_ship)
+				end)
+			end
+			if carrier_ship.max_ordnance ~= nil then
+				change_options_presented = change_options_presented + 1
+				addGMFunction("Ordnance",function()
+					string.format("")
+					changeCarrierShipOrdnance(carrier_ship)
+				end)
+			end
+			--add rapid refit here
+			if change_options_presented == 0 then
+				addGMMessage(string.format("Nothing to change for %s",carrier_ship.name))
+			end
+			addGMFunction(string.format("%s report",carrier_ship.name),function()
+				carrierShipReport(carrier_ship)
+			end)
+		else
+			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
+			changeShipInCarrierInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function carrierShipReport(carrier_ship)
+	local out = string.format("Report on %s",carrier_ship.name)
+	local carrier_name = ""
+	local p = playerShipSelected()
+	if p ~= nil then
+		carrier_name = p:getCallSign()
+		out = string.format("%s - a ship in %s's inventory",out,carrier_name)
+	end
+	out = string.format("%s\nTemplate:%s Strength:%s",out,carrier_ship.template,playerShipStats[carrier_ship.template].strength)
+	if carrier_ship.max_health ~= nil then
+		out = string.format("%s\nMax health issues:",out)
+		local max_health_item_count = 0
+		for system,max_health in pairs(carrier_ship.max_health) do
+			out = string.format("%s\n    %s %.1f%%",out,system,max_health*100)
+			max_health_item_count = max_health_item_count + 1
+		end
+		if max_health_item_count == 0 then
+			out = string.format("%s None",out)
+		end
+	else
+		out = string.format("%s\nNo max health issues to report",out)
+	end
+	if carrier_ship.max_ordnance ~= nil then
+		out = string.format("%s\nOrdnance:",out)
+		for i,missile_type in ipairs(missile_types) do
+			if carrier_ship.max_ordnance[missile_type] ~= nil then
+				if carrier_name ~= "" then
+					out = string.format("%s\n    %s %i/%i    Carrier %s: %i/%i",out,missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type],carrier_name,p:getWeaponStorage(missile_type),p:getWeaponStorageMax(missile_type))
+				else
+					out = string.format("%s\n    %s %i/%i",out,missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type])
+				end
+			end
+		end
+	end
+	addGMMessage(out)
+end
+function changeCarrierShipMaxHealth(carrier_ship)
+	clearGMFunctions()
+	addGMFunction(string.format("-Change %s",carrier_ship.name),function()
+		changeSpecificShipInCarrierInventory(carrier_ship)
+	end)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if carrier_ship.state == "aboard" then
+			if carrier_ship.max_health ~= nil then
+				local max_health_item_count = 0
+				for system,ship_max_health in pairs(carrier_ship.max_health) do
+					max_health_item_count = max_health_item_count + 1
+					addGMFunction(string.format("%s %.1f%% Half",system,ship_max_health*100),function()
+						ship_max_health = ship_max_health + (1 - ship_max_health)/2
+						carrier_ship.max_health[system] = ship_max_health
+						changeCarrierShipMaxHealth(carrier_ship)
+					end)
+					addGMFunction(string.format("%s %.1f%% Fix",system,ship_max_health*100),function()
+						carrier_ship.max_health[system] = nil
+						changeCarrierShipMaxHealth(carrier_ship)
+					end)
+				end
+				if max_health_item_count == 0 then
+					addGMMessage(string.format("No max health changes available for %s",carrier_ship.name))
+				end
+			else
+				addGMMessage(string.format("No max health changes available for %s",carrier_ship.name))
+			end
+		else
+			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
+			changeShipInCarrierInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function changeCarrierShipOrdnance(carrier_ship)
+	clearGMFunctions()
+	addGMFunction(string.format("-Change %s",carrier_ship.name),function()
+		changeSpecificShipInCarrierInventory(carrier_ship)
+	end)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if carrier_ship.state == "aboard" then
+			if carrier_ship.max_ordnance ~= nil then
+				for i,missile_type in ipairs(missile_types) do
+					if carrier_ship.max_ordnance[missile_type] ~= nil and carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+						addGMFunction(string.format("+1 %s %i/%i",missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type]),function()
+							if p:getWeaponStorage(missile_type) > 0 then
+								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+									p:setWeaponStorage(missile_type,p:getWeaponStorage(missile_type)-1)
+									carrier_ship.ordnance_level[missile_type] = carrier_ship.ordnance_level[missile_type] + 1
+									changeCarrierShipOrdnance(carrier_ship)
+								else
+									addGMMessage(string.format("%s is already at maximum %s level",carrier_ship.name,missile_type))
+								end
+							else
+								addGMMessage(string.format("Carrier %s is out of %ss",p:getCallSign(),missile_type))
+							end
+						end)
+						addGMFunction(string.format("Max %s %i/%i",missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type]),function()
+							local adjustment_amount = carrier_ship.max_ordnance[missile_type] - carrier_ship.ordnance_level[missile_type]
+							if p:getWeaponStorage(missile_type) > adjustment_amount then
+								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+									p:setWeaponStorage(missile_type,p:getWeaponStorage(missile_type) - adjustment_amount)
+									carrier_ship.ordnance_level[missile_type] = carrier_ship.max_ordnance[missile_type]
+									changeCarrierShipOrdnance(carrier_ship)
+								else
+									addGMMessage(string.format("%s is already at maximum %s level",carrier_ship.name,missile_type))
+								end
+							else
+								addGMMessage(string.format("Carrier %s only has %i %ss - not enough to maximize %s's stock",p:getCallSign(),p:getWeaponStorage(missile_type),missile_type,carrier_ship.name))
+							end
+						end)
+					end
+				end
+			end
+		else
+			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
+			changeShipInCarrierInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
 end
 -----------------------------------------------
 --	Initial Set Up > Player Ships > Current  --
@@ -25919,11 +26687,22 @@ function spawnPlayerShip()
 	addGMFunction("Ship Button Info",function()
 		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump   W = Warp   B = Both   N = Neither\n and a number for the long range scan range.\n\nSwitch between active player ships and scrapped player ships by using the buttons labeled --Active Ships-- and --Scrapped Ships--")
 	end)
-	
 	local sorted = {}
-	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	local active_ship_count = 0
+	for name, details in pairs(playerShipInfo) do
+		if details.active == "active" then
+			active_ship_count = active_ship_count + 1
+		end
+		table.insert(sorted,name) 
+	end
 	table.sort(sorted)
 	if active_player_ship then
+		if active_ship_count < 5 then
+			addGMFunction("-Setup",initialSetUp)
+		end
+		if active_ship_count < 6 then
+			addGMFunction("-Player Ship",playerShip)
+		end
 		addGMFunction("--Active Ships--",function()
 			active_player_ship = false
 			spawnPlayerShip()
@@ -25944,6 +26723,8 @@ function spawnPlayerShip()
 			spawnPlayerShip()
 		end)
 	else
+		addGMFunction("-Setup",initialSetUp)
+		addGMFunction("-Player Ship",playerShip)
 		addGMFunction("--Scrapped Ships--",function()
 			active_player_ship = true
 			spawnPlayerShip()
@@ -26020,14 +26801,25 @@ end
 -- RESTORE ENERGY		F	restoreEnergy
 function tweakEngineering()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Main Frm Engineer",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	addGMFunction("+Coolant",changePlayerCoolant)
 	addGMFunction("+Repair Crew",changePlayerRepairCrew)
 	addGMFunction("+Max System",changePlayerMaxSystem)
 	addGMFunction("+Beam heat/energy",changePlayerBeams)
+	addGMFunction("+Degrade/Bleed",shieldEnergyDegradeBleed)
+end
+function shieldEnergyDegradeBleed()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Engineer",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	addGMFunction("-Engineering",tweakEngineering)
 	addGMFunction("shields degrade",shieldsDegrade)
 	addGMFunction("shields regen",shieldsRegen)
 	addGMFunction("bleed energy",bleedEnergy)
@@ -26074,6 +26866,7 @@ function tweakRelay()
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	addGMFunction("+Cargo",changePlayerCargo)
 	addGMFunction("+Reputation",changePlayerReputation)
 	addGMFunction("+Waypoint",addWaypoint)
@@ -29857,11 +30650,11 @@ function createPlayerShipQuarter()
 	playerBarrow.min_jump_range = 4000					--shorter (vs 5)
 	playerBarrow:setJumpDriveRange(playerBarrow.min_jump_range,playerBarrow.max_jump_range)
 	playerBarrow:setJumpDriveCharge(playerBarrow.max_jump_range)
-	playerBarrow.carrier_space_group = {
-	 	["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5,	repair = 0, mine = 0},
-	 	["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10,	repair = 0, mine = 4},
-	}
-	playerBarrow.launch_bay = "empty"
+--	playerBarrow.carrier_space_group = {
+--	 	["Carpenter"] =	{create = stockPlayer, template = "MP52 Hornet",	state = "aboard",	launch_button = "launch_carpenter",	time = 5,	repair = 0, mine = 0},
+--	 	["Chack"] =		{create = createPlayerShipFowl,						state = "aboard",	launch_button = "launch_chack",		time = 10,	repair = 0, mine = 4},
+--	}
+--	playerBarrow.launch_bay = "empty"
 	playerBarrow:onTakingDamage(playerShipDamage)
 	playerBarrow:addReputationPoints(50)
 	return playerBarrow
@@ -62397,7 +63190,7 @@ function update(delta)
 			if p.mining and p.cargo > 0 then
 				updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 			end
-			if p.carrier_space_group ~= nil then
+			if p.carrier_ship_inventory ~= nil then
 				updatePlayerCarrierSpaceGroup(delta,p)
 			end
 			if p.patrol_probe > 0 then
@@ -64378,398 +65171,114 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 		p.mining_timer = nil
 	end
 end
+function launchFighterFromCarrier(p,carrier_ship)
+	p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",carrier_ship.name)
+	p:addCustomMessage("Weapons",p.launch_start_message,p.launch_start_message)
+	for i,next_carrier_ship in ipairs(p.carrier_ship_inventory) do
+		p:removeCustom(string.format("%s_wea",next_carrier_ship.launch_button))
+		p:removeCustom(string.format("%s_tac",next_carrier_ship.launch_button))
+	end
+	p.launch_bay = "loaded"
+	carrier_ship.state = "charge"
+end
+function chargeCarrierShipLauncher(p,carrier_ship)
+	if p:getEnergyLevel() > 50 then
+		p.launch_timer = getScenarioTime() + carrier_ship.launch_time
+		p:setEnergyLevel(p:getEnergyLevel() - 50)
+		p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s) after fighter launched",carrier_ship.name,carrier_ship.launch_time)
+		p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
+		p:addCustomMessage("Engineering+",p.launch_charged_message,p.launch_charged_message)
+		p:removeCustom(string.format("%s_eng",p.charge_launch))
+		p:removeCustom(string.format("%s_plus",p.charge_launch))
+		carrier_ship.state = "gather"
+	else
+		p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
+		p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
+		p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
+	end
+end
 function updatePlayerCarrierSpaceGroup(delta,p)
-	if p.launch_bay == "empty" then
-		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
-			if fighter_details.state == "aboard" then
-				if fighter_details.repair <= 0 then
-					p:removeCustom(string.format("%s_prep_eng",fighter_details.launch_button))
-					p:removeCustom(string.format("%s_prep_pls",fighter_details.launch_button))
-					p:addCustomButton("Weapons",string.format("%s_wea",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
-						p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-						p:addCustomMessage("Weapons",p.launch_start_message,p.launch_start_message)
-						for f_name, f_details in pairs(p.carrier_space_group) do
-							p:removeCustom(string.format("%s_wea",f_details.launch_button))
-							p:removeCustom(string.format("%s_tac",f_details.launch_button))
-						end
-						p.launch_bay = "loaded"
-						fighter_details.state = "charge"
+	if p.launch_bay == nil then
+		p.launch_bay = "empty"
+	elseif p.launch_bay == "empty" then
+		for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+			if carrier_ship.state == "aboard" then
+				if carrier_ship.repair_timer == nil or getScenarioTime() > carrier_ship.repair_timer then
+					p:removeCustom(string.format("%s_prep_eng",carrier_ship.launch_button))
+					p:removeCustom(string.format("%s_prep_pls",carrier_ship.launch_button))
+					p:addCustomButton("Weapons",string.format("%s_wea",carrier_ship.launch_button),string.format("Launch %s",carrier_ship.name),function()
+						launchFighterFromCarrier(p,carrier_ship)
 					end,12)
-					p:addCustomButton("Tactical",string.format("%s_tac",fighter_details.launch_button),string.format("Launch %s",fighter_name),function()
-						p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-						p:addCustomMessage("Tactical",p.launch_start_message,p.launch_start_message)
-						for f_name, f_details in pairs(p.carrier_space_group) do
-							p:removeCustom(string.format("%s_wea",f_details.launch_button))
-							p:removeCustom(string.format("%s_tac",f_details.launch_button))
-						end
-						p.launch_bay = "loaded"
-						fighter_details.state = "charge"
-					end,12)
+					p:addCustomButton("Tactical",string.format("%s_tac",carrier_ship.launch_button),string.format("Launch %s",carrier_ship.name),function()
+						launchFighterFromCarrier(p,carrier_ship)
+					end,12)					
 				else
-					fighter_details.repair = fighter_details.repair - delta
-					local refit_time = math.floor(fighter_details.repair)
-					p:addCustomInfo("Engineering",string.format("%s_prep_eng",fighter_details.launch_button),string.format("Refit %s %s",fighter_name,refit_time),12)
-					p:addCustomInfo("Engineering+",string.format("%s_prep_pls",fighter_details.launch_button),string.format("Refit %s %s",fighter_name,refit_time),12)
+					local refit_time = math.floor(carrier_ship.repair_timer - getScenarioTime())
+					p:addCustomInfo("Engineering",string.format("%s_prep_eng",carrier_ship.launch_button),string.format("Refit %s %s",carrier_ship.name,refit_time),12)
+					p:addCustomInfo("Engineering+",string.format("%s_prep_pls",carrier_ship.launch_button),string.format("Refit %s %s",carrier_ship.name,refit_time),12)
 				end
 			end
 		end
 	elseif p.launch_bay == "loaded" then
-		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
-			if fighter_details.state == "charge" then
+		for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+			if carrier_ship.state == "charge" then
 				p.charge_launch = "charge_launch"
-				p:addCustomButton("Engineering",string.format("%s_eng",p.charge_launch),"Charge Launch Sys",function()
-					if p:getEnergyLevel() > 50 then
-						p.launch_timer = fighter_details.time
-						p:setEnergyLevel(p:getEnergyLevel() - 50)
-						p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s) after fighter launched",fighter_name,p.launch_timer)
-						p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
-						p:removeCustom(string.format("%s_eng",p.charge_launch))
-						p:removeCustom(string.format("%s_plus",p.charge_launch))
-						fighter_details.state = "gather"
-					else
-						p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
-						p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
-					end
+				p:addCustomButton("Engineering",string.format("%s_eng",p.charge_launch),"Charge launch sys",function()
+					chargeCarrierShipLauncher(p,carrier_ship)
 				end,17)
-				p:addCustomButton("Engineering+",string.format("%s_plus",p.charge_launch),"Charge Launch Sys",function()
-					if p:getEnergyLevel() > 50 then
-						p.launch_timer = fighter_details.time
-						p:setEnergyLevel(p:getEnergyLevel() - 50)
-						p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s) after fighter launched",fighter_name,p.launch_timer)
-						p:addCustomMessage("Engineering+",p.launch_charged_message,p.launch_charged_message)
-						p:removeCustom(string.format("%s_eng",p.charge_launch))
-						p:removeCustom(string.format("%s_plus",p.charge_launch))
-						fighter_details.state = "gather"
-					else
-						p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
-						p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
-					end
+				p:addCustomButton("Engineering+",string.format("%s_plus",p.charge_launch),"Charge launch sys",function()
+					chargeCarrierShipLauncher(p,carrier_ship)
 				end,17)
 			end
-			if fighter_details.state == "gather" then
-				p.launch_timer = p.launch_timer - delta
-				if p.launch_timer < 0 then
+			if carrier_ship.state == "gather" then
+				if getScenarioTime() > p.launch_timer then
 					if p.launch_countdown ~= nil then
 						p:removeCustom(string.format("%s_relay",p.launch_countdown))
 						p:removeCustom(string.format("%s_ops",p.launch_countdown))
 						p.launch_countdown = nil
 					end
 					local fx, fy = p:getPosition()
-					local fighter = fighter_details.create(fighter_details.template)
+					local currrent_reputation = p:getReputationPoints()
+					local fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)
+					p:setReputationPoints(currrent_reputation)
 --					print("player heading:",p:getHeading(),"player rotation:",p:getRotation())
-					fighter:setPosition(fx,fy):setCallSign(fighter_name):setSystemPower("maneuver",0):commandSetSystemPowerRequest("maneuver",0):commandSetSystemPowerRequest("beamweapons",0):commandSetSystemPowerRequest("missilesystem",0):commandSetSystemPowerRequest("impulse",0)
+					fighter:setPosition(fx,fy):setCallSign(carrier_ship.name):setSystemPower("maneuver",0):commandSetSystemPowerRequest("maneuver",0):commandSetSystemPowerRequest("beamweapons",0):commandSetSystemPowerRequest("missilesystem",0):commandSetSystemPowerRequest("impulse",0)
 					fighter:commandSetSystemPowerRequest("reactor",fighter:getShieldCount()*.2)
-					fighter:setWeaponStorage("Mine",fighter_details.mine)
+					if carrier_ship.ordnance_level ~= nil then
+						for i,missile_type in ipairs(missile_types) do
+							if carrier_ship.ordnance_level[missile_type] ~= nil then
+								fighter:setWeaponStorage(missile_type,carrier_ship.ordnance_level[missile_type])
+							end
+						end
+					end
+					if carrier_ship.max_health ~= nil then
+						for i,system in ipairs(system_list) do
+							if carrier_ship.max_health[system] ~= nil then
+								fighter:setSystemHealthMax(system,carrier_ship.max_health[system])
+							end
+						end
+					end
 					fighter:commandSetAutoRepair(true):setAutoCoolant(true)
-					fighter:addCustomInfo("Engineering",string.format("%s_eng",fighter_name),string.format("%s Auto-cool/repair On",fighter_name),4)
-					fighter:addCustomInfo("Engineering+",string.format("%s_plus",fighter_name),string.format("%s Auto-cool/repair On",fighter_name),4)
+					fighter:addCustomInfo("Engineering",string.format("%s_eng",carrier_ship.name),string.format("%s Auto-cool/repair On",carrier_ship.name),4)
+					fighter:addCustomInfo("Engineering+",string.format("%s_plus",carrier_ship.name),string.format("%s Auto-cool/repair On",carrier_ship.name),4)
 					fighter:setRotation(p:getRotation()):setHeading(p:getHeading())
-					carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
-					fighter.retract_time = fighter_details.time
-					fighter_details.state = "deployed"
-					p:addToShipLog(string.format("Launch of %s complete",fighter_name),"Green")
+					fighter:setJumpDrive(false):setWarpDrive(false)
+					carrier_deployed_fighter[carrier_ship.name] = {carrier = p, fighter = fighter}
+					fighter.retract_time = carrier_ship.launch_time
+					carrier_ship.state = "deployed"
+					carrier_ship.ship = fighter
+					p:addToShipLog(string.format("Launch of %s complete",carrier_ship.name),"Green")
 					p.launch_bay = "empty"
 				else
 					p.launch_countdown = "launch_countdown"
-					p:addCustomInfo("Relay",string.format("%s_relay",p.launch_countdown),string.format("Launch: %i",math.floor(p.launch_timer)),1)
-					p:addCustomInfo("Operations",string.format("%s_ops",p.launch_countdown),string.format("Launch: %i",math.floor(p.launch_timer)),1)
+					local launch_seconds = math.floor(p.launch_timer - getScenarioTime())
+					p:addCustomInfo("Relay",string.format("%s_relay",p.launch_countdown),string.format("Launch: %i",launch_seconds),1)
+					p:addCustomInfo("Operations",string.format("%s_ops",p.launch_countdown),string.format("Launch: %i",launch_seconds),1)
 				end
 			end
 		end
 	end
 end
---[[
-function updatePlayerCarrierSpaceGroup(delta,p)
-	if p.launch_bay == "empty" then
-		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
-			if fighter_details.state == "aboard" then
-				if p:hasPlayerAtPosition("Science") then
-					p:addCustomButton("Science",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
-						p.launch_start_message = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-						p:addCustomMessage("Science",p.launch_start_message,p.launch_start_message)
-						for f_name, f_details in pairs(p.carrier_space_group) do
-							p:removeCustom(f_details.launch_button)
-						end
-						p.launch_bay = "loaded"
-						fighter_details.state = "charge"
-					end)
-				end
-				if p:hasPlayerAtPosition("Operations") then
-					p:addCustomButton("Operations",fighter_details.launch_button,string.format("Launch %s",fighter_name),function()
-						p.launch_start_message_ops = string.format("Launch started for %s\nNext step: Engineering to charge launch systems",fighter_name)
-						p:addCustomMessage("Operations",p.launch_start_message_ops,p.launch_start_message_ops)
-						for f_name, f_details in pairs(p.carrier_space_group) do
-							p:removeCustom(f_details.launch_button)
-						end
-						p.launch_bay = "loaded"
-						fighter_details.state = "charge"
-					end)
-				end
-			end
-		end
-	elseif p.launch_bay == "loaded" then
-		for fighter_name, fighter_details in pairs(p.carrier_space_group) do
-			if fighter_details.state == "charge" then
-				p.charge_launch = "charge_launch"
-				if p:hasPlayerAtPosition("Engineering") then
-					p:addCustomButton("Engineering",p.charge_launch,"Charge Launch Sys",function()
-						if p:getEnergyLevel() > 50 then
-							p.launch_timer = 20
-							p:setEnergyLevel(p:getEnergyLevel() - 50)
-							p.launch_charged_message = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
-							p:addCustomMessage("Engineering",p.launch_charged_message,p.launch_charged_message)
-							p:removeCustom(p.charge_launch)
-							fighter_details.state = "gather"
-						else
-							p.insufficient_launch_charge_energy_message = "insufficient_launch_charge_energy_message"
-							p:addCustomMessage("Engineering",p.insufficient_launch_charge_energy_message,"Insufficient energy to charge launch systems")
-						end
-					end)
-				end
-				if p:hasPlayerAtPosition("Engineering+") then
-					p:addCustomButton("Engineering+",p.charge_launch,"Charge Launch Sys",function()
-						if p:getEnergyLevel() > 50 then
-							p.launch_timer = 20		--final:10
-							p:setEnergyLevel(p:getEnergyLevel() - 50)
-							p.launch_charged_message_plus = string.format("Launch systems charged.\nStanding by to launch %s in %i seconds.\nNext step: personnel to take fighter station(s)",fighter_name,p.launch_timer)
-							p:addCustomMessage("Engineering+",p.launch_charged_message_plus,p.launch_charged_message_plus)
-							p:removeCustom(p.charge_launch)
-							fighter_details.state = "gather"
-						else
-							p.insufficient_launch_charge_energy_message_plus = "insufficient_launch_charge_energy_message_plus"
-							p:addCustomMessage("Engineering+",p.insufficient_launch_charge_energy_message_plus,"Insufficient energy to charge launch systems")
-						end
-					end)
-				end
-			end
-			if fighter_details.state == "gather" then
-				p.launch_timer = p.launch_timer - delta
-				if p.launch_timer < 0 then
-					if p.launch_countdown ~= nil then
-						p:removeCustom(p.launch_countdown)
-						p.launch_countdown = nil
-					end
-					if p.helm_equivalent ~= nil and p.weapons_equivalent ~= nil then
-						local fx, fy = p:getPosition()
-						local fighter = fighter_details.create(fighter_details.template)
-						fighter:setPosition(fx,fy):setCallSign(fighter_name)
-						for _, transfer in ipairs(p.transfer_map) do
-							p:transferPlayersAtPositionToShip(transfer.carrier,fighter,transfer.fighter)
-							local transfer_message = "transfer_message" .. transfer.carrier
-							fighter:addCustomMessage(transfer.carrier,transfer_message,string.format("You have been transferred to %s\nPlease take the %s console",fighter:getCallSign(),transfer.fighter))
-						end
-						fighter.transfer_map = p.transfer_map
-						carrier_deployed_fighter[fighter_name] = {carrier = p, fighter = fighter}
-						fighter_details.state = "deployed"
-						p:addToShipLog(string.format("Launch of %s complete",fighter_name),"Green")
-					else
-						p:setEnergyLevel(math.min(p:getEnergyLevelMax(),p:getEnergyLevel() + 50))
-						fighter_details.state = "aboard"
-						p:addToShipLog("Launch cancelled due to lack of personnel","Yellow")
-					end
-					p.launch_bay = "empty"
-					if p.science_button_removal ~= nil then
-						for button_name, button_string in pairs(p.science_button_removal) do
-							p:removeCustom(button_name)
-						end
-						p.science_button_removal = nil
-					end
-					if p.helm_button_removal ~= nil then
-						for button_name, button_string in pairs(p.helm_button_removal) do
-							p:removeCustom(button_name)
-						end
-						p.helm_button_removal = nil
-					end
-					if p.engineering_button_removal ~= nil then
-						for button_name, button_string in pairs(p.engineering_button_removal) do
-							p:removeCustom(button_name)
-						end
-						p.engineering_button_removal = nil
-					end
-					if p.weapons_equivalent == nil and p.helm_equivalent then
-						for _, cons in ipairs(console_list) do
-							if p[cons] ~= nil then
-								p:removeCustom(p[cons])
-							end
-						end
-					end
-					p.helm_equivalent = nil
-					p.weapons_equivalent = nil
-					p.transfer_map = nil
-				else
-					local button_name = ""
-					if p:hasPlayerAtPosition("Relay") then
-						p.launch_countdown = "launch_countdown"
-						p:addCustomInfo("Relay",p.launch_countdown,string.format("Launch: %i",math.floor(p.launch_timer)))
-					end
-					if p.transfer_map == nil then
-						p.transfer_map = {}
-					end
-					if p.helm_equivalent == nil then
-						p.helm_button_removal = {}
-						for _, console in ipairs(console_list) do
-							if p:hasPlayerAtPosition(console) then
-								button_name = console .. "helm"
-								p.helm_button_removal[button_name] = button_name
-								p:addCustomButton(console,button_name,string.format("%s Helm",fighter_name),function()
-									string.format("")
-									table.insert(p.transfer_map,{carrier = console, fighter = "Helms"})
-									p.helm_equivalent = true
-									for button_name, button_string in pairs(p.helm_button_removal) do
-										p:removeCustom(button_name)
-									end
-									p.helm_button_removal = nil
-								end)
-								button_name = console .. "tactical"
-								p.helm_button_removal[button_name] = button_name
-								p:addCustomButton(console,button_name,string.format("%s Tactical",fighter_name),function()
-									string.format("")
-									table.insert(p.transfer_map,{carrier = console, fighter = "Tactical"})
-									p.helm_equivalent = true
-									p.weapons_equivalent = true
-									for button_name, button_string in pairs(p.helm_button_removal) do
-										p:removeCustom(button_name)
-									end
-									p.helm_button_removal = nil
-								end)
-								button_name = console .. "singlepilot"
-								p.helm_button_removal[button_name] = button_name
-								p:addCustomButton(console,button_name,string.format("%s Single Pilot",fighter_name),function()
-									string.format("")
-									table.insert(p.transfer_map,{carrier = console, fighter = "SinglePilot"})
-									p.helm_equivalent = true
-									p.weapons_equivalent = true
-									p.relay_equivalent = true
-									for button_name, button_string in pairs(p.helm_button_removal) do
-										p:removeCustom(button_name)
-									end
-									p.helm_button_removal = nil
-								end)
-							end
-						end
-					elseif p.weapons_equivalent == nil and p.helm_equivalent then
-						for _, console in ipairs(console_list) do
-							local already_chosen = false
-							for _, transfer in ipairs(p.transfer_map) do
-								if console == transfer.carrier then
-									already_chosen = true
-									break
-								end
-							end
-							if not already_chosen then
-								if p:hasPlayerAtPosition(console) then
-									p[console] = console
-									p:addCustomButton(console,p[console],string.format("%s Weapons",fighter_name),function()
-										string.format("")
-										table.insert(p.transfer_map,{carrier = console, fighter = "Weapons"})
-										p.weapons_equivalent = true
-										for _, cons in ipairs(console_list) do
-											if p[cons] ~= nil then
-												p:removeCustom(p[cons])
-											end
-										end
-									end)
-								end
-							end
-						end
-					elseif p.engineering_equivalent == nil and p.helm_equivalent and p.weapons_equivalent then
-						p.engineering_button_removal = {}
-						for _, console in ipairs(console_list) do
-							local already_chosen = false
-							for _, transfer in ipairs(p.transfer_map) do
-								if console == transfer.carrier then
-									already_chosen = true
-									break
-								end
-							end
-							if not already_chosen then
-								if p:hasPlayerAtPosition(console) then
-									button_name = console .. "engineering"
-									p.engineering_button_removal[button_name] = button_name
-									p:addCustomButton(console,button_name,string.format("%s Engineering",fighter_name),function()
-										string.format("")
-										table.insert(p.transfer_map,{carrier = console, fighter = "Engineering"})
-										p.engineering_equivalent = true
-										for button_name, button_string in pairs(p.engineering_button_removal) do
-											p:removeCustom(button_name)
-										end
-										p.engineering_button_removal = nil
-									end)
-									button_name = console .. "engineeringplus"
-									p.engineering_button_removal[button_name] = button_name
-									p:addCustomButton(console,button_name,string.format("%s Engineering+",fighter_name),function()
-										string.format("")
-										table.insert(p.transfer_map,{carrier = console, fighter = "Engineering+"})
-										p.engineering_equivalent = true
-										for button_name, button_string in pairs(p.engineering_button_removal) do
-											p:removeCustom(button_name)
-										end
-										p.engineering_button_removal = nil
-									end)
-								end
-							end
-						end
-					elseif p.science_equivalent == nil and p.helm_equivalent and p.weapons_equivalent and p.engineering_equivalent then
-						p.science_button_removal = {}
-						for _, console in ipairs(console_list) do
-							local already_chosen = false
-							for _, transfer in ipairs(p.transfer_map) do
-								if console == transfer.carrier then
-									already_chosen = true
-									break
-								end
-							end
-							if not already_chosen then
-								if p:hasPlayerAtPosition(console) then
-									button_name = console .. "science"
-									p.science_button_removal[button_name] = button_name
-									p:addCustomButton(console,button_name,string.format("%s Science",fighter_name),function()
-										string.format("")
-										table.insert(p.transfer_map,{
-											carrier = console, 
-											fighter = "Science"
-										})
-										p.science_equivalent = true
-										for button_name, button_string in pairs(p.science_button_removal) do
-											p:removeCustom(button_name)
-										end
-										p.science_button_removal = nil
-									end)
-									if not p.relay_equivalent then
-										button_name = console .. "relay"
-										p.science_button_removal[button_name] = button_name
-										p:addCustomButton(console,button_name,string.format("%s Relay",fighter_name),function()
-											string.format("")
-											table.insert(p.transfer_map,{carrier = console, fighter = "Relay"})
-											p.relay_equivalent = true
-											for button_name, button_string in pairs(p.science_button_removal) do
-												p:removeCustom(button_name)
-											end
-											p.science_button_removal = nil
-										end)
-										button_name = console .. "operations"
-										p.science_button_removal[button_name] = button_name
-										p:addCustomButton(console,button_name,string.format("%s Operations",fighter_name),function()
-											string.format("")
-											table.insert(p.transfer_map,{carrier = console, fighter = "Operations"})
-											p.science_equivalent = true
-											p.relay_equivalent = true
-											for button_name, button_string in pairs(p.science_button_removal) do
-												p:removeCustom(button_name)
-											end
-											p.science_button_removal = nil
-										end)
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-end
---]]
 function catchEpjamMissile(p)
 	if getScenarioTime() > p.epjam_recharge then
 		p.epjam_button_wea = "epjam_button_wea"
@@ -65618,6 +66127,38 @@ function updatePlayerMagnasolHeat(delta,p)
 		end
 	end
 end
+--	carrier ship inventory description - attached to player ship carrier object
+--	organized by integer
+--	name:			ship call sign
+--	template:		name of template used to create ship
+--	ship:			ship object when created/deployed
+--	state:			aboard		fighter aboard the carrier
+--					charge		weapons clicked launch, waiting for engineer to charge launcher
+--					gather		launcher charged, countdown to deployment
+--					deployed	fighter created/deployed
+--	launch_button:	string for button management on the carrier - launch_shipName
+--	class:			class of ship (eg Starfighter, Frigate, Corvette, Dreadnought)
+--	max_health:		table based on systems with a value for the max health of each system
+--	max_ordnance:	table based on ordnance type with a value for the max of each ordnance type
+--	ordnance_level:	table based on ordnance type with a value for the current level of each ordnance type
+--	repair:			time when repairs are complete
+
+--	carrier space group description
+--	organized by fighter name
+--	state:	values:	"aboard"	fighter is aboard the carrier
+--					"charge"	weapons has clicked the launch button and the fighter is waiting for engineering to charge the launch system
+--					"gather"	about to launch, gathering crew to board after deployment
+--					"deployed"	fighter created adjacent to the carrier waiting for players to board
+--	repair:	
+function retractFighterIntoCarrier(fighter,carrier)
+	for i=0,15 do
+		fighter:setTubeLoadTime(i,0)
+		fighter:commandUnloadTube(i)
+	end
+	if fighter.retraction_cycle_count == nil then
+		fighter.retraction_cycle_count = 0
+	end
+end
 function updateCarrierDeployedFighter(delta)
 	for fighter_name, fighter_details in pairs(carrier_deployed_fighter) do
 		local fighter = fighter_details.fighter
@@ -65642,100 +66183,113 @@ function updateCarrierDeployedFighter(delta)
 					end
 				end
 				if dock_banner then
-					fighter.dock_banner = string.format("%s_dock_banner",fighter_name)
-					local vx, vy = fighter:getVelocity()
-					local fighter_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
-					vx, vy = carrier:getVelocity()
-					local carrier_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
-					local dock_status = string.format("Match Bear:%.1f Vel:%.1f",fighter_heading - carrier_heading,fighter_velocity - carrier_velocity)
-					if math.abs(fighter_heading - carrier_heading) < 1 then
-						if math.abs(fighter_velocity - carrier_velocity) < 1 then
-							if fighter.retract_timer == nil then
-								fighter.retract_timer = fighter.retract_time
+					if fighter.retraction_cycle_count ~= nil then
+						if fighter.retraction_cycle_count < 5 then
+							fighter.retraction_cycle_count = fighter.retraction_cycle_count + 1
+						else
+							local transfer_map = {}
+							local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
+							for _, console in ipairs(consoles) do
+								if fighter:hasPlayerAtPosition(console) then
+									table.insert(transfer_map,console)
+								end
 							end
-							fighter.retract_timer = fighter.retract_timer - delta
-							if fighter.retract_timer < 0 then
-								dock_status = string.format("%s   0",dock_status)
-								fighter.dock_with_carrier_button = "dock_with_carrier_button"
-								fighter:addCustomButton("Helms",string.format("%s_helm",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
-									local transfer_map = {}
-									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
-									for _, console in ipairs(consoles) do
-										if fighter:hasPlayerAtPosition(console) then
-											table.insert(transfer_map,console)
-										end
+							fighter:transferPlayersToShip(carrier)
+							local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+							local repair_delay = 0
+							local carrier_ship = nil
+							for i,ship in ipairs(carrier.carrier_ship_inventory) do
+								if fighter == ship.ship then
+									carrier_ship = ship
+								end
+							end
+							for i,system in ipairs(repair_systems) do
+								if carrier_ship.max_health == nil then
+									carrier_ship.max_health = {}
+								end
+								if fighter:getSystemHealthMax(system) == 1 then
+									carrier_ship.max_health[system] = nil
+								else
+									carrier_ship.max_health[system] = fighter:getSystemHealthMax(system)
+								end
+								repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
+							end
+							repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
+							local restock_gap = false
+							for i,missile_type in ipairs(missile_types) do
+								if fighter:getWeaponStorageMax(missile_type) > 0 then
+									if carrier:getWeaponStorage(missile_type) < (fighter:getWeaponStorageMax(missile_type) - fighter:getWeaponStorage(missile_type)) then
+										restock_gap = true
 									end
-									fighter:transferPlayersToShip(carrier)
-									local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
-									local repair_delay = 0
-									for i,system in ipairs(repair_systems) do
-										repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
-									end
-									repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
-									local mine_count = fighter:getWeaponStorage("Mine")
-									fighter:destroy()
-									carrier.carrier_space_group[fighter_name].state = "aboard"
-									carrier.carrier_space_group[fighter_name].repair = math.max(30,repair_delay)
-									carrier.carrier_space_group[fighter_name].mine = mine_count
-									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
-									carrier_deployed_fighter[fighter_name] = nil
-									for _, console in ipairs(transfer_map) do
-										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
-									end
-								end,18)
-								fighter:addCustomButton("Tactical",string.format("%s_tac",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
-									local transfer_map = {}
-									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
-									for _, console in ipairs(consoles) do
-										if fighter:hasPlayerAtPosition(console) then
-											table.insert(transfer_map,console)
-										end
-									end
-									fighter:transferPlayersToShip(carrier)
-									local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
-									local repair_delay = 0
-									for i,system in ipairs(repair_systems) do
-										repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
-									end
-									repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
-									local mine_count = fighter:getWeaponStorage("Mine")
-									fighter:destroy()
-									carrier.carrier_space_group[fighter_name].state = "aboard"
-									carrier.carrier_space_group[fighter_name].repair = math.max(30,repair_delay)
-									carrier.carrier_space_group[fighter_name].mine = mine_count
-									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
-									carrier_deployed_fighter[fighter_name] = nil
-									for _, console in ipairs(transfer_map) do
-										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
-									end
-								end,18)
-								fighter:addCustomButton("Single",string.format("%s_one",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
-									local transfer_map = {}
-									local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
-									for _, console in ipairs(consoles) do
-										if fighter:hasPlayerAtPosition(console) then
-											table.insert(transfer_map,console)
-										end
-									end
-									fighter:transferPlayersToShip(carrier)
-									local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
-									local repair_delay = 0
-									for i,system in ipairs(repair_systems) do
-										repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
-									end
-									repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
-									fighter:destroy()
-									carrier.carrier_space_group[fighter_name].state = "aboard"
-									carrier.carrier_space_group[fighter_name].repair = math.max(30,repair_delay)
-									carrier.carrier_space_group[fighter_name].mine = mine_count
-									carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
-									carrier_deployed_fighter[fighter_name] = nil
-									for _, console in ipairs(transfer_map) do
-										carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",fighter_name,carrier:getCallSign()))
-									end
-								end,18)
+								end
+							end
+							if restock_gap then
+								if carrier_ship.ordnance_level == nil then
+									carrier_ship.ordnance_level = {}
+								end
+								if carrier_ship.max_ordnance == nil then
+									carrier_ship.max_ordnance = {}
+								end
 							else
-								dock_status = string.format("%s   %.1f",dock_status,fighter.retract_timer)
+								carrier_ship.ordnance_level = {}
+								carrier_ship.max_ordnance = {}
+							end
+							for i,missile_type in ipairs(missile_types) do
+								if fighter:getWeaponStorageMax(missile_type) > 0 then
+									if restock_gap then
+										carrier_ship.ordnance_level[missile_type] = fighter:getWeaponStorage(missile_type)
+										carrier_ship.max_ordnance[missile_type] = fighter:getWeaponStorageMax(missile_type)
+									else
+										carrier:setWeaponStorage(missile_type,carrier:getWeaponStorage(missile_type) - (fighter:getWeaponStorageMax(missile_type) - fighter:getWeaponStorage(missile_type)))
+									end
+								end
+							end
+							fighter:destroy()
+							carrier_ship.state = "aboard"
+							carrier_ship.repair_timer = getScenarioTime() + math.max(30,repair_delay)
+							carrier:addToShipLog(string.format("%s has been retrieved",carrier_ship.name),"Green")
+							carrier_deployed_fighter[carrier_ship.name] = nil
+							for _, console in ipairs(transfer_map) do
+								carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",carrier_ship.name,carrier:getCallSign()))
+							end
+						end
+					end
+					if fighter ~= nil and fighter:isValid() then
+						fighter.dock_banner = string.format("%s_dock_banner",fighter_name)
+						local vx, vy = fighter:getVelocity()
+						local fighter_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+						vx, vy = carrier:getVelocity()
+						local carrier_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+						local dock_status = string.format("Match Bear:%.1f Vel:%.1f",fighter_heading - carrier_heading,fighter_velocity - carrier_velocity)
+						if math.abs(fighter_heading - carrier_heading) < 1 then
+							if math.abs(fighter_velocity - carrier_velocity) < 1 then
+								if fighter.retract_timer == nil then
+									fighter.retract_timer = getScenarioTime() + fighter.retract_time
+								end
+								if getScenarioTime() > fighter.retract_timer then
+									dock_status = string.format("%s   0",dock_status)
+									fighter.dock_with_carrier_button = "dock_with_carrier_button"
+									fighter:addCustomButton("Helms",string.format("%s_helm",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+										retractFighterIntoCarrier(fighter,carrier)
+									end,18)
+									fighter:addCustomButton("Tactical",string.format("%s_tac",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+										retractFighterIntoCarrier(fighter,carrier)
+									end,18)
+									fighter:addCustomButton("Single",string.format("%s_one",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+										retractFighterIntoCarrier(fighter,carrier)
+									end,18)
+								else
+									local display_time = getScenarioTime() - fighter.retract_timer
+									dock_status = string.format("%s   %.1f",dock_status,display_time)
+									if fighter.dock_with_carrier_button ~= nil then
+										fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+										fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+										fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+										fighter.dock_with_carrier_button = nil
+										fighter.retract_timer = nil
+									end
+								end
+							else
 								if fighter.dock_with_carrier_button ~= nil then
 									fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
 									fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
@@ -65753,17 +66307,9 @@ function updateCarrierDeployedFighter(delta)
 								fighter.retract_timer = nil
 							end
 						end
-					else
-						if fighter.dock_with_carrier_button ~= nil then
-							fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
-							fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
-							fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
-							fighter.dock_with_carrier_button = nil
-							fighter.retract_timer = nil
-						end
+						fighter:addCustomInfo("Helms",string.format("%s_helm",fighter.dock_banner),dock_status,5)
+						fighter:addCustomInfo("Tactical",string.format("%s_tac",fighter.dock_banner),dock_status,5)
 					end
-					fighter:addCustomInfo("Helms",string.format("%s_helm",fighter.dock_banner),dock_status,5)
-					fighter:addCustomInfo("Tactical",string.format("%s_tac",fighter.dock_banner),dock_status,5)
 				else
 					if fighter.dock_banner ~= nil then
 						fighter:removeCustom(string.format("%s_helm",fighter.dock_banner))
@@ -65901,64 +66447,6 @@ function updatePlayerLockBanners(p)
 		end
 	end
 end
---[[
-function updateCarrierDeployedFighter(delta)
-	for fighter_name, fighter_details in pairs(carrier_deployed_fighter) do
-		if fighter_details.fighter ~= nil and fighter_details.fighter:isValid() then
-			if fighter_details.carrier ~= nil and fighter_details.carrier:isValid() then
-				if fighter_details.fighter:isDocked(fighter_details.carrier) then
-					if fighter_details.fighter.retract_timer == nil then
-						fighter_details.fighter.retract_timer = 10
-					end
-					fighter_details.fighter.retract_timer = fighter_details.fighter.retract_timer - delta
-					if fighter_details.fighter:hasPlayerAtPosition("Helms") then
-						fighter_details.fighter.retract_countdown = "retract_countdown"
-						fighter_details.fighter:addCustomInfo("Helms",fighter_details.fighter.retract_countdown,string.format("Retract: %i",math.floor(fighter_details.fighter.retract_timer)))
-					end
-					if fighter_details.fighter:hasPlayerAtPosition("Tactical") then
-						fighter_details.fighter.retract_countdown_tactical = "retract_countdown_tactical"
-						fighter_details.fighter:addCustomInfo("Tactical",fighter_details.fighter.retract_countdown_tactical,string.format("Retract: %i",math.floor(fighter_details.fighter.retract_timer)))
-					end
-					if fighter_details.fighter:hasPlayerAtPosition("SinglePilot") then
-						fighter_details.fighter.retract_countdown_singlepilot = "retract_countdown_singlepilot"
-						fighter_details.fighter:addCustomInfo("Tactical",fighter_details.fighter.retract_countdown_singlepilot,string.format("Retract: %i",math.floor(fighter_details.fighter.retract_timer)))
-					end
-					if fighter_details.fighter.retract_timer < 0 then
-						for _, transfer in pairs(fighter_details.fighter.transfer_map) do
-							fighter_details.fighter:transferPlayersAtPositionToShip(transfer.fighter,fighter_details.carrier,transfer.carrier)
-							local transfer_message = "transfer_message" .. transfer.fighter
-							fighter_details.carrier:addCustomMessage(transfer.fighter,transfer_message,string.format("Crew returning from %s should resume their previous console, %s",fighter_name,transfer.carrier))
-						end
-						fighter_details.fighter:transferPlayersToShip(fighter_details.carrier)
-						fighter_details.fighter:destroy()
-						fighter_details.carrier.carrier_space_group[fighter_name].state = "aboard"
-						fighter_details.carrier:addToShipLog(string.format("%s has been retrieved",fighter_name),"Green")
-						carrier_deployed_fighter[fighter_name] = nil
-					end
-				else
-					fighter_details.fighter.retract_timer = nil
-					if fighter_details.fighter.retract_countdown ~= nil then
-						fighter_details.fighter:removeCustom(fighter_details.fighter.retract_countdown)
-						fighter_details.fighter.retract_countdown = nil
-					end
-					if fighter_details.fighter.retract_countdown_tactical ~= nil then
-						fighter_details.fighter:removeCustom(fighter_details.fighter.retract_countdown_tactical)
-						fighter_details.fighter.retract_countdown_tactical = nil
-					end
-					if fighter_details.fighter.retract_countdown_singlepilot ~= nil then
-						fighter_details.fighter:removeCustom(fighter_details.fighter.retract_countdown_singlepilot)
-						fighter_details.fighter.retract_countdown_singlepilot = nil
-					end
-				end
-			else
-				carrier_deployed_fighter[fighter_name] = nil
-			end
-		else
-			carrier_deployed_fighter[fighter_name] = nil
-		end
-	end
-end
---]]
 function updateJumpTrain()
 	if #jump_train > 0 then
 		for index, ship in ipairs(jump_train) do
