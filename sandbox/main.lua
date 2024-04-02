@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.30.1"
+	scenario_version = "6.31.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -25549,6 +25549,9 @@ function showCarrierShipInventory()
 			end
 			for i,ship in ipairs(p.carrier_ship_inventory) do
 				out = string.format("%s\n%s %s Strength:%s State:%s",out,ship.name,ship.template,playerShipStats[ship.template].strength,ship.state)
+				if ship.state == "deployed" and (ship.ship == nil or not ship.ship:isValid()) then
+					out = string.format("%s (destroyed)",out)
+				end
 			end
 			addGMMessage(out)
 		else
@@ -32644,7 +32647,7 @@ function assignPlayerShipScore(p)
 		string.format("")
 		securityReport(p,"Relay")
 	end,42)
-	p.security_report_button_ops = "secursecurity_report_button_opsity_report_button_rel"
+	p.security_report_button_ops = "security_report_button_ops"
 	p:addCustomButton("Operations",p.security_report_button_ops,"Security Report",function()
 		string.format("")
 		securityReport(p,"Operations")
@@ -54628,7 +54631,10 @@ function stationDefenseFleet(calling_function)
 			["Large Station"] = 5,
 			["Huge Station"] = 10,
 		}
-		local adjustment = size_matters[station_type]
+		local adjustment = size_matters[station_type]	--problem child - adjustment nil
+		if adjustment == nil then
+			adjustment = 0
+		end
 		comms_target.comms_data.idle_defense_fleet = {["DF1"] =  "MT52 Hornet"}
 		if random(1,100) < (95 + adjustment) then
 			comms_target.comms_data.idle_defense_fleet["DF2"] = "MU52 Hornet"
@@ -54811,7 +54817,7 @@ function androidUndockedStationCommsMeat()
 			android_undocked_station_request_reinforcements = getScenarioTime()
 		end
 	end
-	addCommsReply(_("Back"), commsStation)
+--	addCommsReply(_("Back"), commsStation)	--problem child - no setCommsMessage
 end
 function interactiveUndockedStationComms()
 	addCommsReply("Interact with station relay officer on duty",interactiveUndockedStationCommsMeat)
@@ -54951,14 +54957,18 @@ function catalogImprovements(msg)
 		{name = "HVLI",		desc = _("situationReport-comms","HVLIs")},
 	}
 	for i,m_type in ipairs(missile_types_desc) do
-		if comms_target.comms_data.weapon_available[m_type.name] then
-			if missile_provision_msg == _("situationReport-comms","Ordnance available:") then
-				missile_provision_msg = string.format(_("situationReport-comms","%s %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
-			else
-				missile_provision_msg = string.format(_("situationReport-comms","%s, %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
-			end
+		if comms_target.comms_data.weapon_available == nil then
+			print("weapon available for station",comms_target:getCallSign(),"is nil")
 		else
-			table.insert(improvements,m_type.name)
+			if comms_target.comms_data.weapon_available[m_type.name] then	--problem child weapon_available is nil
+				if missile_provision_msg == _("situationReport-comms","Ordnance available:") then
+					missile_provision_msg = string.format(_("situationReport-comms","%s %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
+				else
+					missile_provision_msg = string.format(_("situationReport-comms","%s, %s@%i rep"),missile_provision_msg,m_type.desc,getWeaponCost(m_type.name))
+				end
+			else
+				table.insert(improvements,m_type.name)
+			end
 		end
 	end
 	if missile_provision_msg == _("situationReport-comms","Ordnance available:") then
@@ -58959,9 +58969,15 @@ function restockShip()
 	if comms_source:isFriendly(comms_target) then
 		getRepairCrewFromStation("friendly")
 		getCoolantFromStation("friendly")
+		if comms_source.carrier_ship_inventory ~= nil then
+			getReplacementFighterFromStation("friendly")
+		end
 	else
 		getRepairCrewFromStation("neutral")
 		getCoolantFromStation("neutral")
+		if comms_source.carrier_ship_inventory ~= nil then
+			getReplacementFighterFromStation("neutral")
+		end
 	end
 	if restock_ship_interactive_back == nil or getScenarioTime() > restock_ship_interactive_back + comms_fudge then
 		addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
@@ -59460,6 +59476,122 @@ function getCoolantFromStation(relationship)
 				request_coolant_comms_back = getScenarioTime()
 			end
 		end)
+	end
+	return presented_option
+end
+function getReplacementFighterFromStation(relationship)
+	local presented_option = false
+	if #comms_source.carrier_ship_inventory > 0 then
+		local ship_capacity = 0
+		local ship_inventory = 0
+		local replacement_templates = {}
+		for i,carrier_ship in ipairs(comms_source.carrier_ship_inventory) do
+			if carrier_ship.state == "deployed" then
+				if carrier_ship.ship ~= nil and carrier_ship.ship:isValid() then
+					ship_inventory = ship_inventory + 1
+				else
+					table.insert(replacement_templates,carrier_ship.template)
+				end
+				ship_capacity = ship_capacity + 1
+			else
+				ship_capacity = ship_capacity + 1
+				ship_inventory = ship_inventory + 1
+			end
+		end
+		if ship_capacity > ship_inventory then
+			presented_option = true
+			addCommsReply("Replace fighter",function()
+				setCommsMessage("Feature under construction. Talk to GM")
+				if comms_target.replacement_fighters == nil then
+					comms_target.replacement_fighters = {}
+					for i,template in ipairs(replacement_templates) do
+						table.insert(comms_target.replacement_fighters,{template = template, quantity = math.random(1,3), cost = math.floor(playerShipStats[template].strength * random(3,5))})
+					end
+					local template_pool = {}
+					for template,details in pairs(comms_source.carrier_ship_types) do
+						if details.carry then
+							local in_replacement_list = false
+							for i,replacement in ipairs(comms_target.replacement_fighters) do
+								if replacement.template == template then
+									in_replacement_list = true
+									break
+								end
+							end
+							if not in_replacement_list then
+								table.insert(template_pool,template)
+							end
+						end
+					end
+					if random(1,100) < 63 then
+						local selected_template = tableRemoveRandom(template_pool)
+						table.insert(comms_target.replacement_fighters,{template = selected_template, quantity = math.random(1,3), cost = math.floor(playerShipStats[selected_template].strength * random(3,5))})
+						if random(1,100) < 21 then
+							selected_template = tableRemoveRandom(template_pool)
+							table.insert(comms_target.replacement_fighters,{template = selected_template, quantity = math.random(1,3), cost = math.floor(playerShipStats[selected_template].strength * random(3,5))})
+						end
+					end
+				end
+				print("replacement fighters at",comms_target:getCallSign())
+				for i,replacement in ipairs(comms_target.replacement_fighters) do
+					print(replacement.template,"quantity:",replacement.quantity,"cost:",replacement.cost)
+				end
+				local fighter_available_count = 0
+				local unique_templates_available = 0
+				for i,replacement in ipairs(comms_target.replacement_fighters) do
+					if replacement.quantity > 0 then
+						unique_templates_available = unique_templates_available + 1
+						fighter_available_count = fighter_available_count + replacement.quantity
+						addCommsReply(string.format("%s %i reputation",replacement.template,replacement.cost),function()
+							if comms_source:takeReputationPoints(replacement.cost) then
+								for i,carrier_ship in ipairs(comms_source.carrier_ship_inventory) do
+									if carrier_ship.state == "deployed" then
+										if carrier_ship.ship == nil or not carrier_ship.ship:isValid() then
+											comms_source.carrier_ship_inventory[i] = comms_source.carrier_ship_inventory[#comms_source.carrier_ship_inventory]
+											comms_source.carrier_ship_inventory[#comms_source.carrier_ship_inventory] = nil
+											break
+										end
+									end
+								end
+								local ship = comms_source.carrier_ship_types[replacement.template]
+								local ship_name = tableRemoveRandom(carrier_ship_names[replacement.template])
+								if ship_name == nil then
+									local class_pool = {}
+									for ship_type_name,ship_type_details in pairs(p.carrier_ship_types) do
+										if ship.class == ship_type_details.class then
+											if #carrier_ship_names[ship_type_name] > 0 then
+												table.insert(class_pool,ship_type_name)
+											end
+										end
+									end
+									local selected_template = tableRemoveRandom(class_pool)
+									ship_name = tableRemoveRandom(carrier_ship_names[selected_template])
+								end
+								table.insert(comms_source.carrier_ship_inventory,{
+									class = ship.class, 
+									template = ship.name, 
+									name = ship_name, 
+									state = "aboard", 
+									launch_button = string.format("launch_%s",ship_name),
+									launch_time = carrier_class_launch_time[ship.class],
+								})
+								setCommsMessage(string.format("%s is part of your fighter inventory",ship_name))
+							else
+								setCommsMessage("Insufficient reputation")
+							end
+						end)
+					end
+				end
+				setCommsMessage(string.format("%i fighters available, %i different types",fighter_available_count,unique_templates_available))
+				if request_fighter_interactive_back == nil or getScenarioTime() > request_fighter_interactive_back + comms_fudge then
+					addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+					request_fighter_interactive_back = getScenarioTime()
+				end
+				if request_fighter_comms_back == nil or getScenarioTime() > request_fighter_comms_back + comms_fudge then
+					addCommsReply(_("Back to station communication"), commsStation)
+					request_fighter_comms_back = getScenarioTime()
+				end
+			end)
+		end
 	end
 	return presented_option
 end
