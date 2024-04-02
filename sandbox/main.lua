@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.31.1"
+	scenario_version = "6.31.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1764,8 +1764,8 @@ function setConstants()
 	makePlayerShipActive("Manxman")			--J
 	makePlayerShipActive("Wiggy") 			--J 
 	makePlayerShipActive("Quicksilver")		--W
-	makePlayerShipActive("Devon")			--W
-	makePlayerShipActive("Spike") 			--W 
+	makePlayerShipActive("Florentine")		--W
+	makePlayerShipActive("Quill") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -3063,7 +3063,7 @@ function createSkeletonUniverse()
 	--Teresh
 	teresh_x = 791712
 	teresh_y = 110775
-    stationTeresh = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCallSign("Teresh"):setPosition(teresh_x, teresh_y):setCommsScript(""):setDescription("Regional CUF HQ"):setCommsFunction(commsStation)
+    stationTeresh = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setCallSign("Teresh 2"):setPosition(teresh_x, teresh_y):setCommsScript(""):setDescription("Regional CUF HQ"):setCommsFunction(commsStation)
 	stationTeresh:setShortRangeRadarRange(25000)
     stationTeresh.comms_data = {
     	friendlyness = 75,
@@ -20091,6 +20091,9 @@ function tereshSector()
 		elseif i == 5 then
 			tdp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
 			tdp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 1 then
+			tdp1Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp1")
+			tdp1Zone:setColor(0,128,0):setLabel("1")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			setBeamColor(dp)
@@ -29703,8 +29706,8 @@ function createPlayerShipFlorentine()
 	playerSafari = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Florentine")
 	setBeamColor(playerSafari)
 	playerSafari:setTypeName("Safari")
-	playerSafari:setShieldsMax(100, 60)					--stronger front, weaker rear (vs 70, 70)
-	playerSafari:setShields(100, 60)
+	playerSafari:setShieldsMax(110, 80)					--stronger front, weaker rear (vs 70, 70)
+	playerSafari:setShields(110, 80)
 --                 			      Arc, Dir, Range, CycleTime, Damage
 	playerSafari:setBeamWeapon(0,  10,   0,	1200, 		6.0, 	6.0)	--1 forward, 1 turret (vs 2 rear)
 	playerSafari:setBeamWeapon(1,  40,   0,	 600, 		8.0,   12.0)	--shorter (vs 1200), more damage (vs 6), slower (vs 6)
@@ -30754,8 +30757,8 @@ function createPlayerShipQuill()
 	playerQuill:setBeamWeapon(2, 5,  90+35,1100.0, 	   6.0,   6)
 		:setBeamWeaponTurret(2,	45,   90+35,.1)
 	playerQuill:setWarpSpeed(300)			--slower (vs 500)
-	playerQuill:setShieldsMax(100, 100)		--stronger (vs 70,70)
-	playerQuill:setShields(120, 120)
+	playerQuill:setShieldsMax(130, 130)		--stronger (vs 70,70)
+	playerQuill:setShields(130, 130)
 	playerQuill:setLongRangeRadarRange(25000)
 	playerQuill.normal_long_range_radar = 25000
 	playerQuill:onTakingDamage(playerShipDamage)
