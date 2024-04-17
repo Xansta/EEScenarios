@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.31.2"
+	scenario_version = "6.32.1"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1760,7 +1760,7 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("George")			--J
+	makePlayerShipActive("Hearken")			--J
 	makePlayerShipActive("Manxman")			--J
 	makePlayerShipActive("Wiggy") 			--J 
 	makePlayerShipActive("Quicksilver")		--W
@@ -20079,10 +20079,7 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
-		if i == 4 then
-			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
-			tdp4Zone:setColor(0,128,0):setLabel("4")
-		elseif i == 2 then
+		if i == 2 then
 			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
 			tdp2Zone:setColor(0,128,0):setLabel("2")
 		elseif i == 3 then
@@ -21132,9 +21129,11 @@ function createTereshStations()
     	history = "The station was originally a conglomeration of equipment used as a convenient waypoint on the way to scout for enemies. Now it's become a permanent facility and has added mining to it operational mandate.",
 	}
 	if random(1,100) <= 14 then stationRecon101:setRestocksScanProbes(false) end
-	ship = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("RDP"):setPosition(836906, 38719):orderStandGround()
-	setBeamColor(ship)
-    table.insert(teresh_defense_platforms,ship)
+	local rdpZone = squareZone(836906, 38719, "RDP G46")
+	rdpZone:setColor(0,128,0):setLabel("R")	
+--	ship = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("RDP"):setPosition(836906, 38719):orderStandGround()
+--	setBeamColor(ship)
+--	table.insert(teresh_defense_platforms,ship)
 	station_names[stationRecon101:getCallSign()] = {stationRecon101:getSectorName(), stationRecon101}
 	table.insert(stations,stationRecon101)
 	--	Solder	
@@ -24164,6 +24163,8 @@ function staunchSector()
 	staunch_color = true
 	staunch_planets = createStaunchPlanets()
 	staunch_asteroids = createStaunchAsteroids()
+	staunch_phenomenon = createStaunchPhenomenon()
+	staunch_defense_platforms = {}
 	staunch_stations = createStaunchStations()
 	regionStations = staunch_stations
 	return {destroy=removeStaunchColor}
@@ -24227,9 +24228,11 @@ function createStaunchStations()
 	local wdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP2"):setPosition(112896, 733538):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(wdp1)
 	station_names[wdp1:getCallSign()] = {wdp1:getSectorName(), wdp1}
+	table.insert(staunch_defense_platforms,wdp1)
 	local wdp2 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP1"):setPosition(110476, 728574):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(wdp2)
 	station_names[wdp2:getCallSign()] = {wdp2:getSectorName(), wdp2}
+	table.insert(staunch_defense_platforms,wdp2)
 	station_names[stationWortast:getCallSign()] = {stationWortast:getSectorName(), stationWortast}
 	table.insert(stations,stationWortast)
 	--	Trendy
@@ -24289,9 +24292,11 @@ function createStaunchStations()
 	local tdp_1 = CpuShip():setFaction("CUF"):setTemplate("Defense platform"):setCallSign("TDP_1"):setPosition(81291, 696715):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(tdp_1)
 	station_names[tdp_1:getCallSign()] = {tdp_1:getSectorName(), tdp_1}
+	table.insert(staunch_defense_platforms,tdp_1)
 	local tdp_2 = CpuShip():setFaction("CUF"):setTemplate("Defense platform"):setCallSign("TDP_2"):setPosition(79036, 699499):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(tdp_2)
 	station_names[tdp_2:getCallSign()] = {tdp_2:getSectorName(), tdp_2}
+	table.insert(staunch_defense_platforms,tdp_2)
 	station_names[stationTrendy:getCallSign()] = {stationTrendy:getSectorName(), stationTrendy}
 	table.insert(stations,stationTrendy)
 	--	Dalton
@@ -24353,6 +24358,33 @@ function createStaunchStations()
 	stationHorst = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Horst"):setPosition(68783, 865202)
 	station_names[stationHorst:getCallSign()] = {stationHorst:getSectorName(), stationHorst}
 	table.insert(stations,stationHorst)
+	--	Chitin
+    stationChitin = SpaceStation():setTemplate("Huge Station"):setFaction("Ktlitans"):setCallSign("Chitin"):setPosition(30000, 808300)
+	station_names[stationChitin:getCallSign()] = {stationChitin:getSectorName(), stationChitin}
+	table.insert(stations,stationChitin)
+	--	Chitin defense platforms and sniper towers
+    local cdp1 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP1"):setPosition(32500, 808300):orderStandGround()
+	setBeamColor(cdp1)
+	station_names[cdp1:getCallSign()] = {cdp1:getSectorName(), cdp1}
+	table.insert(staunch_defense_platforms,cdp1)
+    local cdp2 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP2"):setPosition(27500, 808300):orderStandGround()
+	setBeamColor(cdp2)
+	station_names[cdp2:getCallSign()] = {cdp2:getSectorName(), cdp2}
+	table.insert(staunch_defense_platforms,cdp2)
+    local cst1 = sniperTower("Ktlitans")
+    cst1:setCallSign("CST1"):setPosition(30000, 805800):orderStandGround()
+	setBeamColor(cst1)
+	station_names[cst1:getCallSign()] = {cst1:getSectorName(), cst1}
+	table.insert(staunch_defense_platforms,cst1)
+    local cst2 = sniperTower("Ktlitans")
+    cst2:setCallSign("CST2"):setPosition(30000, 810800):orderStandGround()
+	setBeamColor(cst2)
+	station_names[cst2:getCallSign()] = {cst2:getSectorName(), cst2}
+	table.insert(staunch_defense_platforms,cst2)
+	--	Inversion
+	stationInversion = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("Inversion"):setPosition(21713, 784706)
+	station_names[stationInversion:getCallSign()] = {stationInversion:getSectorName(), stationInversion}
+	table.insert(stations,stationInversion)
     return stations
 end
 function createStaunchPlanets()
@@ -24622,6 +24654,646 @@ function createStaunchAsteroids()
     table.insert(asteroid_list,Asteroid():setPosition(19419, 799175):setSize(453))
 	return asteroid_list
 end
+function createStaunchPhenomenon()
+	spr_x = 302000
+	spr_y = 780000
+	local phen_list = {}
+	--[[
+	local pbz1 = Zone():setPoints(
+		spr_x,			spr_y - 100000,
+		spr_x + 8000,	spr_y - 100000,
+		spr_x + 8000,	spr_y + 100000,
+		spr_x,			spr_y + 100000)
+	table.insert(phen_list,pbz1)
+	local pbz2 = Zone():setPoints(
+		spr_x + 8000,	spr_y - 100000,
+		spr_x + 14000,	spr_y - 100000,
+		spr_x + 14000,	spr_y + 100000,
+		spr_x + 8000,	spr_y + 100000)
+	table.insert(phen_list,pbz2)
+	local pbz3 = Zone():setPoints(
+		spr_x + 14000,	spr_y - 100000,
+		spr_x + 18000,	spr_y - 100000,
+		spr_x + 18000,	spr_y + 100000,
+		spr_x + 14000,	spr_y + 100000)
+	table.insert(phen_list,pbz3)
+	local pbz4 = Zone():setPoints(
+		spr_x + 18000,	spr_y - 100000,
+		spr_x + 20000,	spr_y - 100000,
+		spr_x + 20000,	spr_y + 100000,
+		spr_x + 18000,	spr_y + 100000)
+	table.insert(phen_list,pbz4)
+	local pbz5 = Zone():setPoints(
+		spr_x + 20000,	spr_y - 100000,
+		spr_x + 21000,	spr_y - 100000,
+		spr_x + 21000,	spr_y + 100000,
+		spr_x + 20000,	spr_y + 100000)
+	table.insert(phen_list,pbz5)
+	local pbz6 = Zone():setPoints(
+		spr_x + 21000,	spr_y - 100000,
+		spr_x + 24000,	spr_y - 100000,
+		spr_x + 24000,	spr_y + 100000,
+		spr_x + 21000,	spr_y + 100000)
+	table.insert(phen_list,pbz6)
+	local pbz7 = Zone():setPoints(
+		spr_x + 24000,	spr_y - 100000,
+		spr_x + 29000,	spr_y - 100000,
+		spr_x + 29000,	spr_y + 100000,
+		spr_x + 24000,	spr_y + 100000)
+	table.insert(phen_list,pbz7)
+	local pbz8 = Zone():setPoints(
+		spr_x + 29000,	spr_y - 100000,
+		spr_x + 36000,	spr_y - 100000,
+		spr_x + 36000,	spr_y + 100000,
+		spr_x + 29000,	spr_y + 100000)
+	table.insert(phen_list,pbz8)
+	--]]
+	local pbz1_items = {}
+	table.insert(pbz1_items,Asteroid():setPosition(302806, 702933):setSize(630))
+	table.insert(pbz1_items,Asteroid():setPosition(308946, 701763):setSize(141))
+	table.insert(pbz1_items,Asteroid():setPosition(304268, 710535):setSize(18))
+	table.insert(pbz1_items,Asteroid():setPosition(306315, 797085):setSize(558))
+	table.insert(pbz1_items,Asteroid():setPosition(305145, 800009):setSize(168))
+	table.insert(pbz1_items,Asteroid():setPosition(308361, 687436):setSize(27))
+	table.insert(pbz1_items,Asteroid():setPosition(305437, 693576):setSize(771))
+	table.insert(pbz1_items,Asteroid():setPosition(302806, 739190):setSize(31))
+	table.insert(pbz1_items,Asteroid():setPosition(308069, 744746):setSize(181))
+	table.insert(pbz1_items,Asteroid():setPosition(306315, 745038):setSize(894))
+	table.insert(pbz1_items,Asteroid():setPosition(303683, 714921):setSize(46))
+	table.insert(pbz1_items,Asteroid():setPosition(306899, 723401):setSize(109))
+	table.insert(pbz1_items,Asteroid():setPosition(305730, 730711):setSize(412))
+	table.insert(pbz1_items,Asteroid():setPosition(303683, 744161):setSize(51))
+	table.insert(pbz1_items,Asteroid():setPosition(303683, 742699):setSize(123))
+	table.insert(pbz1_items,Asteroid():setPosition(305145, 740652):setSize(935))
+	table.insert(pbz1_items,Asteroid():setPosition(305730, 743284):setSize(145))
+	table.insert(pbz1_items,Asteroid():setPosition(307192, 742699):setSize(60))
+	table.insert(pbz1_items,Asteroid():setPosition(308946, 742991):setSize(350))
+	table.insert(pbz1_items,Asteroid():setPosition(306315, 741237):setSize(163))
+	table.insert(pbz1_items,Asteroid():setPosition(306607, 789190):setSize(76))
+	table.insert(pbz1_items,Asteroid():setPosition(304853, 792114):setSize(277))
+	table.insert(pbz1_items,Asteroid():setPosition(304560, 795038):setSize(180))
+	table.insert(pbz1_items,Asteroid():setPosition(305730, 785682):setSize(83))
+	table.insert(pbz1_items,Asteroid():setPosition(307192, 776325):setSize(393))
+	table.insert(pbz1_items,Asteroid():setPosition(304853, 782173):setSize(105))
+	table.insert(pbz1_items,Asteroid():setPosition(307192, 794453):setSize(91))
+	table.insert(pbz1_items,Asteroid():setPosition(307192, 802348):setSize(414))
+	table.insert(pbz1_items,Asteroid():setPosition(304560, 812290):setSize(121))
+	table.insert(pbz1_items,Asteroid():setPosition(306022, 807611):setSize(81))
+	table.insert(pbz1_items,Asteroid():setPosition(305730, 868138):setSize(530))
+	table.insert(pbz1_items,Asteroid():setPosition(302806, 872816):setSize(147))
+	table.insert(pbz1_items,Asteroid():setPosition(303391, 866676):setSize(74))
+	table.insert(pbz1_items,Asteroid():setPosition(308654, 857611):setSize(653))
+	table.insert(pbz1_items,Asteroid():setPosition(308069, 862290):setSize(169))
+	table.insert(pbz1_items,Asteroid():setPosition(306899, 865506):setSize(68))
+	table.insert(pbz1_items,Asteroid():setPosition(303098, 863459):setSize(774))
+	table.insert(pbz1_items,Asteroid():setPosition(303975, 838898):setSize(183))
+	table.insert(pbz1_items,Asteroid():setPosition(307777, 837728):setSize(56))
+	table.insert(pbz1_items,Asteroid():setPosition(305145, 836266):setSize(895))
+	table.insert(pbz1_items,Asteroid():setPosition(308361, 840945):setSize(102))
+	table.insert(pbz1_items,Asteroid():setPosition(306315, 838313):setSize(42))
+	table.insert(pbz1_items,Asteroid():setPosition(307192, 813752):setSize(911))
+	table.insert(pbz1_items,Asteroid():setPosition(306315, 817845):setSize(126))
+	table.insert(pbz1_items,Asteroid():setPosition(304560, 835097):setSize(38))
+	table.insert(pbz1_items,Asteroid():setPosition(302513, 836266):setSize(443))
+	local pbz2_items = {}
+	table.insert(pbz2_items,Asteroid():setPosition(314959, 859277):setSize(919))
+	table.insert(pbz2_items,Asteroid():setPosition(314666, 855476):setSize(128))
+	table.insert(pbz2_items,Asteroid():setPosition(310865, 870973):setSize(24))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 875067):setSize(839))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 852552):setSize(143))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 838517):setSize(32))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 836763):setSize(754))
+	table.insert(pbz2_items,Asteroid():setPosition(312620, 824190):setSize(165))
+	table.insert(pbz2_items,Asteroid():setPosition(313204, 821266):setSize(49))
+	table.insert(pbz2_items,Asteroid():setPosition(312620, 816587):setSize(672))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 817465):setSize(182))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 813079):setSize(57))
+	table.insert(pbz2_items,Asteroid():setPosition(313204, 805769):setSize(595))
+	table.insert(pbz2_items,Asteroid():setPosition(311158, 801675):setSize(106))
+	table.insert(pbz2_items,Asteroid():setPosition(312035, 795242):setSize(63))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 792026):setSize(412))
+	table.insert(pbz2_items,Asteroid():setPosition(312620, 746412):setSize(126))
+	table.insert(pbz2_items,Asteroid():setPosition(312620, 744658):setSize(73))
+	table.insert(pbz2_items,Asteroid():setPosition(312327, 743196):setSize(333))
+	table.insert(pbz2_items,Asteroid():setPosition(313204, 741441):setSize(148))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 738810):setSize(84))
+	table.insert(pbz2_items,Asteroid():setPosition(312620, 787348):setSize(251))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 784424):setSize(166))
+	table.insert(pbz2_items,Asteroid():setPosition(313789, 772143):setSize(94))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 773897):setSize(173))
+	table.insert(pbz2_items,Asteroid():setPosition(312620, 770681):setSize(188))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 770388):setSize(89))
+	table.insert(pbz2_items,Asteroid():setPosition(313497, 756353):setSize(298))
+	table.insert(pbz2_items,Asteroid():setPosition(312035, 754599):setSize(104))
+	table.insert(pbz2_items,Asteroid():setPosition(313204, 750798):setSize(70))
+	table.insert(pbz2_items,Asteroid():setPosition(311158, 751383):setSize(316))
+	table.insert(pbz2_items,Asteroid():setPosition(311742, 748459):setSize(123))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 769219):setSize(63))
+	table.insert(pbz2_items,Asteroid():setPosition(311450, 768049):setSize(434))
+	table.insert(pbz2_items,Asteroid():setPosition(312912, 767465):setSize(147))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 768634):setSize(56))
+	table.insert(pbz2_items,Asteroid():setPosition(313789, 743196):setSize(558))
+	table.insert(pbz2_items,Asteroid():setPosition(313789, 722143):setSize(162))
+	table.insert(pbz2_items,Asteroid():setPosition(313204, 719511):setSize(43))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 715710):setSize(673))
+	table.insert(pbz2_items,Asteroid():setPosition(312327, 716587):setSize(180))
+	table.insert(pbz2_items,Asteroid():setPosition(314082, 713956):setSize(34))
+	table.insert(pbz2_items,Asteroid():setPosition(314374, 687640):setSize(795))
+	table.insert(pbz2_items,Asteroid():setPosition(312035, 687640):setSize(106))
+	table.insert(pbz2_items,Asteroid():setPosition(313497, 686763):setSize(20))
+	table.insert(pbz2_items,Asteroid():setPosition(313497, 689102):setSize(812))
+	table.insert(pbz2_items,Asteroid():setPosition(311742, 682962):setSize(126))
+	table.insert(pbz2_items,Asteroid():setPosition(311742, 685301):setSize(17))
+	table.insert(pbz2_items,Asteroid():setPosition(313789, 684716):setSize(938))
+	local pbz3_items = {}
+	table.insert(pbz3_items,Asteroid():setPosition(318175, 704307):setSize(928))
+	table.insert(pbz3_items,Asteroid():setPosition(318468, 701383):setSize(132))
+	table.insert(pbz3_items,Asteroid():setPosition(317590, 700798):setSize(81))
+	table.insert(pbz3_items,Asteroid():setPosition(317428, 797711):setSize(849))
+	table.insert(pbz3_items,Asteroid():setPosition(317255, 795985):setSize(156))
+	table.insert(pbz3_items,Asteroid():setPosition(318291, 795294):setSize(74))
+	table.insert(pbz3_items,Asteroid():setPosition(318637, 870055):setSize(768))
+	table.insert(pbz3_items,Asteroid():setPosition(317946, 869019):setSize(170))
+	table.insert(pbz3_items,Asteroid():setPosition(318119, 875580):setSize(64))
+	table.insert(pbz3_items,Asteroid():setPosition(316392, 873163):setSize(387))
+	table.insert(pbz3_items,Asteroid():setPosition(318809, 868328):setSize(196))
+	table.insert(pbz3_items,Asteroid():setPosition(318291, 867465):setSize(58))
+	table.insert(pbz3_items,Asteroid():setPosition(319155, 866947):setSize(602))
+	table.insert(pbz3_items,Asteroid():setPosition(319500, 866084):setSize(116))
+	table.insert(pbz3_items,Asteroid():setPosition(317946, 863321):setSize(43))
+	table.insert(pbz3_items,Asteroid():setPosition(316392, 852616):setSize(226))
+	table.insert(pbz3_items,Asteroid():setPosition(317946, 851235):setSize(138))
+	table.insert(pbz3_items,Asteroid():setPosition(317255, 864530):setSize(36))
+	table.insert(pbz3_items,Asteroid():setPosition(318637, 864012):setSize(547))
+	table.insert(pbz3_items,Asteroid():setPosition(317083, 863667):setSize(156))
+	table.insert(pbz3_items,Asteroid():setPosition(318464, 865220):setSize(21))
+	table.insert(pbz3_items,Asteroid():setPosition(318982, 864875):setSize(469))
+	table.insert(pbz3_items,Asteroid():setPosition(317773, 848473):setSize(170))
+	table.insert(pbz3_items,Asteroid():setPosition(316392, 864875):setSize(19))
+	table.insert(pbz3_items,Asteroid():setPosition(318637, 842948):setSize(282))
+	table.insert(pbz3_items,Asteroid():setPosition(317601, 844502):setSize(191))
+	table.insert(pbz3_items,Asteroid():setPosition(318291, 840012):setSize(93))
+	table.insert(pbz3_items,Asteroid():setPosition(319327, 837077):setSize(301))
+	table.insert(pbz3_items,Asteroid():setPosition(317601, 837941):setSize(117))
+	table.insert(pbz3_items,Asteroid():setPosition(318291, 836732):setSize(88))
+	table.insert(pbz3_items,Asteroid():setPosition(318291, 835178):setSize(420))
+	table.insert(pbz3_items,Asteroid():setPosition(317946, 833969):setSize(137))
+	table.insert(pbz3_items,Asteroid():setPosition(318119, 803409):setSize(74))
+	table.insert(pbz3_items,Asteroid():setPosition(318464, 802200):setSize(546))
+	table.insert(pbz3_items,Asteroid():setPosition(317428, 801510):setSize(158))
+	table.insert(pbz3_items,Asteroid():setPosition(317773, 799265):setSize(65))
+	table.insert(pbz3_items,Asteroid():setPosition(318809, 805308):setSize(667))
+	table.insert(pbz3_items,Asteroid():setPosition(319327, 803582):setSize(170))
+	table.insert(pbz3_items,Asteroid():setPosition(317773, 807035):setSize(55))
+	table.insert(pbz3_items,Asteroid():setPosition(316565, 802718):setSize(586))
+	table.insert(pbz3_items,Asteroid():setPosition(316713, 704014):setSize(197))
+	table.insert(pbz3_items,Asteroid():setPosition(317590, 702260):setSize(46))
+	table.insert(pbz3_items,Asteroid():setPosition(317691, 774704):setSize(707))
+	table.insert(pbz3_items,Asteroid():setPosition(317485, 772222):setSize(119))
+	table.insert(pbz3_items,Asteroid():setPosition(318105, 760226):setSize(35))
+	table.insert(pbz3_items,Asteroid():setPosition(319553, 762502):setSize(429))
+	table.insert(pbz3_items,Asteroid():setPosition(317278, 773256):setSize(139))
+	table.insert(pbz3_items,Asteroid():setPosition(318519, 773670):setSize(26))
+	table.insert(pbz3_items,Asteroid():setPosition(318312, 773050):setSize(848))
+	table.insert(pbz3_items,Asteroid():setPosition(318312, 758365):setSize(156))
+	table.insert(pbz3_items,Asteroid():setPosition(318519, 756503):setSize(10))
+	table.insert(pbz3_items,Asteroid():setPosition(317278, 756917):setSize(968))
+	table.insert(pbz3_items,Asteroid():setPosition(319346, 760847):setSize(170))
+	table.insert(pbz3_items,Asteroid():setPosition(318726, 759813):setSize(99))
+	table.insert(pbz3_items,Asteroid():setPosition(317071, 757744):setSize(882))
+	table.insert(pbz3_items,Asteroid():setPosition(318105, 732098):setSize(198))
+	table.insert(pbz3_items,Asteroid():setPosition(316864, 723825):setSize(80))
+	table.insert(pbz3_items,Asteroid():setPosition(317898, 724238):setSize(706))
+	table.insert(pbz3_items,Asteroid():setPosition(316864, 756503):setSize(119))
+	table.insert(pbz3_items,Asteroid():setPosition(319139, 739337):setSize(73))
+	table.insert(pbz3_items,Asteroid():setPosition(317071, 735200):setSize(629))
+	table.insert(pbz3_items,Asteroid():setPosition(317278, 722170):setSize(132))
+	table.insert(pbz3_items,Asteroid():setPosition(317898, 721136):setSize(62))
+	table.insert(pbz3_items,Asteroid():setPosition(319139, 720516):setSize(347))
+	table.insert(pbz3_items,Asteroid():setPosition(318519, 723411):setSize(151))
+	table.insert(pbz3_items,Asteroid():setPosition(317278, 722791):setSize(58))
+	table.insert(pbz3_items,Asteroid():setPosition(317898, 722584):setSize(264))
+	table.insert(pbz3_items,Asteroid():setPosition(316244, 726720):setSize(178))
+	table.insert(pbz3_items,Asteroid():setPosition(316657, 725273):setSize(45))
+	table.insert(pbz3_items,Asteroid():setPosition(319553, 719482):setSize(282))
+	table.insert(pbz3_items,Asteroid():setPosition(316657, 757124):setSize(195))
+	table.insert(pbz3_items,Asteroid():setPosition(316244, 755469):setSize(36))
+	table.insert(pbz3_items,Asteroid():setPosition(317590, 685886):setSize(304))
+	table.insert(pbz3_items,Asteroid():setPosition(318175, 688517):setSize(119))
+	table.insert(pbz3_items,Asteroid():setPosition(319052, 686470):setSize(20))
+	table.insert(pbz3_items,Asteroid():setPosition(318175, 683839):setSize(422))
+	table.insert(pbz3_items,Asteroid():setPosition(317298, 680915):setSize(135))
+	table.insert(pbz3_items,Asteroid():setPosition(318468, 689687):setSize(18))
+	table.insert(pbz3_items,Asteroid():setPosition(317883, 692026):setSize(540))
+	local pbz4_items = {}
+	table.insert(pbz4_items,Asteroid():setPosition(320191, 878951):setSize(111))
+	table.insert(pbz4_items,Asteroid():setPosition(321687, 876583):setSize(323))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 874216):setSize(14))
+	table.insert(pbz4_items,Asteroid():setPosition(320690, 871225):setSize(135))
+	table.insert(pbz4_items,Asteroid():setPosition(320690, 868857):setSize(645))
+	table.insert(pbz4_items,Asteroid():setPosition(321188, 867736):setSize(27))
+	table.insert(pbz4_items,Asteroid():setPosition(321188, 865742):setSize(159))
+	table.insert(pbz4_items,Asteroid():setPosition(320939, 864122):setSize(915))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 862752):setSize(38))
+	table.insert(pbz4_items,Asteroid():setPosition(320814, 859886):setSize(162))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 861381):setSize(672))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 859013):setSize(47))
+	table.insert(pbz4_items,Asteroid():setPosition(320441, 859387):setSize(184))
+	table.insert(pbz4_items,Asteroid():setPosition(320690, 860633):setSize(593))
+	table.insert(pbz4_items,Asteroid():setPosition(321437, 860259):setSize(59))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 846677):setSize(119))
+	table.insert(pbz4_items,Asteroid():setPosition(321064, 846677):setSize(722))
+	table.insert(pbz4_items,Asteroid():setPosition(321562, 847549):setSize(61))
+	table.insert(pbz4_items,Asteroid():setPosition(320067, 844185):setSize(135))
+	table.insert(pbz4_items,Asteroid():setPosition(320565, 842316):setSize(441))
+	table.insert(pbz4_items,Asteroid():setPosition(321562, 838951):setSize(78))
+	table.insert(pbz4_items,Asteroid():setPosition(321064, 834341):setSize(157))
+	table.insert(pbz4_items,Asteroid():setPosition(321437, 831101):setSize(267))
+	table.insert(pbz4_items,Asteroid():setPosition(321188, 823624):setSize(81))
+	table.insert(pbz4_items,Asteroid():setPosition(321064, 821506):setSize(172))
+	table.insert(pbz4_items,Asteroid():setPosition(320939, 829606):setSize(911))
+	table.insert(pbz4_items,Asteroid():setPosition(320814, 819637):setSize(99))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 796335):setSize(185))
+	table.insert(pbz4_items,Asteroid():setPosition(321687, 795712):setSize(225))
+	table.insert(pbz4_items,Asteroid():setPosition(320814, 795837):setSize(10))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 795089):setSize(177))
+	table.insert(pbz4_items,Asteroid():setPosition(320814, 794840):setSize(781))
+	table.insert(pbz4_items,Asteroid():setPosition(320191, 793968):setSize(26))
+	table.insert(pbz4_items,Asteroid():setPosition(321064, 793843):setSize(193))
+	table.insert(pbz4_items,Asteroid():setPosition(320939, 781507):setSize(614))
+	table.insert(pbz4_items,Asteroid():setPosition(321562, 780510):setSize(38))
+	table.insert(pbz4_items,Asteroid():setPosition(320316, 780634):setSize(129))
+	table.insert(pbz4_items,Asteroid():setPosition(321188, 779638):setSize(534))
+	table.insert(pbz4_items,Asteroid():setPosition(320939, 762442):setSize(49))
+	table.insert(pbz4_items,Asteroid():setPosition(321437, 760323):setSize(145))
+	table.insert(pbz4_items,Asteroid():setPosition(320565, 760448):setSize(450))
+	table.insert(pbz4_items,Asteroid():setPosition(320565, 754342):setSize(51))
+	table.insert(pbz4_items,Asteroid():setPosition(320276, 734291):setSize(162))
+	table.insert(pbz4_items,Asteroid():setPosition(321313, 756460):setSize(379))
+	table.insert(pbz4_items,Asteroid():setPosition(321437, 754217):setSize(68))
+	table.insert(pbz4_items,Asteroid():setPosition(320690, 758828):setSize(189))
+	table.insert(pbz4_items,Asteroid():setPosition(321064, 757582):setSize(298))
+	table.insert(pbz4_items,Asteroid():setPosition(321562, 764061):setSize(79))
+	table.insert(pbz4_items,Asteroid():setPosition(320939, 752597):setSize(119))
+	table.insert(pbz4_items,Asteroid():setPosition(320441, 751102):setSize(420))
+	table.insert(pbz4_items,Asteroid():setPosition(321409, 734291):setSize(89))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 733725):setSize(133))
+	table.insert(pbz4_items,Asteroid():setPosition(321862, 733612):setSize(941))
+	table.insert(pbz4_items,Asteroid():setPosition(320729, 734631):setSize(95))
+	table.insert(pbz4_items,Asteroid():setPosition(320843, 733385):setSize(150))
+	table.insert(pbz4_items,Asteroid():setPosition(321636, 732592):setSize(366))
+	table.insert(pbz4_items,Asteroid():setPosition(321409, 683768):setSize(18))
+	table.insert(pbz4_items,Asteroid():setPosition(321522, 682975):setSize(174))
+	table.insert(pbz4_items,Asteroid():setPosition(321636, 682522):setSize(289))
+	table.insert(pbz4_items,Asteroid():setPosition(321182, 681502):setSize(24))
+	table.insert(pbz4_items,Asteroid():setPosition(320729, 680709):setSize(194))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 682748):setSize(817))
+	table.insert(pbz4_items,Asteroid():setPosition(320843, 683881):setSize(33))
+	table.insert(pbz4_items,Asteroid():setPosition(321182, 710162):setSize(122))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 709143):setSize(739))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 708010):setSize(40))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 706537):setSize(143))
+	table.insert(pbz4_items,Asteroid():setPosition(321409, 705971):setSize(552))
+	table.insert(pbz4_items,Asteroid():setPosition(321182, 711182):setSize(58))
+	table.insert(pbz4_items,Asteroid():setPosition(320616, 711748):setSize(161))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 713221):setSize(675))
+	table.insert(pbz4_items,Asteroid():setPosition(321636, 685920):setSize(65))
+	table.insert(pbz4_items,Asteroid():setPosition(320729, 685920):setSize(186))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 685354):setSize(491))
+	table.insert(pbz4_items,Asteroid():setPosition(321069, 684787):setSize(73))
+	table.insert(pbz4_items,Asteroid():setPosition(320390, 680370):setSize(116))
+	table.insert(pbz4_items,Asteroid():setPosition(320503, 688299):setSize(501))
+	table.insert(pbz4_items,Asteroid():setPosition(320956, 687620):setSize(85))
+	table.insert(pbz4_items,Asteroid():setPosition(320503, 687166):setSize(118))
+	table.insert(pbz4_items,Asteroid():setPosition(321182, 686940):setSize(801))
+	table.insert(pbz4_items,Asteroid():setPosition(320050, 684787):setSize(98))
+	local pbz5_items = {}
+	table.insert(pbz5_items,Asteroid():setPosition(322265, 778412):setSize(200))
+	table.insert(pbz5_items,Asteroid():setPosition(322450, 776499):setSize(15))
+	table.insert(pbz5_items,Asteroid():setPosition(322450, 771067):setSize(110))
+	table.insert(pbz5_items,Asteroid():setPosition(322574, 774215):setSize(420))
+	table.insert(pbz5_items,Asteroid():setPosition(322574, 772425):setSize(26))
+	table.insert(pbz5_items,Asteroid():setPosition(322635, 757118):setSize(137))
+	table.insert(pbz5_items,Asteroid():setPosition(322512, 754834):setSize(442))
+	table.insert(pbz5_items,Asteroid():setPosition(322759, 745884):setSize(34))
+	table.insert(pbz5_items,Asteroid():setPosition(322265, 756377):setSize(155))
+	table.insert(pbz5_items,Asteroid():setPosition(322265, 755636):setSize(262))
+	table.insert(pbz5_items,Asteroid():setPosition(322574, 733046):setSize(43))
+	table.insert(pbz5_items,Asteroid():setPosition(322574, 724034):setSize(178))
+	table.insert(pbz5_items,Asteroid():setPosition(322450, 744835):setSize(422))
+	table.insert(pbz5_items,Asteroid():setPosition(322388, 734033):setSize(54))
+	table.insert(pbz5_items,Asteroid():setPosition(322512, 724898):setSize(183))
+	table.insert(pbz5_items,Asteroid():setPosition(322327, 724466):setSize(303))
+	table.insert(pbz5_items,Asteroid():setPosition(322203, 725330):setSize(69))
+	table.insert(pbz5_items,Asteroid():setPosition(322574, 723602):setSize(195))
+	table.insert(pbz5_items,Asteroid():setPosition(322574, 713356):setSize(413))
+	table.insert(pbz5_items,Asteroid():setPosition(322203, 712862):setSize(77))
+	table.insert(pbz5_items,Asteroid():setPosition(322512, 714899):setSize(129))
+	table.insert(pbz5_items,Asteroid():setPosition(322450, 713788):setSize(434))
+	table.insert(pbz5_items,Asteroid():setPosition(322512, 712368):setSize(94))
+	table.insert(pbz5_items,Asteroid():setPosition(322730, 797410):setSize(141))
+	table.insert(pbz5_items,Asteroid():setPosition(322336, 793375):setSize(329))
+	table.insert(pbz5_items,Asteroid():setPosition(322074, 790127):setSize(74))
+	table.insert(pbz5_items,Asteroid():setPosition(322500, 787470):setSize(459))
+	table.insert(pbz5_items,Asteroid():setPosition(322821, 784585):setSize(165))
+	table.insert(pbz5_items,Asteroid():setPosition(322635, 781869):setSize(174))
+	table.insert(pbz5_items,Asteroid():setPosition(322582, 871743):setSize(405))
+	table.insert(pbz5_items,Asteroid():setPosition(322073, 863160):setSize(73))
+	table.insert(pbz5_items,Asteroid():setPosition(322456, 858650):setSize(181))
+	table.insert(pbz5_items,Asteroid():setPosition(322456, 850686):setSize(196))
+	table.insert(pbz5_items,Asteroid():setPosition(322840, 845216):setSize(13))
+	table.insert(pbz5_items,Asteroid():setPosition(322552, 843681):setSize(117))
+	table.insert(pbz5_items,Asteroid():setPosition(322456, 842242):setSize(124))
+	table.insert(pbz5_items,Asteroid():setPosition(322463, 819056):setSize(437))
+	table.insert(pbz5_items,Asteroid():setPosition(322225, 820546):setSize(28))
+	table.insert(pbz5_items,Asteroid():setPosition(322821, 820784):setSize(140))
+	table.insert(pbz5_items,Asteroid():setPosition(322582, 806127):setSize(401))
+	table.insert(pbz5_items,Asteroid():setPosition(322642, 807081):setSize(38))
+	table.insert(pbz5_items,Asteroid():setPosition(322285, 806902):setSize(159))
+	table.insert(pbz5_items,Asteroid():setPosition(322730, 701363):setSize(260))
+	table.insert(pbz5_items,Asteroid():setPosition(322471, 700779):setSize(47))
+	table.insert(pbz5_items,Asteroid():setPosition(322536, 699935):setSize(172))
+	table.insert(pbz5_items,Asteroid():setPosition(322730, 680983):setSize(211))
+	table.insert(pbz5_items,Asteroid():setPosition(322601, 680593):setSize(59))
+	table.insert(pbz5_items,Asteroid():setPosition(322601, 699416):setSize(186))
+	table.insert(pbz5_items,Asteroid():setPosition(322666, 698896):setSize(315))
+	table.insert(pbz5_items,Asteroid():setPosition(322860, 687798):setSize(63))
+	table.insert(pbz5_items,Asteroid():setPosition(322795, 687278):setSize(190))
+	table.insert(pbz5_items,Asteroid():setPosition(322211, 687149):setSize(225))
+	table.insert(pbz5_items,Asteroid():setPosition(322341, 687733):setSize(77))
+	table.insert(pbz5_items,Asteroid():setPosition(322276, 700194):setSize(123))
+	table.insert(pbz5_items,Asteroid():setPosition(322276, 680204):setSize(227))
+	local pbz6_items = {}
+	table.insert(pbz6_items,Asteroid():setPosition(324470, 878991):setSize(905))
+	table.insert(pbz6_items,Asteroid():setPosition(324787, 876879):setSize(12))
+	table.insert(pbz6_items,Asteroid():setPosition(323626, 874134):setSize(112))
+	table.insert(pbz6_items,Asteroid():setPosition(324470, 870861):setSize(824))
+	table.insert(pbz6_items,Asteroid():setPosition(324787, 864420):setSize(18))
+	table.insert(pbz6_items,Asteroid():setPosition(324998, 859774):setSize(134))
+	table.insert(pbz6_items,Asteroid():setPosition(324365, 857240):setSize(742))
+	table.insert(pbz6_items,Asteroid():setPosition(325315, 836756):setSize(35))
+	table.insert(pbz6_items,Asteroid():setPosition(324154, 836334):setSize(150))
+	table.insert(pbz6_items,Asteroid():setPosition(324576, 835701):setSize(663))
+	table.insert(pbz6_items,Asteroid():setPosition(324154, 834962):setSize(43))
+	table.insert(pbz6_items,Asteroid():setPosition(324365, 833589):setSize(175))
+	table.insert(pbz6_items,Asteroid():setPosition(323626, 833800):setSize(585))
+	table.insert(pbz6_items,Asteroid():setPosition(324787, 839185):setSize(52))
+	table.insert(pbz6_items,Asteroid():setPosition(325104, 838763):setSize(197))
+	table.insert(pbz6_items,Asteroid():setPosition(324470, 839924):setSize(400))
+	table.insert(pbz6_items,Asteroid():setPosition(324470, 837496):setSize(64))
+	table.insert(pbz6_items,Asteroid():setPosition(325210, 838024):setSize(113))
+	table.insert(pbz6_items,Asteroid():setPosition(325421, 819441):setSize(328))
+	table.insert(pbz6_items,Asteroid():setPosition(325315, 818490):setSize(77))
+	table.insert(pbz6_items,Asteroid():setPosition(324154, 832533):setSize(137))
+	table.insert(pbz6_items,Asteroid():setPosition(323731, 817751):setSize(248))
+	table.insert(pbz6_items,Asteroid():setPosition(324259, 816695):setSize(86))
+	table.insert(pbz6_items,Asteroid():setPosition(325315, 749015):setSize(154))
+	table.insert(pbz6_items,Asteroid():setPosition(324998, 751022):setSize(966))
+	table.insert(pbz6_items,Asteroid():setPosition(323520, 750282):setSize(95))
+	table.insert(pbz6_items,Asteroid():setPosition(325210, 752500):setSize(172))
+	table.insert(pbz6_items,Asteroid():setPosition(323837, 751761):setSize(800))
+	table.insert(pbz6_items,Asteroid():setPosition(323520, 777946):setSize(12))
+	table.insert(pbz6_items,Asteroid():setPosition(324259, 772561):setSize(181))
+	table.insert(pbz6_items,Asteroid():setPosition(324961, 728177):setSize(799))
+	table.insert(pbz6_items,Asteroid():setPosition(325512, 728361):setSize(27))
+	table.insert(pbz6_items,Asteroid():setPosition(324502, 727718):setSize(111))
+	table.insert(pbz6_items,Asteroid():setPosition(325420, 726801):setSize(522))
+	table.insert(pbz6_items,Asteroid():setPosition(323860, 727994):setSize(33))
+	table.insert(pbz6_items,Asteroid():setPosition(323401, 727627):setSize(132))
+	table.insert(pbz6_items,Asteroid():setPosition(324869, 727627):setSize(641))
+	table.insert(pbz6_items,Asteroid():setPosition(324686, 726709):setSize(40))
+	table.insert(pbz6_items,Asteroid():setPosition(324044, 727260):setSize(154))
+	table.insert(pbz6_items,Asteroid():setPosition(324135, 684868):setSize(468))
+	table.insert(pbz6_items,Asteroid():setPosition(324686, 683308):setSize(57))
+	table.insert(pbz6_items,Asteroid():setPosition(324594, 712578):setSize(172))
+	table.insert(pbz6_items,Asteroid():setPosition(324594, 714413):setSize(384))
+	table.insert(pbz6_items,Asteroid():setPosition(325145, 717350):setSize(66))
+	table.insert(pbz6_items,Asteroid():setPosition(324686, 715515):setSize(199))
+	table.insert(pbz6_items,Asteroid():setPosition(324961, 713863):setSize(205))
+	table.insert(pbz6_items,Asteroid():setPosition(324787, 811522):setSize(72))
+	table.insert(pbz6_items,Asteroid():setPosition(324048, 805609):setSize(113))
+	table.insert(pbz6_items,Asteroid():setPosition(325315, 808037):setSize(627))
+	table.insert(pbz6_items,Asteroid():setPosition(324576, 800963):setSize(88))
+	table.insert(pbz6_items,Asteroid():setPosition(324154, 797901):setSize(135))
+	table.insert(pbz6_items,Asteroid():setPosition(325104, 796001):setSize(841))
+	table.insert(pbz6_items,Asteroid():setPosition(325421, 794311):setSize(99))
+	table.insert(pbz6_items,Asteroid():setPosition(324048, 789349):setSize(157))
+	table.insert(pbz6_items,Asteroid():setPosition(325315, 785231):setSize(566))
+	table.insert(pbz6_items,Asteroid():setPosition(324259, 780057):setSize(13))
+	table.insert(pbz6_items,Asteroid():setPosition(324778, 686336):setSize(178))
+	table.insert(pbz6_items,Asteroid():setPosition(323676, 681564):setSize(480))
+	table.insert(pbz6_items,Asteroid():setPosition(324411, 709000):setSize(28))
+	table.insert(pbz6_items,Asteroid():setPosition(324502, 705054):setSize(199))
+	local pbz7_items = {}
+	table.insert(pbz7_items,Asteroid():setPosition(330308, 869924):setSize(103))
+	table.insert(pbz7_items,Asteroid():setPosition(328400, 867511):setSize(112))
+	table.insert(pbz7_items,Asteroid():setPosition(326548, 869980):setSize(129))
+	table.insert(pbz7_items,Asteroid():setPosition(328288, 863022):setSize(135))
+	table.insert(pbz7_items,Asteroid():setPosition(327166, 872056):setSize(147))
+	table.insert(pbz7_items,Asteroid():setPosition(327839, 873234):setSize(151))
+	table.insert(pbz7_items,Asteroid():setPosition(330148, 848969):setSize(169))
+	table.insert(pbz7_items,Asteroid():setPosition(328717, 843784):setSize(171))
+	table.insert(pbz7_items,Asteroid():setPosition(329635, 872000):setSize(188))
+	table.insert(pbz7_items,Asteroid():setPosition(329073, 873178):setSize(195))
+	table.insert(pbz7_items,Asteroid():setPosition(328456, 873964):setSize(201))
+	table.insert(pbz7_items,Asteroid():setPosition(327287, 838777):setSize(217))
+	table.insert(pbz7_items,Asteroid():setPosition(327644, 837525):setSize(223))
+	table.insert(pbz7_items,Asteroid():setPosition(328360, 834486):setSize(238))
+	table.insert(pbz7_items,Asteroid():setPosition(327466, 831446):setSize(242))
+	table.insert(pbz7_items,Asteroid():setPosition(329254, 828764):setSize(250))
+	table.insert(pbz7_items,Asteroid():setPosition(327644, 826082):setSize(269))
+	table.insert(pbz7_items,Asteroid():setPosition(329075, 824115):setSize(274))
+	table.insert(pbz7_items,Asteroid():setPosition(328002, 822505):setSize(282))
+	table.insert(pbz7_items,Asteroid():setPosition(329254, 820181):setSize(298))
+	table.insert(pbz7_items,Asteroid():setPosition(329611, 816605):setSize(307))
+	table.insert(pbz7_items,Asteroid():setPosition(328181, 814101):setSize(317))
+	table.insert(pbz7_items,Asteroid():setPosition(328360, 810346):setSize(321))
+	table.insert(pbz7_items,Asteroid():setPosition(326750, 808201):setSize(336))
+	table.insert(pbz7_items,Asteroid():setPosition(328717, 807307):setSize(342))
+	table.insert(pbz7_items,Asteroid():setPosition(328538, 805340):setSize(355))
+	table.insert(pbz7_items,Asteroid():setPosition(328181, 799439):setSize(360))
+	table.insert(pbz7_items,Asteroid():setPosition(329433, 802836):setSize(376))
+	table.insert(pbz7_items,Asteroid():setPosition(327466, 802479):setSize(382))
+	table.insert(pbz7_items,Asteroid():setPosition(329254, 797293):setSize(399))
+	table.insert(pbz7_items,Asteroid():setPosition(327108, 793359):setSize(383))
+	table.insert(pbz7_items,Asteroid():setPosition(327466, 794790):setSize(377))
+	table.insert(pbz7_items,Asteroid():setPosition(329254, 792644):setSize(362))
+	table.insert(pbz7_items,Asteroid():setPosition(329611, 789962):setSize(358))
+	table.insert(pbz7_items,Asteroid():setPosition(328181, 790320):setSize(344))
+	table.insert(pbz7_items,Asteroid():setPosition(328002, 788532):setSize(331))
+	table.insert(pbz7_items,Asteroid():setPosition(328360, 780306):setSize(329))
+	table.insert(pbz7_items,Asteroid():setPosition(326312, 759012):setSize(310))
+	table.insert(pbz7_items,Asteroid():setPosition(328896, 786744):setSize(308))
+	table.insert(pbz7_items,Asteroid():setPosition(328717, 784955):setSize(316))
+	table.insert(pbz7_items,Asteroid():setPosition(328002, 782988):setSize(327))
+	table.insert(pbz7_items,Asteroid():setPosition(327108, 782094):setSize(339))
+	table.insert(pbz7_items,Asteroid():setPosition(330074, 760296):setSize(344))
+	table.insert(pbz7_items,Asteroid():setPosition(329707, 761122):setSize(355))
+	table.insert(pbz7_items,Asteroid():setPosition(330532, 761214):setSize(369))
+	table.insert(pbz7_items,Asteroid():setPosition(328360, 778518):setSize(376))
+	table.insert(pbz7_items,Asteroid():setPosition(327287, 777624):setSize(388))
+	table.insert(pbz7_items,Asteroid():setPosition(328181, 776730):setSize(394))
+	table.insert(pbz7_items,Asteroid():setPosition(328055, 760113):setSize(401))
+	table.insert(pbz7_items,Asteroid():setPosition(329156, 758920):setSize(411))
+	table.insert(pbz7_items,Asteroid():setPosition(328697, 758736):setSize(420))
+	table.insert(pbz7_items,Asteroid():setPosition(328422, 759287):setSize(431))
+	table.insert(pbz7_items,Asteroid():setPosition(329615, 760480):setSize(447))
+	table.insert(pbz7_items,Asteroid():setPosition(328881, 760388):setSize(454))
+	table.insert(pbz7_items,Asteroid():setPosition(329340, 759746):setSize(466))
+	table.insert(pbz7_items,Asteroid():setPosition(328330, 736164):setSize(477))
+	table.insert(pbz7_items,Asteroid():setPosition(329615, 732494):setSize(489))
+	table.insert(pbz7_items,Asteroid():setPosition(328147, 728823):setSize(493))
+	table.insert(pbz7_items,Asteroid():setPosition(327046, 758369):setSize(502))
+	table.insert(pbz7_items,Asteroid():setPosition(327963, 758645):setSize(519))
+	table.insert(pbz7_items,Asteroid():setPosition(327596, 759287):setSize(528))
+	table.insert(pbz7_items,Asteroid():setPosition(327229, 739284):setSize(539))
+	table.insert(pbz7_items,Asteroid():setPosition(326862, 724878):setSize(547))
+	table.insert(pbz7_items,Asteroid():setPosition(328422, 721116):setSize(554))
+	table.insert(pbz7_items,Asteroid():setPosition(329868, 700397):setSize(561))
+	table.insert(pbz7_items,Asteroid():setPosition(330041, 698671):setSize(575))
+	table.insert(pbz7_items,Asteroid():setPosition(329350, 702124):setSize(580))
+	table.insert(pbz7_items,Asteroid():setPosition(329868, 696771):setSize(594))
+	table.insert(pbz7_items,Asteroid():setPosition(326760, 703160):setSize(606))
+	table.insert(pbz7_items,Asteroid():setPosition(327623, 704023):setSize(613))
+	table.insert(pbz7_items,Asteroid():setPosition(328659, 703332):setSize(628))
+	table.insert(pbz7_items,Asteroid():setPosition(329868, 694354):setSize(632))
+	table.insert(pbz7_items,Asteroid():setPosition(329695, 691937):setSize(644))
+	table.insert(pbz7_items,Asteroid():setPosition(329350, 689520):setSize(655))
+	table.insert(pbz7_items,Asteroid():setPosition(328141, 686412):setSize(668))
+	table.insert(pbz7_items,Asteroid():setPosition(327451, 683822):setSize(677))
+	table.insert(pbz7_items,Asteroid():setPosition(327504, 701663):setSize(684))
+	table.insert(pbz7_items,Asteroid():setPosition(327780, 702581):setSize(692))
+	table.insert(pbz7_items,Asteroid():setPosition(328330, 702672):setSize(708))
+	table.insert(pbz7_items,Asteroid():setPosition(328055, 701480):setSize(715))
+	table.insert(pbz7_items,Asteroid():setPosition(327688, 700837):setSize(721))
+	table.insert(pbz7_items,Asteroid():setPosition(327046, 701388):setSize(739))
+	table.insert(pbz7_items,Asteroid():setPosition(326770, 702122):setSize(743))
+	table.insert(pbz7_items,Asteroid():setPosition(328789, 702214):setSize(751))
+	table.insert(pbz7_items,Asteroid():setPosition(328973, 701571):setSize(762))
+	table.insert(pbz7_items,Asteroid():setPosition(328422, 700929):setSize(775))
+	local pbz8_items = {}
+	table.insert(pbz8_items,Asteroid():setPosition(332448, 867895):setSize(111))
+	table.insert(pbz8_items,Asteroid():setPosition(332585, 865385):setSize(122))
+	table.insert(pbz8_items,Asteroid():setPosition(331901, 866606):setSize(133))
+	table.insert(pbz8_items,Asteroid():setPosition(335489, 864850):setSize(114))
+	table.insert(pbz8_items,Asteroid():setPosition(334397, 844628):setSize(125))
+	table.insert(pbz8_items,Asteroid():setPosition(337041, 844356):setSize(136))
+	table.insert(pbz8_items,Asteroid():setPosition(332891, 863882):setSize(117))
+	table.insert(pbz8_items,Asteroid():setPosition(334675, 863711):setSize(128))
+	table.insert(pbz8_items,Asteroid():setPosition(333886, 864867):setSize(139))
+	table.insert(pbz8_items,Asteroid():setPosition(331831, 844976):setSize(110))
+	table.insert(pbz8_items,Asteroid():setPosition(333186, 845329):setSize(121))
+	table.insert(pbz8_items,Asteroid():setPosition(337238, 842970):setSize(132))
+	table.insert(pbz8_items,Asteroid():setPosition(334470, 843230):setSize(113))
+	table.insert(pbz8_items,Asteroid():setPosition(335839, 842933):setSize(124))
+	table.insert(pbz8_items,Asteroid():setPosition(332469, 841300):setSize(135))
+	table.insert(pbz8_items,Asteroid():setPosition(333356, 842383):setSize(116))
+	table.insert(pbz8_items,Asteroid():setPosition(334033, 805699):setSize(127))
+	table.insert(pbz8_items,Asteroid():setPosition(335348, 805218):setSize(138))
+	table.insert(pbz8_items,Asteroid():setPosition(334506, 804100):setSize(119))
+	table.insert(pbz8_items,Asteroid():setPosition(336881, 804045):setSize(120))
+	table.insert(pbz8_items,Asteroid():setPosition(336730, 805437):setSize(131))
+	table.insert(pbz8_items,Asteroid():setPosition(334141, 790204):setSize(112))
+	table.insert(pbz8_items,Asteroid():setPosition(334677, 792749):setSize(123))
+	table.insert(pbz8_items,Asteroid():setPosition(334916, 791370):setSize(134))
+	table.insert(pbz8_items,Asteroid():setPosition(333248, 808123):setSize(115))
+	table.insert(pbz8_items,Asteroid():setPosition(333088, 806732):setSize(126))
+	table.insert(pbz8_items,Asteroid():setPosition(332860, 789639):setSize(137))
+	table.insert(pbz8_items,Asteroid():setPosition(334470, 788844):setSize(118))
+	table.insert(pbz8_items,Asteroid():setPosition(333454, 787882):setSize(129))
+	table.insert(pbz8_items,Asteroid():setPosition(337110, 747130):setSize(130))
+	table.insert(pbz8_items,Asteroid():setPosition(336208, 746059):setSize(111))
+	table.insert(pbz8_items,Asteroid():setPosition(337081, 749011):setSize(122))
+	table.insert(pbz8_items,Asteroid():setPosition(333595, 730178):setSize(133))
+	table.insert(pbz8_items,Asteroid():setPosition(334763, 730949):setSize(114))
+	table.insert(pbz8_items,Asteroid():setPosition(336461, 731132):setSize(125))
+	table.insert(pbz8_items,Asteroid():setPosition(335493, 732144):setSize(136))
+	table.insert(pbz8_items,Asteroid():setPosition(335056, 768005):setSize(117))
+	table.insert(pbz8_items,Asteroid():setPosition(335263, 766029):setSize(128))
+	table.insert(pbz8_items,Asteroid():setPosition(334178, 766914):setSize(139))
+	table.insert(pbz8_items,Asteroid():setPosition(334150, 745172):setSize(110))
+	table.insert(pbz8_items,Asteroid():setPosition(333076, 750136):setSize(121))
+	table.insert(pbz8_items,Asteroid():setPosition(332480, 766396):setSize(132))
+	table.insert(pbz8_items,Asteroid():setPosition(333645, 765619):setSize(113))
+	table.insert(pbz8_items,Asteroid():setPosition(334847, 746386):setSize(124))
+	table.insert(pbz8_items,Asteroid():setPosition(334178, 747616):setSize(135))
+	table.insert(pbz8_items,Asteroid():setPosition(335830, 749639):setSize(116))
+	table.insert(pbz8_items,Asteroid():setPosition(334548, 750202):setSize(127))
+	table.insert(pbz8_items,Asteroid():setPosition(333865, 748980):setSize(138))
+	table.insert(pbz8_items,Asteroid():setPosition(332479, 728277):setSize(119))
+	table.insert(pbz8_items,Asteroid():setPosition(332292, 729664):setSize(120))
+	table.insert(pbz8_items,Asteroid():setPosition(336008, 769031):setSize(131))
+	table.insert(pbz8_items,Asteroid():setPosition(335348, 718961):setSize(112))
+	table.insert(pbz8_items,Asteroid():setPosition(335055, 720715):setSize(115))
+	table.insert(pbz8_items,Asteroid():setPosition(336225, 723639):setSize(118))
+	table.insert(pbz8_items,Asteroid():setPosition(334178, 722762):setSize(110))
+	table.insert(pbz8_items,Asteroid():setPosition(335348, 716622):setSize(110))
+	table.insert(pbz8_items,Asteroid():setPosition(333008, 718668):setSize(126))
+	table.insert(pbz8_items,Asteroid():setPosition(334178, 697908):setSize(122))
+	table.insert(pbz8_items,Asteroid():setPosition(333008, 695861):setSize(118))
+	table.insert(pbz8_items,Asteroid():setPosition(334763, 694399):setSize(115))
+	table.insert(pbz8_items,Asteroid():setPosition(336810, 702586):setSize(129))
+	table.insert(pbz8_items,Asteroid():setPosition(335055, 700832):setSize(113))
+	table.insert(pbz8_items,Asteroid():setPosition(336810, 707265):setSize(110))
+	table.insert(pbz8_items,Asteroid():setPosition(332131, 694107):setSize(114))
+	table.insert(pbz8_items,Asteroid():setPosition(335348, 690890):setSize(119))
+	table.insert(pbz8_items,Asteroid():setPosition(336517, 694692):setSize(116))
+	table.insert(pbz8_items,Asteroid():setPosition(336225, 692060):setSize(123))
+	table.insert(pbz8_items,Asteroid():setPosition(335932, 684165):setSize(114))
+	table.insert(pbz8_items,Asteroid():setPosition(333593, 682703):setSize(114))
+	table.insert(pbz8_items,Asteroid():setPosition(333301, 689428):setSize(124))
+	table.insert(pbz8_items,Asteroid():setPosition(335348, 687089):setSize(129))
+    table.insert(pbz8_items,Planet():setPosition(335022, 825399):setPlanetRadius(2000):setDistanceFromMovementPlane(-1000.00):setPlanetSurfaceTexture("planets/moon-1.png"):setPlanetCloudRadius(2100.00):setAxialRotationTime(500))
+	--	set speed for zone 1 items
+	for i,item in ipairs(pbz1_items) do
+		item.speed = 20
+		item.up = true
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 2 items
+	for i,item in ipairs(pbz2_items) do
+		item.speed = 120
+		item.up = false
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 3 items
+	for i,item in ipairs(pbz3_items) do
+		item.speed = 240
+		item.up = true
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 4 items
+	for i,item in ipairs(pbz4_items) do
+		item.speed = 40
+		item.up = true
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 5 items
+	for i,item in ipairs(pbz5_items) do
+		item.speed = 360
+		item.up = false
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 6 items
+	for i,item in ipairs(pbz6_items) do
+		item.speed = 70
+		item.up = false
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 7 items
+	for i,item in ipairs(pbz7_items) do
+		item.speed = 30
+		item.up = true
+		table.insert(phen_list,item)
+	end
+	--	set speed for zone 8 items
+	for i,item in ipairs(pbz8_items) do
+		item.speed = 180
+		item.up = false
+		table.insert(phen_list,item)
+	end
+	return phen_list
+end
 function removeStaunchColor()
 	staunch_color = false
 	if staunch_planets ~= nil then
@@ -24636,6 +25308,12 @@ function removeStaunchColor()
 		end
 	end
 	staunch_asteroids = nil
+	if staunch_phenomenon ~= nil then
+		for i,sp in pairs(staunch_phenomenon) do
+			sp:destroy()
+		end
+	end
+	staunch_phenomenon = nil
 	if staunch_stations ~= nil then
 		for i,ss in pairs(staunch_stations) do
 			if ss ~= stationStaunch then
@@ -24644,6 +25322,12 @@ function removeStaunchColor()
 		end
 	end
 	staunch_stations = nil
+	if staunch_defense_platforms ~= nil then
+		for i,sdp in ipairs(staunch_defense_platforms) do
+			sdp:destroy()
+		end
+	end
+	staunch_defense_platforms = nil
 end
 --	Other
 function placeTknolgBase()
@@ -25309,6 +25993,18 @@ function setPlayerCarrier()
 	addGMFunction("-Tweak Player",tweakPlayerShip)
 	local p = playerShipSelected()
 	if p ~= nil then
+		local button_label = "Carrier N->Y"
+		if p.carrier ~= nil and p.carrier then
+			button_label = "Carrier Y->N"
+		end
+		addGMFunction(button_label,function()
+			if p.carrier ~= nil and p.carrier then
+				p.carrier = false
+			else
+				p.carrier = true
+			end
+			setPlayerCarrier()
+		end)
 		addGMFunction("+Ship Types",setCarrierShipTypes)
 		addGMFunction("+Ship Inventory",setCarrierShipInventory)
 		if p.carrier_ship_types ~= nil and p.carrier_ship_inventory ~= nil then
@@ -25398,7 +26094,11 @@ function setCarrierShipTypes()
 		if p.carrier_ship_types == nil then
 			p.carrier_ship_types = {}
 			for template,details in pairs(carrier_ship_types) do
-				p.carrier_ship_types[template] = details
+				p.carrier_ship_types[template] = {
+					carry = details.carry,
+					class = details.class,
+					create = details.create,
+				}
 			end
 		end
 		addGMFunction("+By Class",setCarryByClass)
@@ -29970,6 +30670,7 @@ function createPlayerShipHearken()
 	playerHearken = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Hearken")
 	setBeamColor(playerHearken)
 	playerHearken:setTypeName("Redhook")
+	playerHearken:setImpulseMaxSpeed(70,85)					--faster impulse max (vs 60)
 	playerHearken:setRepairCrewCount(5)						--more repair crew (vs 2)
 	playerHearken.max_jump_range = 30000					--shorter than typical (vs 50)
 	playerHearken.min_jump_range = 3000						--shorter than typical (vs 5)
@@ -29977,8 +30678,8 @@ function createPlayerShipHearken()
 	playerHearken:setJumpDriveCharge(playerHearken.max_jump_range)
 	playerHearken:setHullMax(180)							--stronger hull (vs 120)
 	playerHearken:setHull(180)
-	playerHearken:setShieldsMax(100, 100)					--stronger shields (vs 70, 70)
-	playerHearken:setShields(100, 100)
+	playerHearken:setShieldsMax(120, 120)					--stronger shields (vs 70, 70)
+	playerHearken:setShields(120, 120)
 --                 				  Arc,Dir,	Range, CycleTime, Dmg
 	playerHearken:setBeamWeapon(0, 10,	0,	 1000,		 4.0, 4.5)	--one beam (vs 0)
 --										Arc,  Dir, Rotate speed
@@ -63370,6 +64071,7 @@ function update(delta)
 			updatePlayerWaypointDistanceButton(p)
 			improvedStationService(p)
 			updatePlayerMaxHealthWidgets(p)
+			updateWaypointSharingButtons(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -63579,6 +64281,9 @@ function update(delta)
 	updateProbeLabor()
 	updateShowMineBlob()
 	expeditedDockingServices()
+	if staunch_phenomenon ~= nil then
+		updateStaunchPhenomenon(delta)
+	end
 	if escape_pod_floaters ~= nil then
 		podFloat()
 	end
@@ -66182,6 +66887,65 @@ function updateMagnasolPatrols(delta)
 	end
 	updateMagnasol = updateMagnasolCollision
 end
+function updateWaypointSharingButtons(p)
+	if p:getWaypointCount() > 0 and p:isCommsChatOpenToPlayer() then
+		for n=1,p:getWaypointCount() do
+			local share_wp_button_rel = string.format("share_wp_button_rel_%s",n)
+			p:addCustomButton("Relay",share_wp_button_rel,string.format("Share WP%s",n),function()
+				local share_players = {}
+				for i,p_chat in ipairs(getActivePlayerShips()) do
+					if p ~= p_chat then
+						if p_chat:isCommsChatOpenToPlayer() and p:isCommsChatOpenToPlayer() then
+							if p_chat:getWaypointCount() < 9 then
+								local share_wp_x, share_wp_y = p:getWaypoint(n)
+								p_chat:commandAddWaypoint(share_wp_x,share_wp_y)
+								table.insert(share_players,{p=p_chat,wp=p_chat:getWaypointCount()})
+							end
+						end
+					end
+				end
+				local p_msg = string.format("You shared your waypoint %s with:",n)
+				if #share_players > 0 then
+					for i,share_player in ipairs(share_players) do
+						p_msg = string.format("%s\n%s as waypoint %s",p_msg,share_player.p:getCallSign(),share_player.wp)
+						share_player.p:addCustomMessage("Relay","shared_wp_msg_rel",string.format("%s shared their waypoint %s with you as waypoint %s",p:getCallSign(),n,share_player.wp))
+						share_player.p:addCustomMessage("Operations","shared_wp_msg_ops",string.format("%s shared their waypoint %s with you as waypoint %s",p:getCallSign(),n,share_player.wp))
+					end
+				else
+					p_msg = "Could not share waypoint"
+				end
+				p:addCustomMessage("Relay","share_wp_msg_rel",p_msg)
+			end, 50 + n)
+		end
+	else
+		for n=1,9 do
+			local share_wp_button_rel = string.format("share_wp_button_rel_%s",n)
+			p:removeCustom(share_wp_button_rel)
+		end
+	end
+end
+function updateStaunchPhenomenon(delta)
+	for i,sp in ipairs(staunch_phenomenon) do
+		if sp:isValid() and sp.typeName ~= "Zone" then
+			local sp_x, sp_y = sp:getPosition()
+			if sp.up then
+				sp_y = sp_y - sp.speed * delta
+				if sp_y < spr_y - 100000 then
+					sp:setPosition(sp_x,spr_y + 100000)
+				else
+					sp:setPosition(sp_x,sp_y)
+				end
+			else
+				sp_y = sp_y + sp.speed * delta
+				if sp_y > spr_y + 100000 then
+					sp:setPosition(sp_x,spr_y - 100000)
+				else
+					sp:setPosition(sp_x,sp_y)
+				end
+			end
+		end
+	end
+end
 function updatePlayerMagnasolLevelCoolant(p)
 	if p:isValid() then
 		if p.level_coolant == nil then
@@ -66338,10 +67102,10 @@ function updateCarrierDeployedFighter(delta)
 									carrier_ship = ship
 								end
 							end
+							if carrier_ship.max_health == nil then
+								carrier_ship.max_health = {}
+							end
 							for i,system in ipairs(repair_systems) do
-								if carrier_ship.max_health == nil then
-									carrier_ship.max_health = {}
-								end
 								if fighter:getSystemHealthMax(system) == 1 then
 									carrier_ship.max_health[system] = nil
 								else
@@ -66453,7 +67217,201 @@ function updateCarrierDeployedFighter(delta)
 					end
 				end
 			else
-				carrier_deployed_fighter[fighter_name] = nil
+				local nearby_objects = fighter:getObjectsInRange(1000)
+				local carriers = {}
+				local fighter_type = fighter:getTypeName()
+				for i,obj in ipairs(nearby_objects) do
+					if obj.typeName == "PlayerSpaceship" then
+--						print("Fighter",string.format("%s's",fighter_name),"carrier destroyed. Found player ship",obj:getCallSign(),"nearby")
+						if obj.carrier ~= nil and obj.carrier then
+--							print("Player ship is a carrier")
+							if obj.carrier_ship_types ~= nil then
+								if obj.carrier_ship_types[fighter_type] ~= nil then
+--									print("Carrier has a list of supported fighter types")
+									if obj.carrier_ship_types[fighter_type].carry then
+--										print("Fighter type matches a supported type on carrier:",fighter_type)
+										table.insert(carriers,obj)
+									end
+								end
+							end
+						end
+					end
+				end
+				if #carriers > 0 then
+--					print("Carrier list contains this many carriers:",#carriers)
+					carrier = carriers[1]
+					if #carriers > 1 then
+						--pick the closest carrier
+					end
+					local dock_banner = false
+					local fighter_heading = fighter:getHeading()
+					local carrier_heading = carrier:getHeading()
+					if math.abs(fighter_heading - carrier_heading) < 10 then
+						dock_banner = true
+					elseif math.abs(fighter_heading - carrier_heading) > 350 then
+						if fighter_heading > carrier_heading then
+							carrier_heading = carrier_heading + 360
+						elseif carrier_heading > fighter_heading then
+							fighter_heading = fighter_heading + 360
+						end
+						if math.abs(fighter_heading - carrier_heading) < 10 then
+							dock_banner = true
+						end
+					end
+					if dock_banner then
+						if fighter.retraction_cycle_count ~= nil then
+							if fighter.retraction_cycle_count < 5 then
+								fighter.retraction_cycle_count = fighter.retraction_cycle_count + 1
+							else
+								local transfer_map = {}
+								local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
+								for _, console in ipairs(consoles) do
+									if fighter:hasPlayerAtPosition(console) then
+										table.insert(transfer_map,console)
+									end
+								end
+								fighter:transferPlayersToShip(carrier)
+								local repair_systems = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
+								local repair_delay = 0
+								local carrier_ship = nil
+								if carrier.carrier_ship_inventory == nil then
+									carrier.carrier_ship_inventory = {}
+								end
+								for i,ship in ipairs(carrier.carrier_ship_inventory) do
+									if fighter == ship.ship then
+										carrier_ship = ship
+									end
+								end
+								if carrier_ship == nil then
+									--original carrier that deployed the fighter is gone
+									--put fighter in this carrier's inventory
+									local ship = carrier.carrier_ship_types[fighter_type]
+									table.insert(carrier.carrier_ship_inventory,{
+										class = ship.class,
+										template = fighter_type,
+										name = fighter:getCallSign(),
+										state = "aboard",
+										launch_button = string.format("launch_%s",fighter:getCallSign()),
+										launch_time = carrier_class_launch_time[ship.class],
+									})
+									carrier_ship = carrier.carrier_ship_inventory[#carrier.carrier_ship_inventory]
+								end
+								if carrier_ship.max_health == nil then
+									carrier_ship.max_health = {}
+								end
+								for i,system in ipairs(repair_systems) do
+									if fighter:getSystemHealthMax(system) == 1 then
+										carrier_ship.max_health[system] = nil
+									else
+										carrier_ship.max_health[system] = fighter:getSystemHealthMax(system)
+									end
+									repair_delay = repair_delay + (1 - (fighter:getSystemHealth(system)/fighter:getSystemHealthMax(system)))*100
+								end
+								repair_delay = repair_delay + (1 - (fighter:getHull()/fighter:getHullMax()))*100
+								local restock_gap = false
+								for i,missile_type in ipairs(missile_types) do
+									if fighter:getWeaponStorageMax(missile_type) > 0 then
+										if carrier:getWeaponStorage(missile_type) < (fighter:getWeaponStorageMax(missile_type) - fighter:getWeaponStorage(missile_type)) then
+											restock_gap = true
+										end
+									end
+								end
+								if restock_gap then
+									if carrier_ship.ordnance_level == nil then
+										carrier_ship.ordnance_level = {}
+									end
+									if carrier_ship.max_ordnance == nil then
+										carrier_ship.max_ordnance = {}
+									end
+								else
+									carrier_ship.ordnance_level = {}
+									carrier_ship.max_ordnance = {}
+								end
+								for i,missile_type in ipairs(missile_types) do
+									if fighter:getWeaponStorageMax(missile_type) > 0 then
+										if restock_gap then
+											carrier_ship.ordnance_level[missile_type] = fighter:getWeaponStorage(missile_type)
+											carrier_ship.max_ordnance[missile_type] = fighter:getWeaponStorageMax(missile_type)
+										else
+											carrier:setWeaponStorage(missile_type,carrier:getWeaponStorage(missile_type) - (fighter:getWeaponStorageMax(missile_type) - fighter:getWeaponStorage(missile_type)))
+										end
+									end
+								end
+								fighter:destroy()
+								carrier_ship.state = "aboard"
+								carrier_ship.repair_timer = getScenarioTime() + math.max(30,repair_delay)
+								carrier:addToShipLog(string.format("%s has been retrieved",carrier_ship.name),"Green")
+								carrier_deployed_fighter[carrier_ship.name] = nil
+								for _, console in ipairs(transfer_map) do
+									carrier:addCustomMessage(console,string.format("%s_return_msg",console),string.format("Crew returning from %s should take the appropriate console on %s. Welcome back.",carrier_ship.name,carrier:getCallSign()))
+								end
+							end
+						end					
+						if fighter ~= nil and fighter:isValid() then
+							fighter.dock_banner = string.format("%s_dock_banner",fighter_name)
+							local vx, vy = fighter:getVelocity()
+							local fighter_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+							vx, vy = carrier:getVelocity()
+							local carrier_velocity = math.sqrt((math.abs(vx)*math.abs(vx))+(math.abs(vy)*math.abs(vy)))
+							local dock_status = string.format("Match Bear:%.1f Vel:%.1f",fighter_heading - carrier_heading,fighter_velocity - carrier_velocity)
+							if math.abs(fighter_heading - carrier_heading) < 1 then
+								if math.abs(fighter_velocity - carrier_velocity) < 1 then
+									if fighter.retract_timer == nil then
+										fighter.retract_timer = getScenarioTime() + fighter.retract_time
+									end
+									if getScenarioTime() > fighter.retract_timer then
+										dock_status = string.format("%s   0",dock_status)
+										fighter.dock_with_carrier_button = "dock_with_carrier_button"
+										fighter:addCustomButton("Helms",string.format("%s_helm",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+											retractFighterIntoCarrier(fighter,carrier)
+										end,18)
+										fighter:addCustomButton("Tactical",string.format("%s_tac",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+											retractFighterIntoCarrier(fighter,carrier)
+										end,18)
+										fighter:addCustomButton("Single",string.format("%s_one",fighter.dock_with_carrier_button),string.format("Dock with %s",carrier:getCallSign()),function()
+											retractFighterIntoCarrier(fighter,carrier)
+										end,18)
+									else
+										local display_time = getScenarioTime() - fighter.retract_timer
+										dock_status = string.format("%s   %.1f",dock_status,display_time)
+										if fighter.dock_with_carrier_button ~= nil then
+											fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+											fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+											fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+											fighter.dock_with_carrier_button = nil
+											fighter.retract_timer = nil
+										end
+									end
+								else
+									if fighter.dock_with_carrier_button ~= nil then
+										fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+										fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+										fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+										fighter.dock_with_carrier_button = nil
+										fighter.retract_timer = nil
+									end
+								end
+							else
+								if fighter.dock_with_carrier_button ~= nil then
+									fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+									fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+									fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+									fighter.dock_with_carrier_button = nil
+									fighter.retract_timer = nil
+								end
+							end
+							fighter:addCustomInfo("Helms",string.format("%s_helm",fighter.dock_banner),dock_status,5)
+							fighter:addCustomInfo("Tactical",string.format("%s_tac",fighter.dock_banner),dock_status,5)
+						end
+					else
+						if fighter.dock_banner ~= nil then
+							fighter:removeCustom(string.format("%s_helm",fighter.dock_banner))
+							fighter:removeCustom(string.format("%s_tac",fighter.dock_banner))
+							fighter.dock_banner = nil
+						end
+					end
+				end
+--				carrier_deployed_fighter[fighter_name] = nil
 			end
 		else
 			carrier_deployed_fighter[fighter_name] = nil
