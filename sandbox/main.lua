@@ -67,7 +67,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.32.1"
+	scenario_version = "6.32.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1764,7 +1764,7 @@ function setConstants()
 	makePlayerShipActive("Manxman")			--J
 	makePlayerShipActive("Wiggy") 			--J 
 	makePlayerShipActive("Quicksilver")		--W
-	makePlayerShipActive("Florentine")		--W
+	makePlayerShipActive("Ignite")			--W
 	makePlayerShipActive("Quill") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -11279,9 +11279,11 @@ function filkRoadSector()
 	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
 	setBeamColor(ship)
 	table.insert(objects,ship)
-	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
-	setBeamColor(ship)
-	table.insert(objects,ship)
+	wdpe3Zone = squareZone(-331854, -445867,"wdpe3")
+	wdpe3Zone:setColor(0,128,0):setLabel("3")
+--	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+--	setBeamColor(ship)
+--	table.insert(objects,ship)
 
 	westPoint = militaryOutpost("Human Navy")
 	westPoint:setCallSign("West Point"):setPosition(-392998, -419877):setDescription("Ex-Exuari Military Outpost. Surrendered to Icarus Patrol on 01July2023.")
@@ -24171,14 +24173,37 @@ function staunchSector()
 end
 function createStaunchStations()
 	local stations = {}
-	--	Wortast
-	stationWortast = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wortast"):setPosition(112296, 730897):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
-	stationWortast:setShortRangeRadarRange(5000)
-	stationWortast.comms_data = {
+	--	Chitin
+    stationChitin = SpaceStation():setTemplate("Huge Station"):setFaction("Ktlitans"):setCallSign("Chitin"):setPosition(30000, 808300)
+	station_names[stationChitin:getCallSign()] = {stationChitin:getSectorName(), stationChitin}
+	table.insert(stations,stationChitin)
+	--	Chitin defense platforms and sniper towers
+    local cdp1 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP1"):setPosition(32500, 808300):orderStandGround()
+	setBeamColor(cdp1)
+	station_names[cdp1:getCallSign()] = {cdp1:getSectorName(), cdp1}
+	table.insert(staunch_defense_platforms,cdp1)
+    local cdp2 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP2"):setPosition(27500, 808300):orderStandGround()
+	setBeamColor(cdp2)
+	station_names[cdp2:getCallSign()] = {cdp2:getSectorName(), cdp2}
+	table.insert(staunch_defense_platforms,cdp2)
+    local cst1 = sniperTower("Ktlitans")
+    cst1:setCallSign("CST1"):setPosition(30000, 805800):orderStandGround()
+	setBeamColor(cst1)
+	station_names[cst1:getCallSign()] = {cst1:getSectorName(), cst1}
+	table.insert(staunch_defense_platforms,cst1)
+    local cst2 = sniperTower("Ktlitans")
+    cst2:setCallSign("CST2"):setPosition(30000, 810800):orderStandGround()
+	setBeamColor(cst2)
+	station_names[cst2:getCallSign()] = {cst2:getSectorName(), cst2}
+	table.insert(staunch_defense_platforms,cst2)
+	--	Dalton
+	stationDalton = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Dalton"):setPosition(110418, 831782)
+	stationDalton:setShortRangeRadarRange(6000)
+	stationDalton.comms_data = {
     	friendlyness = 64,
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
-        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        weapon_available = 	{Homing = true,					HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
@@ -24193,48 +24218,101 @@ function createStaunchStations()
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
         	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
-        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
         	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
-        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
-        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<30},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
         	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
-        hack_repair =			random(1,100)<30,
+        hack_repair =			random(1,100)<50,
         tube_slow_down_repair = random(1,100)<30,
-        jump_overcharge =		random(1,100)<30,
+        jump_overcharge =		true,
         probe_launch_repair =	random(1,100)<30,
-        scan_repair =			random(1,100)<30,
-        self_destruct_repair =	random(1,100)<30,
-        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        scan_repair =			random(1,100)<70,
+        self_destruct_repair =	random(1,100)<20,
+--		mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	warp =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        goods = {	optic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
-        general_information = "We gather minerals from the asteroids",
-    	history = "We just came for the minerals. Pickings are pretty good, so we've been growing our station capacity.",
+        general_information = "We get minerals and chill out",
+    	history = "This looked like a place for pretty easy pickings",
     	idle_defense_fleet = {
 			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
+			DF2 = "MT52 Hornet",
 			DF3 = "Phobos T3",
-			DF4 = "Nirvana R5A",
+			DF4 = "Nirvana R5",
     	},
 	}
-	if random(1,100) <= 14 then stationWortast:setRestocksScanProbes(false) end
-	if random(1,100) <= 11 then stationWortast:setRepairDocked(false) end
-	if random(1,100) <= 12 then stationWortast:setSharesEnergyWithDocked(false) end
-	--	Wortast defense platforms
-	local wdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP2"):setPosition(112896, 733538):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(wdp1)
-	station_names[wdp1:getCallSign()] = {wdp1:getSectorName(), wdp1}
-	table.insert(staunch_defense_platforms,wdp1)
-	local wdp2 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP1"):setPosition(110476, 728574):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(wdp2)
-	station_names[wdp2:getCallSign()] = {wdp2:getSectorName(), wdp2}
-	table.insert(staunch_defense_platforms,wdp2)
-	station_names[stationWortast:getCallSign()] = {stationWortast:getSectorName(), stationWortast}
-	table.insert(stations,stationWortast)
+	if random(1,100) <= 14 then stationDalton:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationDalton:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationDalton:setSharesEnergyWithDocked(false) end
+	station_names[stationDalton:getCallSign()] = {stationDalton:getSectorName(), stationDalton}
+	table.insert(stations,stationDalton)
+	--	Horst
+	stationHorst = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Horst"):setPosition(68783, 865202)
+	station_names[stationHorst:getCallSign()] = {stationHorst:getSectorName(), stationHorst}
+	table.insert(stations,stationHorst)
+	--	Inversion
+	stationInversion = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("Inversion"):setPosition(21713, 784706)
+	station_names[stationInversion:getCallSign()] = {stationInversion:getSectorName(), stationInversion}
+	table.insert(stations,stationInversion)
+	--	Lumpid
+    stationLumpid = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lumpid"):setPosition(-34224, 819847)
+	stationLumpid:setShortRangeRadarRange(6000)
+	stationLumpid.comms_data = {
+    	friendlyness = 54,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<30},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<50,
+        tube_slow_down_repair = true,
+        jump_overcharge =		true,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<70,
+        self_destruct_repair =	random(1,100)<20,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	tritanium =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We gather minerals and research stellar phenomena",
+    	history = "This looked like a good place for mining and research",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5",
+    	},
+	}
+	if random(1,100) <= 14 then stationLumpid:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationLumpid:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationLumpid:setSharesEnergyWithDocked(false) end
+	station_names[stationLumpid:getCallSign()] = {stationLumpid:getSectorName(), stationLumpid}
+	table.insert(stations,stationLumpid)
 	--	Trendy
 	stationTrendy = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Trendy"):setPosition(79971, 697816):setDescription("Mining and monitoring"):setCommsScript(""):setCommsFunction(commsStation)
 	stationTrendy:setShortRangeRadarRange(6000)
@@ -24299,14 +24377,22 @@ function createStaunchStations()
 	table.insert(staunch_defense_platforms,tdp_2)
 	station_names[stationTrendy:getCallSign()] = {stationTrendy:getSectorName(), stationTrendy}
 	table.insert(stations,stationTrendy)
-	--	Dalton
-	stationDalton = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Dalton"):setPosition(110418, 831782)
-	stationDalton:setShortRangeRadarRange(6000)
-	stationDalton.comms_data = {
+	--	Unira
+    stationUnira = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Unira"):setPosition(-9491, 840610)
+	station_names[stationUnira:getCallSign()] = {stationUnira:getSectorName(), stationUnira}
+	table.insert(stations,stationUnira)
+	--	Vectoria
+    stationVectoria = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Vectoria"):setPosition(-18651, 800915)
+	station_names[stationVectoria:getCallSign()] = {stationVectoria:getSectorName(), stationVectoria}
+	table.insert(stations,stationVectoria)
+	--	Wortast
+	stationWortast = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wortast"):setPosition(112296, 730897):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationWortast:setShortRangeRadarRange(5000)
+	stationWortast.comms_data = {
     	friendlyness = 64,
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
         weapon_cost =		{Homing = math.random(1,5), 	HVLI = math.random(2,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
-        weapon_available = 	{Homing = true,					HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
         service_cost = 		{
         	supplydrop = math.random(80,120), 
         	reinforcements = math.random(125,175),
@@ -24321,72 +24407,51 @@ function createStaunchStations()
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
         	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
         	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
-        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
         	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
-        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<30},
-        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
         	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
         },
-        hack_repair =			random(1,100)<50,
+        hack_repair =			random(1,100)<30,
         tube_slow_down_repair = random(1,100)<30,
-        jump_overcharge =		true,
+        jump_overcharge =		random(1,100)<30,
         probe_launch_repair =	random(1,100)<30,
-        scan_repair =			random(1,100)<70,
-        self_destruct_repair =	random(1,100)<20,
---		mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
-        goods = {	optic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        goods = {	warp =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
         trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
         public_relations = true,
-        general_information = "We get minerals and chill out",
-    	history = "This looked like a place for pretty easy pickings",
+        general_information = "We gather minerals from the asteroids",
+    	history = "We just came for the minerals. Pickings are pretty good, so we've been growing our station capacity.",
     	idle_defense_fleet = {
 			DF1 = "MT52 Hornet",
-			DF2 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
 			DF3 = "Phobos T3",
-			DF4 = "Nirvana R5",
+			DF4 = "Nirvana R5A",
     	},
 	}
-	if random(1,100) <= 14 then stationDalton:setRestocksScanProbes(false) end
-	if random(1,100) <= 11 then stationDalton:setRepairDocked(false) end
-	if random(1,100) <= 12 then stationDalton:setSharesEnergyWithDocked(false) end
-	station_names[stationDalton:getCallSign()] = {stationDalton:getSectorName(), stationDalton}
-	table.insert(stations,stationDalton)
-	--	Horst
-	stationHorst = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Horst"):setPosition(68783, 865202)
-	station_names[stationHorst:getCallSign()] = {stationHorst:getSectorName(), stationHorst}
-	table.insert(stations,stationHorst)
-	--	Chitin
-    stationChitin = SpaceStation():setTemplate("Huge Station"):setFaction("Ktlitans"):setCallSign("Chitin"):setPosition(30000, 808300)
-	station_names[stationChitin:getCallSign()] = {stationChitin:getSectorName(), stationChitin}
-	table.insert(stations,stationChitin)
-	--	Chitin defense platforms and sniper towers
-    local cdp1 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP1"):setPosition(32500, 808300):orderStandGround()
-	setBeamColor(cdp1)
-	station_names[cdp1:getCallSign()] = {cdp1:getSectorName(), cdp1}
-	table.insert(staunch_defense_platforms,cdp1)
-    local cdp2 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP2"):setPosition(27500, 808300):orderStandGround()
-	setBeamColor(cdp2)
-	station_names[cdp2:getCallSign()] = {cdp2:getSectorName(), cdp2}
-	table.insert(staunch_defense_platforms,cdp2)
-    local cst1 = sniperTower("Ktlitans")
-    cst1:setCallSign("CST1"):setPosition(30000, 805800):orderStandGround()
-	setBeamColor(cst1)
-	station_names[cst1:getCallSign()] = {cst1:getSectorName(), cst1}
-	table.insert(staunch_defense_platforms,cst1)
-    local cst2 = sniperTower("Ktlitans")
-    cst2:setCallSign("CST2"):setPosition(30000, 810800):orderStandGround()
-	setBeamColor(cst2)
-	station_names[cst2:getCallSign()] = {cst2:getSectorName(), cst2}
-	table.insert(staunch_defense_platforms,cst2)
-	--	Inversion
-	stationInversion = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("Inversion"):setPosition(21713, 784706)
-	station_names[stationInversion:getCallSign()] = {stationInversion:getSectorName(), stationInversion}
-	table.insert(stations,stationInversion)
+	if random(1,100) <= 14 then stationWortast:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationWortast:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationWortast:setSharesEnergyWithDocked(false) end
+	--	Wortast defense platforms
+	local wdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP2"):setPosition(112896, 733538):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
+	setBeamColor(wdp1)
+	station_names[wdp1:getCallSign()] = {wdp1:getSectorName(), wdp1}
+	table.insert(staunch_defense_platforms,wdp1)
+	local wdp2 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("WDP1"):setPosition(110476, 728574):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
+	setBeamColor(wdp2)
+	station_names[wdp2:getCallSign()] = {wdp2:getSectorName(), wdp2}
+	table.insert(staunch_defense_platforms,wdp2)
+	station_names[stationWortast:getCallSign()] = {stationWortast:getSectorName(), stationWortast}
+	table.insert(stations,stationWortast)
     return stations
 end
+
 function createStaunchPlanets()
 	local gizen_x = 50292
 	local gizen_y = 789498
@@ -24652,6 +24717,41 @@ function createStaunchAsteroids()
     table.insert(asteroid_list,Asteroid():setPosition(20702, 797163):setSize(389))
     table.insert(asteroid_list,Asteroid():setPosition(19655, 798848):setSize(111))
     table.insert(asteroid_list,Asteroid():setPosition(19419, 799175):setSize(453))
+	--	Southwest quadrant
+	table.insert(asteroid_list,Asteroid():setPosition(-29763, 819764):setSize(927))
+	table.insert(asteroid_list,Asteroid():setPosition(-31900, 832283):setSize(62))
+	table.insert(asteroid_list,Asteroid():setPosition(-34954, 837168):setSize(111))
+	table.insert(asteroid_list,Asteroid():setPosition(-37397, 834420):setSize(810))
+	table.insert(asteroid_list,Asteroid():setPosition(-41671, 839000):setSize(50))
+	table.insert(asteroid_list,Asteroid():setPosition(-26710, 813046):setSize(123))
+	table.insert(asteroid_list,Asteroid():setPosition(-25488, 839306):setSize(718))
+	table.insert(asteroid_list,Asteroid():setPosition(-24572, 843275):setSize(47))
+	table.insert(asteroid_list,Asteroid():setPosition(-39534, 845107):setSize(139))
+	table.insert(asteroid_list,Asteroid():setPosition(-41061, 842054):setSize(613))
+	table.insert(asteroid_list,Asteroid():setPosition(-21213, 806634):setSize(39))
+	table.insert(asteroid_list,Asteroid():setPosition(-25488, 807550):setSize(145))
+	table.insert(asteroid_list,Asteroid():setPosition(-21519, 812436):setSize(520))
+	table.insert(asteroid_list,Asteroid():setPosition(-17549, 809993):setSize(25))
+	table.insert(asteroid_list,Asteroid():setPosition(-24878, 821901):setSize(150))
+	table.insert(asteroid_list,Asteroid():setPosition(-26099, 830451):setSize(430))
+	table.insert(asteroid_list,Asteroid():setPosition(-39229, 831978):setSize(45))
+	table.insert(asteroid_list,Asteroid():setPosition(-42893, 834726):setSize(163))
+	table.insert(asteroid_list,Asteroid():setPosition(-21213, 820985):setSize(319))
+	table.insert(asteroid_list,Asteroid():setPosition(-39534, 820680):setSize(56))
+	table.insert(asteroid_list,Asteroid():setPosition(-34954, 845718):setSize(172))
+	table.insert(asteroid_list,Asteroid():setPosition(-37397, 842664):setSize(211))
+	table.insert(asteroid_list,Asteroid():setPosition(-32206, 815489):setSize(67))
+	table.insert(asteroid_list,Asteroid():setPosition(-33427, 824039):setSize(185))
+	table.insert(asteroid_list,Asteroid():setPosition(-30374, 840527):setSize(318))
+	table.insert(asteroid_list,Asteroid():setPosition(-23351, 817321):setSize(72))
+	table.insert(asteroid_list,Asteroid():setPosition(-22435, 827703):setSize(196))
+	table.insert(asteroid_list,Asteroid():setPosition(-33732, 828313):setSize(417))
+	table.insert(asteroid_list,Asteroid():setPosition(-30068, 837779):setSize(89))
+	table.insert(asteroid_list,Asteroid():setPosition(-27320, 833199):setSize(189))
+	table.insert(asteroid_list,Asteroid():setPosition(-29152, 826787):setSize(511))
+	table.insert(asteroid_list,Asteroid():setPosition(-41366, 827397):setSize(96))
+	table.insert(asteroid_list,Asteroid():setPosition(-19687, 842970):setSize(170))
+	table.insert(asteroid_list,Asteroid():setPosition(-21824, 836558):setSize(626))
 	return asteroid_list
 end
 function createStaunchPhenomenon()
@@ -57730,7 +57830,6 @@ function setExpediteDock()
 						out = string.format("%s\n%s",out,tableRemoveRandom(more_services_addendum))
 					else
 						out = string.format("%s\n%s.\n%s",out,service_list,tableRemoveRandom(more_services_addendum))
-						out = string.format(_("station-comms","%s\n%s.\nWould you like some additional expedited docking services?"),out,service_list)
 					end
 				else
 					local no_more_services_addendum = {
