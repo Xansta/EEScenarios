@@ -68,7 +68,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.33.1"
+	scenario_version = "6.33.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Sandbox    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1761,11 +1761,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Hearken")			--J
+	makePlayerShipActive("Levant")			--J
 	makePlayerShipActive("Manxman")			--J
 	makePlayerShipActive("Wiggy") 			--J 
 	makePlayerShipActive("Quicksilver")		--W
-	makePlayerShipActive("Ignite")			--W
+	makePlayerShipActive("Flipper")			--W
 	makePlayerShipActive("Quill") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -20082,18 +20082,12 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
-		if i == 2 then
-			tdp2Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp2")
-			tdp2Zone:setColor(0,128,0):setLabel("2")
-		elseif i == 3 then
+		if i == 3 then
 			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
 			tdp3Zone:setColor(0,128,0):setLabel("3")
 		elseif i == 5 then
 			tdp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
 			tdp5Zone:setColor(0,128,0):setLabel("5")
-		elseif i == 1 then
-			tdp1Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp1")
-			tdp1Zone:setColor(0,128,0):setLabel("1")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			setBeamColor(dp)
