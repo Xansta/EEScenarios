@@ -20,7 +20,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.1.1"
+	scenario_version = "1.1.2"
 	ee_version = "2023.06.17"
 	print(string.format("    ----    Scenario: Scurvy Scavenger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
@@ -30,7 +30,6 @@ function init()
 	efficient_battery_diagnostic = false
 	prefix_length = 0
 	suffix_index = 0
-	accumulated_delta = 0
 	contract_eligible = false			--should start out as false
 	transition_contract_message = false	--should start out as false
 	contract_station = {}
@@ -45,7 +44,6 @@ function init()
 	stationStaticAsteroids = true
 	primaryOrders = _("orders-comms", "No primary orders")
 	plot1 = exuariHarassment
-	plot1_mission_count = 0
 	plotH = healthCheck				--Damage to ship can kill repair crew members
 	healthCheckTimer = 5
 	healthCheckTimerInterval = 5
@@ -56,6 +54,8 @@ function init()
 	first_station_angle = random(0,360)
 	local player_to_station_distance = random(8000,15000)
 	psx, psy = vectorFromAngle(first_station_angle,player_to_station_distance)
+	first_station_x = psx
+	first_station_y = psy
 	local pStation = placeStation(psx,psy,nil,"Independent")
 	table.insert(independent_station,pStation)
 	table.insert(station_list,pStation)
@@ -64,15 +64,13 @@ function init()
 	first_station.comms_data.weapon_available.EMP = true
 	first_station.comms_data.weapon_available.Nuke = true
 	first_station.comms_data.weapon_cost = {Homing = 2, HV, HVLI = math.random(1,3), Mine = math.random(2,5), Nuke = 12, EMP = 9}
-	local fsx = psx
-	local fsy = psy
 --	print("init: place first enemy station")
 	--place first enemy station for first mission 
 	exuari_station = {}
 	local exuari_station_angle = first_station_angle + random(-20,20)
 	local enemy_station_distance = random(11000,15000)
 	cnx, cny = vectorFromAngle(exuari_station_angle,enemy_station_distance-2500)
-	concealing_nebula = Nebula():setPosition(fsx+cnx,fsy+cny)
+	concealing_nebula = Nebula():setPosition(first_station_x+cnx,first_station_y+cny)
 	nebula_list = {}
 	table.insert(nebula_list,concealing_nebula)
 	for i=1,math.random(2,2+difficulty*2) do
@@ -96,8 +94,8 @@ function init()
 		table.insert(nebula_list,new_nebula)
 	end
 	psx, psy = vectorFromAngle(exuari_station_angle,enemy_station_distance)
-	psx = psx + fsx
-	psy = psy + fsy
+	psx = psx + first_station_x
+	psy = psy + first_station_y
 	pStation = placeStation(psx,psy,"Sinister","Exuari","Large Station")
 	table.insert(exuari_station,pStation)
 	table.insert(station_list,pStation)
@@ -107,7 +105,7 @@ function init()
 	evy = evy + psy
 	ev_angle = (exuari_station_angle + 180) % 360	--exuari vengeance attack angle
 --	print("init: place research asteroids")
-	local arx, ary, brx, bry, asteroids = curvaceousAsteroids1(fsx, fsy, player_to_station_distance)
+	local arx, ary, brx, bry, asteroids = curvaceousAsteroids1(first_station_x, first_station_y, player_to_station_distance)
 	research_asteroids = asteroids
 	--place artifact near asteroids
 	local avx, avy = vectorFromAngle(random(0,360),350-(difficulty*100))
@@ -620,25 +618,302 @@ end
 function mainGMButtons()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM", "+Missions"),missionSelection)
-	addGMFunction(_("buttonGM", "Show delta sum"),function()
-		local gm_message = string.format(_("msgGM", "Accumulated delta:\n%f"), accumulated_delta)
-		local seconds = math.floor(accumulated_delta % 60)
-		if accumulated_delta > 60 then
-			local minutes = math.floor(accumulated_delta / 60)
-			if minutes > 60 then
-				local hours = math.floor(minutes / 60)
-				gm_message = gm_message .. string.format(_("msgGM", "\n%i:%.2i:%.2i"),hours,minutes,seconds)
-			else
-				gm_message = gm_message .. string.format(_("msgGM", "\n%i:%.2i"),minutes,seconds)
-			end
-		end
-		addGMMessage(gm_message)
-	end)
 	addGMFunction(_("buttonGM","+Spawn Ship(s)"),spawnGMShips)
+--	addGMFunction("Explode test",function()
+--		plot7 = explodingPlanetDebris
+--	end)
 end
 function missionSelection()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM", "-Main from missions"),mainGMButtons)
+	addGMFunction(_("buttonGM","Mission Status"),function()
+		local out = _("msgGM","Plot 1:")
+		if plot1 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			if plot1 == kraylorDiversionarySabotage then
+				out = string.format(_("msgGM","%s Kraylor diversionary sabotage"),out)
+			elseif plot1 == longDistanceCargo then
+				out = string.format(_("msgGM","%s long distance cargo"),out)
+			elseif plot1 == transitionContract then
+				out = string.format(_("msgGM","%s transition contract"),out)
+			elseif plot1 == exuariHarassment then
+				out = string.format(_("msgGM","%s Exuari harassment"),out)
+			end
+			if plot1_type ~= nil and plot1_type == "optional" then
+				out = string.format(_("msgGM","%s (optional)"),out)
+			end
+			if plot1 == exuariHarassment then
+				if plot1_time ~= nil then
+					out = string.format(_("msgGM","%s\n    seconds remaining until next harassment wave:%i"),out,math.floor(plot1_time - getScenarioTime()))
+				end
+				if plot1_defensive_fleet_spawned ~= nil and plot1_defensive_fleet_spawned then
+					if plot1_defensive_fleet ~= nil then
+						out = string.format(_("msgGM","%s\n    defensive fleet size:%i"),out,#plot1_defensive_fleet)
+					end
+				else
+					if plot1_defensive_time ~= nil then
+						out = string.format(_("msgGM","%s\n    seconds remaining until next defensive fleet:%i"),out,math.floor(plot1_defensive_time - getScenarioTime()))
+					end
+				end
+				if plot1_danger ~= nil then
+					out = string.format(_("msgGM","%s\n    danger:%.2f"),out,plot1_danger)
+				end
+				if plot1_fleets_destroyed ~= nil then
+					out = string.format(_("msgGM","%s\n    fleets destroyed:%i"),out,plot1_fleets_destroyed)
+				end
+				if plot1_last_defense ~= nil and plot1_last_defense then
+					if plot1_last_defense_fleet ~= nil then
+						local fleet_count = 0
+						for i,ship in pairs(plot1_last_defense_fleet) do
+							if ship:isValid() then
+								fleet_count = fleet_count + 1
+							end
+						end
+						out = string.format(_("msgGM","%s\n    last defense fleet size:%i"),out,fleet_count)
+					end
+				end
+			end
+			if plot1 == kraylorDiversionarySabotage then
+				if diversionary_sabotage_fleet ~= nil then
+					local fleet_count = 0
+					for i,ship in ipairs(diversionary_sabotage_fleet) do
+						if ship:isValid() then
+							fleet_count = fleet_count + 1
+						end
+					end
+					out = string.format(_("msgGM","%s\n    Kraylor diversionary fleet size:%i"),out,fleet_count)
+				end
+				if kraylor_sabotage_diversion_time ~= nil then
+					out = string.format(_("msgGM","%s\n    seconds remaining until next check for reinforcements:%i"),out,math.floor(kraylor_sabotage_diversion_time - getScenarioTime()))
+				end
+				if kraylor_diversion_danger ~= nil then
+					out = string.format(_("msgGM","%s\n    Kraylor diversion danger:%i"),out,kraylor_diversion_danger)
+				end
+				if defend_against_kraylor_fleet ~= nil then
+					local fleet_count = 0
+					for i,ship in ipairs(defend_against_kraylor_fleet) do
+						if ship:isValid() then
+							fleet_count = fleet_count + 1
+						end
+					end
+					out = string.format(_("msgGM","%s/n    defend against Kraylor fleet size:%i"),out,fleet_count)
+				end
+				if supply_depot_station ~= nil and supply_depot_station:isValid() then
+					if supply_depot_station.sabotaged ~= nil and supply_depot_station.sabotaged then
+						out = string.format(_("msgGM","%s\n    supply depot station %s has been sabotaged."),out,supply_depot_station:getCallSign())
+					end
+				else
+					out = string.format(_("msgGM","%s\n    supply depot station has been destroyed"),out)
+				end
+			end
+			if plot1 == longDistanceCargo then
+				if supply_depot_station ~= nil and supply_depot_station:isValid() then
+					out = string.format(_("msgGM","%s    distance between %s and %s:%i units"),out,player:getCallSign(),supply_depot_station:getCallSign(),math.floor(distance(player,supply_depot_station)/1000))
+				end
+				if supply_sabotage_fleet ~= nil then
+					local sabotage_fleet_count = 0
+					for i,ship in ipairs(supply_sabotage_fleet) do
+						if ship:isValid() then
+							sabotage_fleet_count = sabotage_fleet_count + 1
+						end
+					end
+					out = string.format(_("msgGM","%s\n    supply sabotage fleet size:%i"),out,sabotage_fleet_count)
+				end
+			end
+		end
+		out = string.format(_("msgGM","%s\nPlot 2:"),out)
+		if plot2 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			out = string.format(_("msgGM","%s contract target"),out)
+			if exuari_vengance_fleet_time ~= nil then
+				out = string.format(_("msgGM","%s\n    seconds remaining until next Exuari vengance fleet:%i"),out,math.floor(exuari_vengance_fleet_time - getScenarioTime()))
+			end
+			for i,station in ipairs(contract_station) do
+				if station ~= nil and station:isValid() then
+					out = string.format(_("msgGM","%s\n    contract target station %s"),out,station:getCallSign())
+					if station.harass_fleet ~= nil then
+						local fleet_count = 0
+						for i,ship in pairs(station.harass_fleet) do
+							if ship ~= nil and ship:isValid() then
+								fleet_count = fleet_count + 1
+							end
+						end
+						out = string.format(_("msgGM","%s, harassing Exuari fleet size:%i"),out,fleet_count)
+					else
+						if station.delay_timer ~= nil then
+							out = string.format(_("msgGM","%s, seconds until next harassment check:%i"),out,math.floor(station.delay_timer - getScenarioTime()))
+						end
+					end
+				end
+			end
+			for i,station in ipairs(independent_station) do
+				if station:isValid() then
+					if station.comms_data.contract ~= nil then
+						for contract,details in pairs(station.comms_data.contract) do
+							local status = ""
+							if details.type == "start" then
+								if details.accepted then
+									status = _("msgGM","accepted")
+								else
+									status = _("msgGM","not accepted")
+								end
+							else
+								if details.fulfilled then
+									status = _("msgGM","fulfilled")
+								else
+									status = _("msgGM","not fulfilled")
+								end
+							end
+							out = string.format(_("msgGM","%s\n    contract at %s: %s status: %s"),out,station:getCallSign(),contract,status)
+						end
+					end
+				end
+			end
+			if transition_contract_delay ~= nil then
+				out = string.format(_("msgGM","%s\n    seconds until transition contract:%i"),out,math.floor(transition_contract_delay - getScenarioTime()))
+			end
+		end
+		out = string.format(_("msgGM","%s\nPlot 3:"),out)
+		if plot3 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			out = string.format(_("msgGM","%s Jenny asteroid (optional)"),out)
+			if player.asteroid_start_time ~= nil then
+				if getScenarioTime() - player.asteroid_start_time > 300 then
+					out = string.format(_("msgGM","%s\n    asteroid structure in notes"),out)
+				end
+			end
+			if player.asteroid_identified ~= nil and player.asteroid_identified then
+				out = string.format(_("msgGM","%s\n    asteroid identified"),out)
+				if player.jenny_aboard ~= nil and player.jenny_aboard then
+					out = string.format(_("msgGM","%s\n    Jenny is aboard"),out)
+					if first_station:isValid() then
+						if first_station.asteroid_upgrade ~= nil and first_station.asteroid_upgrade then
+							out = string.format(_("msgGM","%s\n    asteroid research reward is available on %s"),out,first_station:getCallSign())
+							if player.asteroid_upgrade == nil then
+								out = string.format(_("msgGM","%s\n    asteroid research reward has not yet been claimed by %s"),out,player:getCallSign())
+							end
+						else
+							out = string.format(_("msgGM","%s\n    asteroid research reward is not yet available on %s"),out,first_station:getCallSign())
+						end
+					else
+						out = string.format(_("msgGM","%s\n    mission cannot be completed due to the destruction of the first mission station."),out)
+					end
+				else
+					out = string.format(_("msgGM","%s\n    Jenny has not yet boarded %s"),out,player:getCallSign())
+				end
+			else
+				out = string.format(_("msgGM","%s\n    asteroid has not yet been identified"),out)
+			end
+		end
+		out = string.format(_("msgGM","%s\nPlot 4:"),out)
+		if plot4 == nil then
+			out = string.format("%s nil",out)
+		else
+			if plot4 == highwaymen then
+				out = string.format(_("msgGM","%s highwaymen"),out)
+			elseif plot4 == highwaymenAlerted then
+				out = string.format(_("msgGM","%s highwaymen alerted"),out)
+			elseif plot4 == highwaymenPounce then
+				out = string.format(_("msgGM","%s highwaymen pounce"),out)
+			elseif plot4 == highwaymenAftermath then
+				out = string.format(_("msgGM","%s highwaymen aftermath"),out)
+			elseif plot4 == highwaymenReset then
+				out = string.format(_("msgGM","%s highwaymen reset"),out)
+			end
+			if highway_time ~= nil then
+				out = string.format(_("msgGM","%s\n    seconds until next event:%i"),out,math.floor(highway_time - getScenarioTime()))
+			end
+			if highwaymen_fleet ~= nil then
+				local fleet_count = 0
+				for i,ship in ipairs(highwaymen_fleet) do
+					if ship:isValid() then
+						fleet_count = fleet_count + 1
+					end
+				end
+				out = string.format(_("msgGM","%s\n    highwaymen fleet size:%i"),out,fleet_count)
+			end
+		end
+		out = string.format(_("msgGM","%s\nPlot 5:"),out)
+		if plot5 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			out = string.format(_("msgGM","%s highwaymen warning zone"),out)
+			if zone_time ~= nil then
+				out = string.format(_("msgGM","%s: seconds until zone removal:%i"),out,math.floor(zone_time - getScenarioTime()))
+			end
+		end
+		out = string.format(_("msgGM","%s\nPlot 6:"),out)
+		if plot6 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			if plot6 == worldEnd then
+				out = string.format(_("msgGM","%s world end"),out)
+			elseif plot6 == kraylorPlanetBuster then
+				out = string.format(_("msgGM","%s Kraylor planet buster"),out)
+				if kraylor_planet_buster_time ~= nil then
+					out = string.format(_("msgGM","%s\n    seconds until next fleet check:%i"),out,math.floor(kraylor_planet_buster_time - getScenarioTime()))
+				end
+				if planetary_attack_fleet_adjust_time ~= nil then
+					out = string.format(_("msgGM","%s\n    seconds until next fleet target adjustment/planet check:%i"),out,math.floor(planetary_attack_fleet_adjust_time - getScenarioTime()))
+				end
+				if planetary_attack_fleet ~= nil then
+					local fleet_count = 0
+					local fleet_ships = ""
+					for i,ship in ipairs(planetary_attack_fleet) do
+						if ship:isValid() then
+							fleet_count = fleet_count + 1
+							if fleet_ships == "" then
+								fleet_ships = string.format(_("msgGM","Ships: %s"),ship:getCallSign())
+							else
+								fleet_ships = string.format(_("msgGM","%s, %s"),fleet_ships,ship:getCallSign())
+							end
+						end
+					end
+					out = string.format(_("msgGM","%s\n    planetary attack fleet size:%i"),out,fleet_count)
+					if fleet_count > 0 then
+						out = string.format("%s\n    %s",out,fleet_ships)
+					end
+				end
+				if kraylor_planetary_danger ~= nil then
+					out = string.format(_("msgGM","%s\n    Kraylor planetary danger:%i"),out,kraylor_planetary_danger)
+				end
+			end
+		end
+		out = string.format(_("msgGM","%s\nPlot 7:"),out)
+		if plot7 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			out = string.format(_("msgGM","%s exploding planet debris"),out)
+			if exploding_planet_time ~= nil then
+				out = string.format(_("msgGM","%s\n    seconds remaining until explosion actions are done:%i"),out,math.floor(exploding_planet_time - getScenarioTime()))
+			end
+		end
+		out = string.format("%s\nPlot 8:",out)
+		if plot8 == nil then
+			out = string.format(_("msgGM","%s nil"),out)
+		else
+			out = string.format(_("msgGM","%s opportunistic pirates"),out)
+			if greedy_pirate_fleet ~= nil then
+				local pirate_count = 0
+				for i,ship in ipairs(greedy_pirate_fleet) do
+					if ship:isValid() then
+						pirate_count = pirate_count + 1
+					end
+				end
+				out = string.format(_("msgGM","%s\n    greedy pirate fleet size:%i"),out,pirate_count)
+			end
+			if pirate_adjust_time ~= nil then
+				out = string.format(_("msgGM","%s\n    seconds remaining until next pirate fleet adjustment check:%i"),out,math.floor(pirate_adjust_time - getScenarioTime()))
+			end
+			if greedy_pirate_danger ~= nil then
+				out = string.format(_("msgGM","%s\n    greedy pirate danger:%i"),out,greedy_pirate_danger)
+			end
+		end
+		addGMMessage(out)
+	end)
 	if plot1 ~= nil and plot1 ~= kraylorDiversionarySabotage then
 		addGMFunction(_("buttonGM", "Skip Harassment"),function()
 			player = getPlayerShip(-1)
@@ -651,9 +926,8 @@ function missionSelection()
 			player:addReputationPoints(200)
 			plot1 = nil
 			plot1_type = nil
-			plot1_mission_count = plot1_mission_count + 1
-			plot1_timer = nil
-			plot1_defensive_timer = nil
+			plot1_time = nil
+			plot1_defensive_time = nil
 			plot1_danger = nil
 			plot1_fleet_spawned = nil
 			plot1_defensive_fleet_spawned = nil
@@ -1124,23 +1398,12 @@ function beamUpgrade(damage,cycle_time,power_use,heat_generated,artifact_scanned
 		beam_upgrade_damage_level = 0
 	end
 	local beam_levels = {
-		normal = {
-			{dmg = 3,	cyc = .75},
-		},
-		easy = {
-			{dmg = 5,	cyc = .7},
-		},
-		hard = {
-			{dmg = 1,	cyc = .8},
-		},
-	}
-	local diff = {
-		[.5] =	"easy",
-		[1] =	"normal",
-		[2] =	"hard",
+		["Easy"] = 	{dmg = 5,	cyc = .7},
+		["Normal"] ={dmg = 3,	cyc = .75},
+		["Hard"] =	{dmg = 1,	cyc = .8},
 	}
 	if damage ~= nil then
-		local damage_increment = beam_levels[diff[difficulty]].dmg
+		local damage_increment = beam_levels[getScenarioSetting("Murphy")].dmg
 		if artifact_scanned ~= nil and artifact_scanned then
 			damage_increment = damage_increment + 1 
 		end
@@ -1160,13 +1423,13 @@ function beamUpgrade(damage,cycle_time,power_use,heat_generated,artifact_scanned
 				power_change = (tempDmg + damage_increment)/tempDmg
 			end
 			player:setBeamWeapon(beam_index,tempArc,tempDir,tempRng,tempCyc,tempDmg + damage_increment)
-			player:setBeamWeaponHeatPerFire(beam_index,picker:getBeamWeaponHeatPerFire(beam_index)*heat_change)
-			player:setBeamWeaponEnergyPerFire(beam_index,picker:getBeamWeaponEnergyPerFire(beam_index)*power_change)
+			player:setBeamWeaponHeatPerFire(beam_index,player:getBeamWeaponHeatPerFire(beam_index)*heat_change)
+			player:setBeamWeaponEnergyPerFire(beam_index,player:getBeamWeaponEnergyPerFire(beam_index)*power_change)
 			beam_index = beam_index + 1
 		until(player:getBeamWeaponRange(beam_index) < 1)
 	end
 	if cycle_time ~= nil then
-		local cyc_change = beam_levels[diff[difficulty]].cyc
+		local cyc_change = beam_levels[getScenarioSetting("Murphy")].cyc
 		local bi = 0
 		repeat
 			local tempArc = comms_source:getBeamWeaponArc(bi)
@@ -1264,7 +1527,7 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction, perimeter_min, per
 		ship:setPosition(xOrigin + formation_delta[shape].x[enemy_position] * sp, yOrigin + formation_delta[shape].y[enemy_position] * sp)
 		ship:setCallSign(generateCallSign(nil,enemyFaction))
 		ship:setCommsScript(""):setCommsFunction(commsShip)
-		ship:orderIdle()
+		ship:orderRoaming()
 		table.insert(enemyList, ship)
 		enemyStrength = enemyStrength - ship_template[selected_template].strength
 	end
@@ -1464,12 +1727,12 @@ end
 --	Artifact pick up functions
 function burnOutArtifactPickup(self, picker)
 	if self:isScannedBy(picker) then
-		picker:setSystemHealth("beamweapons",picker:getSystemHealth("beamweapons") - 1)
+		picker:setSystemHealth("beamweapons",picker:getSystemHealth("beamweapons") - random(.5,1))
 		if difficulty >= 1 then
-			picker:setSystemHealth("frontshield",picker:getSystemHealth("frontshield") - 1)			
+			picker:setSystemHealth("frontshield",picker:getSystemHealth("frontshield") - random(.5,1))			
 		end
 		if difficulty >= 2 then
-			picker:setSystemHealth("maneuver",picker:getSystemHealth("maneuver") - 1)			
+			picker:setSystemHealth("maneuver",picker:getSystemHealth("maneuver") - random(.5,1))			
 		end
 	else
 		picker:setSystemHealth("beamweapons",-1)
@@ -1545,25 +1808,13 @@ function jumpDriveUpgrade(ship)
 	ship.add_small_jump = true
 	contract_eligible = true
 	transition_contract_delay_max = 300 + (difficulty*50)
-	transition_contract_delay = transition_contract_delay_max
+	transition_contract_delay = getScenarioTime() + transition_contract_delay_max
+	transition_contract_delay_msg = getScenarioTime() + transition_contract_delay_max*.8
 	ship:setJumpDrive(true)
 	ship.max_jump_range = 25000
 	ship.min_jump_range = 2000
 	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
 	ship:setJumpDriveCharge(ship.max_jump_range)
-	print("Accumulated delta when player gets jump drive upgrade:",accumulated_delta)
-	local seconds = math.floor(accumulated_delta % 60)
-	if accumulated_delta > 60 then
-		local minutes = math.floor(accumulated_delta / 60)
-		if minutes > 60 then
-			local hours = math.floor(minutes / 60)
-			print(string.format("%i:%.2i:%.2i",hours,minutes,seconds))
-		else
-			print(string.format("%i:%.2i",minutes,seconds))
-		end
-	else
-		print("seconds: ",seconds)
-	end
 end
 function commsStation()
 	if stationCommsDiagnostic then print("function station comms") end
@@ -1647,7 +1898,7 @@ function handleDockedState()
 		oMsg = _("station-comms", "Welcome to our lovely station.")
     end
     if comms_target:areEnemiesInRange(20000) then
-		oMsg = oMsg .. _("station-comms", "Forgive us if we seem a little distracted. We are carefully monitoring the enemies nearby.")
+		oMsg = oMsg .. _("station-comms", " Forgive us if we seem a little distracted. We are carefully monitoring the enemies nearby.")
 	end
 	setCommsMessage(oMsg)
 	local goodCount = 0
@@ -2087,6 +2338,7 @@ function handleDockedState()
 				end
 				if plot1_fleets_destroyed > 2 and not comms_source.beam_damage_upgrade then
 					addCommsReply(_("ridExuari-comms", "Upgrade beam damage"), function()
+						comms_source.beam_damage_upgrade = true
 						beamUpgrade(true,nil,true,true)
 						-- beamUpgrade(damage,cycle_time,power_use,heat_generated,artifact_scanned)
 						setCommsMessage(_("ridExuari-comms", "Looks like you're having a hard time with those Exuari. We've increased the damage your beam weapons deal out"))
@@ -2414,9 +2666,8 @@ function nervousAdministrators()
 end
 function createTransitionSystem()
 	if transition_station == nil then
-		local fsx, fsy = first_station:getPosition()
-		psx = fsx + random(100000,120000)
-		psy = fsy + random(-60000,80000)
+		psx = first_station_x + random(100000,120000)
+		psy = first_station_y + random(-60000,80000)
 		if difficulty < 1 then
 			stationSize = "Large Station"
 		elseif difficulty > 1 then
@@ -2437,11 +2688,11 @@ function createTransitionSystem()
 		local gas_planet_moon_distance = random(4000,8000)
 		local mlx, mly = vectorFromAngle(gas_planet_angle+180,gas_planet_moon_distance)
 		gas_planet_moon = Planet():setPosition(psx+mlx,psy+mly):setPlanetRadius(random(250,500)):setDistanceFromMovementPlane(random(-500,-200)):setAxialRotationTime(random(60,100)):setPlanetSurfaceTexture("planets/moon-1.png"):setOrbit(gas_planet,random(200,300))
-		local direct_angle = angleFromVectorNorth(fsx,fsy,psx,psy) + 90
+		local direct_angle = angleFromVectorNorth(first_station_x,first_station_y,psx,psy) + 90
 		local asteroid_list = {}
-		local lax, lay, temp_list = createRandomAlongArc(Asteroid,100,fsx,fsy,60000,direct_angle-30,direct_angle+30,1800)
+		local lax, lay, temp_list = createRandomAlongArc(Asteroid,100,first_station_x,first_station_y,60000,direct_angle-30,direct_angle+30,1800)
 		asteroid_list = add_to_list(temp_list,asteroid_list)
-		local la_2_x, la_2_y = createRandomAlongArc(Asteroid,1,fsx,fsy,60000,direct_angle-30,direct_angle+30,1800)
+		local la_2_x, la_2_y = createRandomAlongArc(Asteroid,1,first_station_x,first_station_y,60000,direct_angle-30,direct_angle+30,1800)
 		asteroid_list = add_to_list(temp_list,asteroid_list)
 		local avx, avy = vectorFromAngle(random(0,360),350-(difficulty*100))
 		Artifact():setModel("artifact4"):setScanningParameters(difficulty*2,difficulty*2):setRadarSignatureInfo(random(0,1),random(0,1),random(0,1)):setDescriptions(_("scienceDescription-artifact", "Object of unknown origin"),_("scienceDescription-artifact", "Object of unknown origin, advanced technology detected")):allowPickup(true):onPickUp(maneuverArtifactPickup):setPosition(lax+avx,lay+avy)
@@ -2459,11 +2710,11 @@ function createTransitionSystem()
 			Artifact():setModel("artifact4"):setScanningParameters(difficulty*2,difficulty*2):setRadarSignatureInfo(random(0,1),random(0,1),random(0,1)):setDescriptions(_("scienceDescription-artifact", "Object of unknown origin"),_("scienceDescription-artifact", "Object of unknown origin, advanced technology detected")):allowPickup(true):onPickUp(burnOutArtifactPickup):setPosition(drx+avx,dry+avy)
 		end
 		local etx, ety = vectorFromAngle(direct_angle,57000)
-		etx = etx + fsx
-		ety = ety + fsy
+		etx = etx + first_station_x
+		ety = ety + first_station_y
 		drop_bait = SupplyDrop():setFaction("Exuari"):setPosition(etx,ety):setDescriptions(_("scienceDescription-supply", "Supply Drop"),_("scienceDescription-supply", "Supply Drop containing energy, missiles and various ship system repair parts")):setScanningParameters(math.ceil(difficulty + .2),math.random(1,3))
 		plot4 = highwaymen
-		highway_timer = 30
+		highway_time = getScenarioTime() + 30
 		local nebula_list = {}
 		local neb = Nebula():setPosition(etx + random(-500,500), ety + random(-500,500))
 		table.insert(nebula_list,neb)
@@ -2492,9 +2743,8 @@ end
 function createHumanNavySystem()
 	if supply_depot_station == nil then
 		final_system_station_list = {}
-		local fsx, fsy = first_station:getPosition()
-		star_x = fsx + random(250000,270000)
-		star_y = fsy + random(-20000,80000)
+		star_x = first_station_x + random(250000,270000)
+		star_y = first_station_y + random(-20000,80000)
 		local star_names = {"Rigel","Dagoba","Groombridge 34","Tau Ceti","Wolf 1061","Gliese 876","Barnard"}
 		planet_star = Planet():setCallSign(star_names[math.random(1,#star_names)]):setPosition(star_x,star_y):setPlanetRadius(random(800,1100)):setDistanceFromMovementPlane(random(-2000,-1000)):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(1.0,1.0,random(.5,1))
 		local primus_distance = random(10000,20000)
@@ -3728,7 +3978,6 @@ function neutralComms(comms_data)
 	end	--end non-freighter communications else branch
 	return true
 end	--end neutral communications function
-
 --	Player ship improvements
 function addForwardBeam()
 	if comms_source.add_forward_beam == nil then
@@ -3870,6 +4119,8 @@ function healthCheck(delta)
 				end
 				if p:getRepairCrewCount() == 1 then
 					fatalityChance = fatalityChance/2	-- increase chances of last repair crew standing
+				elseif p:getRepairCrewCount() == 2 then
+					fatalityChance = fatalityChance * .75
 				end
 				if fatalityChance > 0 then
 					crewFate(p,fatalityChance)
@@ -4129,25 +4380,22 @@ function exuariHarassment(delta)
 				break
 			end
 		end
-		if exuari_harass_diagnostic then print("count of ships in fleet: " .. plot1_fleet_count) end
 		if plot1_fleet_count < 1 then
 			if exuari_harassing_station ~= nil and exuari_harassing_station:isValid() then
-				if plot1_timer == nil then
-					plot1_timer = delta + 500 + random(1,30) - (difficulty * 100)
+				if plot1_time == nil then
+					plot1_time = getScenarioTime() + 500 + random(1,30) - (difficulty * 100)
 					plot1_fleets_destroyed = plot1_fleets_destroyed + 1
 				end
-				plot1_timer = plot1_timer - delta
-				if plot1_timer < 0 then
+				if getScenarioTime() > plot1_time then
 					plot1_danger = plot1_danger + .75
 					plot1_fleet_spawned = false
-					plot1_timer = nil
+					plot1_time = nil
 				end
 			else
 				plot1 = nil
 				plot1_type = nil
-				plot1_mission_count = plot1_mission_count + 1
-				plot1_timer = nil
-				plot1_defensive_timer = nil
+				plot1_time = nil
+				plot1_defensive_time = nil
 				plot1_danger = nil
 				plot1_fleet_spawned = nil
 				plot1_defensive_fleet_spawned = nil
@@ -4200,7 +4448,7 @@ function exuariHarassment(delta)
 		end
 	else
 		if exuari_harassing_station ~= nil and exuari_harassing_station:isValid() then
-			if (plot1_danger % 2) == 0 then
+			if (math.floor(plot1_danger) % 2) == 0 then
 				spx, spy = first_station:getPosition()
 				plot1_independent_fleet = spawnEnemies(spx,spy,plot1_danger,"Independent",2000)
 				for i, enemy in pairs(plot1_independent_fleet) do
@@ -4213,12 +4461,18 @@ function exuariHarassment(delta)
 	end
 	if plot1_defensive_fleet_spawned then
 		if exuari_harass_diagnostic then print("defensive fleet spawned") end
-		plot1_fleet_count = 0
-		for i, enemy in pairs(plot1_defensive_fleet) do
-			if enemy ~= nil and enemy:isValid() then
-				plot1_fleet_count = plot1_fleet_count + 1
+		local clean_list = true
+		for i,enemy in ipairs(plot1_defensive_fleet) do
+			if enemy == nil or not enemy:isValid() then
+				plot1_defensive_fleet[i] = plot1_defensive_fleet[#plot1_defensive_fleet]
+				plot1_defensive_fleet[#plot1_defensive_fleet] = nil
+				clean_list = false
+				break
+			end
+		end
+		if clean_list then
+			for i, enemy in ipairs(plot1_defensive_fleet) do
 				local current_order = enemy:getOrder()
-				--print("start order: " .. enemy:getCallSign() .. " " .. current_order .. " " .. enemy:getOrderTarget():getCallSign())
 				if current_order == "Defend Target" then
 					if enemy:getWeaponTubeCount() > 0 then
 						local low_on_missiles = false
@@ -4303,30 +4557,25 @@ function exuariHarassment(delta)
 					end
 				end
 			end
-		end
-		if exuari_harass_diagnostic then print("count of ships in fleet: " .. plot1_fleet_count) end
-		if plot1_fleet_count < 1 then
-			if exuari_harassing_station ~= nil and exuari_harassing_station:isValid() then
-				if plot1_defensive_timer == nil then
-					plot1_defensive_timer = delta + 500 + random(1,30)- (difficulty * 100)
-				end
-				plot1_defensive_timer = plot1_defensive_timer - delta
-				if plot1_defensive_timer < 0 then
-					plot1_defensive_fleet_spawned = false
-					plot1_defensive_timer = nil
+			if #plot1_defensive_fleet < 1 then
+				if exuari_harassing_station ~= nil and exuari_harassing_station:isValid() then
+					if plot1_defensive_time == nil then
+						plot1_defensive_time = getScenarioTime() + 500 + random(1,30) - (difficulty * 100)
+					end
+					if getScenarioTime() > plot1_defensive_time then
+						plot1_defensive_fleet_spawned = false
+						plot1_defensive_time = nil
+					end
 				end
 			end
 		end
 	else
-		if exuari_harass_diagnostic then print("defensive fleet not spawned, spawning") end
 		if exuari_harassing_station ~= nil and exuari_harassing_station:isValid() then
 			spx, spy = exuari_harassing_station:getPosition()
 			plot1_defensive_fleet = spawnEnemies(spx,spy,1,"Exuari",2000)
-			if exuari_harass_diagnostic then print("back from spawnEnemies function") end
 			for i, enemy in pairs(plot1_defensive_fleet) do
 				enemy:orderDefendTarget(exuari_harassing_station)
 			end
-			if exuari_harass_diagnostic then print("Orders given to defensive fleet") end
 			plot1_defensive_fleet_spawned = true
 		end
 	end
@@ -4455,8 +4704,17 @@ function exuariHarassment(delta)
 	end
 end
 function transitionContract(delta)
-	local p = getPlayerShip(-1)
+	local p = player
 	local sx, sy = transition_station:getPosition()
+	if p.captain_log < 3 then
+		if transition_log_time == nil then
+			transition_log_time = getScenarioTime() + random(60,120)
+		end
+		if getScenarioTime() > transition_log_time then
+			p.captain_log = 3
+			p:addToShipLog(string.format(_("contract-shipLog","Our first contract to a station far away from 'home' marks a significant change in our development as a crew. %s and the rest of the stations know us now as self-sufficient contractors, capable of more than mere deliveries. We now go to develop further standing with the Human Navy."),first_station:getCallSign()),"Green")
+		end
+	end
 	if transition_station.in_fleet == nil then
 		if distance(p,transition_station) <= 45000 then
 			local px, py = p:getPosition()
@@ -4491,7 +4749,7 @@ function transitionContract(delta)
 end
 function longDistanceCargo(delta)
 	if supply_depot_station ~= nil and supply_depot_station:isValid() then
-		local p = getPlayerShip(-1)
+		local p = player
 		if p:isDocked(supply_depot_station) then
 			local missing_good = false
 			if p.goods ~= nil then
@@ -4529,6 +4787,7 @@ function longDistanceCargo(delta)
 					p:addToShipLog(string.format(_("cargo-shipLog", "[%s] Thanks for the cargo, %s. We'll make good use of it. We've added 100 units to your battery capacity and reduced your beam cycle time. Enjoy your visit to the %s system"),supply_depot_station:getCallSign(),p:getCallSign(),planet_star:getCallSign()),"Magenta")
 					p.long_distance_upgrade = true
 					plot1 = kraylorDiversionarySabotage
+					plot2 = nil
 					plot8 = opportunisticPirates
 				end
 			end
@@ -4573,23 +4832,25 @@ function longDistanceCargo(delta)
 	end
 end
 function opportunisticPirates(delta)
-	 if greedy_pirate_fleet == nil then
+	local pirate_target_pool = {}
+	local pirate_target = nil
+	if greedy_pirate_fleet == nil then
 		if greedy_pirate_danger == nil then
 			greedy_pirate_danger = 1
 		else
 			greedy_pirate_danger = greedy_pirate_danger + 1
 		end
-		local pirate_target = nil
-		local target_attempts = 0
-		repeat
-			pirate_target = final_system_station_list[math.random(1,#final_system_station_list)]
-			if pirate_target ~= nil then
-				if not pirate_target:isValid() then
-					pirate_target = nil
-				end 
+		for i,station in ipairs(final_system_station_list) do
+			if station:isValid() then
+				table.insert(pirate_target_pool,station)
 			end
-			target_attempts = target_attempts + 1
-		until(pirate_target ~= nil or target_attempts > 50)
+		end
+		repeat
+			pirate_target = tableRemoveRandom(pirate_target_pool)
+			if not pirate_target:isValid() then
+				pirate_target = nil
+			end
+		until(pirate_target ~= nil or #pirate_target_pool == 0)
 		local ptx = star_x
 		local pty = star_y
 		if pirate_target ~= nil then
@@ -4601,6 +4862,43 @@ function opportunisticPirates(delta)
 			enemy:orderFlyTowards(ptx,pty)
 		end
 	 else
+	 	if pirate_adjust_time == nil then
+	 		pirate_adjust_time = getScenarioTime() + 7
+	 	end
+	 	if getScenarioTime() > pirate_adjust_time then
+	 		pirate_adjust_time = getScenarioTime() + 7
+	 		local adjustment_needed = false
+	 		for i,ship in ipairs(greedy_pirate_fleet) do
+				if string.find(ship:getOrder(),"Defend") then
+					adjustment_needed = true
+					break
+				end
+	 		end
+			for i,station in ipairs(final_system_station_list) do
+				if station:isValid() then
+					table.insert(pirate_target_pool,station)
+				end
+			end
+			repeat
+				pirate_target = tableRemoveRandom(pirate_target_pool)
+				if not pirate_target:isValid() then
+					pirate_target = nil
+				end
+			until(pirate_target ~= nil or #pirate_target_pool == 0)
+			if pirate_target ~= nil then
+		 		for i,ship in ipairs(greedy_pirate_fleet) do
+		 			if ship:isValid() then
+		 				ship:orderAttack(pirate_target)
+		 			end
+		 		end
+		 	else
+		 		for i,ship in ipairs(greedy_pirate_fleet) do
+		 			if ship:isValid() then
+		 				ship:orderRoaming()
+		 			end
+		 		end
+			end
+	 	end
 		local pirate_count = 0
 		for i, enemy in ipairs(greedy_pirate_fleet) do
 			if enemy ~= nil and enemy:isValid() then
@@ -4609,155 +4907,171 @@ function opportunisticPirates(delta)
 			end
 		end
 		if pirate_count < 1 then
-			if random(1,5000) <= 1 then
+			if random(0,5000) <= 1 then
 				greedy_pirate_fleet = nil
 			end
 		end
-	 end
+	end
 end
 function kraylorDiversionarySabotage(delta)
-	local sdx, sdy = planet_secondus_moon:getPosition()
-	local rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
 	if kraylor_diversion_danger == nil then
 		kraylor_diversion_danger = 3
 	end
+	local target_x, target_y = 0
 	if supply_depot_station ~= nil and supply_depot_station:isValid() then
-		 sdx, sdy = supply_depot_station:getPosition()
+		target_x, target_y = supply_depot_station:getPosition()
+	elseif planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
+		target_x, target_y = planet_secondus_moon:getPosition()
+	elseif planet_secondus ~= nil and planet_secondus:isValid() then
+		target_x, target_y = planet_secondus:getPosition()
 	end
-	if diversionary_sabotage_fleet == nil then
-		diversionary_sabotage_fleet = spawnEnemies(sdx+rvx,sdy+rvy,kraylor_diversion_danger,"Kraylor")
-		for i, enemy in ipairs(diversionary_sabotage_fleet) do
-			rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
-			enemy:setPosition(sdx+rvx,sdy+rvy)
-			if supply_depot_station ~= nil and supply_depot_station:isValid() then
-				enemy:orderAttack(supply_depot_station)
-			else
-				enemy:orderFlyTowards(sdx,sdy)
-			end
+	if diversionary_sabotage_fleet ~= nil then
+		if diversionary_sabotage_fleet_adjust_time == nil then
+			diversionary_sabotage_fleet_adjust_time = getScenarioTime() + 5
 		end
-		kraylor_sabotage_diversion_interval = 30
-		kraylor_sabotage_diversion_timer = kraylor_sabotage_diversion_interval
-	else
-		kraylor_sabotage_diversion_timer = kraylor_sabotage_diversion_timer - delta
-		if kraylor_sabotage_diversion_timer < 0 then
-			kraylor_sabotage_diversion_timer = delta + kraylor_sabotage_diversion_interval
-			if player.diversion_orders == nil then
-				player.diversion_orders = "sent"
-				player:addToShipLog(_("Kraylor-shipLog", "[Human Navy Regional Headquarters] All Human Navy vessels are hereby ordered to assist in the repelling of inbound Kraylor ships. We are not sure of their intent, but we are sure it is not good. Destroy them before they can destroy us"),"Red")
-				player:addToShipLog(string.format(_("Kraylor-shipLog", "This includes you, %s"),player:getCallSign()),"Magenta")
-				primaryOrders = _("KraylorOrders-comms", "Repel Kraylor")
-			end
-			local enemy_count = 0
-			local enemy_close_to_supply = 0
-			for i, enemy in pairs(diversionary_sabotage_fleet) do
-				if enemy ~= nil and enemy:isValid() then
-					enemy_count = enemy_count + 1
-					if supply_depot_station ~= nil and supply_depot_station:isValid() then
-						local distance_to_supply = distance(enemy,supply_depot_station)
-						if distance_to_supply < 1500 then
-							supply_depot_station.sabotaged = true
-							if kraylor_planet_buster_timer == nil then
-								kraylor_planet_buster_timer = 300
-								plot6 = kraylorPlanetBuster
+		if getScenarioTime() > diversionary_sabotage_fleet_adjust_time then
+			diversionary_sabotage_fleet_adjust_time = nil
+			if supply_depot_station ~= nil and supply_depot_station:isValid() then
+				local enemy_close_to_supply = 0
+				local obj_list = supply_depot_station:getObjectsInRadius(target_x, target_y, 7500)
+				for i,obj in ipairs(obj_list) do
+					if obj.typeName == "CpuShip" then
+						if obj:getFaction() == "Kraylor" then
+							enemy_close_to_supply = enemy_close_to_supply + 1
+							if distance(ship,supply_depot_station) < 1500 then
+								supply_depot_station.sabotaged = true
+								if kraylor_planet_buster_time == nil then
+									kraylor_planet_buster_time = getScenarioTime() + 300
+									plot6 = kraylorPlanetBuster
+								end
 							end
 						end
-						if distance_to_supply < 7500 then
-							enemy_close_to_supply = enemy_close_to_supply + 1
-						end
-					else
-						if kraylor_planet_buster_timer == nil then
-							kraylor_planet_buster_timer = 300
-							plot6 = kraylorPlanetBuster
-						end
+					end
+				end
+			else
+				if kraylor_planet_buster_time == nil then
+					kraylor_planet_buster_time = getScenarioTime() + 300
+					plot6 = kraylorPlanetBuster
+				end
+			end
+			for i,ship in ipairs(diversionary_sabotage_fleet) do
+				if ship:isValid() then
+					ship:orderFlyTowards(target_x, target_y)
+				end
+			end
+			if kraylor_diversion_danger >= 10 and enemy_close_to_supply > 0 and plot6 == nil then
+				globalMessage(_("msgMainscreen", "You successfully handled the Kraylor threat"))
+				victory("Human Navy")
+			end
+		end
+	end
+	if kraylor_sabotage_diversion_time == nil then
+		kraylor_sabotage_diversion_interval = 30
+		kraylor_sabotage_diversion_time = getScenarioTime() + kraylor_sabotage_diversion_interval
+	end
+	if getScenarioTime() > kraylor_sabotage_diversion_time then
+		kraylor_sabotage_diversion_time = getScenarioTime() + kraylor_sabotage_diversion_interval
+		if player.diversion_orders == nil then
+			player.diversion_orders = "sent"
+			player:addToShipLog(_("Kraylor-shipLog", "[Human Navy Regional Headquarters] All Human Navy vessels are hereby ordered to assist in the repelling of inbound Kraylor ships. We are not sure of their intent, but we are sure it is not good. Destroy them before they can destroy us"),"Red")
+			player:addToShipLog(string.format(_("Kraylor-shipLog", "This includes you, %s"),player:getCallSign()),"Magenta")
+			primaryOrders = _("KraylorOrders-comms", "Repel Kraylor")
+		end
+		if diversionary_sabotage_fleet == nil then
+			if planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then 
+				local base_range = 10000
+				local player_scanner_range = player:getLongRangeRadarRange()
+				local rvx,rvy = vectorFromAngle(random(0,360),random(base_range,player_scanner_range + base_range))
+				local spawn_x, spawn_y = 0
+				repeat
+					rvx,rvy = vectorFromAngle(random(0,360),random(base_range,player_scanner_range + base_range))
+					spawn_x = target_x + rvx
+					spawn_y = target_y + rvy
+					base_range = base_range + 1000
+				until(distance(player,spawn_x,spawn_y) > player_scanner_range)
+				diversionary_sabotage_fleet = spawnEnemies(spawn_x,spawn_y,kraylor_diversion_danger,"Kraylor")
+				for i,enemy in ipairs(diversionary_sabotage_fleet) do
+					if enemy:isValid() then
+						enemy:orderFlyTowards(target_x,target_y)
+					end
+				end
+			end
+		else
+			local enemy_count = 0
+			local enemy_close_to_target = 0
+			for i,enemy in ipairs(diversionary_sabotage_fleet) do
+				if enemy ~= nil and enemy:isValid() then
+					enemy_count = enemy_count + 1
+					if distance(enemy,target_x,target_y) < 1500 then
+						enemy_close_to_target = enemy_close_to_target + 1
 					end
 				end
 			end
 			if enemy_count < 1 then
 				kraylor_diversion_danger = kraylor_diversion_danger + 1
-				diversionary_sabotage_fleet = spawnEnemies(sdx+rvx,sdy+rvy,kraylor_diversion_danger,"Kraylor")
-				for i, enemy in ipairs(diversionary_sabotage_fleet) do
-					rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
-					enemy:setPosition(sdx+rvx,sdy+rvy)
-					if supply_depot_station ~= nil and supply_depot_station:isValid() then
-						if random(1,100) > kraylor_diversion_danger * 10 then
-							enemy:orderAttack(supply_depot_station)
-						else
-							enemy:orderFlyTowards(sdx,sdy)
-						end
-					else
-						enemy:orderFlyTowards(sdx,sdy)
-					end
-				end
+				diversionary_sabotage_fleet = nil
 			end
-			if enemy_count < difficulty*10 then
-				if enemy_close_to_supply < 1 then
+			if enemy_count < (difficulty * 10) then
+				if enemy_close_to_target < 1 then
 					kraylor_diversion_danger = kraylor_diversion_danger + 1
-					local kraylor_fleet = spawnEnemies(sdx+spx,sdy+spy,kraylor_diversion_danger,"Kraylor")
+					local kraylor_fleet = spawnEnemies(target_x,target_y,kraylor_diversion_danger,"Kraylor")
 					for i, enemy in ipairs(kraylor_fleet) do
 						rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
-						enemy:setPosition(sdx+rvx,sdy+rvy)
-						local whim = math.random(1,3)
-						if whim == 1 then
-							if supply_depot_station ~= nil and supply_depot_station:isValid() then
-								enemy:orderAttack(supply_depot_station)
-							else
-								enemy:orderFlyTowards(sdx,sdy)
-							end
-						elseif whim == 2 then
-							enemy:orderRoaming()
-						else
-							enemy:orderAttack(player)
-						end
+						enemy:setPosition(target_x+rvx,target_y+rvy)
+						enemy:orderFlyTowards(target_x,target_y)
 						table.insert(diversionary_sabotage_fleet,enemy)
 					end
 				end
 			else
-				local angle = 0
+				local angle = random(0,360)
 				local angle_increment = 0
-				if kraylor_defense_fleet == nil then
-					kraylor_defense_fleet = spawnEnemies(sdx+rvx,sdy+rvy,kraylor_diversion_danger-2,"Human Navy")
-					angle_increment = 360/#kraylor_defense_fleet
+				if defend_against_kraylor_fleet == nil then
+					defend_against_kraylor_fleet = spawnEnemies(target_x,target_y,kraylor_diversion_danger-2,"Human Navy")
 					angle = random(0,360)
-					for i, ship in ipairs(kraylor_defense_fleet) do
+					angle_increment = 360/#defend_against_kraylor_fleet
+					for i, ship in ipairs(defend_against_kraylor_fleet) do
 						if supply_depot_station ~= nil and supply_depot_station:isValid() then
 							rvx, rvy = vectorFromAngle(angle,1200)
-							ship:setPosition(sdx+rvx,sdy+rvy)
+							ship:setPosition(target_x+rvx,target_y+rvy)
 							ship:orderDefendTarget(supply_depot_station)
-						else
+						elseif planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
 							rvx, rvy = vectorFromAngle(angle,secondus_moon_radius + 500)
-							ship:setPosition(sdx+rvx,sdy+rvy)
+							ship:setPosition(target_x+rvx,target_y+rvy)
+							ship:orderDefendTarget(player)
+						else
+							rvx, rvy = vectorFromAngle(angle,planet_secondus_radius + 500)
+							ship:setPosition(target_x+rvx,target_y+rvy)
 							ship:orderDefendTarget(player)
 						end
-						angle = angle + angle_increment
+						angle = (angle + angle_increment) % 360
 					end
 				else
 					local defensive_ships = 0
-					for i, ship in pairs(kraylor_defense_fleet) do
+					for i, ship in pairs(defend_against_kraylor_fleet) do
 						if ship ~= nil and ship:isValid() then
 							defensive_ships = defensive_ships + 1
 						end
 					end
-					if defensive_ships < enemy_count/3 then
-						local more_friendlies = spawnEnemies(sdx+rvx,sdy+rvy,kraylor_diversion_danger-2,"Human Navy")
+					if defensive_ships < (enemy_count/3) then
+						more_friendlies = spawnEnemies(target_x,target_y,kraylor_diversion_danger-2,"Human Navy")
 						angle_increment = 360/#more_friendlies
-						angle = random(0,360)
-						for i, ship in ipairs(more_friendlies) do
+						for i,ship in ipairs(more_friendlies) do
 							if supply_depot_station ~= nil and supply_depot_station:isValid() then
 								rvx, rvy = vectorFromAngle(angle,1200)
-								ship:setPosition(sdx+rvx,sdy+rvy)
+								ship:setPosition(target_x+rvx,target_y+rvy)
 								ship:orderDefendTarget(supply_depot_station)
-							else
+							elseif planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
 								rvx, rvy = vectorFromAngle(angle,secondus_moon_radius + 500)
-								ship:setPosition(sdx+rvx,sdy+rvy)
+								ship:setPosition(target_x+rvx,target_y+rvy)
+								ship:orderDefendTarget(player)
+							else
+								rvx, rvy = vectorFromAngle(angle,planet_secondus_radius + 500)
+								ship:setPosition(target_x+rvx,target_y+rvy)
 								ship:orderDefendTarget(player)
 							end
-							angle = angle + angle_increment
-							table.insert(kraylor_defense_fleet,ship)
+							angle = (angle + angle_increment) % 360
+							table.insert(defend_against_kraylor_fleet,ship)
 						end
-					end
-					if kraylor_diversion_danger > 10 and enemy_close_to_supply > 0 and plot6 == nil then
-						globalMessage(_("msgMainscreen", "You successfully handled the Kraylor threat"))
-						victory("Human Navy")
 					end
 				end
 			end
@@ -4765,86 +5079,111 @@ function kraylorDiversionarySabotage(delta)
 	end
 end
 function kraylorPlanetBuster(delta)
-	local sdx, sdy = planet_secondus_moon:getPosition()
-	if supply_depot_station ~= nil and supply_depot_station:isValid() then
-		local sdx, sdy = supply_depot_station:getPosition()
+	local target_x, target_y = 0
+	local target_planet = nil
+	local target_planet_radius = 0
+	if planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
+		target_x, target_y = planet_secondus_moon:getPosition()
+		target_planet = planet_secondus_moon
+		target_planet_radius = secondus_moon_radius
+	elseif planet_secondus ~= nil and planet_secondus:isValid() then
+		target_x, target_y = planet_secondus:getPosition()
+		target_planet = planet_secondus
+		target_planet_radius = planet_secondus_radius
 	end
-	kraylor_planet_buster_timer = kraylor_planet_buster_timer - delta
-	if kraylor_planet_buster_timer < 0 then
+	if planetary_attack_fleet ~= nil then
+		if planetary_attack_fleet_adjust_time == nil then
+			planetary_attack_fleet_adjust_time = getScenarioTime() + 5
+		end
+		if getScenarioTime() > planetary_attack_fleet_adjust_time then
+			planetary_attack_fleet_adjust_time = nil
+			local enemy_close_to_planet_count = 0
+			local obj_list = target_planet:getObjectsInRadius(target_x, target_y, 1500 + target_planet_radius)
+			for i,obj in ipairs(obj_list) do
+				if obj.typeName == "CpuShip" then
+					if obj:getFaction() == "Kraylor" then
+						enemy_close_to_planet_count = enemy_close_to_planet_count + 1
+					end
+				end
+			end
+			for i,ship in ipairs(planetary_attack_fleet) do
+				if ship:isValid() then
+					ship:orderFlyTowards(target_x, target_y)
+				end
+			end
+			if planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
+				if enemy_close_to_planet_count > 0 then
+					local explosion_x, explosion_y = planet_secondus_moon:getPosition()
+					local moon_name = planet_secondus_moon:getCallSign()
+					planet_secondus_moon:destroy()
+					ExplosionEffect():setPosition(explosion_x,explosion_y):setSize(secondus_moon_radius*2)
+					exploding_planet_x = explosion_x
+					exploding_planet_y = explosion_y
+					exploding_planet_time = getScenarioTime() + 5
+					planetary_attack_fleet_adjust_time = getScenarioTime() + 30
+					plot7 = explodingPlanetDebris
+					player:addToShipLog(string.format(_("Kraylor-shipLog", "Looks like the Kraylor have developed some kind of planet busting weapon. They just destroyed %s with it. Keep them away from %s!"),moon_name,planet_secondus:getCallSign()),"Magenta")
+					primaryOrders = string.format(_("KraylorOrders-comms","Save planet %s from Kraylor destruction like they destroyed %s by keeping the Kraylor away from %s."),planet_secondus:getCallSign(),moon_name,planet_secondus:getCallSign())
+				end
+			elseif planet_secondus ~= nil and planet_secondus:isValid() then
+				if enemy_close_to_planet_count > 3 then
+					local exp_x, exp_y = planet_secondus:getPosition()
+					planet_name = planet_secondus:getCallSign()
+					planet_secondus:destroy()
+					ExplosionEffect():setPosition(exp_x, exp_y):setSize(planet_secondus_radius*2)
+					exploding_planet_x = exp_x
+					exploding_planet_y = exp_y
+					exploding_planet_time = getScenarioTime() + 4
+					plot7 = explodingPlanetDebris
+					plot6 = worldEnd
+					world_end_time = getScenarioTime() + 5
+					player:addToShipLog(string.format(_("Kraylor-shipLog","Oops, there goes %s"),planet_name),"Magenta")
+				elseif enemy_close_to_planet_count > 1 and kraylor_planetary_danger > 10 then
+					globalMessage(string.format(_("msgMainscreen", "You've saved planet %s"),planet_secondus:getCallSign()))
+					victory("Human Navy")
+				end
+			end
+		end
+	end
+	if getScenarioTime() > kraylor_planet_buster_time then
 		kraylor_planet_buster_timer_interval = 60
-		kraylor_planet_buster_timer = kraylor_planet_buster_timer_interval
+		kraylor_planet_buster_time = getScenarioTime() + kraylor_planet_buster_timer_interval
 		if kraylor_planetary_danger == nil then
 			kraylor_planetary_danger = 4
 		end
-		local plx, ply = planet_secondus:getPosition()
-		local mox = plx
-		local moy = ply
-		local rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
-		if planet_secondus_moon ~= nil then
-			mox, moy = planet_secondus_moon:getPosition()
-		end
 		if planetary_attack_fleet == nil then
-			planetary_attack_fleet = spawnEnemies(plx+rvx,ply+rvy,kraylor_planetary_danger,"Kraylor")
-			for i, enemy in ipairs(planetary_attack_fleet) do
-				rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
-				enemy:setPosition(plx+rvx,ply+rvy)
-				if planet_secondus_moon ~= nil then
-					enemy:orderFlyTowards(mox,moy)
-				else
-					enemy:orderFlyTowards(plx,ply)
+			local base_range = 10000
+			local player_scanner_range = player:getLongRangeRadarRange()
+			local rvx,rvy = vectorFromAngle(random(0,360),random(base_range,player_scanner_range + base_range))
+			local spawn_x, spawn_y = 0
+			repeat
+				rvx,rvy = vectorFromAngle(random(0,360),random(base_range,player_scanner_range + base_range))
+				spawn_x = target_x + rvx
+				spawn_y = target_y + rvy
+				base_range = base_range + 1000
+			until(distance(player,spawn_x,spawn_y) > player_scanner_range)
+			planetary_attack_fleet = spawnEnemies(spawn_x,spawn_y,kraylor_planetary_danger,"Kraylor")
+			for i,enemy in ipairs(planetary_attack_fleet) do
+				if enemy:isValid() then
+					enemy:orderFlyTowards(target_x,target_y)
 				end
 			end
 		else
 			local enemy_count = 0
-			local enemy_close_to_planet_count = 0
-			for i, enemy in pairs(planetary_attack_fleet) do
+			for i,enemy in ipairs(planetary_attack_fleet) do
 				if enemy ~= nil and enemy:isValid() then
 					enemy_count = enemy_count + 1
-					if planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
-						if distance(enemy,planet_secondus_moon) < (1500 + secondus_moon_radius) then
-							local explosion_x, explosion_y = planet_secondus_moon:getPosition()
-							local moon_name = planet_secondus_moon:getCallSign()
-							planet_secondus_moon:destroy()
-							ExplosionEffect():setPosition(explosion_x,explosion_y):setSize(secondus_moon_radius*2)
-							player:addToShipLog(string.format(_("Kraylor-shipLog", "Looks like the Kraylor have developed some kind of planet busting weapon. They just destroyed %s with it. Keep them away from %s!"),moon_name,planet_secondus:getCallSign()),"Magenta")
-						end
-					else
-						if distance(enemy,planet_secondus) < 1500 + planet_secondus_radius then
-							enemy_close_to_planet_count = enemy_close_to_planet_count + 1
-						end
-					end
 				end
 			end
 			if enemy_count < 1 then
 				kraylor_planetary_danger = kraylor_planetary_danger + 1
-				planetary_attack_fleet = spawnEnemies(sdx+rvx,sdy+rvy,kraylor_planetary_danger,"Kraylor")
-				for i, enemy in ipairs(planetary_attack_fleet) do
-					rvx, rvy = vectorFromAngle(random(0,360),random(10000,20000))
-					enemy:setPosition(plx+rvx,plx+rvy)
-					if planet_secondus_moon ~= nil then
-						enemy:orderFlyTowards(mox,moy)
-					else
-						enemy:orderFlyTowards(plx,ply)
-					end
-				end
-			elseif enemy_close_to_planet_count > 5 then
-				local exp_x, exp_y = planet_secondus:getPosition()
-				planet_name = planet_secondus:getCallSign()
-				planet_secondus:destroy()
-				ExplosionEffect():setPosition(exp_x, exp_y):setSize(planet_secondus_radius*2)
-				plot7 = worldEnd
-				world_end_timer = 4
-			end
-			if kraylor_planetary_danger > 10 and enemy_close_to_planet_count > 1 then
-				globalMessage(string.format(_("msgMainscreen", "You've saved planet %s"),planet_secondus:getCallSign()))
-				victory("Human Navy")
+				planetary_attack_fleet = nil
 			end
 		end
 	end
 end
 function worldEnd(delta)
-	world_end_timer = world_end_timer - delta
-	if world_end_timer < 0 then
+	if getScenarioTime() > world_end_time then
 		globalMessage(string.format(_("msgMainscreen", "Planet %s was destroyed"),planet_name))
 		victory("Kraylor")
 	end
@@ -4857,60 +5196,71 @@ end
 --	Plot 2 Contract targeting  --
 ---------------------------------
 function contractTarget(delta)
-	if exuari_vengance_fleet == nil then
+	if exuari_vengance_fleet_time == nil then
 		if exuari_vengance_danger == nil then
 			exuari_vengance_danger = 2
 		else
-			exuari_vengance_danger = exuari_vengance_danger + 1
+			exuari_vengance_danger = exuari_vengance_danger + .5
 		end
-		local ev_fleet = spawnEnemies(evx,evy,exuari_vengance_danger,"Exuari")
-		local fsx, fsy = first_station:getPosition()
-		for i, enemy in ipairs(ev_fleet) do
-			enemy:orderFlyTowards(fsx,fsy)
+		local vengance_target = false
+		for i,station in ipairs(independent_station) do
+			if station ~= nil and station:isValid() then
+				vengance_target = true
+				break
+			end
 		end
-		local evs_x, evs_y = vectorFromAngle((ev_angle+90)%360,8000)
-		ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
-		local evd_x, evd_y = vectorFromAngle(ev_angle,40000)
-		for i, enemy in ipairs(ev_fleet) do
-			enemy:orderFlyTowards(evx+evs_x+evd_x,evy+evs_y+evd_y)
+		if vengance_target then
+			local ev_fleet = spawnEnemies(evx,evy,exuari_vengance_danger,"Exuari")
+			for i, enemy in ipairs(ev_fleet) do
+				enemy:orderFlyTowards(first_station_x,first_station_y)
+			end
+			local evs_x, evs_y = vectorFromAngle((ev_angle+90)%360,8000)
+			ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
+			local evd_x, evd_y = vectorFromAngle(ev_angle,40000)
+			for i, enemy in ipairs(ev_fleet) do
+				enemy:orderFlyTowards(evx+evs_x+evd_x,evy+evs_y+evd_y)
+			end
+			evs_x, evs_y = vectorFromAngle((ev_angle+270)%360,8000)
+			ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
+			for i, enemy in ipairs(ev_fleet) do
+				enemy:orderFlyTowards(evx+evs_x+evd_x,evy+evs_y+evd_y)
+			end
+			evs_x, evs_y = vectorFromAngle((ev_angle+270)%360,16000)
+			local is_x, is_y = independent_station[2]:getPosition()
+			ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
+			for i, enemy in ipairs(ev_fleet) do
+				enemy:orderFlyTowards(is_x, is_y)
+			end
+			evs_x, evs_y = vectorFromAngle((ev_angle+90)%360,16000)
+			is_x, is_y = independent_station[3]:getPosition()
+			ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
+			for i, enemy in ipairs(ev_fleet) do
+				enemy:orderFlyTowards(is_x, is_y)
+			end
 		end
-		evs_x, evs_y = vectorFromAngle((ev_angle+270)%360,8000)
-		ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
-		for i, enemy in ipairs(ev_fleet) do
-			enemy:orderFlyTowards(evx+evs_x+evd_x,evy+evs_y+evd_y)
-		end
-		evs_x, evs_y = vectorFromAngle((ev_angle+270)%360,16000)
-		local is_x, is_y = independent_station[2]:getPosition()
-		ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
-		for i, enemy in ipairs(ev_fleet) do
-			enemy:orderFlyTowards(is_x, is_y)
-		end
-		evs_x, evs_y = vectorFromAngle((ev_angle+90)%360,16000)
-		is_x, is_y = independent_station[3]:getPosition()
-		ev_fleet = spawnEnemies(evx+evs_x,evy+evs_y,exuari_vengance_danger,"Exuari")
-		for i, enemy in ipairs(ev_fleet) do
-			enemy:orderFlyTowards(is_x, is_y)
-		end
-		exuari_vengance_fleet = 600 - (difficulty*100)
+		exuari_vengance_fleet_time = getScenarioTime() + 650 - (difficulty*100)
 	else
-		exuari_vengance_fleet = exuari_vengance_fleet - delta
-		if exuari_vengance_fleet < 0 then
-			exuari_vengance_fleet = nil
+		if getScenarioTime() > exuari_vengance_fleet_time then
+			exuari_vengance_fleet_time = nil
 		end
 	end
 	for i, target_station in pairs(contract_station) do
 		if target_station ~= nil and target_station:isValid() then
 			if target_station.delay_timer == nil then
-				target_station.delay_timer = delta + random(5,30)
+				target_station.delay_timer = getScenarioTime() + random(5,30)
 			end
-			target_station.delay_timer = target_station.delay_timer - delta
-			if target_station.delay_timer < 0 then
+			if getScenarioTime() > target_station.delay_timer then
 				if target_station.harass_fleet == nil then
 					if random(1,100) < 80 then
 						local hfx, hfy = target_station:getPosition()
 						target_station.harass_fleet = spawnEnemies(hfx, hfy, 2, "Exuari", 3000, 5000)
+						for j,ship in ipairs(target_station.harass_fleet) do
+							if ship:isValid() then
+								ship:orderFlyTowards(hfx,hfy)
+							end
+						end
 					else
-						target_station.delay_timer = delta + random(5,30)
+						target_station.delay_timer = getScenarioTime() + random(5,30)
 					end
 				else
 					local fleet_count = 0
@@ -4920,32 +5270,32 @@ function contractTarget(delta)
 						end
 					end
 					if fleet_count < 1 then
-						target_station.delay_timer = delta + random(60,200)
+						target_station.delay_timer = getScenarioTime() + random(60,200)
 						target_station.harass_fleet = nil
 					end
 				end
 			end
 		else
-			globalMessage(_("msgMainscreen", "Your contract destination station was destroyed"))
-			victory("Exuari")
+			if supply_depot_station == nil then
+				globalMessage(_("msgMainscreen", "A contract destination station was destroyed"))
+				victory("Exuari")
+			end
 		end
 	end
 	if not transition_contract_message then
 		if transition_contract_delay ~= nil then
-			transition_contract_delay = transition_contract_delay - delta
-			if transition_contract_delay < 0 then
+			if getScenarioTime() > transition_contract_delay then
 				if first_station ~= nil and first_station:isValid() then
-					local p = getPlayerShip(-1)
-					p:addToShipLog(string.format(_("contract-shipLog", "A rare long range contract has been posted at station %s"),first_station:getCallSign()),"Magenta")
+					player:addToShipLog(string.format(_("contract-shipLog", "A rare long range contract has been posted at station %s"),first_station:getCallSign()),"Magenta")
 				else
 					globalMessage(_("msgMainscreen", "Mourning over the loss of the station has halted all business\nThe mission is over"))
 					victory("Exuari")
 				end
 				transition_contract_message = true
-				plot2 = nil
+	--			plot2 = nil
 			else
 				if player.captain_log < 2 then
-					if transition_contract_delay < transition_contract_delay_max*.8 then
+					if getScenarioTime() < transition_contract_delay_msg then
 						if independent_station[1]:isValid() and independent_station[2]:isValid() and independent_station[3]:isValid() then
 							player:addToShipLog(string.format(_("contract-shipLog", "[Captain's Log] Why can't the Exuari just leave us alone? I don't understand what it is about them that makes them want to prey on everyone.\nThe upgrades for %s are very nice. They certainly came in handy. With the confidence of stations %s, %s and %s, I feel we will succeed as the space entrepeneurs we want to be."),player:getCallSign(),first_station:getCallSign(),independent_station[2]:getCallSign(),independent_station[3]:getCallSign()),"Green")
 						end
@@ -4978,14 +5328,13 @@ function contractTarget(delta)
 				end
 				if not contract_remains then
 					if first_station ~= nil and first_station:isValid() then
-						local p = getPlayerShip(-1)
-						p:addToShipLog(string.format(_("contract-shipLog", "A rare long range contract has been posted at station %s"),first_station:getCallSign()),"Magenta")
+						player:addToShipLog(string.format(_("contract-shipLog", "A rare long range contract has been posted at station %s"),first_station:getCallSign()),"Magenta")
 					else
 						globalMessage(_("msgMainscreen", "Mourning over the loss of the station has halted all business\nThe mission is over"))
 						victory("Exuari")
 					end
 					transition_contract_message = true
-					plot2 = nil
+--					plot2 = nil
 				end
 			end
 		end
@@ -5006,21 +5355,19 @@ end
 -------------------------
 function highwaymen(delta)
 	if distance(player,drop_bait) < 30000 then
-		highway_timer = highway_timer - delta
-		if highway_timer < 0 then
-			highway_timer = delta + 150
+		if getScenarioTime() > highway_time then
+			highway_time = getScenarioTime() + 150
 			plot4 = highwaymenAlerted
 		end
 	end
 end
 function highwaymenAlerted(delta)
 	if distance(player,drop_bait) < 10000 then
-		highway_timer = 5
+		highway_time = getScenarioTime() + 5
 		plot4 = highwaymenPounce
 	end
-	highway_timer = highway_timer - delta
-	if highway_timer < 0 then
-		highway_timer = delta + 10
+	if getScenarioTime() > highway_time then
+		highway_time = getScenarioTime() + 10
 		plot4 = highwaymenPounce
 	end
 	if distance(player,drop_bait) < 30000 then
@@ -5038,7 +5385,7 @@ function highwaymenAlerted(delta)
 			player.prev_jump_charge = player:getJumpDriveCharge()
 		end
 		if player:getJumpDriveCharge() >= 30000 then
-			highway_timer = delta + 10
+			highway_time = getScenarioTime() + 10
 			plot4 = highwaymenPounce
 		end
 	end
@@ -5058,7 +5405,7 @@ function highwaymenPounce(delta)
 		else
 			local etx, ety = drop_bait:getPosition()
 			highwaymen_warning_zone = Zone():setPoints(etx-1000,ety-1000,etx+1000,ety-1000,etx+1000,ety+1000,etx-1000,ety+1000):setColor(255,255,0)
-			zone_timer = 30
+			zone_time = getScenarioTime() + 30
 			plot5 = removeZone
 			if player:hasPlayerAtPosition("Science") then
 				player.highwaymen_warning_message = "highwaymen_warning_message"
@@ -5070,8 +5417,7 @@ function highwaymenPounce(delta)
 			end
 		end
 	end
-	highway_timer = highway_timer - delta
-	if highway_timer < 0 then
+	if getScenarioTime() > highway_time then
 		local etx, ety = drop_bait:getPosition()
 		highwaymen_fleet = spawnEnemies(etx, ety,4,"Exuari")
 		local px, py = player:getPosition()
@@ -5086,7 +5432,7 @@ function highwaymenPounce(delta)
 		local jx, jy = drop_bait:getPosition()
 		drop_bait:destroy()
 		highwaymen_jammer = WarpJammer():setRange(jam_range):setPosition(jx,jy):setFaction("Exuari")
-		highway_timer = 8
+		highway_time = getScenarioTime() + 8
 		plot4 = highwaymenAftermath
 	end
 end
@@ -5099,11 +5445,10 @@ function highwaymenAftermath(delta)
 		end
 	end
 	if enemy_count < 1 then
-		highway_timer = highway_timer - delta
-		if highway_timer < 0 then
+		if getScenarioTime() > highway_time then
 			highwaymen_jammer:setRange(5000):setDescriptions(_("scienceDescription-jammer", "Jump and Warp Jammer"),_("scienceDescription-jammer", "Jump and Warp Jammer with external dynamic range control and sensor decoy mechanism")):setScanningParameters(1,2)
 			plot4 = highwaymenReset
-			highway_timer = delta + 200
+			highway_time = getScenarioTime() + 200
 			local etx, ety = highwaymen_jammer:getPosition()
 			highwaymen_fleet = spawnEnemies(etx, ety,4,"Exuari")
 			for i,enemy in ipairs(highwaymen_fleet) do
@@ -5118,8 +5463,7 @@ function highwaymenAftermath(delta)
 	end
 end
 function highwaymenReset(delta)
-	highway_timer = highway_timer - delta
-	if highway_timer < 0 then
+	if getScenarioTime() > highway_time then
 		if highwaymen_jammer ~= nil then
 			local enemy_count = 0
 			for i,enemy in pairs(highwaymen_fleet) do
@@ -5136,19 +5480,147 @@ function highwaymenReset(delta)
 	end
 end
 function removeZone(delta)
-	zone_timer = zone_timer - delta
-	if zone_timer < 0 then
+	if getScenarioTime() > zone_time then
 		highwaymen_warning_zone:destroy()
 		plot5 = nil
+	end
+end
+function explodingPlanetDebris()
+	if exploding_planet_x == nil then
+		exploding_planet_x = 0
+		exploding_planet_y = 0
+		exploding_planet_time = getScenarioTime() + 5
+	end
+	if getScenarioTime() > exploding_planet_time then
+		if #ejecta > 0 then
+			for i,ej in ipairs(ejecta) do
+				local obj = ej.obj
+				if ej.action == "dissipate" then
+					if obj.typeName == "Artifact" then
+						obj:explode()
+					else
+						obj:destroy()
+					end
+				else
+					if obj.typeName == "Artifact" then
+						obj:onCollision(function(self,collider)
+							string.format("")
+							collider:takeDamage(100)
+							self:explode()
+						end)
+					end
+				end
+			end
+		end
+		ejecta = nil
+		exploding_planet_x = nil
+		exploding_planet_y = nil
+		plot7 = nil
+	else
+		if ejecta == nil then
+			ejecta = {}
+			local ejecta_count = 200
+			local lo_speed = 100
+			local hi_speed = 1000
+			local max_neb = 7
+			local neb_count = 0
+			for i=1,ejecta_count do
+				local angle = random((i-1)*360/ejecta_count,i*360/ejecta_count)
+				local speed = random(lo_speed,hi_speed)
+				local dist = random(10000,300000)
+				local actions = {"dissipate","stop"}
+				local iterations = math.floor(dist/speed)
+				local ejecta_kinds = {Asteroid,VisualAsteroid,VisualAsteroid,VisualAsteroid,Nebula,Artifact}
+				local ejecta_kind = ejecta_kinds[math.random(1,#ejecta_kinds)]
+				if ejecta_kind == "Nebula" then
+					neb_count = neb_count + 1
+					if neb_count >= max_neb then
+						ejecta_kind = VisualAsteroid
+					end
+				end
+				local obj = ejecta_kind()
+				obj:setPosition(exploding_planet_x,exploding_planet_y)
+				if obj.typeName == "Asteroid" or obj.typeName == "VisualAsteroid" then
+					obj:setSize(random(5,50) + random(5,50) + random(5,200))
+				end
+				if obj.typeName == "Artifact" then
+					obj:setRadarTraceColor(math.random(1,255),math.random(1,255),math.random(1,255))
+					if unscanned_descriptions == nil or #unscanned_descriptions == 0 then
+						unscanned_descriptions = {
+							_("scienceDescription-artifact","Unknown tech device"),
+							_("scienceDescription-artifact","Partly melted machinery"),
+							_("scienceDescription-artifact","Device of unknown purpose"),
+							_("scienceDescription-artifact","Fragment of advanced technology"),
+						}
+					end
+					if scanned_descriptions == nil or #scanned_descriptions == 0 then
+						scanned_descriptions = {
+							_("scienceDescription-artifact","Origin: Kraylor. Purpose: unknown."),
+							_("scienceDescription-artifact","Source: Kraylor. Possibly a remnant of a planet-busting device."),
+							_("scienceDescription-artifact","Purpose: unknown. Volatile material detected."),
+							_("scienceDescription-artifact","Origin: Kraylor."),
+						}
+					end
+					local unscanned_description = tableRemoveRandom(unscanned_descriptions)
+					local scanned_description = tableRemoveRandom(scanned_descriptions)
+					obj:setDescriptions(unscanned_description,scanned_description)
+					obj:setScanningParameters(math.random(1,3),math.random(1,3))
+				end
+				table.insert(ejecta,{obj=obj,dir=angle,speed=speed,dist=dist,action=actions[math.random(1,#actions)],iterations=iterations,del=false})
+			end
+		else
+			if #ejecta > 0 then
+				for i,ej in ipairs(ejecta) do
+					local obj = ej.obj
+					if obj ~= nil and obj:isValid() then
+						local ox,oy = obj:getPosition()
+						local dx,dy = vectorFromAngle(ej.dir,ej.speed)
+						obj:setPosition(ox + dx, oy + dy)
+						ej.iterations = ej.iterations - 1
+						if ej.iterations <= 0 then
+							if ej.action == "dissipate" then
+								if obj.typeName == "Artifact" then
+									obj:explode()
+								else
+									obj:destroy()
+								end
+								ej.obj = nil
+								ej.del = true
+							elseif ej.action == "stop" then
+								if obj.typeName == "Artifact" then
+									obj:onCollision(function(self,collider)
+										string.format("")
+										collider:takeDamage(100)
+										self:explode()
+									end)
+								end
+								ej.obj = nil
+								ej.del = true
+							end
+						else
+							ej.speed = math.max(ej.speed - random(0,5),1)
+						end
+					else
+						ej.obj = nil
+						ej.del = true
+					end
+				end
+				for i=#ejecta,1,-1 do
+					if ejecta[i].del then
+						ejecta[i] = ejecta[#ejecta]
+						ejecta[#ejecta] = nil
+					end
+				end
+			end
+		end
 	end
 end
 function update(delta)
 	if delta == 0 then	--game paused
 		setPlayer()
-		accumulated_delta = 0
 		return
 	end
-	if planet_secondus_moon ~= nil then
+	if planet_secondus_moon ~= nil and planet_secondus_moon:isValid() then
 		if supply_depot_station ~= nil and supply_depot_station:isValid() then
 			if supply_depot_station.sabotaged == nil then
 				local mx, my = planet_secondus_moon:getPosition()
@@ -5171,7 +5643,6 @@ function update(delta)
 			victory("Exuari")
 		end
 	end
-	accumulated_delta = accumulated_delta + delta
 	local cargo_hold_empty = true
 	if player.goods ~= nil then
 		for good, quantity in pairs(player.goods) do
@@ -5212,7 +5683,7 @@ function update(delta)
 	if plot6 ~= nil then	--planet buster
 		plot6(delta)
 	end
-	if plot7 ~= nil then	--end of the world
+	if plot7 ~= nil then	--exploding planet
 		plot7(delta)
 	end
 	if plot8 ~= nil then	--pirates
