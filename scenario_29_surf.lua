@@ -1576,8 +1576,42 @@ function checkZones(p,delta)
 			if zone:isInside(p) then
 				if zone.detriment == "beam" then
 					p:setSystemHealth("beamweapons",p:getSystemHealth("beamweapons")*.999)
+					if zone.player_warn == nil then
+						zone.player_warn = {}
+					else
+						if zone.player_warn[p] == nil then
+							zone.player_warn[p] = {time = getScenarioTime() + 5, sent = false}
+						else
+							if not zone.player_warn[p].sent then
+								if getScenarioTime() > zone.player_warn[p].time then
+									p.zone_warn_msg_sci = "zone_warn_msg_sci"
+									p:addCustomMessage("Science",p.zone_warn_msg_sci,_("msgScience","In addition to jamming our FTL drive, there's a warp jammer that is damaging our beam weapons"))
+									p.zone_warn_msg_ops = "zone_warn_msg_ops"
+									p:addCustomMessage("Operations",p.zone_warn_msg_ops,_("msgOperations","In addition to jamming our FTL drive, there's a warp jammer that is damaging our beam weapons"))
+									zone.player_warn[p].sent = true
+								end
+							end
+						end
+					end
 				elseif zone.detriment == "missile" then
 					p:setSystemHealth("missilesystem",p:getSystemHealth("missilesystem")*.999)
+					if zone.player_warn == nil then
+						zone.player_warn = {}
+					else
+						if zone.player_warn[p] == nil then
+							zone.player_warn[p] = {time = getScenarioTime() + 5, sent = false}
+						else
+							if not zone.player_warn[p].sent then
+								if getScenarioTime() > zone.player_warn[p].time then
+									p.zone_warn_msg_sci = "zone_warn_msg_sci"
+									p:addCustomMessage("Science",p.zone_warn_msg_sci,_("msgScience","In addition to jamming our FTL drive, there's a warp jammer that is damaging our missile systems"))
+									p.zone_warn_msg_ops = "zone_warn_msg_ops"
+									p:addCustomMessage("Operations",p.zone_warn_msg_ops,_("msgOperations","In addition to jamming our FTL drive, there's a warp jammer that is damaging our missile systems"))
+									zone.player_warn[p].sent = true
+								end
+							end
+						end
+					end
 				end
 			end
 		else
