@@ -68,7 +68,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.33.3"
+	scenario_version = "6.34.1"
 	ee_version = "2024.05.16 (w/setmetatable)"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1761,10 +1761,10 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Levant")			--J
+	makePlayerShipActive("Thunderbird")		--J
 	makePlayerShipActive("George")			--J
 	makePlayerShipActive("Dominant") 		--J 
-	makePlayerShipActive("Tango")			--W
+	makePlayerShipActive("Narsil")			--W
 	makePlayerShipActive("Rocinante")		--W
 	makePlayerShipActive("Osprey") 			--W 
 	carrier_class_launch_time = {
@@ -11961,9 +11961,12 @@ function createIcarusColor()
 		if i == 4 and not mirrorUniverse then
 			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
 			dp4Zone:setColor(0,128,0):setLabel("4")
---		elseif i == 5 and not mirrorUniverse then
---			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
---			dp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 5 and not mirrorUniverse then
+			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+			dp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 6 and not mirrorUniverse then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
@@ -20661,7 +20664,10 @@ function createTereshStations()
 	table.insert(stations,stationDristan)
 	--]]
 	--	Fractured Shaft
-	stationFracturedShaft = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Fractured Shaft"):setPosition(888612, -1885):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local fracturedShaftZone = squareZone(888612, -1885, "Fractured Shaft II E49")
+	fracturedShaftZone:setColor(0,128,0):setLabel("F")
+	--[[
+	stationFracturedShaft = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Fractured Shaft II"):setPosition(888612, -1885):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationFracturedShaft.comms_data = {
     	friendlyness = 57,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -20718,6 +20724,7 @@ function createTereshStations()
 	table.insert(teresh_defense_platforms,ship)
 	station_names[stationFracturedShaft:getCallSign()] = {stationFracturedShaft:getSectorName(), stationFracturedShaft}
 	table.insert(stations,stationFracturedShaft)
+	--]]
 	--	Gangrene Cove
     stationGangreneCove = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Gangrene Cove"):setPosition(880837, 5625):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationGangreneCove.comms_data = {
@@ -20978,7 +20985,10 @@ function createTereshStations()
 	station_names[stationJaxteb:getCallSign()] = {stationJaxteb:getSectorName(), stationJaxteb}
 	table.insert(stations,stationJaxteb)
 	--	Limeya
-	stationLimeya = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Limeya"):setPosition(880811, -3551):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local limeyaZone = squareZone(880811, -3551, "Limeya 2 E49")
+	limeyaZone:setColor(51,153,255):setLabel("L")
+	--[[
+	stationLimeya = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Limeya 2"):setPosition(880811, -3551):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLimeya.comms_data = {
     	friendlyness = 78,
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
@@ -21027,6 +21037,7 @@ function createTereshStations()
 	table.insert(teresh_defense_platforms,ship)
 	station_names[stationLimeya:getCallSign()] = {stationLimeya:getSectorName(), stationLimeya}
 	table.insert(stations,stationLimeya)
+	--]]
 	--	Proteus	
 	stationProteus = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Proteus"):setPosition(873900, -22901):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationProteus.comms_data = {
@@ -55312,108 +55323,110 @@ function addStationToDatabase(station)
 			station_db:setKeyValue(location_key,string.format("%s, %s",station:getSectorName(),station:getFaction()))
 		end
 	end
-	local dock_service = ""
-	local service_count = 0
-	if station:getSharesEnergyWithDocked() then
-		dock_service = _("scienceDB","share energy")
-		service_count = service_count + 1
-	end
-	if station:getRepairDocked() then
-		if dock_service == "" then
-			dock_service = _("scienceDB","repair hull")
-		else
-			dock_service = string.format(_("scienceDB","%s, repair hull"),dock_service)
+	if station_db ~= nil then
+		local dock_service = ""
+		local service_count = 0
+		if station:getSharesEnergyWithDocked() then
+			dock_service = _("scienceDB","share energy")
+			service_count = service_count + 1
 		end
-		service_count = service_count + 1
-	end
-	if station:getRestocksScanProbes() then
-		if dock_service == "" then
-			dock_service = _("scienceDB","replenish probes")
-		else
-			dock_service = string.format(_("scienceDB","%s, replenish probes"),dock_service)
-		end
-		service_count = service_count + 1
-	end
-	if service_count > 0 then
-		local docking_services_key = _("scienceDB","Docking Services")
-		if service_count == 1 then
-			docking_services_key = _("scienceDB","Docking Service")
-		end
-		station_db:setKeyValue(docking_services_key,dock_service)
-	end
-	if station.comms_data ~= nil then
-		if station.comms_data.weapon_available ~= nil then
-			if station.comms_data.weapon_cost == nil then
-				station.comms_data.weapon_cost = {
-					Homing = math.random(1,4),
-					HVLI = math.random(1,3),
-					Mine = math.random(2,5),
-					Nuke = math.random(12,18),
-					EMP = math.random(7,13),
-				}
+		if station:getRepairDocked() then
+			if dock_service == "" then
+				dock_service = _("scienceDB","repair hull")
+			else
+				dock_service = string.format(_("scienceDB","%s, repair hull"),dock_service)
 			end
-			if station.comms_data.reputation_cost_multipliers == nil then
-				station.comms_data.reputation_cost_multipliers = {
-					friend = 1.0,
-					neutral = 3.0,
-				}
+			service_count = service_count + 1
+		end
+		if station:getRestocksScanProbes() then
+			if dock_service == "" then
+				dock_service = _("scienceDB","replenish probes")
+			else
+				dock_service = string.format(_("scienceDB","%s, replenish probes"),dock_service)
 			end
-			local station_missiles = {
-				{name = "Homing",	key = _("scienceDB","Restock Homing")},
-				{name = "HVLI",		key = _("scienceDB","Restock HVLI")},
-				{name = "Mine",		key = _("scienceDB","Restock Mine")},
-				{name = "Nuke",		key = _("scienceDB","Restock Nuke")},
-				{name = "EMP",		key = _("scienceDB","Restock EMP")},
-			}
-			for i,sm in ipairs(station_missiles) do
-				if station.comms_data.weapon_available[sm.name] then
-					if station.comms_data.weapon_cost[sm.name] ~= nil then
-						local val = string.format(_("scienceDB","%i reputation each"),math.ceil(station.comms_data.weapon_cost[sm.name] * station.comms_data.reputation_cost_multipliers["friend"]))
-						station_db:setKeyValue(sm.key,val)
-					end
+			service_count = service_count + 1
+		end
+		if service_count > 0 then
+			local docking_services_key = _("scienceDB","Docking Services")
+			if service_count == 1 then
+				docking_services_key = _("scienceDB","Docking Service")
+			end
+			station_db:setKeyValue(docking_services_key,dock_service)
+		end
+		if station.comms_data ~= nil then
+			if station.comms_data.weapon_available ~= nil then
+				if station.comms_data.weapon_cost == nil then
+					station.comms_data.weapon_cost = {
+						Homing = math.random(1,4),
+						HVLI = math.random(1,3),
+						Mine = math.random(2,5),
+						Nuke = math.random(12,18),
+						EMP = math.random(7,13),
+					}
 				end
-			end
-		end
-		local secondary_system_repair = {
-			{name = "scan_repair",				key = _("scienceDB","Repair scanners")},
-			{name = "combat_maneuver_repair",	key = _("scienceDB","Repair combat maneuver")},
-			{name = "hack_repair",				key = _("scienceDB","Repair hacking")},
-			{name = "probe_launch_repair",		key = _("scienceDB","Repair probe launch")},
-			{name = "tube_slow_down_repair",	key = _("scienceDB","Repair slow tube")},
-			{name = "self_destruct_repair",		key = _("scienceDB","Repair self destruct")},
-		}
-		for i,ssr in ipairs(secondary_system_repair) do
-			if station.comms_data[ssr.name] then
-				if station.comms_data.service_cost[ssr.name] ~= nil then
-					local val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[ssr.name])
-					station_db:setKeyValue(ssr.key,val)
+				if station.comms_data.reputation_cost_multipliers == nil then
+					station.comms_data.reputation_cost_multipliers = {
+						friend = 1.0,
+						neutral = 3.0,
+					}
 				end
-			end
-		end
-		if station.comms_data.service_available ~= nil then
-			local general_service = {
-				{name = "supplydrop",				key = _("scienceDB","Drop supplies")},
-				{name = "jumpsupplydrop",			key = _("scienceDB","Jump ship drops supplies")},
-				{name = "flingsupplydrop",			key = _("scienceDB","Flinger drops supplies")},
-				{name = "reinforcements",			key = _("scienceDB","Standard reinforcements")},
-				{name = "hornet_reinforcements",	key = _("scienceDB","Hornet reinforcements")},
-				{name = "phobos_reinforcements",	key = _("scienceDB","Phobos reinforcements")},
-				{name = "stalker_reinforcements",	key = _("scienceDB","Stalker reinforcements")},
-				{name = "amk8_reinforcements",		key = _("scienceDB","Adder8 reinforcements")},
-				{name = "activatedefensefleet",		key = _("scienceDB","Activate defense fleet")},
-				{name = "servicejonque",			key = _("scienceDB","Provide service jonque")},
-				{name = "shield_overcharge",		key = _("scienceDB","Overcharge shield")},
-				{name = "jump_overcharge",			key = _("scienceDB","Overcharge jump drive")},
-			}
-			for i,gs in ipairs(general_service) do
-				if station.comms_data.service_available[gs.name] then
-					local val = "available"
-					if station.comms_data.service_cost[gs.name] ~= nil then
-						if station.comms_data.service_cost[gs.name] > 0 then
-							val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[gs.name])
+				local station_missiles = {
+					{name = "Homing",	key = _("scienceDB","Restock Homing")},
+					{name = "HVLI",		key = _("scienceDB","Restock HVLI")},
+					{name = "Mine",		key = _("scienceDB","Restock Mine")},
+					{name = "Nuke",		key = _("scienceDB","Restock Nuke")},
+					{name = "EMP",		key = _("scienceDB","Restock EMP")},
+				}
+				for i,sm in ipairs(station_missiles) do
+					if station.comms_data.weapon_available[sm.name] then
+						if station.comms_data.weapon_cost[sm.name] ~= nil then
+							local val = string.format(_("scienceDB","%i reputation each"),math.ceil(station.comms_data.weapon_cost[sm.name] * station.comms_data.reputation_cost_multipliers["friend"]))
+							station_db:setKeyValue(sm.key,val)
 						end
 					end
-					station_db:setKeyValue(gs.key,val)
+				end
+			end
+			local secondary_system_repair = {
+				{name = "scan_repair",				key = _("scienceDB","Repair scanners")},
+				{name = "combat_maneuver_repair",	key = _("scienceDB","Repair combat maneuver")},
+				{name = "hack_repair",				key = _("scienceDB","Repair hacking")},
+				{name = "probe_launch_repair",		key = _("scienceDB","Repair probe launch")},
+				{name = "tube_slow_down_repair",	key = _("scienceDB","Repair slow tube")},
+				{name = "self_destruct_repair",		key = _("scienceDB","Repair self destruct")},
+			}
+			for i,ssr in ipairs(secondary_system_repair) do
+				if station.comms_data[ssr.name] then
+					if station.comms_data.service_cost[ssr.name] ~= nil then
+						local val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[ssr.name])
+						station_db:setKeyValue(ssr.key,val)
+					end
+				end
+			end
+			if station.comms_data.service_available ~= nil then
+				local general_service = {
+					{name = "supplydrop",				key = _("scienceDB","Drop supplies")},
+					{name = "jumpsupplydrop",			key = _("scienceDB","Jump ship drops supplies")},
+					{name = "flingsupplydrop",			key = _("scienceDB","Flinger drops supplies")},
+					{name = "reinforcements",			key = _("scienceDB","Standard reinforcements")},
+					{name = "hornet_reinforcements",	key = _("scienceDB","Hornet reinforcements")},
+					{name = "phobos_reinforcements",	key = _("scienceDB","Phobos reinforcements")},
+					{name = "stalker_reinforcements",	key = _("scienceDB","Stalker reinforcements")},
+					{name = "amk8_reinforcements",		key = _("scienceDB","Adder8 reinforcements")},
+					{name = "activatedefensefleet",		key = _("scienceDB","Activate defense fleet")},
+					{name = "servicejonque",			key = _("scienceDB","Provide service jonque")},
+					{name = "shield_overcharge",		key = _("scienceDB","Overcharge shield")},
+					{name = "jump_overcharge",			key = _("scienceDB","Overcharge jump drive")},
+				}
+				for i,gs in ipairs(general_service) do
+					if station.comms_data.service_available[gs.name] then
+						local val = "available"
+						if station.comms_data.service_cost[gs.name] ~= nil then
+							if station.comms_data.service_cost[gs.name] > 0 then
+								val = string.format(_("scienceDB","%s reputation"),station.comms_data.service_cost[gs.name])
+							end
+						end
+						station_db:setKeyValue(gs.key,val)
+					end
 				end
 			end
 		end
@@ -58221,6 +58234,7 @@ function commercialOptions(calling_function)
 			"How about commerce at other stations?",
 		}
 		addCommsReply(tableSelectRandom(external_commerce),function()
+			setCommsMessage("Other stations?")
 			if comms_target.comms_data.friendlyness > 66 then
 				if comms_target.comms_data.other_station_commerce == nil then
 					local station_pool = {}
@@ -62994,11 +63008,13 @@ end
 function getServiceCost(service)
 	if comms_data.service_cost == nil then
 		print("comms data service cost is nil. Station:",comms_target:getCallSign())
-	end
-	if comms_data.service_cost[service] == nil then
+		return 9999
+	elseif comms_data.service_cost[service] == nil then
 		print("comms data service cost for service",service,"is nil. Station:",comms_target:getCallSign())
+		return 9999
+	else
+		return math.ceil(comms_data.service_cost[service])
 	end
-    return math.ceil(comms_data.service_cost[service])
 end
 function getFriendStatus()
     if comms_source:isFriendly(comms_target) then
