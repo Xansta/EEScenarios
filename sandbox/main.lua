@@ -68,7 +68,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.34.1"
+	scenario_version = "6.34.2"
 	ee_version = "2024.05.16 (w/setmetatable)"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1765,8 +1765,8 @@ function setConstants()
 	makePlayerShipActive("George")			--J
 	makePlayerShipActive("Dominant") 		--J 
 	makePlayerShipActive("Narsil")			--W
-	makePlayerShipActive("Rocinante")		--W
-	makePlayerShipActive("Osprey") 			--W 
+	makePlayerShipActive("Florentine")		--W
+	makePlayerShipActive("Stick") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -11958,16 +11958,16 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 4 and not mirrorUniverse then
-			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
-			dp4Zone:setColor(0,128,0):setLabel("4")
-		elseif i == 5 and not mirrorUniverse then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
-			dp5Zone:setColor(0,128,0):setLabel("5")
-		elseif i == 6 and not mirrorUniverse then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		else		
+--		if i == 4 and not mirrorUniverse then
+--			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
+--			dp4Zone:setColor(0,128,0):setLabel("4")
+--		elseif i == 5 and not mirrorUniverse then
+--			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
+--			dp5Zone:setColor(0,128,0):setLabel("5")
+--		elseif i == 6 and not mirrorUniverse then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -11976,7 +11976,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -13173,10 +13173,10 @@ function createIcarusStations()
 	end
 	--Mermaid
 	-- only destroyed in non mirror universe
-	if not mirrorUniverse then
-		local mermaidZone = squareZone(28889, -4417, "Mermaid 12 E6")
-		mermaidZone:setColor(51,153,255):setLabel("11")
-	else
+--	if not mirrorUniverse then
+--		local mermaidZone = squareZone(28889, -4417, "Mermaid 12 E6")
+--		mermaidZone:setColor(51,153,255):setLabel("11")
+--	else
 		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 12"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
@@ -13238,7 +13238,7 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
-	end
+--	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
 --	nilweaZone:setColor(51,153,255):setLabel("N")
@@ -13683,9 +13683,8 @@ function createIcarusStations()
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
 	--Slurry
-	local slurryZone = squareZone(100342, 27871, "Slurry VI G10")
-	slurryZone:setColor(51,153,255)
-	--[[
+--	local slurryZone = squareZone(100342, 27871, "Slurry VI G10")
+--	slurryZone:setColor(51,153,255)
     stationSlurry = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Slurry VI"):setPosition(100342, 27871):setDescription("Mining Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationSlurry:setFaction("Spacer")
@@ -13746,10 +13745,10 @@ function createIcarusStations()
 	if random(1,100) <= 26 then stationSlurry:setSharesEnergyWithDocked(false) end
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
-	--]]
 	--Sovinec
-	--local sovinecZone = squareZone(134167, 104690, "Sovinec Three K11")
-	--sovinecZone:setColor(51,153,255)
+	local sovinecZone = squareZone(134167, 104690, "Sovinec Four K11")
+	sovinecZone:setColor(51,153,255)
+	--[[
 	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(sdp1)
 	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
@@ -13757,7 +13756,7 @@ function createIcarusStations()
 		sdp1:setFaction("Spacer")
 	end
 	table.insert(stations,sdp1)
-	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Three"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	stationSovinec = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Sovinec Four"):setPosition(134167, 104690):setDescription("Beam component research and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationSovinec:setFaction("Spacer")
 	end
@@ -13829,6 +13828,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationSovinec:setSharesEnergyWithDocked(false) end
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
+	--]]
 	--Speculator
 	--local speculatorZone = squareZone(55000,108000, "Speculator 3 K7")
 	--speculatorZone:setColor(0,255,0)
