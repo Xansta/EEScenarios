@@ -1,0 +1,12 @@
+name: package-sandbox
+on: [push]
+jobs:
+  package-sandbox:
+    runs-on: ubuntu-latest
+    steps:
+      - run: zip -r Sandbox.zip scenario_09_sandbox.lua sandbox
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sandbox Download
+          path: Sandbox.zip
+          overwrite: true
