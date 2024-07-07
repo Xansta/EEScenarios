@@ -1,10 +1,13 @@
 -- Name: Surf's Up!
--- Description: Waves with some additions.
---- No victory condition. How many waves can you survive?
+-- Description: Wave after wave of enemy ships attack, each wave harder than the previous 
+--- wave. Single or multiple player ships may participate. Scenario is over when the
+--- player's friendly bases are destroyed. Loosely based on the Waves scenario.
+---
+--- No victory condition. How many waves can you complete?
 ---
 --- Version 1
 ---
---- USN Discord: https://discord.gg/PntGG3a where you can join a game online. There's one every weekend. All experience levels are welcome. 
+--- USN Discord: https://discord.gg/PntGG3a where you can join a game online. There's one almost every weekend. All experience levels are welcome. 
 -- Type: Basic
 -- Setting[Enemies]: Configures strength and/or number of enemies in this scenario
 -- Enemies[Easy]: Fewer or weaker enemies
@@ -46,8 +49,8 @@ require("cpu_ship_diversification_scenario_utility.lua")
 require("generate_call_sign_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.4"
-	ee_version = "2023.06.17"
+	scenario_version = "1.0.5"
+	ee_version = "2024.06.20"
 	print(string.format("    ----    Scenario: Surf's Up!    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
     -- global variables:
@@ -367,6 +370,7 @@ function init()
 			end
 		end
     end
+    --[[
     print("Missions and goods final:")
     for mission,details in pairs(mission_good) do
     	local out_station = "None"
@@ -375,7 +379,7 @@ function init()
     	end
     	print("Mission:",mission,"Good:",details.good,"Station:",out_station)
     end
-    
+    --]]
     -- Player ship(s)
 	player_ship_stats = {	
 		["Atlantis"]			= { strength = 52,	cargo = 6,	long_range_radar = 30000, short_range_radar = 5000, 	},
@@ -732,10 +736,18 @@ function earlyEnd()
 		if getScenarioTime() > odin_spawn_time then
 			if friendly_stations ~= nil then
 				if endOdin == nil then
-					if #friendly_stations > 1 then
+					local station_pool = {}
+					for i,station in ipairs(friendly_stations) do
+						if station ~= nil and station:isValid() then
+							table.insert(station_pool,station)
+						end
+					end
+					if #station_pool > 1 then
 						local station_pool = {}
 						for i,station in ipairs(friendly_stations) do
-							table.insert(station_pool,station)
+							if station ~= nil and station:isValid() then
+								table.insert(station_pool,station)
+							end
 						end
 						local first_station = tableRemoveRandom(station_pool)
 						local second_station = tableRemoveRandom(station_pool)
@@ -746,10 +758,14 @@ function earlyEnd()
 						endOdin = CpuShip():setTemplate("Odin"):setFaction("Ghosts")
 						endOdin:setPosition(ox, oy):orderRoaming()
 					else
-						local fx, fy = friendly_stations[1]:getPosition()
-						local ox, oy = vectorFromAngle(random(0,360),4000)
-						endOdin = CpuShip():setTemplate("Odin"):setFaction("Ghosts")
-						endOdin:setPosition(fx + ox, fy + oy):orderRoaming()
+						if #station_pool > 0 then
+							local fx, fy = station_pool[1]:getPosition()
+							local ox, oy = vectorFromAngle(random(0,360),4000)
+							endOdin = CpuShip():setTemplate("Odin"):setFaction("Ghosts")
+							endOdin:setPosition(fx + ox, fy + oy):orderRoaming()
+						else
+							endOdin = CpuShip():setTemplate("Odin"):setFaction("Ghosts"):orderRoaming()
+						end
 					end
 					endOdin:setImpulseMaxSpeed(30):setRotationMaxSpeed(5):setAcceleration(5)
 					local forward, reverse = endOdin:getImpulseMaxSpeed()
@@ -2065,12 +2081,12 @@ function stationStatusReport()
 					else
 						addCommsReply(improvement_prompt[improvement],function()	--bad argument #1 to addCommsReply: string expected, got nil
 							local mission_line = mission_good[improvement]
-							print("improvement:",improvement,"mission_line:",mission_line)
-							for mission,details in pairs(mission_line) do
-								print("mission:",mission,"details:",details)
-							end
+--							print("improvement:",improvement,"mission_line:",mission_line)
+--							for mission,details in pairs(mission_line) do
+--								print("mission:",mission,"details:",details)
+--							end
 							local needed_good = mission_line.good
-							print("needed good:",needed_good)
+--							print("needed good:",needed_good)
 							needed_good = mission_good[improvement].good
 	--						local needed_good = mission_good[improvement]["good"]
 							setCommsMessage(string.format(_("situationReport-comms","%s could be improved with %s. You may be able to get %s from independent stations or transports."),improvement_prompt[improvement],needed_good,needed_good))
