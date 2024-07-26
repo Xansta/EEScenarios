@@ -68,8 +68,8 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.34.2"
-	ee_version = "2024.05.16 (w/setmetatable)"
+	scenario_version = "6.34.3"
+	ee_version = "2024.06.20 (recompiled without setmetatable restriction)"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -11274,15 +11274,19 @@ function filkRoadSector()
 	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP 4"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 06May2023."):setPosition(-285064, -392):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
 	setBeamColor(ship)
 	table.insert(objects,ship)
-	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E1"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-329691, -442387):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
-	setBeamColor(ship)
-	table.insert(objects,ship)
-	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
-	setBeamColor(ship)
-	table.insert(objects,ship)
+	wdpe1Zone = squareZone(-329691, -442387,"wdpe1")
+	wdpe1Zone:setColor(0,128,0):setLabel("1")
+--	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E1.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-329691, -442387):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+--	setBeamColor(ship)
+--	table.insert(objects,ship)
+	wdpe2Zone = squareZone(-334164, -441729,"wdpe2")
+	wdpe2Zone:setColor(0,128,0):setLabel("2")
+--	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+--	setBeamColor(ship)
+--	table.insert(objects,ship)
 	wdpe3Zone = squareZone(-331854, -445867,"wdpe3")
 	wdpe3Zone:setColor(0,128,0):setLabel("3")
---	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+--	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
 --	setBeamColor(ship)
 --	table.insert(objects,ship)
 
@@ -11376,9 +11380,12 @@ function filkRoadSector()
 	-- Twin Pits Reserve region
 	table.insert(objects, Planet():setCallSign("Micro Solutions Inc."):setDescription("THIS IS AN AUTOMATED RESPONSE. PROPERTY OF MICRO SOLUTIONS INC. FOR BETTER TOMORROW CONTACT SALES AT 0-12-345-678."):setPosition(-327846, -434276):setPlanetRadius(4000):setPlanetAtmosphereColor(0.10,0.10,0.60):setDistanceFromMovementPlane(-1500.00):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(4200.00))
 	table.insert(objects, BlackHole():setPosition(-316643, -405038):setCallSign("Fox"))
-	table.insert(objects, BlackHole():setPosition(-338417, -471899):setCallSign("Glory"))
+	table.insert(objects, BlackHole():setPosition(-338417, -471899):setCallSign("Rabbit"))
 	
-	microSolutionsDockingRing = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Micro Solutions Inc. Docking Ring"):setPosition(-331344, -437682):setDescription("PROPERTY OF MICRO SOLUTIONS INC."):setCommsScript(""):setCommsFunction(commsStation)
+	microSolutionsStationZone = squareZone(-331344, -437682,"Micro Solutions 2")
+	microSolutionsStationZone:setColor(0,128,0):setLabel("M")
+	--[[	
+	microSolutionsDockingRing = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Micro Solutions Inc. Docking Ring 2"):setPosition(-331344, -437682):setDescription("PROPERTY OF MICRO SOLUTIONS INC."):setCommsScript(""):setCommsFunction(commsStation)
 	microSolutionsDockingRing:setShortRangeRadarRange(8500)
 	microSolutionsDockingRing.comms_data = {
 		friendlyness = 77,
@@ -11429,7 +11436,7 @@ function filkRoadSector()
 	microSolutionsDockingRing:setRepairDocked(random(1,100)<76)
 	microSolutionsDockingRing:setSharesEnergyWithDocked(random(1,100)<92)
 	table.insert(objects, microSolutionsDockingRing)
-
+	--]]
 	addGMMessage("[FilkRoad] starting objects, count=" .. #objects)
 
 	return ret
