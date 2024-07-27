@@ -68,7 +68,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.34.3"
+	scenario_version = "6.34.4"
 	ee_version = "2024.06.20 (recompiled without setmetatable restriction)"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1761,11 +1761,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Thunderbird")		--J
-	makePlayerShipActive("George")			--J
-	makePlayerShipActive("Dominant") 		--J 
-	makePlayerShipActive("Narsil")			--W
-	makePlayerShipActive("Florentine")		--W
+	makePlayerShipActive("Magnum")			--J
+	makePlayerShipActive("Halberd")			--J
+	makePlayerShipActive("Manxman") 		--J 
+	makePlayerShipActive("Swoop")			--W
+	makePlayerShipActive("Anvil")			--W
 	makePlayerShipActive("Stick") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -11965,16 +11965,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 4 and not mirrorUniverse then
---			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
---			dp4Zone:setColor(0,128,0):setLabel("4")
+		if i == 6 and not mirrorUniverse then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
 --		elseif i == 5 and not mirrorUniverse then
 --			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 --			dp5Zone:setColor(0,128,0):setLabel("5")
---		elseif i == 6 and not mirrorUniverse then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -11983,7 +11980,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
