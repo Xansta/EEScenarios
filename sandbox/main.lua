@@ -68,7 +68,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.34.4"
+	scenario_version = "6.34.5"
 	ee_version = "2024.06.20 (recompiled without setmetatable restriction)"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
@@ -1761,12 +1761,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Magnum")			--J
-	makePlayerShipActive("Halberd")			--J
-	makePlayerShipActive("Manxman") 		--J 
+	makePlayerShipActive("Beowulf")			--J
+	makePlayerShipActive("Cobra")			--J
+	makePlayerShipActive("Darkstar") 		--J 
 	makePlayerShipActive("Swoop")			--W
-	makePlayerShipActive("Anvil")			--W
-	makePlayerShipActive("Stick") 			--W 
+	makePlayerShipActive("Flipper")			--W
+	makePlayerShipActive("Ignite") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -12339,9 +12339,10 @@ function createIcarusStations()
 		stationBikolipox:destroy()
 	end
 	--Borlan
-	--local borlanZone = squareZone(68808, 39300, "Borlan 2 G8")
-	--borlanZone:setColor(51,153,255)
-    stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 2"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
+	local borlanZone = squareZone(68808, 39300, "Borlan 3 G8")
+	borlanZone:setColor(51,153,255):setLabel("B")
+	--[[
+    stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 3"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationBorlan:setFaction("Spacer")
 	end
@@ -12418,6 +12419,7 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationBorlan:setSharesEnergyWithDocked(false) end
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
+	--]]
 	--Chitlok
 	stationChitlok = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Chitlok"):setPosition(-72708, -106381):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationChitlok.comms_data = {
@@ -12652,14 +12654,19 @@ function createIcarusStations()
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Endymion
-	local edp1 = CpuShip():setFaction("TSN"):setTemplate("Defense platform"):setCallSign("EDP1"):setPosition(136035, 82232):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(edp1)
-	station_names[edp1:getCallSign()] = {edp1:getSectorName(), edp1}
-	if mirrorUniverse then
-		-- TSN doesnt really have a mirror version
-		edp1:setFaction("Spacer")
-	end
-	table.insert(stations,edp1)
+	local endymionDP1zone = squareZone(136035, 82232, "EndymionDP1 J11")
+	endymionDP1zone:setColor(255, 255, 128):setLabel("D")
+--	local edp1 = CpuShip():setFaction("TSN"):setTemplate("Defense platform"):setCallSign("EDP1"):setPosition(136035, 82232):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+--	setBeamColor(edp1)
+--	station_names[edp1:getCallSign()] = {edp1:getSectorName(), edp1}
+--	if mirrorUniverse then
+--		-- TSN doesnt really have a mirror version
+--		edp1:setFaction("Spacer")
+--	end
+--	table.insert(stations,edp1)
+	local endymionZone = squareZone(138284, 81805,"Endymion 2 J11")
+	endymionZone:setColor(255, 255, 128):setLabel("E")
+	--[[
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		-- TSN doesnt really have a mirror version
@@ -12717,10 +12724,12 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationEndymion:setSharesEnergyWithDocked(false) end
 	station_names[stationEndymion:getCallSign()] = {stationEndymion:getSectorName(), stationEndymion}
 	table.insert(stations,stationEndymion)
+	--]]
 	--Finnegan
-	--local finneganZone = squareZone(114460, 95868, "Finnegan 2 J10")
-	--finneganZone:setColor(51,153,255)
-	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan 2"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	local finneganZone = squareZone(114460, 95868, "Finnegan 3 J10")
+	finneganZone:setColor(51,153,255):setLabel("F")
+	--[[
+	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan 3"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationFinnegan:setFaction("Spacer")
 	end
@@ -12785,6 +12794,7 @@ function createIcarusStations()
 	if random(1,100) <= 25 then stationFinnegan:setSharesEnergyWithDocked(false) end
 	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
+	--]]
 	--Gagarin
 	--local gagarinZone = squareZone(-60000, 62193, "Gagarin I2")
 	--gagarinZone:setColor(0,128,0)
@@ -13750,9 +13760,8 @@ function createIcarusStations()
 	station_names[stationSlurry:getCallSign()] = {stationSlurry:getSectorName(), stationSlurry}
 	table.insert(stations,stationSlurry)
 	--Sovinec
-	local sovinecZone = squareZone(134167, 104690, "Sovinec Four K11")
-	sovinecZone:setColor(51,153,255)
-	--[[
+--	local sovinecZone = squareZone(134167, 104690, "Sovinec Four K11")
+--	sovinecZone:setColor(51,153,255)
 	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(sdp1)
 	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
@@ -13832,7 +13841,6 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationSovinec:setSharesEnergyWithDocked(false) end
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
-	--]]
 	--Speculator
 	--local speculatorZone = squareZone(55000,108000, "Speculator 3 K7")
 	--speculatorZone:setColor(0,255,0)
@@ -44404,6 +44412,18 @@ function edgeButInside()
 	local aox, aoy = objectList[1]:getPosition()
 	podCreation(aox, aoy, sox, soy)
 end
+--[[
+function cleanUpPodPrepButtons()
+	for epCallSign, ep in pairs(escapePodList) do
+		if not ep:isValid() then
+			for i,p in ipairs(getActivePlayerShips()) do
+				p:removeCustom(epCallSign)
+			end
+			escapePodList[epCallSign] = nil
+		end
+	end
+end
+--]]
 function podPickupProcess(self,retriever)
 	local current_rotation = self:getRotation()
 	local podCallSign = self:getCallSign()
@@ -64550,6 +64570,7 @@ function update(delta)
 	if escape_pod_floaters ~= nil then
 		podFloat()
 	end
+--	cleanUpPodPrepButtons()
 	if updateDiagnostic then print("update: end of update function") end
 end
 function improvedStationService(p)
@@ -66408,36 +66429,56 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 					end
 					local fx, fy = p:getPosition()
 					local currrent_reputation = p:getReputationPoints()
-					local fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)
-					p:setReputationPoints(currrent_reputation)
---					print("player heading:",p:getHeading(),"player rotation:",p:getRotation())
-					fighter:setPosition(fx,fy):setCallSign(carrier_ship.name):setSystemPower("maneuver",0):commandSetSystemPowerRequest("maneuver",0):commandSetSystemPowerRequest("beamweapons",0):commandSetSystemPowerRequest("missilesystem",0):commandSetSystemPowerRequest("impulse",0)
-					fighter:commandSetSystemPowerRequest("reactor",fighter:getShieldCount()*.2)
-					if carrier_ship.ordnance_level ~= nil then
-						for i,missile_type in ipairs(missile_types) do
-							if carrier_ship.ordnance_level[missile_type] ~= nil then
-								fighter:setWeaponStorage(missile_type,carrier_ship.ordnance_level[missile_type])
+					local valid_variables = true
+					local fighter = nil
+					if carrier_ship.template == nil then
+						print("carrier_ship.template is nil on",p:getCallSign())
+						valid_variables = false
+					elseif carrier_ship_types[carrier_ship.template] == nil then
+						print("carrier_ship.template:",carrier_ship.template,"carrier_ship_types[carrier_ship.template] is nil")
+						valid_variables = false
+					elseif carrier_ship_types[carrier_ship.template].create == nil then
+						print("carrier_ship_types[carrier_ship.template].create is nil")
+						valid_variables = false
+					else
+						fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)
+						if fighter == nil then
+							print("carrier_ship_types[carrier_ship.template].create(carrier_ship.template) did not yield an actual ship")
+							valid_variables = false
+						end				
+					end
+					if valid_variables then
+						local fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)	--attempt to index nil value
+						p:setReputationPoints(currrent_reputation)
+	--					print("player heading:",p:getHeading(),"player rotation:",p:getRotation())
+						fighter:setPosition(fx,fy):setCallSign(carrier_ship.name):setSystemPower("maneuver",0):commandSetSystemPowerRequest("maneuver",0):commandSetSystemPowerRequest("beamweapons",0):commandSetSystemPowerRequest("missilesystem",0):commandSetSystemPowerRequest("impulse",0)
+						fighter:commandSetSystemPowerRequest("reactor",fighter:getShieldCount()*.2)
+						if carrier_ship.ordnance_level ~= nil then
+							for i,missile_type in ipairs(missile_types) do
+								if carrier_ship.ordnance_level[missile_type] ~= nil then
+									fighter:setWeaponStorage(missile_type,carrier_ship.ordnance_level[missile_type])
+								end
 							end
 						end
-					end
-					if carrier_ship.max_health ~= nil then
-						for i,system in ipairs(system_list) do
-							if carrier_ship.max_health[system] ~= nil then
-								fighter:setSystemHealthMax(system,carrier_ship.max_health[system])
+						if carrier_ship.max_health ~= nil then
+							for i,system in ipairs(system_list) do
+								if carrier_ship.max_health[system] ~= nil then
+									fighter:setSystemHealthMax(system,carrier_ship.max_health[system])
+								end
 							end
 						end
+						fighter:commandSetAutoRepair(true):setAutoCoolant(true)
+						fighter:addCustomInfo("Engineering",string.format("%s_eng",carrier_ship.name),string.format("%s Auto-cool/repair On",carrier_ship.name),4)
+						fighter:addCustomInfo("Engineering+",string.format("%s_plus",carrier_ship.name),string.format("%s Auto-cool/repair On",carrier_ship.name),4)
+						fighter:setRotation(p:getRotation()):setHeading(p:getHeading())
+						fighter:setJumpDrive(false):setWarpDrive(false)
+						carrier_deployed_fighter[carrier_ship.name] = {carrier = p, fighter = fighter}
+						fighter.retract_time = carrier_ship.launch_time
+						carrier_ship.state = "deployed"
+						carrier_ship.ship = fighter
+						p:addToShipLog(string.format("Launch of %s complete",carrier_ship.name),"Green")
+						p.launch_bay = "empty"
 					end
-					fighter:commandSetAutoRepair(true):setAutoCoolant(true)
-					fighter:addCustomInfo("Engineering",string.format("%s_eng",carrier_ship.name),string.format("%s Auto-cool/repair On",carrier_ship.name),4)
-					fighter:addCustomInfo("Engineering+",string.format("%s_plus",carrier_ship.name),string.format("%s Auto-cool/repair On",carrier_ship.name),4)
-					fighter:setRotation(p:getRotation()):setHeading(p:getHeading())
-					fighter:setJumpDrive(false):setWarpDrive(false)
-					carrier_deployed_fighter[carrier_ship.name] = {carrier = p, fighter = fighter}
-					fighter.retract_time = carrier_ship.launch_time
-					carrier_ship.state = "deployed"
-					carrier_ship.ship = fighter
-					p:addToShipLog(string.format("Launch of %s complete",carrier_ship.name),"Green")
-					p.launch_bay = "empty"
 				else
 					p.launch_countdown = "launch_countdown"
 					local launch_seconds = math.floor(p.launch_timer - getScenarioTime())
