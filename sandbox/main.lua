@@ -68,8 +68,8 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.34.5"
-	ee_version = "2024.06.20 (recompiled without setmetatable restriction)"
+	scenario_version = "6.34.6"
+	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	print(_VERSION)	--Lua version
 	updateDiagnostic = false
@@ -11968,9 +11968,9 @@ function createIcarusColor()
 		if i == 6 and not mirrorUniverse then
 			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
 			dp6Zone:setColor(0,128,0):setLabel("6")
---		elseif i == 5 and not mirrorUniverse then
---			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
---			dp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 1 and not mirrorUniverse then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
