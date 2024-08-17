@@ -12,48 +12,51 @@
 -- addCustomButton indices
 -- Relay, Operations			Probes: standard		10
 -- Relay, Operations			Patrol Probe Off		10
+-- Helm, Tactical				Waypoint distance 		15
+-- Helm, Tactical				Dock with name			18
 -- Weapons, Tactical			Trigger EPJAM			14
+-- Weapons, Tactical			Start Mining			11
+-- Weapons, Tactical			Launch (fighter name)	12
+-- Weapons, Tactical			Turbo Torpedo			13
+-- Weapons, Tactical			Trigger missile			45-48
+-- Weapons, Tactical			Balance Shield			49
+-- Weapons, Tactical			Focus Front Shield		50
+-- Weapons, Tactical			Focus Rear Shield		50
 -- Engineering, Engineering+	Pod Prep				sequence (100 - 200)
 -- Engineering, Engineering+	Check Additive			41
 -- Engineering, Engineering+	Lock on Tractor			13
 -- Engineering, Engineering+	Target blah				14
 -- Engineering, Engineering+	Other tractor target	15
--- Science, Operations			Lock for Mining			20
--- Science, Operations			Target Asteroid			21
--- Science, Operations			Other mining target		22
--- Relay, Operations			Probe type cycle		10
--- Relay, Operations			Pod telemetry			19
--- Relay, Operations			Inventory				23
 -- Engineering, Engineering+	Damage Report			20
 -- Engineering, Engineering+	Max Health				21
 -- Engineering, Engineering+	Boost Sensors			30
 -- Engineering, Engineering+	Sensor Boost level		31-33
 -- Engineering, Engineering+	Stop Sensor Boost		30
 -- Engineering, Engineering+	Disengage Tractor		16
--- Weapons, Tactical			Start Mining			11
--- Weapons, Tactical			Launch (fighter name)	12
 -- Engineering, Engineering+	Charge Launch Sys		17
 -- Engineering, Engineering+	Get Coolant				24
--- Weapons, Tactical			Turbo Torpedo			13
 -- Engineering, Engineering+	Level Coolant			26
--- Helm, Tactical				Dock with name			18
+-- Science, Operations			Lock for Mining			20
+-- Science, Operations			Target Asteroid			21
+-- Science, Operations			Other mining target		22
+-- Relay, Operations			Probe type cycle		10
+-- Relay, Operations			Pod telemetry			19
+-- Relay, Operations			Inventory				23
+-- Relay, Operations			Security Report			42
 -- All							Notify security			35
 -- All							Activate Defenses		36
--- Relay, Operations			Security Report			42
--- Helm, Tactical				Waypoint distance 		15
--- Weapons, Tactical			Trigger missile			45-48
 
 -- addCustomInfo indices
+-- Relay, Operations			Launch timer			1
 -- Relay, Operations			Fast Dock Expired		2
 -- Relay, Operations			Expedite timer			2
 -- Weapons, Tactical			Mining blah				3
 -- Engineering, Engineering+	Auto-cool/repair		4
--- Relay, Operations			Launch timer			1
 -- Engineering, Engineering+	Gather coolant status	5
--- Helm, Tactical				fighter dock banner		5
--- Helm, Tactical				jump overcharge			6
 -- Engineering, Engineering+	Shields	banner			7
 -- Engineering, Engineering+	Hull banner				8
+-- Helm, Tactical				fighter dock banner		5
+-- Helm, Tactical				jump overcharge			6
 -- Helm, Tactical				Sensor lock				8
 -- Helm, Tactical				Weapons lock			9
 -- Helm, Tactical				Missile lock			10
@@ -68,10 +71,14 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.34.6"
+	scenario_version = "6.36.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
-	print(_VERSION)	--Lua version
+	if _VERSION ~= nil then
+		print(_VERSION)	--Lua version
+	else
+		print("_VERSION, what's supposed to be the Lua version, is nil")
+	end
 	updateDiagnostic = false
 	healthDiagnostic = false
 	specialty_probe_diagnostic = false
@@ -1583,97 +1590,97 @@ function setConstants()
 	}
 --	patrol_probe value should be between 0 and 5 not inclusive (0 = no patrol probes). The higher the value, the faster the patrol probe and the fewer patrol probes available 
 	playerShipStats = {	
-		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 12,	pods = 6,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 9,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 6,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
 	--	Custom player ships	
-		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 5,	beam_damage_switch = true,	way_dist = false,	trigger_missile = nil,						},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 2,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3","N3"},				},
-		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Deimos"]				= { strength = 28,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 1,	power_sensor_interval = 7.5,beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E4","N4"},						},
-		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Destroyer IV"]		= { strength = 27,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Eldridge"]			= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 3,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"N3","N4"},				},
-		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Fowl"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	power_sensor_interval = 7.5,beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 6,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 6,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 4,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3"},					},
-		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E4"},					},
-		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E3","E4","N3","N4"},	},
-		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E3","E4"},				},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Noble"]				= { strength = 37,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Orca"]				= { strength = 19,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Phobos T2.2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Proto-Atlantis"]		= { strength = 42,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Raven"]				= { strength = 33,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Redhook"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3","E4"},				},
-		["Roc"]					= { strength = 25,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Ronco"]				= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = true,	way_dist = false,	trigger_missile = nil,						},
-		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 3.5,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Sloop"]				= { strength = 20,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 4500, tractor = true,		mining = true,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 2,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Squid"]				= { strength = 15,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 8,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"N3","N4"},				},
-		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Twister"]				= { strength = 32,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3","E4","N3","N4"},						},
-		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Triumph"]				= { strength = 55,	cargo = 6,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Vermin"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						},
-		["XR-Lindworm"]			= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
+		["Amalgam"]				= { strength = 42,	cargo = 7,	distance = 400,	long_range_radar = 36000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 11,	pods = 3,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 5,	beam_damage_switch = true,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Barrow"]				= { strength = 9,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 12,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 2,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Bermuda"]				= { strength = 30,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 14,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3","N3"},				balance_shield = false,	},
+		["Butler"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Caretaker"]			= { strength = 23,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Chavez"]				= { strength = 21,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Crab"]				= { strength = 20,	cargo = 6,	distance = 200,	long_range_radar = 30000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Deimos"]				= { strength = 28,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 11,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 1,	power_sensor_interval = 7.5,beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E4","N4"},				balance_shield = false,	},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Destroyer IV"]		= { strength = 27,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Eldridge"]			= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 24000, short_range_radar = 8000, tractor = false,	mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 3,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"N3","N4"},				balance_shield = false,	},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = true,	patrol_probe = 1.25,prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Fowl"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	power_sensor_interval = 7.5,beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Fray"]				= { strength = 22,	cargo = 5,	distance = 200,	long_range_radar = 23000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Fresnel"]				= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 6,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Gadfly"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 6,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Glass Cannon"]		= { strength = 15,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Gull"]				= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 4,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Interlock"]			= { strength = 19,	cargo = 12,	distance = 200,	long_range_radar = 35000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Kludge"]				= { strength = 22,	cargo = 9,	distance = 200,	long_range_radar = 35000, short_range_radar = 3500, tractor = false,	mining = true,	probes = 20,	pods = 5,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3"},					balance_shield = false,	},
+		["Lurker"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 21000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E4"},					balance_shield = false,	},
+		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E3","E4","N3","N4"},	balance_shield = false,	},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E3","E4"},				balance_shield = false,	},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Noble"]				= { strength = 37,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Orca"]				= { strength = 19,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Peacock"]				= { strength = 30,	cargo = 9,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 10,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Phargus"]				= { strength = 15,	cargo = 6,	distance = 200,	long_range_radar = 20000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Phobos T2.2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 5,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Phoenix"]				= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Porcupine"]			= { strength = 30,	cargo = 6,	distance = 400,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Proto-Atlantis"]		= { strength = 42,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Proto-Atlantis 2"]	= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Raven"]				= { strength = 33,	cargo = 5,	distance = 400,	long_range_radar = 25000, short_range_radar = 6000, tractor = true,		mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Redhook"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 6,		pods = 2,	turbo_torp = false,	patrol_probe = 2.5,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3","E4"},				balance_shield = false,	},
+		["Roc"]					= { strength = 25,	cargo = 6,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 6,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 1,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Rodent"]				= { strength = 23,	cargo = 8,	distance = 200,	long_range_radar = 40000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Ronco"]				= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = true,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Rook"]				= { strength = 15,	cargo = 12,	distance = 200,	long_range_radar = 41000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 13,	pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Rotor"]				= { strength = 35,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = true,		mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Safari"]				= { strength = 15,	cargo = 10,	distance = 200,	long_range_radar = 33000, short_range_radar = 4500, tractor = true,		mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 3.5,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Scatter"]				= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 28000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Skray"]				= { strength = 15,	cargo = 3,	distance = 200, long_range_radar = 30000, short_range_radar = 7500, tractor = false,	mining = false,	probes = 25,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 3,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Sloop"]				= { strength = 20,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 4500, tractor = true,		mining = true,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 2,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Squid"]				= { strength = 15,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 7,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 8,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"N3","N4"},				balance_shield = false,	},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 7,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Twister"]				= { strength = 32,	cargo = 6,	distance = 200,	long_range_radar = 23000, short_range_radar = 5500, tractor = false,	mining = true,	probes = 15,	pods = 2,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = {"E3","E4","N3","N4"},	balance_shield = false,	},
+		["Torch"]				= { strength = 9,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4000, tractor = false,	mining = false,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Triumph"]				= { strength = 55,	cargo = 6,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Vermin"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 22000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 4,		pods = 1,	turbo_torp = false,	patrol_probe = 3.6,	prox_scan = 0,	epjam = 1,	power_sensor_interval = 10,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Windmill"]			= { strength = 24,	cargo = 11,	distance = 200,	long_range_radar = 33000, short_range_radar = 5000, tractor = false,	mining = true,	probes = 8,		pods = 4,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["Wombat"]				= { strength = 18,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 2,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Wrocket"]				= { strength = 19,	cargo = 8,	distance = 200,	long_range_radar = 32000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
+		["XR-Lindworm"]			= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 20000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 7.5,beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
 
 		-- not sure the strenghts of Ktlitan Breaker and Ktlitan Feeder... they seem too high
-		["Ktlitan Breaker"]		= { strength = 15,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Ktlitan Feeder"]		= { strength = 18,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
+		["Ktlitan Breaker"]		= { strength = 15,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Ktlitan Feeder"]		= { strength = 18,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
 		
 		-- TODO: decide on values here as well.
 		-- Not sure why Queen entry has to be here...
-		["Ktlitan Queen"]		= { strength = 28,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
-		["Ktlitan Brood Mother"]= { strength = 28,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						},
+		["Ktlitan Queen"]		= { strength = 28,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
+		["Ktlitan Brood Mother"]= { strength = 28,	cargo = 2,	distance = 100,	long_range_radar = 10000, short_range_radar = 5000, tractor = false,	mining = false,	probes = 0,		pods = 0,	turbo_torp = false,	patrol_probe = 3.9,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
 	}	
 	-- this table has ended up not in alphabetical order
 	-- likewise the creation functions are no longer in alphabetical order
@@ -26089,8 +26096,9 @@ function playerWeapons()
 	addGMFunction("-By Console",tweakByConsole)
 	local p = playerShipSelected()
 	if p ~= nil then
+		local button_label = ""
 		if p:getWeaponStorageMax("EMP") > 0 then
-			local button_label = "E3 N->Y"
+			button_label = "E3 N->Y"
 			if p.trigger_missile ~= nil and p.trigger_missile["E3"] ~= nil then
 				button_label = "E3 Y->N"
 			end
@@ -26142,7 +26150,9 @@ function playerWeapons()
 				end
 				playerWeapons()
 			end)
-			button_label = "N3 N->Y"
+		end
+		if p:getWeaponStorageMax("Nuke") > 0 then
+			local button_label = "N3 N->Y"
 			if p.trigger_missile ~= nil and p.trigger_missile["N3"] ~= nil then
 				button_label = "N3 Y->N"
 			end
@@ -26195,6 +26205,18 @@ function playerWeapons()
 				playerWeapons()
 			end)
 		end
+		button_label = "Balance Shield"
+		if playerShipStats[p:getTypeName()].balance_shield then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			if playerShipStats[p:getTypeName()].balance_shield then
+				playerShipStats[p:getTypeName()].balance_shield = false
+			else
+				playerShipStats[p:getTypeName()].balance_shield = true
+			end
+			playerWeapons()
+		end)
 	else
 		addGMMessage("No player ship selected. No action taken.")
 		tweakByConsole()
@@ -55489,12 +55511,14 @@ function stationStatusReport(calling_function)
 			["rearshield"] =	_("situationReport-comms","rear shield"),
 		}
 		local major_repairs = _("situationReport-comms","Repair these major systems:")
-		for i,system in ipairs(system_list) do
-			if comms_target.comms_data.system_repair[system].avail then
-				if major_repairs == _("situationReport-comms","Repair these major systems:") then
-					major_repairs = string.format("%s %s",major_repairs,system_list_desc[system])
-				else
-					major_repairs = string.format("%s, %s",major_repairs,system_list_desc[system])
+		if comms_target.comms_data ~= nil and comms_target.comms_data.system_repair ~= nil then
+			for i,system in ipairs(system_list) do
+				if comms_target.comms_data.system_repair[system].avail then
+					if major_repairs == _("situationReport-comms","Repair these major systems:") then
+						major_repairs = string.format("%s %s",major_repairs,system_list_desc[system])
+					else
+						major_repairs = string.format("%s, %s",major_repairs,system_list_desc[system])
+					end
 				end
 			end
 		end
@@ -60269,6 +60293,7 @@ function getRepairCrewFromStation(relationship)
 					string.format("Spend %i reuptation to hire repair crew member",hire_cost),
 				}
 				addCommsReply(tableSelectRandom(recruit_repair_crew_prompt), function()
+					setCommsMessage("Repair crew escaped")
 					if not comms_source:isDocked(comms_target) then
 						local stay_docked_to_get_repair_crew = {
 							"You need to stay docked for that action.",
@@ -60303,6 +60328,8 @@ function getRepairCrewFromStation(relationship)
 						setCommsMessage(tableSelectRandom(repair_crew_hired))
 						comms_target.comms_data.crew_available_delay_reason = nil
 					end
+					addCommsReply(_("Back to station communication"), commsStation)
+					--[[
 					if hire_crew_caller_back == nil or getScenarioTime() > hire_crew_caller_back + comms_fudge then
 						addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
 						hire_crew_caller_back = getScenarioTime()
@@ -60315,6 +60342,7 @@ function getRepairCrewFromStation(relationship)
 						addCommsReply(_("Back to station communication"), commsStation)
 						hire_crew_comms_back = getScenarioTime()
 					end
+					--]]
 				end)
 				comms_target.comms_data.crew_available_delay = getScenarioTime() + random(90,300)
 			else
@@ -60329,6 +60357,8 @@ function getRepairCrewFromStation(relationship)
 				local delay_seconds = math.floor(comms_target.comms_data.crew_available_delay - getScenarioTime())
 				setCommsMessage(string.format(_("trade-comms","%s %i seconds"),comms_target.comms_data.crew_available_delay_reason,delay_seconds))
 			end
+			addCommsReply(_("Back to station communication"), commsStation)
+			--[[
 			if recruit_crew_caller_back == nil or getScenarioTime() > recruit_crew_caller_back + comms_fudge then
 				addCommsReply(string.format("Back to %s",comms_source.repairCrewCoolantReturn.name),comms_source.repairCrewCoolantReturn.identifier)
 				recruit_crew_caller_back = getScenarioTime()
@@ -60341,6 +60371,7 @@ function getRepairCrewFromStation(relationship)
 				addCommsReply(_("Back to station communication"), commsStation)
 				recruit_crew_comms_back = getScenarioTime()
 			end
+			--]]
 		end)
 	end
 	return presented_option
@@ -61040,6 +61071,54 @@ function presentShieldBanner()
 		end
 	end)
 end
+function presentBalanceShield()
+	local balance_shield_prompts = {
+		"Balance shield",
+		"Shield energy transfer",
+		"Shield balancer",
+		"Balance shield mechanism",
+	}
+	addCommsReply(tableSelectRandom(balance_shield_prompts),function()
+		local balance_shield_explained = {
+			"We have a shield balancer you might want. You can move energy from one shield to the other. Each transfer costs 5 percent energy from your batteries. It takes a few seconds to reset the mechanism. You can balance the energy between shields or focus the energy on the front or rear shield, whichever is weaker.",
+			"Would you like a shield balancer? It lets you transfer energy front to rear or vice versa. A transfer costs 5% of your battery energy. It takes a few seconds between each energy transfer for the balancer to be ready for another transfer. You can balance the energy or focus on the front or rear shield.",
+			"We've got shield balancer that lets you move energy from the front to the rear or the rear to the front. A transfer takes 5% power. The balancer takes a few seconds to reset. You can balance the shields or put the power to the front or the rear, whichever is weaker.",
+			string.format("Could %s use a shield balancer? It lets you move energy between shield arcs. Each move takes 5%% power. You can balance the shield power between front and rear or you can focus power on the front or rear, whichever shield is weaker.",comms_source:getCallSign()),
+		}
+		setCommsMessage(tableSelectRandom(balance_shield_explained))
+		local install_shield_balancer_confirm_prompt = {
+			"Yes, that's a great gift (10 reputation)",
+			"Yes! Our weapons officer would love that (10 reputation)",
+			"We'll take it (10 reputation)",
+			"Please install the shield balancer (10 reputation)",
+		}
+		addCommsReply(tableSelectRandom(install_shield_balancer_confirm_prompt),function()
+			if comms_source:takeReputationPoints(10) then
+				playerShipStats[comms_source:getTypeName()].balance_shield = true
+				local balance_shield_installed_confirm = {
+					"Installed",
+					"It's installed",
+					string.format("%s has installed the shield balancer",comms_target:getCallSign()),
+					string.format("%s now has a shield balancer",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableSelectRandom(balance_shield_installed_confirm))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+			end
+			addCommsReply("Back to enhance ship",enhanceShip)
+			addCommsReply(_("Back to station communication"), commsStation)
+		end)
+		addCommsReply("Back to enhance ship",enhanceShip)
+		addCommsReply(_("Back to station communication"), commsStation)
+	end)
+end
 function presentHullBanner()
 	local hull_diagnostic_prompts = {
 		"Spare portable hull diagnostic",
@@ -61419,6 +61498,13 @@ function presentReturnWaypointDistanceCalculator()
 end
 function minorUpgrades()
 	--	set minor upgrade present or not at station if not yet set
+	if comms_target.balance_shield == nil then
+		if random(1,100) < 40 then
+			comms_target.balance_shield = true
+		else
+			comms_target.balance_shield = false
+		end
+	end
 	if comms_target.proximity_scanner == nil then
 		if random(1,100) < 55 then
 			comms_target.proximity_scanner = true
@@ -61472,6 +61558,20 @@ function minorUpgrades()
 	end
 	--	set minor upgrade available list based on presence at station, presence on ship and relationship
 	local minor_upgrade_choices = {}
+	local player_ship_template = comms_source:getTypeName()
+	if comms_target.balance_shield and playerShipStats[player_ship_template] ~= nil and not playerShipStats[player_ship_template].balance_shield then
+		if comms_source:getShieldCount() == 2 then
+			if comms_target:isFriendly(comms_source) then
+				if comms_target.comms_data.friendlyness > 25 then
+					table.insert(minor_upgrade_choices,presentBalanceShield)
+				end
+			elseif not comms_target:isEnemy(comms_source) then
+				if comms_target.comms_data.friendlyness > 35 then
+					table.insert(minor_upgrade_choices,presentBalanceShield)
+				end
+			end
+		end
+	end
 	if comms_target.installable_sensor_boost and (comms_source.power_sensor_interval == nil or comms_source.power_sensor_interval == 0) then
 		if comms_target:isFriendly(comms_source) then
 			if comms_target.comms_data.friendlyness > 30 then
@@ -64355,6 +64455,7 @@ function update(delta)
 			updatePlayerMaxHealthWidgets(p)
 			updateWaypointSharingButtons(p)
 			updatePlayerMissileTriggerButtons(p)
+			updatePlayerBalanceShield(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -65909,6 +66010,7 @@ function updatePlayerMissileTriggerButtons(p)
 	local px, py = p:getPosition()			--get player ship position coordinates
 	for i,obj in ipairs(nearby_objects) do
 		if find_missiles[obj.typeName] and obj:getOwner() == p then	--object is missile owned by player
+--		if find_missiles[obj.typeName] then	--object is missile
 			local mx, my = obj:getPosition()						--get missile position coordinates
 			local m_dist = distance(px, py, mx, my)					--determine missile distance from player
 			for trigger,blob in pairs(p.trigger_missile) do
@@ -67907,6 +68009,192 @@ function updatePlayerLockBanners(p)
 			p.sensor_lock_msg_hlm = nil
 			p:removeCustom(p.sensor_lock_msg_tac)
 			p.sensor_lock_msg_tac = nil
+		end
+	end
+end
+function updatePlayerBalanceShield(p)
+	if playerShipStats[p:getTypeName()] ~= nil then
+		local function removeBalanceShieldButtons(p)
+			if p.balance_shield_button_wea ~= nil then
+				p:removeCustom(p.balance_shield_button_wea)
+				p.balance_shield_button_wea = nil
+			end
+			if p.balance_shield_button_tac ~= nil then
+				p:removeCustom(p.balance_shield_button_tac)
+				p.balance_shield_button_tac = nil
+			end
+			if p.balance_shield_focus_rear_button_wea ~= nil then
+				p:removeCustom(p.balance_shield_focus_rear_button_wea)
+				p.balance_shield_focus_rear_button_wea = nil
+			end
+			if p.balance_shield_focus_rear_button_tac ~= nil then
+				p:removeCustom(p.balance_shield_focus_rear_button_tac)
+				p.balance_shield_focus_rear_button_tac = nil
+			end
+			if p.balance_shield_focus_front_button_wea ~= nil then
+				p:removeCustom(p.balance_shield_focus_front_button_wea)
+				p.balance_shield_focus_front_button_wea = nil
+			end
+			if p.balance_shield_focus_front_button_tac ~= nil then
+				p:removeCustom(p.balance_shield_focus_front_button_tac)
+				p.balance_shield_focus_front_button_tac = nil
+			end
+		end
+		if playerShipStats[p:getTypeName()].balance_shield then
+			if p:getShieldCount() > 1 then
+				if p:getShieldLevel(0) < p:getShieldMax(0) or p:getShieldLevel(1) < p:getShieldMax(1) then
+					if p:getEnergy() > p:getMaxEnergy() * .1 then
+						if p.balance_shield_cycle_interval == nil then
+							p.balance_shield_cycle_interval = 10
+						end
+						if p:getShieldMax(0) == p:getShieldMax(1) then
+							if p:getShieldLevel(0) ~= p:getShieldLevel(1) then
+								if p.balance_shield_timer == nil then
+									p.balance_shield_button_wea = "balance_shield_button_wea"
+									p:addCustomButton("Weapons",p.balance_shield_button_wea,"Balance Shields",function()
+										local average_shield = (p:getShieldLevel(0) + p:getShieldLevel(1)) / 2
+										p:setShields(average_shield,average_shield)
+										p:setEnergy(p:getEnergy() - p:getMaxEnergy() * .05)
+										p.balance_shield_timer = getScenarioTime() + p.balance_shield_cycle_interval
+										if p.balance_shield_focus_front_button_wea ~= nil then
+											p:removeCustom(p.balance_shield_focus_front_button_wea)
+											p.balance_shield_focus_front_button_wea = nil
+										end
+										if p.balance_shield_focus_front_button_tac ~= nil then
+											p:removeCustom(p.balance_shield_focus_front_button_tac)
+											p.balance_shield_focus_front_button_tac = nil
+										end
+										if p.balance_shield_focus_rear_button_wea ~= nil then
+											p:removeCustom(p.balance_shield_focus_rear_button_wea)
+											p.balance_shield_focus_rear_button_wea = nil
+										end
+										if p.balance_shield_focus_rear_button_tac ~= nil then
+											p:removeCustom(p.balance_shield_focus_rear_button_tac)
+											p.balance_shield_focus_rear_button_tac = nil
+										end
+										if p.balance_shield_button_wea ~= nil then
+											p:removeCustom(p.balance_shield_button_wea)
+											p.balance_shield_button_wea = nil
+										end
+										if p.balance_shield_button_tac ~= nil then
+											p:removeCustom(p.balance_shield_button_tac)
+											p.balance_shield_button_tac = nil
+										end
+									end, 49)
+									p.balance_shield_button_tac = "balance_shield_button_tac"
+									p:addCustomButton("Tactical",p.balance_shield_button_tac,"Balance Shields",function()
+										local average_shield = (p:getShieldLevel(0) + p:getShieldLevel(1)) / 2
+										p:setShields(average_shield,average_shield)
+										p:setEnergy(p:getEnergy() - p:getMaxEnergy() * .05)
+										p.balance_shield_timer = getScenarioTime() + p.balance_shield_cycle_interval
+										if p.balance_shield_focus_front_button_wea ~= nil then
+											p:removeCustom(p.balance_shield_focus_front_button_wea)
+											p.balance_shield_focus_front_button_wea = nil
+										end
+										if p.balance_shield_focus_front_button_tac ~= nil then
+											p:removeCustom(p.balance_shield_focus_front_button_tac)
+											p.balance_shield_focus_front_button_tac = nil
+										end
+										if p.balance_shield_focus_rear_button_wea ~= nil then
+											p:removeCustom(p.balance_shield_focus_rear_button_wea)
+											p.balance_shield_focus_rear_button_wea = nil
+										end
+										if p.balance_shield_focus_rear_button_tac ~= nil then
+											p:removeCustom(p.balance_shield_focus_rear_button_tac)
+											p.balance_shield_focus_rear_button_tac = nil
+										end
+										if p.balance_shield_button_wea ~= nil then
+											p:removeCustom(p.balance_shield_button_wea)
+											p.balance_shield_button_wea = nil
+										end
+										if p.balance_shield_button_tac ~= nil then
+											p:removeCustom(p.balance_shield_button_tac)
+											p.balance_shield_button_tac = nil
+										end
+									end, 49)
+								else
+									if getScenarioTime() > p.balance_shield_timer then
+										p.balance_shield_timer = nil
+									end
+								end
+							end
+						end
+						local front_strength = p:getShieldLevel(0)/p:getShieldMax(0)
+						local rear_strength = p:getShieldLevel(1)/p:getShieldMax(1)
+						if front_strength > rear_strength then
+							if p.balance_shield_timer == nil then
+								p.balance_shield_focus_rear_button_wea = "balance_shield_focus_rear_button_wea"
+								p:addCustomButton("Weapons",p.balance_shield_focus_rear_button_wea,"Focus Rear Shield",function()
+									local need_transfer = p:getShieldMax(1) - p:getShieldLevel(1)
+									local get_transfer = math.min(need_transfer,p:getShieldLevel(0))
+									p:setShields(p:getShieldLevel(0) - get_transfer,p:getShieldLevel(1) + get_transfer)
+									p:setEnergy(p:getEnergy() - p:getMaxEnergy() * .05)
+									p.balance_shield_timer = getScenarioTime() + p.balance_shield_cycle_interval
+								end, 50)
+								p.balance_shield_focus_rear_button_tac = "balance_shield_focus_rear_button_tac"
+								p:addCustomButton("Tactical",p.balance_shield_focus_rear_button_tac,"Focus Rear Shield",function()
+									local need_transfer = p:getShieldMax(1) - p:getShieldLevel(1)
+									local get_transfer = math.min(need_transfer,p:getShieldLevel(0))
+									p:setShields(p:getShieldLevel(0) - get_transfer,p:getShieldLevel(1) + get_transfer)
+									p:setEnergy(p:getEnergy() - p:getMaxEnergy() * .05)
+									p.balance_shield_timer = getScenarioTime() + p.balance_shield_cycle_interval
+								end, 50)
+							else
+								if getScenarioTime() > p.balance_shield_timer then
+									p.balance_shield_timer = nil
+								end
+							end
+							if p.balance_shield_focus_front_button_wea ~= nil then
+								p:removeCustom(p.balance_shield_focus_front_button_wea)
+								p.balance_shield_focus_front_button_wea = nil
+							end
+							if p.balance_shield_focus_front_button_tac ~= nil then
+								p:removeCustom(p.balance_shield_focus_front_button_tac)
+								p.balance_shield_focus_front_button_tac = nil
+							end
+						elseif rear_strength > front_strength then
+							if p.balance_shield_timer == nil then
+								p.balance_shield_focus_front_button_wea = "balance_shield_focus_front_button_wea"
+								p:addCustomButton("Weapons",p.balance_shield_focus_front_button_wea,"Focus Front Shield",function()
+									local need_transfer = p:getShieldMax(0) - p:getShieldLevel(0)
+									local get_transfer = math.min(need_transfer,p:getShieldLevel(1))
+									p:setShields(p:getShieldLevel(0) + get_transfer,p:getShieldLevel(1) - get_transfer)
+									p:setEnergy(p:getEnergy() - p:getMaxEnergy() * .05)
+									p.balance_shield_timer = getScenarioTime() + p.balance_shield_cycle_interval
+								end, 50)
+								p.balance_shield_focus_front_button_tac = "balance_shield_focus_front_button_tac"
+								p:addCustomButton("Tactical",p.balance_shield_focus_front_button_tac,"Focus Front Shield",function()
+									local need_transfer = p:getShieldMax(0) - p:getShieldLevel(0)
+									local get_transfer = math.min(need_transfer,p:getShieldLevel(1))
+									p:setShields(p:getShieldLevel(0) + get_transfer,p:getShieldLevel(1) - get_transfer)
+									p:setEnergy(p:getEnergy() - p:getMaxEnergy() * .05)
+									p.balance_shield_timer = getScenarioTime() + p.balance_shield_cycle_interval
+								end, 50)
+							else
+								if getScenarioTime() > p.balance_shield_timer then
+									p.balance_shield_timer = nil
+								end
+							end
+							if p.balance_shield_focus_rear_button_wea ~= nil then
+								p:removeCustom(p.balance_shield_focus_rear_button_wea)
+								p.balance_shield_focus_rear_button_wea = nil
+							end
+							if p.balance_shield_focus_rear_button_tac ~= nil then
+								p:removeCustom(p.balance_shield_focus_rear_button_tac)
+								p.balance_shield_focus_rear_button_tac = nil
+							end
+						end
+					else
+						removeBalanceShieldButtons(p)
+					end
+				else
+					removeBalanceShieldButtons(p)
+				end
+			else
+				removeBalanceShieldButtons(p)
+			end
+		else
+			removeBalanceShieldButtons(p)
 		end
 	end
 end
