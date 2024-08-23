@@ -71,13 +71,11 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.36.1"
+	scenario_version = "6.37.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
-		print(_VERSION)	--Lua version
-	else
-		print("_VERSION, what's supposed to be the Lua version, is nil")
+		print("Lua version",_VERSION)	--Lua version
 	end
 	updateDiagnostic = false
 	healthDiagnostic = false
@@ -1768,11 +1766,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Beowulf")			--J
+	makePlayerShipActive("Flaire")			--J
 	makePlayerShipActive("Cobra")			--J
-	makePlayerShipActive("Darkstar") 		--J 
+	makePlayerShipActive("Dominant") 		--J 
 	makePlayerShipActive("Swoop")			--W
-	makePlayerShipActive("Flipper")			--W
+	makePlayerShipActive("Tango")			--W
 	makePlayerShipActive("Ignite") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -2457,6 +2455,24 @@ function setConstants()
 	server_sensor = true
 	station_sensor_range = 20000
 	warning_includes_ship_type = true
+	observatory_probe_ranges = {
+		["Short"] = 5,
+		["Medium"] = 10,
+		["Long"] = 20,
+		["Huge"] = 30,
+	}
+	observatory_probe_shields = {
+		["Huge"] = 300,
+		["Strong"] = 150,
+		["Medium"] = 100,
+		["Weak"] = 50,
+	}
+	observatory_probe_hull_list = {
+		["Huge"] = 150,
+		["Strong"] = 100,
+		["Medium"] = 50,
+		["Weak"] = 25,
+	}
 	player_ship_log_message_color = "Magenta"
 	color_list = {
 		["Magenta"]		= "Magenta",
@@ -11972,13 +11988,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 6 and not mirrorUniverse then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		elseif i == 1 and not mirrorUniverse then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		else		
+--		if i == 6 and not mirrorUniverse then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
+--		elseif i == 1 and not mirrorUniverse then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+--			dp1Zone:setColor(0,128,0):setLabel("1")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -11987,7 +12003,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -12346,9 +12362,8 @@ function createIcarusStations()
 		stationBikolipox:destroy()
 	end
 	--Borlan
-	local borlanZone = squareZone(68808, 39300, "Borlan 3 G8")
-	borlanZone:setColor(51,153,255):setLabel("B")
-	--[[
+--	local borlanZone = squareZone(68808, 39300, "Borlan 3 G8")
+--	borlanZone:setColor(51,153,255):setLabel("B")
     stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 3"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationBorlan:setFaction("Spacer")
@@ -12426,7 +12441,6 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationBorlan:setSharesEnergyWithDocked(false) end
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
-	--]]
 	--Chitlok
 	stationChitlok = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Chitlok"):setPosition(-72708, -106381):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationChitlok.comms_data = {
@@ -26098,9 +26112,9 @@ function playerWeapons()
 	if p ~= nil then
 		local button_label = ""
 		if p:getWeaponStorageMax("EMP") > 0 then
-			button_label = "E3 N->Y"
+			button_label = "EMP 3-4"
 			if p.trigger_missile ~= nil and p.trigger_missile["E3"] ~= nil then
-				button_label = "E3 Y->N"
+				button_label = "EMP 3-4*"
 			end
 			addGMFunction(button_label,function()
 				if p.trigger_missile ~= nil then
@@ -26124,9 +26138,9 @@ function playerWeapons()
 				end
 				playerWeapons()
 			end)
-			button_label = "E4 N->Y"
+			button_label = "EMP 4-5"
 			if p.trigger_missile ~= nil and p.trigger_missile["E4"] ~= nil then
-				button_label = "E4 Y->N"
+				button_label = "EMP 4-5*"
 			end
 			addGMFunction(button_label,function()
 				if p.trigger_missile ~= nil then
@@ -26152,9 +26166,9 @@ function playerWeapons()
 			end)
 		end
 		if p:getWeaponStorageMax("Nuke") > 0 then
-			local button_label = "N3 N->Y"
+			local button_label = "Nuke 3-4"
 			if p.trigger_missile ~= nil and p.trigger_missile["N3"] ~= nil then
-				button_label = "N3 Y->N"
+				button_label = "Nuke 3-4*"
 			end
 			addGMFunction(button_label,function()
 				if p.trigger_missile ~= nil then
@@ -26178,9 +26192,9 @@ function playerWeapons()
 				end
 				playerWeapons()
 			end)
-			button_label = "N4 N->Y"
+			button_label = "Nuke 4-5"
 			if p.trigger_missile ~= nil and p.trigger_missile["N4"] ~= nil then
-				button_label = "N4 Y->N"
+				button_label = "Nuke 4-5*"
 			end
 			addGMFunction(button_label,function()
 				if p.trigger_missile ~= nil then
@@ -28545,6 +28559,153 @@ function playerSpecialtyProbes()
 	addGMFunction("+Fast Probes",playerFastProbes)
 	addGMFunction("+Sensor Boost Probes",playerSensorBoostProbes)
 	addGMFunction("+Warp Jammer Probes",playerWarpJammerProbes)
+	addGMFunction("+Observatory Probes",playerObservatoryProbes)
+end
+function setObservatoryProbeRange()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	addGMFunction("-From Range",playerObservatoryProbes)
+	for name,range in pairs(observatory_probe_ranges) do
+		local button_label = string.format("%s: %s",name,range)
+		if name == observatory_probe_range then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			observatory_probe_range = name
+			setObservatoryProbeRange()
+		end)
+	end
+end
+function setObservatoryProbeShield()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	addGMFunction("-From Shield",playerObservatoryProbes)
+	for name,strength in pairs(observatory_probe_shields) do
+		local button_label = string.format("%s: %s",name,strength)
+		if name == observatory_probe_shield then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			observatory_probe_shield = name
+			setObservatoryProbeShield()
+		end)
+	end
+end
+function setObservatoryProbeHull()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	addGMFunction("-From Hull",playerObservatoryProbes)
+	for name,strength in pairs(observatory_probe_hull_list) do
+		local button_label = string.format("%s: %s",name,strength)
+		if name == observatory_probe_hull then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			observatory_probe_hull = name
+			setObservatoryProbeHull()
+		end)
+	end
+end
+function playerObservatoryProbes()
+	clearGMFunctions()
+	addGMFunction("-Specialty Probes",playerSpecialtyProbes)
+	local selected_list = getGMSelection()
+	local players_selected = {}
+	for _, obj in ipairs(selected_list) do
+		if obj.typeName == "PlayerSpaceship" then
+			table.insert(players_selected,obj)
+		end
+	end
+	local player_list = ""
+	if #players_selected == 0 then
+		players_selected = getActivePlayerShips()	--select them all
+	end
+	if #players_selected > 0 then
+		addGMFunction("Refresh Probe Button",function()
+			for _, p in ipairs(players_selected) do
+				refreshSpecialProbeButton(p)
+			end
+		end)
+		if observatory_probe_range == nil then
+			observatory_probe_range = "Medium"
+		end
+		if observatory_probe_shield == nil then
+			observatory_probe_shield = "Medium"
+		end
+		if observatory_probe_hull == nil then
+			observatory_probe_hull = "Medium"
+		end
+		addGMFunction(string.format("+Obs Range: %s",observatory_probe_ranges[observatory_probe_range]),setObservatoryProbeRange)
+		addGMFunction(string.format("+Obs Shield: %s",observatory_probe_shields[observatory_probe_shield]),setObservatoryProbeShield)
+		addGMFunction(string.format("+Obs Hull: %s",observatory_probe_hull_list[observatory_probe_hull]),setObservatoryProbeHull)
+		for i, p in ipairs(players_selected) do
+			local probe_count = 0
+			local matching_index = 0
+			if p.probe_type_list ~= nil then
+				if #p.probe_type_list > 0 then
+					for probe_type_index, probe_type_item in ipairs(p.probe_type_list) do
+						if probe_type_item.name == "Observatory" then
+							probe_count = p.probe_type_list[probe_type_index].count
+							matching_index = probe_type_index
+							break
+						end
+					end
+				end
+			end
+			addGMFunction(string.format("%s %s %i+1=%i",p:getCallSign(),"Observatory",probe_count,probe_count+1),function()
+				string.format("")
+				if p.probe_type_list == nil then
+					p.probe_type_list = {}
+					table.insert(p.probe_type_list,{name = "standard", count = -1})
+				end
+				if matching_index > 0 then
+					p.probe_type_list[matching_index].count = p.probe_type_list[matching_index].count + 1
+				else
+					table.insert(p.probe_type_list,{name = "Observatory", count = 1, speed = 1000, range = observatory_probe_ranges[observatory_probe_range] * 1000, shield = observatory_probe_shields[observatory_probe_shield], hull = observatory_probe_hull_list[observatory_probe_hull]})
+				end
+				local probe_type_name = "Observatory"
+				local docked_station = p:getDockedWith() 
+				if docked_station ~= nil then
+					local probe_message_options = {
+						string.format("One of the younger members of the crew on %s provided you with a %s type probe kit as part of an educational assignment.",docked_station:getCallSign(),probe_type_name),
+						string.format("A maintenance technician on %s gave you an extra %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+						string.format("You received a semi-automated thank you gift from %s: a %s type probe kit.",docked_station:getCallSign(),probe_type_name),
+					}
+					local probe_message = tableSelectRandom(probe_message_options)
+					p.probe_message_relay = "probe_message_relay"
+					p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+					p.probe_message_ops = "probe_message_ops"
+					p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+				else
+					local undocked_probe_message_options = {
+						string.format("A member of the engineering techincal crew fabricated a %s type probe kit and added it to your inventory.",probe_type_name),
+						string.format("Ensign Goody Pop took the remains of a replicator failure and created a %s type probe kit for you.",probe_type_name),
+						string.format("From the leftovers of a failed academic science project, a crewmember was able to fabricate a %s type probe kit.",probe_type_name),
+					}
+					local probe_message = tableSelectRandom(undocked_probe_message_options)
+					p.probe_message_relay = "probe_message_relay"
+					p:addCustomMessage("Relay",p.probe_message_relay,probe_message)
+					p.probe_message_ops = "probe_message_ops"
+					p:addCustomMessage("Operations",p.probe_message_ops,probe_message)
+				end
+				p.probe_type = "standard"
+				cycleProbeType(p,probe_type_name)
+				p.probe_type_button = "probe_type_button"
+				p:addCustomButton("Relay",p.probe_type_button,"Probes: standard",function()
+					string.format("")
+					cycleProbeType(p)
+				end,10)
+				p.probe_type_button_ops = "probe_type_button_ops"
+				p:addCustomButton("Operations",p.probe_type_button_ops,"Probes: standard",function()
+					string.format("")
+					cycleProbeType(p)
+				end,10)
+				playerObservatoryProbes()
+			end)
+		end
+	else
+		addGMMessage("No players. No action taken")
+	end
 end
 function playerWarpJammerProbes()
 	clearGMFunctions()
@@ -28576,8 +28737,8 @@ function playerWarpJammerProbes()
 			["Mire"] = {speed = 2000, range = 15000},
 			["Swamp"] = {speed = 1500, range = 20000},
 		}
-		for _, p in ipairs(players_selected) do
-			for _, probe_type_name in ipairs(warp_jammer_probe_type_names) do
+		for i, p in ipairs(players_selected) do
+			for j, probe_type_name in ipairs(warp_jammer_probe_type_names) do
 				local probe_count = 0
 				local matching_index = 0
 				if p.probe_type_list ~= nil then
@@ -55135,7 +55296,14 @@ end
 -----------------------------
 --	Station communication  --
 -----------------------------
+function commsSensorObservatory()
+    if comms_source:isEnemy(comms_target) then
+        return false
+    end
+    setCommsMessage(string.format("%s is operational.\nRange: %su",comms_target:getCallSign(),math.floor(comms_target:getShortRangeRadarRange()/1000)))
+end
 function commsStation()
+	setCommsMessage("What a day")
     if comms_target.comms_data == nil then
         comms_target.comms_data = {}
     end
@@ -60105,7 +60273,7 @@ function handleWeaponRestock(weapon)
     		"We hate those weapons, so we don't deal in them.",
     	}
         if weapon == "Nuke" then setCommsMessage(tableSelectRandom(no_nukes_on_principle))
-        elseif weapon == "EMP" then setCommsMessage(tableRemoveRansom(no_emps_on_principle))
+        elseif weapon == "EMP" then setCommsMessage(tableRemoveRandom(no_emps_on_principle))
         else setCommsMessage(tableSelectRandom(no_weapon_type_on_principle)) end
         done_with_weapon_restock = true
     end
@@ -60659,6 +60827,7 @@ function repairShip()
 					if secondary.capable then
 						secondary_options_presented_count = secondary_options_presented_count + 1
 						addCommsReply(string.format(secondary.prompt,secondary.cost),function()
+							setCommsMessage("uhhh")
 							if not comms_source:isDocked(comms_target) then
 								local stay_docked_to_get_repaired = {
 									"You need to stay docked for that action.",
@@ -61119,6 +61288,110 @@ function presentBalanceShield()
 		addCommsReply(_("Back to station communication"), commsStation)
 	end)
 end
+function presentTriggerMissile()
+	local trigger_missile_prompts = {
+		"Trigger in flight missile",
+		"Detonate missile in flight",
+		"Early missile detonation",
+		"Set off missile in flight",
+	}
+	addCommsReply(tableSelectRandom(trigger_missile_prompts),function()
+		local trigger_missile_explained = {
+			"We have a system that allows certain splash missiles to be detonated before they hit a target or before they reach the end of their fuel. This allows the weapons officer to cover their target in the missile's area of effect even if the target is trying to evade the missile. Interested?",
+			"Would you like an early trigger system? It allows the weapons officer to detonate some splash missiles before they hit a target or run out of fuel so that they catch a target in the missile splash area.",
+			"Interested in a splash missile trigger? This sytem lets the weapons officer set off certain missiles while they are in flight, thus catching targets before they evade the missile intended for them.",
+			string.format("Would you like %s to install a system to allow weapons to trigger certain missiles while in flight before they hit or before they reach the end of their fuel? Your weapons officer could use this to catch targets trying to evade splash missiles.",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableSelectRandom(trigger_missile_explained))
+		local trigger_missile_detail_prompts = {
+			"What kind of missiles and what ranges?",
+			"What missile types and what ranges?",
+			"At what range would this work and on what missiles?",
+			"What type of missiles and at what range?",
+		}
+		addCommsReply(tableSelectRandom(trigger_missile_detail_prompts),function()
+			local trigger_missile_types = {
+				"The technology works on Nukes or EMPs between 3 and 4 units away or between 5 and 6 units away, depending on the model. We have the following available for 20 reputation:",
+				"It works on EMPs or Nukes. The range is either 3 - 4 units or 4 - 5 units depending on what you get. For 20 reputation, we have the following:",
+				"We've got the following for 20 reputation. They work on either Nukes or EMPs at a range of 3 to 4 units or 4 - 5 units based on what you install.",
+				"This tech effects EMPs or Nukes. The range is 3 - 4 units or 4 - 5 units. We have the following devices available for 20 reputation:",
+			}
+			setCommsMessage(tableSelectRandom(trigger_missile_types))
+			for i,flavor in ipairs(comms_target.trigger_missile) do
+				local flavor_prompts = {
+					["E3"] = "EMP range 3u to 4u",
+					["E4"] = "EMP range 4u to 5U",
+					["N3"] = "Nuke range 3u to 4u",
+					["N4"] = "Nuke range 4u to 5u",
+				}
+				addCommsReply(flavor_prompts[flavor],function()
+					offerMissileTrigger(flavor)
+				end)
+			end
+		end)
+	end)
+--	{missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
+--	["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	},
+end
+function offerMissileTrigger(flavor)
+	if comms_source:takeReputationPoints(20) then
+		if comms_source.trigger_missile == nil then
+			comms_source.trigger_missile = {}
+		end
+		local installed_or_notify_presence = ""
+		if flavor == "E3" then
+			if comms_source.trigger_missile["E3"] == nil then
+				comms_source.trigger_missile["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
+			else
+				installed_or_notify_presence = "You already have this"
+				comms_source:addReputationPoints(20)
+			end
+		elseif flavor == "E4" then
+			if comms_source.trigger_missile["E4"] == nil then
+				comms_source.trigger_missile["E4"] = {missile = "EMPMissile",	short = 4000, long = 5000,	button_label = "Trigger EMP 4-5u",	order = 2,	}
+			else
+				installed_or_notify_presence = "You already have this"
+				comms_source:addReputationPoints(20)
+			end
+		elseif flavor == "N3" then
+			if comms_source.trigger_missile["N3"] == nil then
+				comms_source.trigger_missile["N3"] = {missile = "Nuke",		short = 3000, long = 4000,	button_label = "Trigger Nuke 3-4u",	order = 3,	}
+			else
+				installed_or_notify_presence = "You already have this"
+				comms_source:addReputationPoints(20)
+			end
+		elseif flavor == "N4" then
+			if comms_source.trigger_missile["N4"] == nil then
+				comms_source.trigger_missile["N4"] = {missile = "Nuke",		short = 4000, long = 5000,	button_label = "Trigger Nuke 4-5u",	order = 4,	}
+			else
+				installed_or_notify_presence = "You already have this"
+				comms_source:addReputationPoints(20)
+			end
+		end
+		local missile_trigger_installed_confirmation = {
+			"Installed",
+			string.format("%s has installed the missile trigger system",comms_target:getCallSign()),
+			"It's installed",
+			string.format("%s now has a missile trigger system",comms_source:getCallSign()),
+		}
+		if installed_or_notify_presence == "" then
+			installed_or_notify_presence = tableSelectRandom(missile_trigger_installed_confirmation)
+		end
+		setCommsMessage(installed_or_notify_presence)
+	else
+		local insufficient_rep_responses = {
+			"Insufficient reputation",
+			"Not enough reputation",
+			"You need more reputation",
+			string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+			"You don't have enough reputation",
+		}
+		setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+	end
+	addCommsReply("Back to enhance ship",enhanceShip)
+	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+	addCommsReply(_("Back to station communication"), commsStation)
+end
 function presentHullBanner()
 	local hull_diagnostic_prompts = {
 		"Spare portable hull diagnostic",
@@ -61498,6 +61771,25 @@ function presentReturnWaypointDistanceCalculator()
 end
 function minorUpgrades()
 	--	set minor upgrade present or not at station if not yet set
+	if comms_target.trigger_missile == nil then
+		comms_target.trigger_missile = {}
+		if random(1,100) < 50 then	
+			local trigger_flavors = {"E3","E4","N3","N4"}
+			local trigger_flavor = tableRemoveRandom(trigger_flavors)
+			table.insert(comms_target.trigger_missile,trigger_flavor)
+			if random(1,100) < 40 then
+				trigger_flavor = tableRemoveRandom(trigger_flavors)
+				table.insert(comms_target.trigger_missile,trigger_flavor)
+				if random(1,100) < 30 then
+					trigger_flavor = tableRemoveRandom(trigger_flavors)
+					table.insert(comms_target.trigger_missile,trigger_flavor)
+					if random(1,100) < 20 then
+						table.insert(comms_target.trigger_missile,trigger_flavors[1])
+					end
+				end
+			end
+		end
+	end
 	if comms_target.balance_shield == nil then
 		if random(1,100) < 40 then
 			comms_target.balance_shield = true
@@ -61559,6 +61851,22 @@ function minorUpgrades()
 	--	set minor upgrade available list based on presence at station, presence on ship and relationship
 	local minor_upgrade_choices = {}
 	local player_ship_template = comms_source:getTypeName()
+	if #comms_target.trigger_missile > 0 then
+		local new_flavor = false
+		if comms_source.trigger_missile ~= nil then
+			for i,trigger_flavor in ipairs(comms_target.trigger_missile) do
+				if comms_source.trigger_missile[trigger_flavor] == nil then
+					new_flavor = true
+					break
+				end
+			end
+		else
+			new_flavor = true
+		end
+		if new_flavor then
+			table.insert(minor_upgrade_choices,presentTriggerMissile)
+		end
+	end
 	if comms_target.balance_shield and playerShipStats[player_ship_template] ~= nil and not playerShipStats[player_ship_template].balance_shield then
 		if comms_source:getShieldCount() == 2 then
 			if comms_target:isFriendly(comms_source) then
@@ -64181,6 +64489,24 @@ function refreshSpecialProbeButton(p)
 end	
 function probeWarpJammer(self,x,y)
 	WarpJammer():setPosition(x,y):setRange(self.warp_jam_range):setFaction(self:getFaction())
+	self:onArrival(nil)
+end
+function probeObservatory(self,x,y)
+	local ox, oy = vectorFromAngle(random(0,360),500)
+	ox = ox + x
+	oy = oy + y
+	local obs = SpaceStation():setPosition(ox,oy):setTemplate("Small Station")
+	obs:setShortRangeRadarRange(self.range):setShieldsMax(self.shield)
+	obs:setHullMax(self.hull):setRepairDocked(false):setSharesEnergyWithDocked(false)
+	obs:setRestocksMissilesDocked(false)
+	if named_observatory_number == nil then
+		named_observatory_number = 0
+	end
+	named_observatory_number = named_observatory_number + math.random(1,4)
+	obs:setCallSign(string.format("SO%s",named_observatory_number))
+	obs:setDescription(string.format("Sensor Observatory %s",named_observatory_number))
+	obs:setFaction(self:getFaction())
+	obs:setCommsFunction(commsSensorObservatory)
 	self:onArrival(nil)
 end
 ------------------------
@@ -67024,6 +67350,12 @@ function updatePlayerSpecialtyProbes(p)
 										obj.mine_fetus = p.probe_type_list[matching_index].mine_fetus
 										obj:onArrival(probeLabor)
 									end
+								end
+								if p.probe_type_list[matching_index].hull ~= nil then
+									obj.range = p.probe_type_list[matching_index].range
+									obj.shield = p.probe_type_list[matching_index].shield
+									obj.hull = p.probe_type_list[matching_index].hull
+									obj:onArrival(probeObservatory)
 								end
 								cycleProbeType(p,p.probe_type_list[matching_index].name)
 							end
