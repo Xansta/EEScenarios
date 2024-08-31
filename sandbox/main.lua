@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.37.1"
+	scenario_version = "6.37.2"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -15686,7 +15686,7 @@ function createKentarStations()
 	local x = gateway_x + math.sin(((95  )/360)*math.pi*2)*19000
 	local y =gateway_y - math.cos(((95  )/360)*math.pi*2)*19000
 	local agst2Zone = squareZone(x, y, "AGST2 X8")
-	agst2Zone:setColor(0,128,0):setLabel("AGST2")
+	agst2Zone:setColor(0,128,0):setLabel("A")
 --	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
 
 	local orbit_time = 15
