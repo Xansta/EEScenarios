@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.37.2"
+	scenario_version = "6.37.3"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1766,12 +1766,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Flaire")			--J
+	makePlayerShipActive("Hearken")			--J
 	makePlayerShipActive("Cobra")			--J
-	makePlayerShipActive("Dominant") 		--J 
-	makePlayerShipActive("Swoop")			--W
+	makePlayerShipActive("Magnum") 			--J 
+	makePlayerShipActive("Watson")			--W
 	makePlayerShipActive("Tango")			--W
-	makePlayerShipActive("Ignite") 			--W 
+	makePlayerShipActive("Spike") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -15633,14 +15633,14 @@ function createKentarStations()
 	-- the mid way "guidance" stations, split to left center and right
 	local guidance_width = 14
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
---	local ggc1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid,"GGC1 Y8")
+--	local ggc1zone = squareZone(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid,"GGC1.2 Y8")
 --	ggc1zone:setColor(0,128,0):setLabel("G")
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGC1.2"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGC1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  )/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0  - guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
-	local ggl1zone = squareZone(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid,"GGL1 X8")
-	ggl1zone:setColor(0,128,0):setLabel("L")
---	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
+--	local ggl1zone = squareZone(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid,"GGL1.2 X8")
+--	ggl1zone:setColor(0,128,0):setLabel("L")
+	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGL1.2"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  - guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("BGL1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((240  -guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((240  - guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
 	table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("RGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((0    +guidance_width )/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((0  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
     table.insert(gateway_objects,SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("GGR1"):setDescription("An accelerator for subspace rift creation"):setPosition(gateway_x + math.sin(((120  +guidance_width)/360)*math.pi*2)*orbit_mid, gateway_y - math.cos(((120  + guidance_width)/360)*math.pi*2)*orbit_mid):setCommsFunction(SwitchToGM))
@@ -16094,9 +16094,10 @@ function createKentarStations()
 	station_names[stationMonocle:getCallSign()] = {stationMonocle:getSectorName(), stationMonocle}
 	table.insert(stations,stationMonocle)
 	--Nereus
-	--local NereusZone = squareZone(174288, 321668, "Nereus C V13")
-	--NereusZone:setColor(0,128,0)
-    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus C"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	local NereusZone = squareZone(174288, 321668, "Nereus D V13")
+	NereusZone:setColor(0,128,0):setLabel("N")
+	--[[
+    stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus D"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     stationNereus:setShortRangeRadarRange(8500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -16158,6 +16159,7 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
+	--]]
 	--Pastern (Orbiting Ergot which orbits Rigil in N25. Look in the square bounded by Q22, K22, K28 and Q28)
 	local ergot_x, ergot_y = planet_ergot:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
