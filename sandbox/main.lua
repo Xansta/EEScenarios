@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.38.1"
+	scenario_version = "6.39.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -61453,6 +61453,59 @@ function presentPatrolProbe()
 		addCommsReply(_("Back to station communication"), commsStation)
 	end)
 end	
+function presentLongRangeSensorUpgrade()
+	local long_range_sensor_prompts = {
+		"Increase long range sensor range",
+		"Raise long range sensor range",
+		"Improve long range sensor range",
+		"Make long range sensors reach further",
+	}
+	addCommsReply(tableSelectRandom(long_range_sensor_prompts),function()
+		long_range_sensor_upgrade_explained = {
+			"We've got new components we can install that can increase the range of your long range sensors. Your science officer could get information from farther away. Interested?",
+			"Would you like to increase the range of your long range sensors? We can install improvements to your sensor array. Your science officer would be able to see things farther away.",
+			"We can tweak your long range sensors to increase their reach. Your science officer could then see things that are farther away. Would you like us to make that improvement?",
+			string.format("%s technicians have developed a method to increase the range of a ship's long range sensors. This would help your science officer see and scan things farther away. Interested in getting the improvement?",comms_target:getCallSign()),
+		}
+		setCommsMessage(tableSelectRandom(long_range_sensor_upgrade_explained))
+		local install_long_range_sensor_upgrade_confirm_prompt = {
+			"We could use the increased range (10 reputation)",
+			"We'll take it (10 reputation)",
+			"Increase our sensor range (10 reputation)",
+			"Yes, a great gift for Science (10 reputation)",
+		}
+		addCommsReply(tableSelectRandom(install_long_range_sensor_upgrade_confirm_prompt),function()
+			if comms_source:takeReputationPoints(10) then
+				if comms_source.normal_long_range_radar == nil then
+					comms_source.normal_long_range_radar = comms_source:getLongRangeRadarRange()
+				end
+				comms_source.normal_long_range_radar = comms_source.normal_long_range_radar + 5000
+				comms_source:setLongRangeRadarRange(comms_source:getLongRangeRadarRange() + 5000)
+				table.insert(comms_target.long_range_sensor_upgrade_recipients,comms_source)
+				local long_range_sensor_upgrade_installed_confirm_response = {
+					"Installed",
+					"Long range sensor upgrade installed",
+					string.format("%s installed the long range sensor upgrade",comms_target:getCallSign()),
+					string.format("%s now has increased long range sensor range",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableSelectRandom(long_range_sensor_upgrade_installed_confirm_response))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+			end
+			addCommsReply("Back to enhance ship",enhanceShip)
+			addCommsReply(_("Back to station communication"), commsStation)
+		end)
+		addCommsReply("Back to enhance ship",enhanceShip)
+		addCommsReply(_("Back to station communication"), commsStation)
+	end)
+end
 function presentHullBanner()
 	local hull_diagnostic_prompts = {
 		"Spare portable hull diagnostic",
@@ -61832,6 +61885,14 @@ function presentReturnWaypointDistanceCalculator()
 end
 function minorUpgrades()
 	--	set minor upgrade present or not at station if not yet set
+	if comms_target.long_range_sensor_upgrade == nil then
+		if random(1,100) < 37 then
+			comms_target.long_range_sensor_upgrade = true
+			comms_target.long_range_sensor_upgrade_recipients = {}
+		else
+			comms_target.long_range_sensor_upgrade = false
+		end
+	end
 	if comms_target.patrol_probe == nil then
 		if random(1,100) < 45 then
 			comms_target.patrol_probe = math.random(1,4)
@@ -61943,6 +62004,26 @@ function minorUpgrades()
 		elseif not comms_target:isEnemy(comms_source) then
 			if comms_target.comms_data.friendlyness > 30 then
 				table.insert(minor_upgrade_choices,presentPatrolProbe)
+			end
+		end
+	end
+	if comms_target.long_range_sensor_upgrade then
+		local upgrade_available = true
+		for i,p in ipairs(comms_target.long_range_sensor_upgrade_recipients) do
+			if p == comms_source then
+				upgrade_available = false
+				break
+			end
+		end
+		if upgrade_available then
+			if comms_target:isFriendly(comms_source) then
+				if comms_target.comms_data.friendlyness > 50 then
+					table.insert(minor_upgrade_choices,presentLongRangeSensorUpgrade)
+				end
+			elseif not comms_target:isEnemy(comms_source) then
+				if comms_target.comms_data.friendlyness > 30 then
+					table.insert(minor_upgrade_choices,presentLongRangeSensorUpgrade)
+				end
 			end
 		end
 	end
