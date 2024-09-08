@@ -9090,7 +9090,7 @@ function neutralComms(comms_data)
 		scenarioShipMissions()
 	end
 	local ship_type = comms_target:getTypeName()
-	if ship_type:find("Freighter") ~= nil then
+	if ship_type:find("Freighter") ~= nil and stations_sell_goods then
 		local neutral_freighter_greetings = {
 			_("trade-comms","Yes?"),
 			_("trade-comms","What?"),
@@ -9393,7 +9393,7 @@ function neutralComms(comms_data)
 				end	--end friendly branches
 			end	--player has room for cargo
 		end	--close enough to sell
-	else	--not a freighter
+	else	--not a freighter or goods not for sale
 		if comms_data.friendlyness > 50 then
 			local friendly_brush_off = {
 				_("ship-comms", "Sorry, we have no time to chat with you.\nWe are on an important mission."),
