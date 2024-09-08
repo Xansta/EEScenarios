@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.37.3"
+	scenario_version = "6.38.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -61394,6 +61394,65 @@ function offerMissileTrigger(flavor)
 	addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
 	addCommsReply(_("Back to station communication"), commsStation)
 end
+function presentPatrolProbe()
+	local patrol_probe_prompts = {
+		"Patrol probe",
+		"Circling probe",
+		"Lookout probe",
+		"Probe on patrol",
+	}
+	addCommsReply(tableSelectRandom(patrol_probe_prompts),function()
+		local patrol_probe_explained = {
+			"We've got a patrol probe programmer if you're interested. This reprograms your probe, when selected, so that instead of stopping at the normal target destination, it redirects to another point equidistant from your ship. This keeps the probe orbiting in linear fashion around your ship. Interested?",
+			"We can set you up with a patrol probe programmer. It will reprogram the selected probe to go from point to point around your ship instead of stopping at the normal designated destination. This helps keep watch on an area around your ship. Would you like a patrol probe programmer?",
+			string.format("The techs here on %s can put in a patrol probe programmer. This turns a probe into a watch-bot that goes around your ship until it runs out of energy instead of just stopping at the target. The radius is determined by how far out you direct the probe initially. Want it?",comms_target:getCallSign()),
+			string.format("Want a patrol probe programmer for %s? It lets you tell the probe to keep up a watchful perimeter around your ship instead of just stopping at the original destination. This lets you keep an automatic watch on an area around your ship. Interested?",comms_source:getCallSign()),
+		}
+		setCommsMessage(tableSelectRandom(patrol_probe_explained))
+		local install_patrol_probe_confirm_prompt = {
+			string.format("That would be great! (%s reputation)",comms_target.patrol_probe * 10),
+			string.format("We'll take it (%s reputation)",comms_target.patrol_probe * 10),
+			string.format("Install the patrol probe programmer (%s reputation)",comms_target.patrol_probe * 10),
+			string.format("We could use that (%s reputation)",comms_target.patrol_probe * 10),
+		}
+		addCommsReply(tableSelectRandom(install_patrol_probe_confirm_prompt),function()
+			if comms_source:takeReputationPoints(comms_target.patrol_probe * 10) then
+				comms_source.patrol_probe = comms_target.patrol_probe
+				comms_source.patrol_probe_state = "Off"
+				comms_source.patrol_probe_button = "patrol_probe_button"
+				comms_source:addCustomButton("Relay",comms_source.patrol_probe_button,"Patrol Probe Off",function()
+					string.format("")
+					togglePatrolProbeState(comms_source)
+				end,10)
+				comms_source.patrol_probe_button_ops = "patrol_probe_button_ops"
+				comms_source:addCustomButton("Operations",comms_source.patrol_probe_button_ops,"Patrol Probe Off",function()
+					string.format("")
+					togglePatrolProbeState(comms_source)
+				end,10)
+				local patrol_probe_installed_confirm_response = {
+					"Installed",
+					"Patrol probe installed",
+					string.format("%s installed the patrol probe",comms_target:getCallSign()),
+					string.format("%s now has patrol probe capability",comms_source:getCallSign()),
+				}
+				setCommsMessage(tableSelectRandom(patrol_probe_installed_confirm_response))
+			else
+				local insufficient_rep_responses = {
+					"Insufficient reputation",
+					"Not enough reputation",
+					"You need more reputation",
+					string.format("You need more than %i reputation",math.floor(comms_source:getReputationPoints())),
+					"You don't have enough reputation",
+				}
+				setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+			end
+			addCommsReply("Back to enhance ship",enhanceShip)
+			addCommsReply(_("Back to station communication"), commsStation)
+		end)
+		addCommsReply("Back to enhance ship",enhanceShip)
+		addCommsReply(_("Back to station communication"), commsStation)
+	end)
+end	
 function presentHullBanner()
 	local hull_diagnostic_prompts = {
 		"Spare portable hull diagnostic",
@@ -61773,6 +61832,13 @@ function presentReturnWaypointDistanceCalculator()
 end
 function minorUpgrades()
 	--	set minor upgrade present or not at station if not yet set
+	if comms_target.patrol_probe == nil then
+		if random(1,100) < 45 then
+			comms_target.patrol_probe = math.random(1,4)
+		else
+			comms_target.patrol_probe = -1
+		end
+	end	
 	if comms_target.trigger_missile == nil then
 		comms_target.trigger_missile = {}
 		if random(1,100) < 50 then	
@@ -61867,6 +61933,17 @@ function minorUpgrades()
 		end
 		if new_flavor then
 			table.insert(minor_upgrade_choices,presentTriggerMissile)
+		end
+	end
+	if comms_target.patrol_probe > 0 and comms_source.patrol_probe < comms_target.patrol_probe then
+		if comms_target:isFriendly(comms_source) then
+			if comms_target.comms_data.friendlyness > 25 then
+				table.insert(minor_upgrade_choices,presentPatrolProbe)
+			end
+		elseif not comms_target:isEnemy(comms_source) then
+			if comms_target.comms_data.friendlyness > 30 then
+				table.insert(minor_upgrade_choices,presentPatrolProbe)
+			end
 		end
 	end
 	if comms_target.balance_shield and playerShipStats[player_ship_template] ~= nil and not playerShipStats[player_ship_template].balance_shield then
