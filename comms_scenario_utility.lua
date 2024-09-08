@@ -14,12 +14,13 @@
 --		I'm mainly writing this for myself. I find I spend a significant amount of time
 --		copying and pasting code from scenario to scenario related to communications.
 --		With this utility, I hope to reduce the amount of time coding and reduce the
---		amount of time it takes Daid to review new scenarios. Anyone is welcome to use
+--		amount of time it takes to review new scenarios. Anyone is welcome to use
 --		this utility. I made some effort to have it approachable, but I am fairly confident
 --		that someone will find something they'd like to improve upon. If you decide to
 --		make changes directly, be sure to test existing scenarios that use this utility.
---		While that number of scenarios starts at zero, I intend to start switching
---		several scenarios to using this utility
+--		I intend to start switching several scenarios to using this utility.
+--	Scenarios that depend on this utility:
+--		Liberation Day	scenario_27_liberation.lua
 ----------------------------------------------
 --	Functions you may want to set up outside of this utility
 --		setCommsStationFriendliness - returns a number between 0 and 100 representing the
@@ -8250,9 +8251,9 @@ function goodsOnShip(comms_target,comms_data)
 	comms_data.goods = {}
 	initializeCommonGoods()
 	comms_data.goods[tableSelectRandom(commonGoods)] = {quantity = 1, cost = math.random(20,80)}
-	local shipType = comms_target:getTypeName()
-	if shipType:find("Freighter") ~= nil then
-		if shipType:find("Goods") ~= nil or shipType:find("Equipment") ~= nil then
+	local ship_type = comms_target:getTypeName()
+	if ship_type:find("Freighter") ~= nil then
+		if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
 			local count_repeat_loop = 0
 			repeat
 				comms_data.goods[tableSelectRandom(commonGoods)] = {quantity = 1, cost = math.random(20,80)}
@@ -8268,6 +8269,8 @@ function goodsOnShip(comms_target,comms_data)
 		end
 	end
 end
+--	Functions you may want to set up outside of this utility
+--		scenarioShipMissions - Allows the scenario writer to add situational ship comms
 function friendlyShipComms(comms_data)
 	if comms_data.friendlyness < 20 then
 		local bad_mood_greeting = {
@@ -8293,6 +8296,9 @@ function friendlyShipComms(comms_data)
 			string.format(_("shipAssist-comms", "How can we help you, %s?"),comms_source:getCallSign()),
 		}
 		setCommsMessage(tableSelectRandom(good_mood_greeting))
+	end
+	if scenarioShipMissions ~= nil then
+		scenarioShipMissions()
 	end
 	local defend_waypoint_prompts = {
 		_("shipAssist-comms", "Defend a waypoint"),
@@ -8402,8 +8408,8 @@ function friendlyShipComms(comms_data)
 		end
 	end
 	if stations_sell_goods then
-		local shipType = comms_target:getTypeName()
-		if shipType:find("Freighter") ~= nil then
+		local ship_type = comms_target:getTypeName()
+		if ship_type:find("Freighter") ~= nil then
 			if distance(comms_source, comms_target) < 5000 then
 				local goodCount = 0
 				if comms_source.goods ~= nil then
@@ -8446,7 +8452,7 @@ function friendlyShipComms(comms_data)
 					end)
 				end
 				if comms_data.friendlyness > 66 then
-					if shipType:find("Goods") ~= nil or shipType:find("Equipment") ~= nil then
+					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
 						if comms_source.goods ~= nil and comms_source.goods.luxury ~= nil and comms_source.goods.luxury > 0 then
 							for good, goodData in pairs(comms_data.goods) do
 								if goodData.quantity > 0 and good ~= "luxury" then
@@ -8519,7 +8525,7 @@ function friendlyShipComms(comms_data)
 					end	--player has cargo space branch
 				elseif comms_data.friendlyness > 33 then
 					if comms_source.cargo > 0 then
-						if shipType:find("Goods") ~= nil or shipType:find("Equipment") ~= nil then
+						if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
 							for good, goodData in pairs(comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
@@ -8607,7 +8613,7 @@ function friendlyShipComms(comms_data)
 					end	--player has room for cargo branch
 				else	--least friendly
 					if comms_source.cargo > 0 then
-						if shipType:find("Goods") ~= nil or shipType:find("Equipment") ~= nil then
+						if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
 							for good, goodData in pairs(comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
@@ -8683,6 +8689,11 @@ function friendlyShipComms(comms_data)
 	end
 	return true
 end
+--	Booleans to set outside of this utility to control this utility. Default is false
+--		ship_reversion - set true if enemy might revert to previous orders after taunt
+--		ship_immolation - set true if enemy might self destruct in rage to damage player
+--	Functions you may want to set up outside of this utility
+--		plotContinuum, checkContinuum for ships that will self destruct in rage
 function enemyComms(comms_data)
 	local faction = comms_target:getFaction()
 	local tauntable = false
@@ -8705,7 +8716,7 @@ function enemyComms(comms_data)
 						prompt =	_("shipEnemy-comms","We will destroy you"),
 						success =	_("shipEnemy-comms","We think not. It is you who will experience destruction!"),
 						failure =	_("shipEnemy-comms", "Your feeble threats are meaningless."),
-					}
+					},
 					{
 						prompt =	_("shipEnemy-comms","You have no honor"),
 						success =	_("shipEnemy-comms","Your insult has brought our wrath upon you. Prepare to die."),
@@ -8731,103 +8742,151 @@ function enemyComms(comms_data)
 					},
 				},
 			},
+			["Exuari"] = {threshold = 40, immolation = 7,
+				hail_response = {
+					_("shipEnemy-comms","Stay out of our way, or your death will amuse us extremely!"),
+					_("shipEnemy-comms","Are you our comic relief? Good. Start dying, our drinks are getting stale."),
+				},
+				taunt_groups = {
+					{
+						prompt =	_("shipEnemy-comms", "We will see to your destruction!"),
+						success =	_("shipEnemy-comms", "Your bloodline will end here!"),
+						failure =	_("shipEnemy-comms", "Your feeble threats are meaningless."),
+					},
+				},
+			},
+			["Ghosts"] = {threshold = 20, immolation = 3,
+				hail_response = {
+					_("shipEnemy-comms","One zero one.\nNo binary communication detected.\nSwitching to universal speech.\nGenerating appropriate response for target from human language archives.\n:Do not cross us:\nCommunication halted."),
+					_("shipEnemy-comms","1101 1011 0010 1100\nNo response. Switching to universal translator\nGo away\nEnd Of Line"),
+				},
+				taunt_groups = {
+					{
+						prompt =	_("shipEnemy-comms","EXECUTE: SELFDESTRUCT"),
+						success =	_("shipEnemy-comms","Rogue command received. Targeting source."),
+						failure =	_("shipEnemy-comms","External command ignored."),
+					},
+					{
+						prompt =	_("shipEnemy-comms","EXECUTE: LEVEL5DIAGNOSTIC"),
+						success =	_("shipEnemy-comms","Targeting source of rogue command."),
+						failure =	_("shipEnemy-comms","Command failed basic security check. Ignoring."),
+					},
+				},
+			},
+			["Ktlitans"] = {threshold = 30, immolation = 5,
+				hail_response = {
+					_("shipEnemy-comms","The hive suffers no threats. Opposition to any of us is opposition to us all.\nStand down or prepare to donate your corpses toward our nutrition."),
+					_("shipEnemy-comms","You oppose one of us, you oppose all of us.\nLeave or prepare to donate your corpses toward our nutrition."),
+				},
+				taunt_groups = {
+					{
+						prompt =	_("shipEnemy-comms","<Transmit 'The Itsy-Bitsy Spider' on all wavelengths>"),
+						success =	_("shipEnemy-comms","We do not need permission to pluck apart such an insignificant threat."),
+						failure =	_("shipEnemy-comms","The hive has greater priorities than exterminating pests."),
+					},
+					{
+						prompt =	_("shipEnemy-comms","You remind me of the spider next to little Miss Muffet: Ugly. Mean enough to frighten a little girl. No redeeming virtue."),
+						success =	_("shipEnemy-comms","You will die to regret such an insult."),
+						failure =	_("shipEnemy-comms","Your comparisons are meaningless."),
+					},
+				},
+			},
+			["TSN"] = {threshold = 15, immolation = 2,
+				hail_response = {
+					_("shipEnemy-comms","State your business"),					
+					_("shipEnemy-comms","What is your intent"),					
+				},
+				taunt_groups = {
+					{
+						prompt =	_("shipEnemy-comms", "We will ensure your destruction"),
+						success =	_("shipEnemy-comms", "Prepare to meet your maker"),
+						failure =	_("shipEnemy-comms", "You can try (and fail)"),
+					},
+				},
+			},
+			["USN"] = {threshold = 15, immolation = 2,
+				hail_response = {
+					_("shipEnemy-comms","What do you want? (not that we care)"),
+					_("shipEnemy-comms","Why are you bothering us?"),
+				},
+				taunt_groups = {
+					{
+						prompt =	_("shipEnemy-comms", "We will make sure you are destroyed."),
+						success =	_("shipEnemy-comms", "Actually, we will destroy you before you can do anything."),
+						failure =	_("shipEnemy-comms", "Is that all you've got? Pathetic. (click)"),
+					},
+				},
+			},
+			["CUF"] = {threshold = 15, immolation = 2,
+				hail_response = {
+					_("shipEnemy-comms","Don't waste our time"),
+					_("shipEnemy-comms","What do *you* want?"),
+				},
+				taunt_groups = {
+					{
+						prompt =	_("shipEnemy-comms", "Your destruction is imminent"),
+						success =	_("shipEnemy-comms", "Get them!"),
+						failure =	_("shipEnemy-comms", "We ignore such pathetic threats."),
+					},
+				},
+			},
 		}
-		if faction == "Kraylor" then
-			taunt_threshold = 35
-			immolation_threshold = 6
-			setCommsMessage(_("shipEnemy-comms", "Ktzzzsss.\nYou will DIEEee weaklingsss!"));
-			local kraylorTauntChoice = math.random(1,3)
-			if kraylorTauntChoice == 1 then
-				taunt_option = _("shipEnemy-comms","We will destroy you")
-				taunt_success_reply = _("shipEnemy-comms","We think not. It is you who will experience destruction!")
-			elseif kraylorTauntChoice == 2 then
-				taunt_option = _("shipEnemy-comms","You have no honor")
-				taunt_success_reply = _("shipEnemy-comms","Your insult has brought our wrath upon you. Prepare to die.")
-				taunt_failed_reply = _("shipEnemy-comms","Your comments about honor have no meaning to us")
-			else
-				taunt_option = _("shipEnemy-comms","We pity your pathetic race")
-				taunt_success_reply = _("shipEnemy-comms","Pathetic? You will regret your disparagement!")
-				taunt_failed_reply = _("shipEnemy-comms","We don't care what you think of us")
-			end
-		elseif faction == "Arlenians" then
-			taunt_threshold = 25
-			immolation_threshold = 4
-			setCommsMessage(_("shipEnemy-comms","We wish you no harm, but will harm you if we must.\nEnd of transmission."))
-		elseif faction == "Exuari" then
-			taunt_threshold = 40
-			immolation_threshold = 7
-			setCommsMessage(_("shipEnemy-comms","Stay out of our way, or your death will amuse us extremely!"))
-		elseif faction == "Ghosts" then
-			taunt_threshold = 20
-			immolation_threshold = 3
-			setCommsMessage(_("shipEnemy-comms","One zero one.\nNo binary communication detected.\nSwitching to universal speech.\nGenerating appropriate response for target from human language archives.\n:Do not cross us:\nCommunication halted."))
-			taunt_option = _("shipEnemy-comms","EXECUTE: SELFDESTRUCT")
-			taunt_success_reply = _("shipEnemy-comms","Rogue command received. Targeting source.")
-			taunt_failed_reply = _("shipEnemy-comms","External command ignored.")
-		elseif faction == "Ktlitans" then
-			setCommsMessage(_("shipEnemy-comms","The hive suffers no threats. Opposition to any of us is opposition to us all.\nStand down or prepare to donate your corpses toward our nutrition."))
-			taunt_option = _("shipEnemy-comms","<Transmit 'The Itsy-Bitsy Spider' on all wavelengths>")
-			taunt_success_reply = _("shipEnemy-comms","We do not need permission to pluck apart such an insignificant threat.")
-			taunt_failed_reply = _("shipEnemy-comms","The hive has greater priorities than exterminating pests.")
-		elseif faction == "TSN" then
-			taunt_threshold = 15
-			immolation_threshold = 2
-			setCommsMessage(_("shipEnemy-comms","State your business"))
-		elseif faction == "USN" then
-			taunt_threshold = 15
-			immolation_threshold = 2
-			setCommsMessage(_("shipEnemy-comms","What do you want? (not that we care)"))
-		elseif faction == "CUF" then
-			taunt_threshold = 15
-			immolation_threshold = 2
-			setCommsMessage(_("shipEnemy-comms","Don't waste our time"))
+		if faction_taunt_options[faction] ~= nil then
+			taunt_threshold = faction_taunt_options[faction].threshold
+			immolation_threshold = faction_taunt_options[faction].immolation
+			setCommsMessage(tableSelectRandom(faction_taunt_options[faction].hail_response))
+			local taunt_choice = tableSelectRandom(faction_taunt_options[faction].taunt_groups)
+			taunt_option = taunt_choice.prompt
+			taunt_success_reply = taunt_choice.success
+			taunt_failed_reply = taunt_choice.failure
 		else
 			setCommsMessage(_("shipEnemy-comms","Mind your own business!"))
 		end
 		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
 		addCommsReply(taunt_option, function()
 			if random(0, 100) <= taunt_threshold then
-				local current_order = comms_target:getOrder()
---				print("order: " .. current_order)
-				--Possible order strings returned:
-				--Roaming
-				--Fly towards
-				--Attack
-				--Stand Ground
-				--Idle
-				--Defend Location
-				--Defend Target
-				--Fly Formation (?)
-				--Fly towards (ignore all)
-				--Dock
-				if comms_target.original_order == nil then
-					comms_target.original_faction = faction
-					comms_target.original_order = current_order
-					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
-						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
-						--print(string.format("Target_x: %f, Target_y: %f",comms_target.original_target_x,comms_target.original_target_y))
+				if ship_reversion then
+					local current_order = comms_target:getOrder()
+					--Possible order strings returned:
+					--Roaming
+					--Fly towards
+					--Attack
+					--Stand Ground
+					--Idle
+					--Defend Location
+					--Defend Target
+					--Fly Formation (?)
+					--Fly towards (ignore all)
+					--Dock
+					if comms_target.original_order == nil then
+						comms_target.original_faction = faction
+						comms_target.original_order = current_order
+						if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
+							comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
+						end
+						if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
+							local original_target = comms_target:getOrderTarget()
+							comms_target.original_target = original_target
+						end
+						comms_target.taunt_may_expire = true	--change to conditional in future refactoring
+						table.insert(enemy_reverts,comms_target)
 					end
-					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
-						local original_target = comms_target:getOrderTarget()
-						--print("target:")
-						--print(original_target)
-						--print(original_target:getCallSign())
-						comms_target.original_target = original_target
-					end
-					comms_target.taunt_may_expire = true	--change to conditional in future refactoring
-					table.insert(enemy_reverts,comms_target)
 				end
 				comms_target:orderAttack(comms_source)	--consider alternative options besides attack in future refactoring
 				setCommsMessage(taunt_success_reply);
 			else
 				--possible alternative consequences when taunt fails
-				if random(1,100) < (immolation_threshold + difficulty) then	--final: immolation_threshold (set to 100 for testing)
-					setCommsMessage(_("shipEnemy-comms","Subspace and time continuum disruption authorized"))
-					comms_source.continuum_target = true
-					comms_source.continuum_initiator = comms_target
-					plotContinuum = checkContinuum
+				if ship_immolation then
+					if random(1,100) < (immolation_threshold + difficulty) then	--final: immolation_threshold (set to 100 for testing)
+						setCommsMessage(_("shipEnemy-comms","Subspace and time continuum disruption authorized"))
+						comms_source.continuum_target = true
+						comms_source.continuum_initiator = comms_target
+						plotContinuum = checkContinuum
+					else
+						setCommsMessage(taunt_failed_reply)
+					end
 				else
-					setCommsMessage(taunt_failed_reply);
+					setCommsMessage(taunt_failed_reply)
 				end
 			end
 		end)
@@ -8844,24 +8903,26 @@ function enemyComms(comms_data)
 			local amenable_roll = random(1,100)
 			if change_enemy_order_diagnostic then print(string.format("   amenable roll:   %.1f",amenable_roll)) end
 			if amenable_roll < amenable_chance then
-				local current_order = comms_target:getOrder()
-				if comms_target.original_order == nil then
-					comms_target.original_order = current_order
-					comms_target.original_faction = faction
-					if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
-						comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
-						--print(string.format("Target_x: %f, Target_y: %f",comms_target.original_target_x,comms_target.original_target_y))
+				if ship_reversion then
+					local current_order = comms_target:getOrder()
+					if comms_target.original_order == nil then
+						comms_target.original_order = current_order
+						comms_target.original_faction = faction
+						if current_order == "Fly towards" or current_order == "Defend Location" or current_order == "Fly towards (ignore all)" then
+							comms_target.original_target_x, comms_target.original_target_y = comms_target:getOrderTargetLocation()
+							--print(string.format("Target_x: %f, Target_y: %f",comms_target.original_target_x,comms_target.original_target_y))
+						end
+						if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
+							local original_target = comms_target:getOrderTarget()
+							--print("target:")
+							--print(original_target)
+							--print(original_target:getCallSign())
+							comms_target.original_target = original_target
+						end
+						table.insert(enemy_reverts,comms_target)
 					end
-					if current_order == "Attack" or current_order == "Dock" or current_order == "Defend Target" then
-						local original_target = comms_target:getOrderTarget()
-						--print("target:")
-						--print(original_target)
-						--print(original_target:getCallSign())
-						comms_target.original_target = original_target
-					end
-					table.insert(enemy_reverts,comms_target)
+					comms_target.amenability_may_expire = true		--set up conditional in future refactoring
 				end
-				comms_target.amenability_may_expire = true		--set up conditional in future refactoring
 				comms_target:orderIdle()
 				comms_target:setFaction("Independent")
 				setCommsMessage(_("shipEnemy-comms","Just this once, we'll take your advice"))
@@ -8878,6 +8939,481 @@ function enemyComms(comms_data)
 		return false
 	end
 end
+function getEnemyHealth(enemy)
+	local enemy_health = 0
+	local enemy_shield = 0
+	local enemy_shield_count = enemy:getShieldCount()
+	local faction = enemy:getFaction()
+	if enemy_shield_count > 0 then
+		local total_shield_level = 0
+		local max_shield_level = 0
+		for i=1,enemy_shield_count do
+			total_shield_level = total_shield_level + enemy:getShieldLevel(i-1)
+			max_shield_level = max_shield_level + enemy:getShieldMax(i-1)
+		end
+		enemy_shield = total_shield_level/max_shield_level
+	else
+		enemy_shield = 1
+	end
+	local enemy_hull = enemy:getHull()/enemy:getHullMax()
+	local enemy_reactor = enemy:getSystemHealth("reactor")
+	local enemy_maneuver = enemy:getSystemHealth("maneuver")
+	local enemy_impulse = enemy:getSystemHealth("impulse")
+	local enemy_beam = 0
+	if enemy:getBeamWeaponRange(0) > 0 then
+		enemy_beam = enemy:getSystemHealth("beamweapons")
+	else
+		enemy_beam = 1
+	end
+	local enemy_missile = 0
+	if enemy:getWeaponTubeCount() > 0 then
+		enemy_missile = enemy:getSystemHealth("missilesystem")
+	else
+		enemy_missile = 1
+	end
+	local enemy_warp = 0
+	if enemy:hasWarpDrive() then
+		enemy_warp = enemy:getSystemHealth("warp")
+	else
+		enemy_warp = 1
+	end
+	local enemy_jump = 0
+	if enemy:hasJumpDrive() then
+		enemy_jump = enemy:getSystemHealth("jumpdrive")
+	else
+		enemy_jump = 1
+	end
+	if faction == "Kraylor" then
+		enemy_health = 
+			enemy_shield 	* .3	+
+			enemy_hull		* .4	+
+			enemy_reactor	* .1 	+
+			enemy_maneuver	* .03	+
+			enemy_impulse	* .03	+
+			enemy_beam		* .04	+
+			enemy_missile	* .04	+
+			enemy_warp		* .03	+
+			enemy_jump		* .03
+	elseif faction == "Arlenians" then
+		enemy_health = 
+			enemy_shield 	* .35	+
+			enemy_hull		* .45	+
+			enemy_reactor	* .05 	+
+			enemy_maneuver	* .03	+
+			enemy_impulse	* .04	+
+			enemy_beam		* .02	+
+			enemy_missile	* .02	+
+			enemy_warp		* .02	+
+			enemy_jump		* .02	
+	elseif faction == "Exuari" then
+		enemy_health = 
+			enemy_shield 	* .2	+
+			enemy_hull		* .3	+
+			enemy_reactor	* .2 	+
+			enemy_maneuver	* .05	+
+			enemy_impulse	* .05	+
+			enemy_beam		* .05	+
+			enemy_missile	* .05	+
+			enemy_warp		* .05	+
+			enemy_jump		* .05	
+	elseif faction == "Ghosts" then
+		enemy_health = 
+			enemy_shield 	* .25	+
+			enemy_hull		* .25	+
+			enemy_reactor	* .25 	+
+			enemy_maneuver	* .04	+
+			enemy_impulse	* .05	+
+			enemy_beam		* .04	+
+			enemy_missile	* .04	+
+			enemy_warp		* .04	+
+			enemy_jump		* .04	
+	elseif faction == "Ktlitans" then
+		enemy_health = 
+			enemy_shield 	* .2	+
+			enemy_hull		* .3	+
+			enemy_reactor	* .1 	+
+			enemy_maneuver	* .05	+
+			enemy_impulse	* .05	+
+			enemy_beam		* .05	+
+			enemy_missile	* .05	+
+			enemy_warp		* .1	+
+			enemy_jump		* .1	
+	elseif faction == "TSN" then
+		enemy_health = 
+			enemy_shield 	* .35	+
+			enemy_hull		* .35	+
+			enemy_reactor	* .08 	+
+			enemy_maneuver	* .01	+
+			enemy_impulse	* .02	+
+			enemy_beam		* .02	+
+			enemy_missile	* .01	+
+			enemy_warp		* .08	+
+			enemy_jump		* .08	
+	elseif faction == "USN" then
+		enemy_health = 
+			enemy_shield 	* .38	+
+			enemy_hull		* .38	+
+			enemy_reactor	* .05 	+
+			enemy_maneuver	* .02	+
+			enemy_impulse	* .03	+
+			enemy_beam		* .02	+
+			enemy_missile	* .02	+
+			enemy_warp		* .05	+
+			enemy_jump		* .05	
+	elseif faction == "CUF" then
+		enemy_health = 
+			enemy_shield 	* .35	+
+			enemy_hull		* .38	+
+			enemy_reactor	* .05 	+
+			enemy_maneuver	* .03	+
+			enemy_impulse	* .03	+
+			enemy_beam		* .03	+
+			enemy_missile	* .03	+
+			enemy_warp		* .06	+
+			enemy_jump		* .04	
+	else
+		enemy_health = 
+			enemy_shield 	* .3	+
+			enemy_hull		* .4	+
+			enemy_reactor	* .06 	+
+			enemy_maneuver	* .03	+
+			enemy_impulse	* .05	+
+			enemy_beam		* .03	+
+			enemy_missile	* .03	+
+			enemy_warp		* .05	+
+			enemy_jump		* .05	
+	end
+	return enemy_health
+end
+function neutralComms(comms_data)
+	if scenarioShipMissions ~= nil then
+		scenarioShipMissions()
+	end
+	local ship_type = comms_target:getTypeName()
+	if ship_type:find("Freighter") ~= nil then
+		local neutral_freighter_greetings = {
+			_("trade-comms","Yes?"),
+			_("trade-comms","What?"),
+			_("trade-comms","Hmm?"),
+			_("trade-comms","State your business."),
+		}
+		setCommsMessage(tableSelectRandom(neutral_freighter_greetings))
+		local cargo_to_sell_prompts = {
+			_("trade-comms","Do you have cargo you might sell?"),
+			_("trade-comms","What cargo do you have for sale?"),
+			_("trade-comms","Are you selling cargo?"),
+			_("trade-comms","Do you have cargo for sale?"),
+		}
+		addCommsReply(tableSelectRandom(cargo_to_sell_prompts), function()
+			local goodCount = 0
+			local cargoMsg = _("trade-comms","We've got ")
+			for good, goodData in pairs(comms_data.goods) do
+				if goodData.quantity > 0 then
+					if goodCount > 0 then
+						cargoMsg = cargoMsg .. ", " .. good
+					else
+						cargoMsg = cargoMsg .. good
+					end
+				end
+				goodCount = goodCount + goodData.quantity
+			end
+			if goodCount == 0 then
+				cargoMsg = cargoMsg .. _("trade-comms","nothing")
+			end
+			setCommsMessage(cargoMsg)
+		end)
+		if distance(comms_source,comms_target) < 5000 then
+			local goodCount = 0
+			if comms_source.goods ~= nil then
+				for good, goodQuantity in pairs(comms_source.goods) do
+					goodCount = goodCount + 1
+				end
+			end
+			if goodCount > 0 then
+				local jettison_goods_prompts = {
+					_("trade-comms","Jettison cargo"),
+					_("trade-comms","Throw goods out the airlock"),
+					_("trade-comms","Dispose of goods"),
+					_("trade-comms","Destroy goods"),
+				}
+				addCommsReply(tableSelectRandom(jettison_goods_prompts),function()
+					local jettison_prompt = {
+						string.format(_("trade-comms","Available space: %i\nWhat should be jettisoned?"),comms_source.cargo),
+						string.format(_("trade-comms","Available space: %i\nYou pick it and out the airlock it will go."),comms_source.cargo),
+						string.format(_("trade-comms","Available space: %i\nWhat do you want to chunk out the airlock?"),comms_source.cargo),
+						string.format(_("trade-comms","Available space: %i\nWhat shall we toss out the airlock?"),comms_source.cargo),
+					}
+					setCommsMessage(tableSelectRandom(jettison_prompt))
+					for good, good_quantity in pairs(comms_source.goods) do
+						if good_quantity > 0 then
+							addCommsReply(good_desc[good], function()
+								comms_source.goods[good] = comms_source.goods[good] - 1
+								comms_source.cargo = comms_source.cargo + 1
+								local jettisoned_confirmed = {
+									string.format(_("trade-comms","One %s jettisoned"),good_desc[good]),
+									string.format(_("trade-comms","One %s has been destroyed"),good_desc[good]),
+									string.format(_("trade-comms","One %s has been tossed out of the airlock"),good_desc[good]),
+									string.format(_("trade-comms","One %s has been placed in the arms of the vacuum of space"),good_desc[good]),
+								}
+								setCommsMessage(tableSelectRandom(jettisoned_confirmed))
+								addCommsReply(_("Back"), commsShip)
+							end)
+						end
+					end
+					addCommsReply(_("Back"), commsShip)
+				end)
+			end
+			if comms_source.cargo > 0 then
+				if comms_data.friendlyness > 66 then
+					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
+						if comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_data.goods) do
+								if goodData.quantity > 0 then
+									local buy_goods_at_price_prompts = {
+										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost)),
+										string.format(_("trade-comms","Buy a %s for %i reputation"),good_desc[good],math.floor(goodData.cost)),
+										string.format(_("trade-comms","Buy %s from %s for %i rep"),good_desc[good],comms_target:getCallSign(),math.floor(goodData.cost)),
+										string.format(_("trade-comms","Purchase %s for %i reputation"),good_desc[good],math.floor(goodData.cost)),
+									}
+									addCommsReply(tableSelectRandom(buy_goods_at_price_prompts), function()
+										if comms_source:takeReputationPoints(goodData.cost) then
+											goodData.quantity = goodData.quantity - 1
+											if comms_source.goods == nil then
+												comms_source.goods = {}
+											end
+											if comms_source.goods[good] == nil then
+												comms_source.goods[good] = 0
+											end
+											comms_source.goods[good] = comms_source.goods[good] + 1
+											comms_source.cargo = comms_source.cargo - 1
+											local purchase_results = {
+												string.format(_("trade-comms","One %s bought"),good_desc[good]),
+												string.format(_("trade-comms","You bought one %s"),good_desc[good]),
+												string.format(_("trade-comms","You purchased one %s from %s"),good_desc[good],comms_target:getCallSign()),
+												string.format(_("trade-comms","%s sold one %s to you"),comms_target:getCallSign(),good_desc[good]),
+											}
+											setCommsMessage(tableSelectRandom(purchase_results))
+										else
+											local insufficient_rep_responses = {
+												_("needRep-comms","Insufficient reputation"),
+												_("needRep-comms","Not enough reputation"),
+												_("needRep-comms","You need more reputation"),
+												string.format(_("needRep-comms","You need more than %i reputation"),math.floor(comms_source:getReputationPoints())),
+												_("needRep-comms","You don't have enough reputation"),
+												string.format(_("needRep-comms","%i reputation is insufficient"),math.floor(comms_source:getReputationPoints())),
+											}
+											setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+										end
+										addCommsReply(_("Back"), commsShip)
+									end)
+								end
+							end	--freighter goods loop
+						end
+					else
+						if comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_data.goods) do
+								if goodData.quantity > 0 then
+									local buy_goods_at_price_prompts = {
+										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
+										string.format(_("trade-comms","Buy a %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
+										string.format(_("trade-comms","Buy %s from %s for %i rep"),good_desc[good],comms_target:getCallSign(),math.floor(goodData.cost*2)),
+										string.format(_("trade-comms","Purchase %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
+									}
+									addCommsReply(tableSelectRandom(buy_goods_at_price_prompts), function()
+										if comms_source:takeReputationPoints(goodData.cost*2) then
+											goodData.quantity = goodData.quantity - 1
+											if comms_source.goods == nil then
+												comms_source.goods = {}
+											end
+											if comms_source.goods[good] == nil then
+												comms_source.goods[good] = 0
+											end
+											comms_source.goods[good] = comms_source.goods[good] + 1
+											comms_source.cargo = comms_source.cargo - 1
+											local purchase_results = {
+												string.format(_("trade-comms","One %s bought"),good_desc[good]),
+												string.format(_("trade-comms","You bought one %s"),good_desc[good]),
+												string.format(_("trade-comms","You purchased one %s from %s"),good_desc[good],comms_target:getCallSign()),
+												string.format(_("trade-comms","%s sold one %s to you"),comms_target:getCallSign(),good_desc[good]),
+											}
+											setCommsMessage(tableSelectRandom(purchase_results))
+										else
+											local insufficient_rep_responses = {
+												_("needRep-comms","Insufficient reputation"),
+												_("needRep-comms","Not enough reputation"),
+												_("needRep-comms","You need more reputation"),
+												string.format(_("needRep-comms","You need more than %i reputation"),math.floor(comms_source:getReputationPoints())),
+												_("needRep-comms","You don't have enough reputation"),
+												string.format(_("needRep-comms","%i reputation is insufficient"),math.floor(comms_source:getReputationPoints())),
+											}
+											setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+										end
+										addCommsReply(_("Back"), commsShip)
+									end)
+								end
+							end	--freighter goods loop
+						end
+					end
+				elseif comms_data.friendlyness > 33 then
+					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
+						if comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_data.goods) do
+								if goodData.quantity > 0 then
+									local buy_goods_at_price_prompts = {
+										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
+										string.format(_("trade-comms","Buy a %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
+										string.format(_("trade-comms","Buy %s from %s for %i rep"),good_desc[good],comms_target:getCallSign(),math.floor(goodData.cost*2)),
+										string.format(_("trade-comms","Purchase %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
+									}
+									addCommsReply(tableSelectRandom(buy_goods_at_price_prompts), function()
+										if comms_source:takeReputationPoints(goodData.cost*2) then
+											goodData.quantity = goodData.quantity - 1
+											if comms_source.goods == nil then
+												comms_source.goods = {}
+											end
+											if comms_source.goods[good] == nil then
+												comms_source.goods[good] = 0
+											end
+											comms_source.goods[good] = comms_source.goods[good] + 1
+											comms_source.cargo = comms_source.cargo - 1
+											local purchase_results = {
+												string.format(_("trade-comms","One %s bought"),good_desc[good]),
+												string.format(_("trade-comms","You bought one %s"),good_desc[good]),
+												string.format(_("trade-comms","You purchased one %s from %s"),good_desc[good],comms_target:getCallSign()),
+												string.format(_("trade-comms","%s sold one %s to you"),comms_target:getCallSign(),good_desc[good]),
+											}
+											setCommsMessage(tableSelectRandom(purchase_results))
+										else
+											local insufficient_rep_responses = {
+												_("needRep-comms","Insufficient reputation"),
+												_("needRep-comms","Not enough reputation"),
+												_("needRep-comms","You need more reputation"),
+												string.format(_("needRep-comms","You need more than %i reputation"),math.floor(comms_source:getReputationPoints())),
+												_("needRep-comms","You don't have enough reputation"),
+												string.format(_("needRep-comms","%i reputation is insufficient"),math.floor(comms_source:getReputationPoints())),
+											}
+											setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+										end
+										addCommsReply(_("Back"), commsShip)
+									end)
+								end
+							end	--freighter goods loop
+						end
+					else
+						if comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_data.goods) do
+								if goodData.quantity > 0 then
+									local buy_goods_at_price_prompts = {
+										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
+										string.format(_("trade-comms","Buy a %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
+										string.format(_("trade-comms","Buy %s from %s for %i rep"),good_desc[good],comms_target:getCallSign(),math.floor(goodData.cost*3)),
+										string.format(_("trade-comms","Purchase %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
+									}
+									addCommsReply(tableSelectRandom(buy_goods_at_price_prompts), function()
+										if comms_source:takeReputationPoints(goodData.cost*3) then
+											goodData.quantity = goodData.quantity - 1
+											if comms_source.goods == nil then
+												comms_source.goods = {}
+											end
+											if comms_source.goods[good] == nil then
+												comms_source.goods[good] = 0
+											end
+											comms_source.goods[good] = comms_source.goods[good] + 1
+											comms_source.cargo = comms_source.cargo - 1
+											local purchase_results = {
+												string.format(_("trade-comms","One %s bought"),good_desc[good]),
+												string.format(_("trade-comms","You bought one %s"),good_desc[good]),
+												string.format(_("trade-comms","You purchased one %s from %s"),good_desc[good],comms_target:getCallSign()),
+												string.format(_("trade-comms","%s sold one %s to you"),comms_target:getCallSign(),good_desc[good]),
+											}
+											setCommsMessage(tableSelectRandom(purchase_results))
+										else
+											local insufficient_rep_responses = {
+												_("needRep-comms","Insufficient reputation"),
+												_("needRep-comms","Not enough reputation"),
+												_("needRep-comms","You need more reputation"),
+												string.format(_("needRep-comms","You need more than %i reputation"),math.floor(comms_source:getReputationPoints())),
+												_("needRep-comms","You don't have enough reputation"),
+												string.format(_("needRep-comms","%i reputation is insufficient"),math.floor(comms_source:getReputationPoints())),
+											}
+											setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+										end
+										addCommsReply(_("Back"), commsShip)
+									end)
+								end
+							end	--freighter goods loop
+						end
+					end
+				else	--least friendly
+					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
+						if comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_data.goods) do
+								if goodData.quantity > 0 then
+									local buy_goods_at_price_prompts = {
+										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
+										string.format(_("trade-comms","Buy a %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
+										string.format(_("trade-comms","Buy %s from %s for %i rep"),good_desc[good],comms_target:getCallSign(),math.floor(goodData.cost*3)),
+										string.format(_("trade-comms","Purchase %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
+									}
+									addCommsReply(tableSelectRandom(buy_goods_at_price_prompts), function()
+										if comms_source:takeReputationPoints(goodData.cost*3) then
+											goodData.quantity = goodData.quantity - 1
+											if comms_source.goods == nil then
+												comms_source.goods = {}
+											end
+											if comms_source.goods[good] == nil then
+												comms_source.goods[good] = 0
+											end
+											comms_source.goods[good] = comms_source.goods[good] + 1
+											comms_source.cargo = comms_source.cargo - 1
+											local purchase_results = {
+												string.format(_("trade-comms","One %s bought"),good_desc[good]),
+												string.format(_("trade-comms","You bought one %s"),good_desc[good]),
+												string.format(_("trade-comms","You purchased one %s from %s"),good_desc[good],comms_target:getCallSign()),
+												string.format(_("trade-comms","%s sold one %s to you"),comms_target:getCallSign(),good_desc[good]),
+											}
+											setCommsMessage(tableSelectRandom(purchase_results))
+										else
+											local insufficient_rep_responses = {
+												_("needRep-comms","Insufficient reputation"),
+												_("needRep-comms","Not enough reputation"),
+												_("needRep-comms","You need more reputation"),
+												string.format(_("needRep-comms","You need more than %i reputation"),math.floor(comms_source:getReputationPoints())),
+												_("needRep-comms","You don't have enough reputation"),
+												string.format(_("needRep-comms","%i reputation is insufficient"),math.floor(comms_source:getReputationPoints())),
+											}
+											setCommsMessage(tableSelectRandom(insufficient_rep_responses))
+										end
+										addCommsReply(_("Back"), commsShip)
+									end)
+								end
+							end	--freighter goods loop
+						end
+					end
+				end	--end friendly branches
+			end	--player has room for cargo
+		end	--close enough to sell
+	else	--not a freighter
+		if comms_data.friendlyness > 50 then
+			local friendly_brush_off = {
+				_("ship-comms", "Sorry, we have no time to chat with you.\nWe are on an important mission."),
+				_("ship-comms", "Sorry, we are too busy to chat.\nWe have important business to attend to."),
+				_("ship-comms", "We'd love to chat, but we're in too much of a hurry right now.\nWe are on an important mission."),
+				_("ship-comms", "No time to chat right now.\nOur mission takes priority."),
+			}
+			setCommsMessage(tableSelectRandom(friendly_brush_off))
+		else
+			local unfriendly_brush_off = {
+				_("ship-comms", "We have nothing for you.\nGood day."),
+				_("ship-comms", "We have nothing to say to you.\nGood bye."),
+				_("ship-comms", "No communication for you.\nGood day."),
+				_("ship-comms", "We have nothing for you.\nFare well."),
+			}
+			setCommsMessage(tableSelectRandom(unfriendly_brush_off))
+		end
+	end	--end non-freighter communications else branch
+	return true
+end	--end neutral communications function
 --	In your update function, you'll need a line for each possible minor upgrade. You
 --	will also need to add a line for other features such as expedited docking.
 --	For example:
