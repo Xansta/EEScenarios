@@ -158,7 +158,7 @@ function commsStation()
             neutral = 0.5
         }
     })
-    comms_data = comms_target.comms_data
+--	comms_data = comms_target.comms_data
     if add_station_to_database then
 		if not comms_source:isEnemy(comms_target) then
 			if player_faction == nil then
@@ -1236,7 +1236,7 @@ end
 function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
 -- the current player.
-    return math.ceil(comms_data.service_cost[service])
+    return math.ceil(comms_target.comms_data.service_cost[service])
 end
 --	Booleans to set outside of this utility to control this utility. Default is false
 --		stations_sell_goods - set true if stations sell goods to players for reputation
@@ -5475,7 +5475,7 @@ function handleWeaponRestock(weapon)
 		setCommsMessage(tableSelectRandom(stay_docked_for_weapons_restock))
 		return
 	end
-    if not isAllowedTo(comms_data.weapons[weapon]) then
+    if not isAllowedTo(comms_target.comms_data.weapons[weapon]) then
     	local no_nukes_on_principle = {
     		_("ammo-comms","We do not deal in weapons of mass destruction."),
     		_("ammo-comms","We don't deal in nukes on principle."),
@@ -5500,7 +5500,7 @@ function handleWeaponRestock(weapon)
         return
     end
     local points_per_item = getWeaponCost(weapon)
-    local item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
+    local item_amount = math.floor(comms_source:getWeaponStorageMax(weapon) * comms_target.comms_data.max_weapon_refill_amount[getFriendStatus()]) - comms_source:getWeaponStorage(weapon)
     if item_amount <= 0 then
         if weapon == "Nuke" then
 			local full_on_nukes = {
@@ -8233,32 +8233,32 @@ function commsShip()
 	if comms_target.comms_data == nil then
 		comms_target.comms_data = {friendlyness = random(0.0, 100.0)}
 	end
-	comms_data = comms_target.comms_data
-	if comms_data.goods == nil then
+--	comms_data = comms_target.comms_data
+	if comms_target.comms_data.goods == nil then
 		if stations_sell_goods then
-			goodsOnShip(comms_target,comms_data)
+			goodsOnShip(comms_target)
 		end
 	end
 	if comms_source:isFriendly(comms_target) then
-		return friendlyShipComms(comms_data)
+		return friendlyShipComms()
 	end
 	if comms_source:isEnemy(comms_target) and comms_target:isFriendOrFoeIdentifiedBy(comms_source) then
-		return enemyComms(comms_data)
+		return enemyComms()
 	end
-	return neutralComms(comms_data)
+	return neutralComms()
 end
-function goodsOnShip(comms_target,comms_data)
-	comms_data.goods = {}
+function goodsOnShip(comms_target)
+	comms_target.comms_data.goods = {}
 	initializeCommonGoods()
-	comms_data.goods[tableSelectRandom(commonGoods)] = {quantity = 1, cost = math.random(20,80)}
+	comms_target.comms_data.goods[tableSelectRandom(commonGoods)] = {quantity = 1, cost = math.random(20,80)}
 	local ship_type = comms_target:getTypeName()
 	if ship_type:find("Freighter") ~= nil then
 		if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
 			local count_repeat_loop = 0
 			repeat
-				comms_data.goods[tableSelectRandom(commonGoods)] = {quantity = 1, cost = math.random(20,80)}
+				comms_target.comms_data.goods[tableSelectRandom(commonGoods)] = {quantity = 1, cost = math.random(20,80)}
 				local goodCount = 0
-				for good, goodData in pairs(comms_data.goods) do
+				for good, goodData in pairs(comms_target.comms_data.goods) do
 					goodCount = goodCount + 1
 				end
 				count_repeat_loop = count_repeat_loop + 1
@@ -8271,8 +8271,8 @@ function goodsOnShip(comms_target,comms_data)
 end
 --	Functions you may want to set up outside of this utility
 --		scenarioShipMissions - Allows the scenario writer to add situational ship comms
-function friendlyShipComms(comms_data)
-	if comms_data.friendlyness < 20 then
+function friendlyShipComms()
+	if comms_target.comms_data.friendlyness < 20 then
 		local bad_mood_greeting = {
 			_("shipAssist-comms", "What do you want?"),
 			_("shipAssist-comms", "Why did you contact us?"),
@@ -8280,7 +8280,7 @@ function friendlyShipComms(comms_data)
 			_("shipAssist-comms", "Yeah?"),
 		}
 		setCommsMessage(tableSelectRandom(bad_mood_greeting))
-	elseif comms_data.friendlyness < 70 then
+	elseif comms_target.comms_data.friendlyness < 70 then
 		local average_mood_greeting = {
 			_("shipAssist-comms", "What can I do for you?"),
 			_("shipAssist-comms", "What's on your mind?"),
@@ -8339,7 +8339,7 @@ function friendlyShipComms(comms_data)
 		end
 		addCommsReply(_("Back"), commsShip)
 	end)
-	if comms_data.friendlyness > 0.2 then
+	if comms_target.comms_data.friendlyness > 0.2 then
 		local assist_me_prompts = {
 			_("shipAssist-comms", "Assist me"),
 			_("shipAssist-comms", "Help me"),
@@ -8451,10 +8451,10 @@ function friendlyShipComms(comms_data)
 						addCommsReply(_("Back"), commsShip)
 					end)
 				end
-				if comms_data.friendlyness > 66 then
+				if comms_target.comms_data.friendlyness > 66 then
 					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
 						if comms_source.goods ~= nil and comms_source.goods.luxury ~= nil and comms_source.goods.luxury > 0 then
-							for good, goodData in pairs(comms_data.goods) do
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 and good ~= "luxury" then
 									addCommsReply(string.format(_("trade-comms", "Trade luxury for %s"),good_desc[good]), function()
 										goodData.quantity = goodData.quantity - 1
@@ -8481,7 +8481,7 @@ function friendlyShipComms(comms_data)
 						end	--player has luxury branch
 					end	--goods or equipment freighter
 					if comms_source.cargo > 0 then
-						for good, goodData in pairs(comms_data.goods) do
+						for good, goodData in pairs(comms_target.comms_data.goods) do
 							if goodData.quantity > 0 then
 								local buy_goods_at_price_prompts = {
 									string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost)),
@@ -8523,10 +8523,10 @@ function friendlyShipComms(comms_data)
 							end
 						end	--freighter goods loop
 					end	--player has cargo space branch
-				elseif comms_data.friendlyness > 33 then
+				elseif comms_target.comms_data.friendlyness > 33 then
 					if comms_source.cargo > 0 then
 						if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost)),
@@ -8568,7 +8568,7 @@ function friendlyShipComms(comms_data)
 								end	--freighter has something to sell branch
 							end	--freighter goods loop
 						else	--not goods or equipment freighter
-							for good, goodData in pairs(comms_data.goods) do
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
@@ -8614,7 +8614,7 @@ function friendlyShipComms(comms_data)
 				else	--least friendly
 					if comms_source.cargo > 0 then
 						if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
@@ -8668,7 +8668,7 @@ function friendlyShipComms(comms_data)
 				addCommsReply(tableSelectRandom(cargo_to_sell_prompts), function()
 					local goodCount = 0
 					local cargoMsg = _("trade-comms","We've got ")
-					for good, goodData in pairs(comms_data.goods) do
+					for good, goodData in pairs(comms_target.comms_data.goods) do
 						if goodData.quantity > 0 then
 							if goodCount > 0 then
 								cargoMsg = cargoMsg .. ", " .. good
@@ -8694,11 +8694,11 @@ end
 --		ship_immolation - set true if enemy might self destruct in rage to damage player
 --	Functions you may want to set up outside of this utility
 --		plotContinuum, checkContinuum for ships that will self destruct in rage
-function enemyComms(comms_data)
+function enemyComms()
 	local faction = comms_target:getFaction()
 	local tauntable = false
 	local amenable = false
-	if comms_data.friendlyness >= 33 then	--final: 33
+	if comms_target.comms_data.friendlyness >= 33 then	--final: 33
 		--taunt logic
 		local taunt_option = _("shipEnemy-comms", "We will see to your destruction!")
 		local taunt_success_reply = _("shipEnemy-comms", "Your bloodline will end here!")
@@ -8842,7 +8842,7 @@ function enemyComms(comms_data)
 		else
 			setCommsMessage(_("shipEnemy-comms","Mind your own business!"))
 		end
-		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
+		comms_target.comms_data.friendlyness = comms_target.comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
 		addCommsReply(taunt_option, function()
 			if random(0, 100) <= taunt_threshold then
 				if ship_reversion then
@@ -8894,10 +8894,10 @@ function enemyComms(comms_data)
 	end
 	local enemy_health = getEnemyHealth(comms_target)
 	if change_enemy_order_diagnostic then print(string.format("   enemy health:    %.2f",enemy_health)) end
-	if change_enemy_order_diagnostic then print(string.format("   friendliness:    %.1f",comms_data.friendlyness)) end
-	if comms_data.friendlyness >= 66 or enemy_health < .5 then	--final: 66, .5
+	if change_enemy_order_diagnostic then print(string.format("   friendliness:    %.1f",comms_target.comms_data.friendlyness)) end
+	if comms_target.comms_data.friendlyness >= 66 or enemy_health < .5 then	--final: 66, .5
 		--amenable logic
-		local amenable_chance = comms_data.friendlyness/3 + (1 - enemy_health)*30
+		local amenable_chance = comms_target.comms_data.friendlyness/3 + (1 - enemy_health)*30
 		if change_enemy_order_diagnostic then print(string.format("   amenability:     %.1f",amenable_chance)) end
 		addCommsReply(_("shipEnemy-comms","Stop your actions"),function()
 			local amenable_roll = random(1,100)
@@ -8930,7 +8930,7 @@ function enemyComms(comms_data)
 				setCommsMessage(_("shipEnemy-comms","No"))
 			end
 		end)
-		comms_data.friendlyness = comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
+		comms_target.comms_data.friendlyness = comms_target.comms_data.friendlyness - random(0, 10)	--reduce friendlyness after each interaction
 		amenable = true
 	end
 	if tauntable or amenable then
@@ -9085,7 +9085,7 @@ function getEnemyHealth(enemy)
 	end
 	return enemy_health
 end
-function neutralComms(comms_data)
+function neutralComms()
 	if scenarioShipMissions ~= nil then
 		scenarioShipMissions()
 	end
@@ -9107,7 +9107,7 @@ function neutralComms(comms_data)
 		addCommsReply(tableSelectRandom(cargo_to_sell_prompts), function()
 			local goodCount = 0
 			local cargoMsg = _("trade-comms","We've got ")
-			for good, goodData in pairs(comms_data.goods) do
+			for good, goodData in pairs(comms_target.comms_data.goods) do
 				if goodData.quantity > 0 then
 					if goodCount > 0 then
 						cargoMsg = cargoMsg .. ", " .. good
@@ -9164,10 +9164,10 @@ function neutralComms(comms_data)
 				end)
 			end
 			if comms_source.cargo > 0 then
-				if comms_data.friendlyness > 66 then
+				if comms_target.comms_data.friendlyness > 66 then
 					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
-						if comms_data.goods ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+						if comms_target.comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost)),
@@ -9210,8 +9210,8 @@ function neutralComms(comms_data)
 							end	--freighter goods loop
 						end
 					else
-						if comms_data.goods ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+						if comms_target.comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
@@ -9254,10 +9254,10 @@ function neutralComms(comms_data)
 							end	--freighter goods loop
 						end
 					end
-				elseif comms_data.friendlyness > 33 then
+				elseif comms_target.comms_data.friendlyness > 33 then
 					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
-						if comms_data.goods ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+						if comms_target.comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*2)),
@@ -9300,8 +9300,8 @@ function neutralComms(comms_data)
 							end	--freighter goods loop
 						end
 					else
-						if comms_data.goods ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+						if comms_target.comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
@@ -9346,8 +9346,8 @@ function neutralComms(comms_data)
 					end
 				else	--least friendly
 					if ship_type:find("Goods") ~= nil or ship_type:find("Equipment") ~= nil then
-						if comms_data.goods ~= nil then
-							for good, goodData in pairs(comms_data.goods) do
+						if comms_target.comms_data.goods ~= nil then
+							for good, goodData in pairs(comms_target.comms_data.goods) do
 								if goodData.quantity > 0 then
 									local buy_goods_at_price_prompts = {
 										string.format(_("trade-comms","Buy one %s for %i reputation"),good_desc[good],math.floor(goodData.cost*3)),
@@ -9394,7 +9394,7 @@ function neutralComms(comms_data)
 			end	--player has room for cargo
 		end	--close enough to sell
 	else	--not a freighter or goods not for sale
-		if comms_data.friendlyness > 50 then
+		if comms_target.comms_data.friendlyness > 50 then
 			local friendly_brush_off = {
 				_("ship-comms", "Sorry, we have no time to chat with you.\nWe are on an important mission."),
 				_("ship-comms", "Sorry, we are too busy to chat.\nWe have important business to attend to."),
