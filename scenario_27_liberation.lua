@@ -3752,7 +3752,7 @@ function scenarioShipMissions()
 					comms_source:addToShipLog(_("shipLog","Freighter where Jasmine Purdue was working was destroyed. She and the crew moved to another freighter."),"Yellow")
 					pickJasmineFreighter()
 					jasmine_freighter_responses = nil
-					setCommsMessage(_("ship-comms","Try someone else")
+					setCommsMessage(_("ship-comms","Try someone else"))
 				end
 				--	Do not go back. Make player establish communication again
 			end)
