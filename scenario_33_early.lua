@@ -35,30 +35,40 @@
 -- Insight[No|Default]: Players see the number portion of their task evaluation, but not the evaluation portion
 -- Insight[Yes]: Players see both the numbers and their evaluation for each task
 
+---------- Tasks given to players ----------
 --	First Task: Dock
---	Hurdles: request permission to dock, calibrate shields and beams, power down missiles
---	Participants: Helm, weapons, relay, engineering
+--		Hurdles: request permission to dock, calibrate shields and beams, power down missiles
+--		Participants: Helm, weapons, relay, engineering
 
 --	Second Task: Scan to discriminate targets
---	Hurdles: nebula obscures some targets
---	Participants: Science, relay
+--		Hurdles: nebula obscures some targets
+--		Participants: Science, relay
 
 --	Third Task: Destroy enemy freighter
---	Hurdles: Limited beam function, only HVLI type missiles
---	Participants: Helm, Weapons, engineering, science, relay
+--		Hurdles: Limited beam function, only HVLI type missiles
+--		Participants: Helm, Weapons, engineering, science, relay
 
 --	Fourth Task: Assist freighter
---	Hurdles: Get parts from station, find freighter, fend off attackers
---	Participants: Helm, science, relay, engineering, weapons
+--		Hurdles: Get parts from station, find freighter, fend off attackers
+--		Participants: Helm, science, relay, engineering, weapons
 
---	Fifth task: Research anomaly
+--	Fifth task: Research anomalous planetary orbital behavior
+--		Hurdles: Bumping into planets causes severe damage to ship, navigate carefully
+--		Participants: Helm, Science, Relay, Engineering
+
+--	Bonus task: Destroy enemy base
+--		Hurdles: Enemy space ships, enemy base is far from primary base
+--		Participants: Helm, Weapons, Engineering, Science, Relay
+
 require("utils.lua")  -- common math/geometry utility library
 require("place_station_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 function init()
 	scenario_version = "1.0.0"
 	print(string.format("     -----     Scenario: Early Evaluation Exercise     -----     Version %s     -----",scenario_version))
-	print(_VERSION)
+	if _VERSION ~= nil then
+		print(_VERSION)
+	end
 	spawn_enemy_diagnostic = true
 	func_diagnostic = false
 	planet_collision_diagnostic = false
@@ -1434,7 +1444,7 @@ function assistFreighterEvaluations()
 				out = assistFreighterTaskEvaluationOutput(p,"gm")
 				out = string.format(_("evaluation-comms","%s Assist Freighter Evaluation:\n%s"),p:getCallSign(),out)
 			end
-			out = string.format(_("evaluation-comms","$s\n\nSuggested subjective evaluation criteria:\nDid anyone suggest using probes to find the freighter?\nDid Relay put out waypoints for the freighter and the home station?\nHow did the captain and crew handle the balancing of getting the parts and protecting the freighter?\nHow well did the crew coordinate during combat?\nWere targets prioritized/identified?\nDid Engineering boost systems based on weapon use?\nWas the type of combat identified (beam/missile)?\nDid Science provide beam frequencies for Weapons? Did Science keep the crew informed on the shield/hull status of enemies?\nDid Relay hack any enemy systems?"),out)
+			out = string.format(_("evaluation-comms","%s\n\nSuggested subjective evaluation criteria:\nDid anyone suggest using probes to find the freighter?\nDid Relay put out waypoints for the freighter and the home station?\nHow did the captain and crew handle the balancing of getting the parts and protecting the freighter?\nHow well did the crew coordinate during combat?\nWere targets prioritized/identified?\nDid Engineering boost systems based on weapon use?\nWas the type of combat identified (beam/missile)?\nDid Science provide beam frequencies for Weapons? Did Science keep the crew informed on the shield/hull status of enemies?\nDid Relay hack any enemy systems?"),out)
 			addGMMessage(out)
 		end)
 	end
@@ -1451,7 +1461,7 @@ function destroyFreighterEvaluations()
 				out = destroyFreighterTaskEvaluationOutput(p,"gm")
 				out = string.format(_("evaluation-comms","%s Destroy Freighter Evaluation:\n%s"),p:getCallSign(),out)
 			end
-			out = string.format(_("evaluation-comms","$s\n\nSuggested subjective evaluation criteria:\nDid Helm and Science coordinate verbally to determine where to go to destroy the freighter?\nDid Weapons and Engineering collaborate on boosting applicable combat systems like missiles?\nDid Helm indicate the method of approaching the enemy freighter (impulse/jump)?\nDid Relay hack the enemy ship? If so, what systems and were those communicated?\nDid Science provide details on enemy shield and hull strengths?\nHow well did Helm and Weapons coordinate the firing of HVLIs?"),out)
+			out = string.format(_("evaluation-comms","%s\n\nSuggested subjective evaluation criteria:\nDid Helm and Science coordinate verbally to determine where to go to destroy the freighter?\nDid Weapons and Engineering collaborate on boosting applicable combat systems like missiles?\nDid Helm indicate the method of approaching the enemy freighter (impulse/jump)?\nDid Relay hack the enemy ship? If so, what systems and were those communicated?\nDid Science provide details on enemy shield and hull strengths?\nHow well did Helm and Weapons coordinate the firing of HVLIs?"),out)
 			addGMMessage(out)
 		end)
 	end
@@ -2323,7 +2333,6 @@ function getTemplatePool(max_strength)
 	end
 	return template_pool
 end
-
 ------------------------------------------------
 --	Enemy (Computer controlled Exuari) Waves  --
 ------------------------------------------------
@@ -2762,7 +2771,6 @@ function playerDestroyed(self, instigator)
 		end
 	end
 end
-
 ---------------------------
 -- Station communication --
 ---------------------------
@@ -3731,235 +3739,335 @@ function colonTime(time)
 	end
 	return math.floor(time)
 end
-function playerPosthumousEvaluations()
-	if func_diagnostic then print("player posthumous evaluations") end
-	local out = _("evaluation-comms","Posthumous evaluations are intended for those times when you want the evaluation information, but the player ship has been destroyed. A copy is made in the posthumous list at the time the task is completed. So, just because they are on the posthumous list does not mean the player ship has been destroyed. Only the first instance of a task is recorded. If the player ship does a task again, the posthumous table only keeps their first attempt. If they are destroyed a second time, no new record is made of any tasks they had already completed the first time. Of course if they live, their current evaluation information is attached to their ship and thus is available.\n\nSingle letter evaluation decode:\nN = Needs improvement\nC = Competent\nE = Exceeds expectations\nS = Superior")
-	local count = 0
-	for i, eval in ipairs(posthumous) do
-		count = count + 1
-		addCommsReply(string.format("%s %s",eval.name,eval.task),function()
-			setCommsMessage(string.format(_("evaluation-comms","%s     %s     Clock: %.1f\n%s"),eval.name,eval.task,colonTime(eval.clock),eval.desc))
-			addCommsReply(_("Back"), commsStation)
-		end)
-	end
-	if count == 0 then
-		out = string.format(_("evaluation-comms","%s\n\nNo tasks completed, so no tasks recorded in the posthumous table"),out)
-	end
-	setCommsMessage(out)
-	addCommsReply(_("evaluation-comms","Current Evaluations"),function()
-		setCommsMessage(_("station-comms","Which task evaluation would you like to view?"))
-		addCommsReply(_("station-comms","View docking task evalutation"),function()
-			setCommsMessage(dockTaskEvaluationOutput(comms_source,"gm"))
-			addCommsReply(_("Back"), commsStation)
-		end)
-		addCommsReply(_("station-comms","View scanning task evalutation"),function()
-			setCommsMessage(scanTaskEvaluationOutput(comms_source,"gm"))
-			addCommsReply(_("Back"), commsStation)
-		end)
-		addCommsReply(_("station-comms","View destroy freighter task evalutation"),function()
-			setCommsMessage(destroyFreighterTaskEvaluationOutput(comms_source,"gm"))
-			addCommsReply(_("Back"), commsStation)
-		end)
-		addCommsReply(_("station-comms","View assist freighter task evalutation"),function()
-			setCommsMessage(assistFreighterTaskEvaluationOutput(comms_source,"gm"))
-			addCommsReply(_("Back"), commsStation)
-		end)
-		addCommsReply(_("station-comms","View research task evalutation"),function()
-			setCommsMessage(researchTaskEvaluationOutput(comms_source,"gm"))
-			addCommsReply(_("Back"), commsStation)
-		end)
-		addCommsReply(_("Back"), commsStation)
-	end)
-	addCommsReply(_("Back"), commsStation)
-end
-function bonusTaskEvaluation()
-	if func_diagnostic then print("bonus task evaluation") end
-	local out = bonusTaskEvaluationOutput(comms_source)
-	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Bonus Task -----\n%s"),out)
+--	First Task: Dock
+--	Hurdles: request permission to dock, calibrate shields and beams, power down missiles
+--	Participants: Helm, weapons, relay, engineering
+function dockTaskEvaluation()
+	if func_diagnostic then print("dock task evaluation") end
+	local out = dockTaskEvaluationOutput(comms_source)
+	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- First Task: Dock -----\n%s"),out)
 	setCommsMessage(out)
 	addCommsReply(_("Back"), commsStation)
 end
-function bonusTaskEvaluationOutput(p,gm)
-	if func_diagnostic then print("bonus task evaluation output") end
-	local bonus_task_complete = true
-	local my_nemesis_index = nil
-	for i, nemesis in ipairs(nemesis_stations) do
-		if p.nemesis_station == nemesis.station then
-			my_nemesis_index = i
-		end
-		if nemesis.station:isValid() then
-			bonus_task_complete = false
-		end
-	end
-	local nem = nemesis_stations[my_nemesis_index]
-	local bonus_task_time = getScenarioTime() - p.research_end_clock
-	local status_desc = {
-		["complete"] = _("evaluation-comms","complete"),
-		["incomplete"] = _("evaluation-comms","incomplete"),
-		["partially complete"] = _("evaluation-comms","partially complete"),
-	}
-	local bonus_task_status = "complete"
-	local my_nemesis_state = "(destroyed)"
-	if p.nemesis_station:isValid() then
-		bonus_task_status = "incomplete"
-		my_nemesis_state = ""
-	else
-		if bonus_task_complete then
-			bonus_task_time = bonus_task_end_clock - p.research_end_clock
-		else
-			my_nemesis_state = string.format(_("evaluation-comms","%s time: %s"),my_nemesis_state,colonTime(p.complete_my_nemesis_clock - p.research_end_clock))
-			bonus_task_status = "partially complete"
-		end
-	end
-	out = string.format(_("evaluation-comms","Bonus task length: %s     Status: %s"),colonTime(bonus_task_time),status_desc[bonus_task_status])
-	out = string.format(_("evaluation-comms","%s\nStation %s %s"),out,nem.name,my_nemesis_state)
-	out = string.format(_("evaluation-comms","%s\n     Ships spawned: count: %i, strength: %.1f"),out,nem.defense_ship_spawn_count,nem.defense_spawn_strength)
-	out = string.format(_("evaluation-comms","%s\n     Ships destroyed: count: %i, strength: %.1f"),out,nem.defense_ship_destroyed_count,nem.defense_ship_destroyed_strength)
-	if bonus_task_status == "complete" or bonus_task_status == "partially complete" then
-		for i, nemesis in ipairs(nemesis_stations) do
-			if i ~= my_nemesis_index then
-				local nemesis_state = _("evaluation-comms","(destroyed)")
-				if nemesis.station:isValid() then
-					nemesis_state = ""
-				end
-				out = string.format(_("evaluation-comms","%s\nStation %s %s"),out,nemesis.name,nemesis_state)
-				out = string.format(_("evaluation-comms","%s\n     Ships spawned: count: %i, strength: %.1f"),out,nemesis.defense_ship_spawn_count,nemesis.defense_spawn_strength)
-				out = string.format(_("evaluation-comms","%s\n     Ships destroyed: count: %i, strength: %.1f"),out,nemesis.defense_ship_destroyed_count,nemesis.defense_ship_destroyed_strength)
-			end
-		end
-	end
-	return out
-end
-function researchTaskEvaluation()
-	if func_diagnostic then print("research task evaluation") end
-	local out = researchTaskEvaluationOutput(comms_source)
-	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Fifth Task: Research -----\n%s"),out)
-	setCommsMessage(out)
-	addCommsReply(_("Back"), commsStation)
-end
-function researchTaskEvaluationOutput(p,gm)
-	if func_diagnostic then print("research task evaluation output") end
+function dockTaskEvaluationOutput(p,gm)
+	if func_diagnostic then print("dock task evaluation output") end
+	--	S = Superior, E = Exceeds expectations, C = Competent, N = Needs improvement
 	if player_insight then
 		gm = "gm"
 	end
 	local gm_grades = {
-		{superior = 80,		exceed = 120,	competent = 160},
-		{superior = 120,	exceed = 160,	competent = 200},
-		{superior = 150,	exceed = 190,	competent = 230},
-		{superior = 200,	exceed = 240,	competent = 280},
-		{superior = 240,	exceed = 280,	competent = 320},
-		{superior = 280,	exceed = 320,	competent = 360},
-		{superior = 320,	exceed = 360,	competent = 400},
-		{superior = 360,	exceed = 400,	competent = 440},
-		{superior = 400,	exceed = 440,	competent = 480},
-		{superior = 440,	exceed = 480,	competent = 520},
-		{superior = 480,	exceed = 520,	competent = 560},
-		{superior = 520,	exceed = 560,	competent = 600},
-		{superior = 560,	exceed = 600,	competent = 640},
-		["overall"] =	{superior = 500,	exceed = 600,	competent = 700},
-		["average"] =	{superior = 250,	exceed = 280,	competent = 350},
-		["median"] =	{superior = 250,	exceed = 280,	competent = 350},
+		["overall"] =	{superior = 40, 	exceed = 60,	competent = 120},
+		["protocol"] =	{superior = 10,		exceed = 20,	competent = 40},
+		["beam"] =		{superior = 10,		exceed = 20,	competent = 40},
+		["shield"] =	{superior = 10,		exceed = 20,	competent = 40},
+		["missile"] =	{superior = 15,		exceed = 30,	competent = 60},
+		["speed"] =		{superior = 16.199,	exceed = 10,	competent = 5.4},
 	}
-	local overall_time = p.research_end_clock - p.research_start_clock
-	local gm_grade = gm_grades["overall"]
+	local grade_total = 0
 	local overall = _("evaluation-comms","N")
-	local evaluation_score = 0
-	if overall_time < gm_grade.superior then
+	local overall_speed = p.dock_end_clock - p.dock_start_clock
+	local grade = gm_grades["overall"]
+	if overall_speed < grade.superior then
 		overall = _("evaluation-comms","S")
+		grade_total = grade_total + 3
+	elseif overall_speed < grade.exceed then
+		overall = _("evaluation-comms","E")
+		grade_total = grade_total + 2
+	elseif overall_speed < grade.competent then
+		overall = _("evaluation-comms","C")
+		grade_total = grade_total + 1
+	end
+	local out = string.format(_("evaluation-comms","Overall time to complete the task: %s"),colonTime(overall_speed))
+	if gm == "gm" then
+		out = string.format("%s %s",out,overall)
+	end
+	local relay_time = p.dock_call_port_authority_clock - p.dock_start_clock
+	local relay = _("evaluation-comms","N")
+	grade = gm_grades["protocol"]
+	if relay_time < grade.superior then
+		relay = _("evaluation-comms","S")
+		grade_total = grade_total + 3
+	elseif relay_time < grade.exceed then
+		relay = _("evaluation-comms","E")
+		grade_total = grade_total + 2
+	elseif relay_time < grade.competent then
+		relay = _("evaluation-comms","C")
+		grade_total = grade_total + 1
+	end
+	out = string.format(_("evaluation-comms","%s\nRelay time taken to request dock protocol: %s"),out,colonTime(relay_time))
+	if gm == "gm" then
+		out = string.format("%s %s",out,relay)
+	end
+	local beam = _("evaluation-comms","N")
+	local beam_speed = p.dock_set_beam_clock - p.dock_start_clock - relay_time
+	grade = gm_grades["beam"]
+	if beam_speed < grade.superior then
+		beam = _("evaluation-comms","S")
+		grade_total = grade_total + 3
+	elseif beam_speed < grade.exceed then
+		beam = _("evaluation-comms","E")
+		grade_total = grade_total + 2
+	elseif beam_speed < grade.competent then
+		beam = _("evaluation-comms","C")
+		grade_total = grade_total + 1
+	end
+	out = string.format(_("evaluation-comms","%s\nWeapons time taken to calibrate beams: %s"),out,colonTime(beam_speed))
+	if gm == "gm" then
+		out = string.format("%s %s",out,beam)
+	end
+	local shield = _("evaluation-comms","N")
+	local shield_speed = p.dock_set_shield_clock - p.dock_start_clock - relay_time
+	grade = gm_grades["shield"]
+	if shield_speed < grade.superior then
+		shield = _("evaluation-comms","S")
+		grade_total = grade_total + 3
+	elseif shield_speed < grade.exceed then
+		shield = _("evaluation-comms","E")
+		grade_total = grade_total + 2
+	elseif shield_speed < grade.competent then
+		shield = _("evaluation-comms","C")
+		grade_total = grade_total + 1
+	end
+	out = string.format(_("evaluation-comms","%s\nWeapons time taken to calibrate shields: %s"),out,colonTime(shield_speed))
+	if gm == "gm" then
+		out = string.format("%s %s",out,shield)
+	end
+	local missile = _("evaluation-comms","N")
+	local missile_time = p.dock_engineer_missile_zero_clock - p.dock_start_clock - relay_time
+	if missile_time < 0 then
+		missile_time = p.dock_engineer_missile_zero_clock - p.dock_start_clock
+	end
+	grade = gm_grades["missile"]
+	if missile_time < grade.superior then
+		missile = _("evaluation-comms","S")
+		grade_total = grade_total + 3
+	elseif missile_time < grade.exceed then
+		missile = _("evaluation-comms","E")
+		grade_total = grade_total + 2
+	elseif missile_time < grade.competent then
+		missile = _("evaluation-comms","C")
+		grade_total = grade_total + 1
+	end
+	out = string.format(_("evaluation-comms","%s\nEngineering time taken to power down missile system: %s"),out,colonTime(missile_time))
+	if gm == "gm" then
+		out = string.format("%s %s",out,missile)
+	end
+	local speed = _("evaluation-comms","N")
+	grade = gm_grades["speed"]
+	if p.dock_max_velocity >= grade.superior then
+		speed = _("evaluation-comms","S")
+		grade_total = grade_total + 3
+	elseif p.dock_max_velocity >= grade.exceed then
+		speed = _("evaluation-comms","E")
+		grade_total = grade_total + 2
+	elseif p.dock_max_velocity >= grade.competent then
+		speed = _("evaluation-comms","C")
+		grade_total = grade_total + 1
+	end
+	out = string.format(_("evaluation-comms","%s\nHelm/Engineering maximum velocity reached: %.1f units per minute"),out,p.dock_max_velocity)
+	if gm == "gm" then
+		out = string.format("%s %s",out,speed)
+	end
+	local final_grade = _("evaluation-comms","Needs improvement")
+	if grade_total >= 18 then
+		final_grade = _("evaluation-comms","Perfect")
+	elseif grade_total >= 15 then
+		final_grade = _("evaluation-comms","Superior")
+	elseif grade_total >= 11 then
+		final_grade = _("evaluation-comms","Exceeds expectations")
+	elseif grade_total >= 6 then
+		final_grade = _("evaluation-comms","Competent")
+	end
+	if gm == "gm" then
+		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 18, the system gives a rating of %s"),out,grade_total,final_grade)
+		out = string.format(_("evaluation-comms","%s\n\nFor each subtask, the single letter evaluations are:\n    N = Needs improvement\n    C = Competent\n    E = Exceeds expectations\n    S = Superior"),out)
+	end
+	return out
+end
+--	Second Task: Scan to discriminate targets
+--	Hurdles: nebula obscures some targets
+--	Participants: Science, relay
+function scanTaskEvaluation()
+	if func_diagnostic then print("scan task evaluation") end
+	local out = scanTaskEvaluationOutput(comms_source)
+	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Second Task: Scan -----\n%s"),out)
+	setCommsMessage(out)
+	addCommsReply(_("Back"), commsStation)
+end
+function scanTaskEvaluationOutput(p,gm)
+	if func_diagnostic then print("scan task evaluation output") end
+	if player_insight then
+		gm = "gm"
+	end
+	local gm_grades = {
+		["overall"] =	{superior = 200,	exceed = 300,	competent = 450},
+		["interval"] =	{superior = 15,		exceed = 20,	competent = 35},
+	}
+	local timeline = {}
+	local evaluation_score = 0
+	local overall_time = p.scan_end_clock - p.scan_start_clock
+	local gm_grade = gm_grades["overall"]
+	local overall = _("evaluation-comms","Needs improvement")
+	if overall_time < gm_grade.superior then
+		overall = _("evaluation-comms","Superior")
+		evaluation_score = evaluation_score + 6
+	elseif overall_time < gm_grade.exceed then
+		overall = _("evaluation-comms","Exceeds expectations")
+		evaluation_score = evaluation_score + 4
+	elseif overall_time < gm_grade.competent then
+		overall = _("evaluation-comms","Competent")
+		evaluation_score = evaluation_score + 2
+	end
+	local out = string.format(_("evaluation-comms","Overall time to complete the task: %s"),colonTime(overall_time))
+	if gm == "gm" then
+		out = string.format("%s %s",out,overall)
+	end
+	out = string.format(_("evaluation-comms","%s\nReport line per scan ship: faction name: SS = Simple Scan time in seconds, DS = Deep Scan time in seconds, RT = Reported Type time in seconds (yes/no), RF = Reported Frequency time in seconds (yes/no)"),out)
+	local task_time = nil
+	for i, scan_target in ipairs(p.scan_targets) do
+		local ss = "--"
+		task_time = scan_target.single_scan_clock - p.scan_start_clock
+		if scan_target.single_scan_clock ~= nil then
+			ss = string.format("%.1f",task_time)
+			table.insert(timeline,task_time)
+		else
+			table.insert(timeline,9999)
+		end
+		local ds = "--"
+		task_time = scan_target.full_scan_clock - p.scan_start_clock
+		if scan_target.full_scan_clock ~= nil then
+			ds = string.format("%.1f",task_time)
+			table.insert(timeline,task_time)
+		else
+			table.insert(timeline,9999)
+		end
+		local rt = "--"
+		task_time = scan_target.type_report_clock - p.scan_start_clock
+		if scan_target.type_report_clock ~= nil then
+			rt = string.format("%.1f",task_time)
+			table.insert(timeline,task_time)
+		else
+			table.insert(timeline,9999)
+		end
+		local rta = _("evaluation-comms","(no)")
+		if scan_target.typeName == scan_target.identified_type then
+			rta = _("evaluation-comms","(yes)")
+			evaluation_score = evaluation_score + 2
+		end
+		local rf = "--"
+		task_time = scan_target.frequency_report_clock - p.scan_start_clock
+		if scan_target.frequency_report_clock ~= nil then
+			rf = string.format("%.1f",task_time)
+			table.insert(timeline,task_time)
+		else
+			table.insert(timeline,9999)
+		end
+		local rfa = _("evaluation-comms","(no)")
+		if scan_target.shield_frequency == scan_target.identified_frequency then
+			rfa = _("evaluation-comms","(yes)")
+			evaluation_score = evaluation_score + 2
+		end
+		out = string.format(_("evaluation-comms","%s\n%s %s: SS:%s, DS:%s, RT:%s %s, RF:%s %s"),out,scan_target.faction,scan_target.name,ss,ds,rt,rta,rf,rfa)
+	end
+	table.sort(timeline)
+	gm_grade = gm_grades["interval"]
+	for i, clock in ipairs(timeline) do
+		if clock < gm_grade.superior*i then
+			evaluation_score = evaluation_score + 3
+		elseif clock < gm_grade.exceed*i then
+			evaluation_score = evaluation_score + 2
+		elseif clock < gm_grade.competent*i then
+			evaluation_score = evaluation_score + 1
+		end
+	end
+	local final_grade = _("evaluation-comms","Needs improvement")
+	if evaluation_score >= 54 then
+		final_grade = _("evaluation-comms","Perfect")
+	elseif evaluation_score >= 42 then
+		final_grade = _("evaluation-comms","Superior")
+	elseif evaluation_score >= 31 then
+		final_grade = _("evaluation-comms","Exceeds expectations")
+	elseif evaluation_score >= 21 then
+		final_grade = _("evaluation-comms","Competent")
+	end
+	if gm == "gm" then
+		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 54, the system gives a rating of %s"),out,evaluation_score,final_grade)
+		out = string.format(_("evaluation-comms","%s\n\nFor each subtask, the single letter evaluations are:\n    N = Needs improvement\n    C = Competent\n    E = Exceeds expectations\n    S = Superior"),out)
+	end
+	return out
+end
+--	Third Task: Destroy enemy freighter
+--	Hurdles: Limited beam function, only HVLI type missiles
+--	Participants: Helm, Weapons, engineering, science, relay
+function destroyFreighterTaskEvaluation()
+	if func_diagnostic then print("destroy freighter task evaluation") end
+	local out = destroyFreighterTaskEvaluationOutput(comms_source)
+	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Third Task: Destroy Freighter -----\n%s"),out)
+	setCommsMessage(out)
+	addCommsReply(_("Back"), commsStation)
+end
+function destroyFreighterTaskEvaluationOutput(p,gm)
+	if func_diagnostic then print("destroy freighter task evaluation output") end
+	if player_insight then
+		gm = "gm"
+	end
+	local gm_grades = {
+		["overall"] =	{superior = 100,	exceed = 200,	competent = 350},
+		["magazine"] =	{superior = 16,		exceed = 14,	competent = 10},
+	}
+	local evaluation_score = 0
+	local overall_time = p.destroy_freighter_end_clock - p.destroy_freighter_start_clock
+	local gm_grade = gm_grades["overall"]
+	local overall = _("evaluation-comms","Needs improvement")
+	if overall_time < gm_grade.superior then
+		overall = _("evaluation-comms","Superior")
 		evaluation_score = evaluation_score + 3
 	elseif overall_time < gm_grade.exceed then
-		overall = _("evaluation-comms","E")
+		overall = _("evaluation-comms","Exceeds expectations")
 		evaluation_score = evaluation_score + 2
 	elseif overall_time < gm_grade.competent then
-		overall = _("evaluation-comms","C")
+		overall = _("evaluation-comms","Competent")
 		evaluation_score = evaluation_score + 1
 	end
 	local out = string.format(_("evaluation-comms","Overall time to complete the task: %s"),colonTime(overall_time))
 	if gm == "gm" then
 		out = string.format("%s %s",out,overall)
 	end
-	for i, orbit in ipairs(p.orbital_body_research) do
-		if orbit.start_scan_clock == nil then
-			orbit.start_scan_clock = 0
-		end
-	end
-	table.sort(p.orbital_body_research, function(a,b)
-		return a.start_scan_clock < b.start_scan_clock or
-			(a.start_scan_clock == b.start_scan_clock and a.body:getCallSign() < b.body:getCallSign())
-	end)
-	local total = 0
-	local bodies_scanned = 0
-	for i, orbit in ipairs(p.orbital_body_research) do
-		if orbit.start_scan_clock ~= 0 and orbit.research == "Y" then
-			bodies_scanned = bodies_scanned + 1
-			local length = (orbit.start_scan_clock + research_task_length) - p.research_start_clock
-			local length_grade = _("evaluation-comms","N")
-			gm_grade = gm_grades[i]
-			if length < gm_grade.superior then
-				length_grade = _("evaluation-comms","S")
-				evaluation_score = evaluation_score + 3
-			elseif length < gm_grade.exceed then
-				length_grade = _("evaluation-comms","E")
-				evaluation_score = evaluation_score + 2
-			elseif length < gm_grade.competent then
-				length_grade = _("evaluation-comms","C")
-				evaluation_score = evaluation_score + 1
-			end
-			total = total + length
-			out = string.format("%s\n%s %s",out,colonTime(length),orbit.body:getCallSign())
-			if gm == "gm" then
-				out = string.format("%s %s",out,length_grade)
-			end
-		end
-	end
-	local average = total / bodies_scanned
-	local average_grade = _("evaluation-comms","N")
-	gm_grade = gm_grades["average"]
-	local average_grade = _("evaluation-comms","N")
-	if average < gm_grade.superior then
-		average_grade = _("evaluation-comms","S")
+	out = string.format(_("evaluation-comms","%s\nHelm/Weapons HVLI in storage: %i"),out,p.destroy_freighter_remaining_HVLI)
+	gm_grade = gm_grades["magazine"]
+	local magazine = _("evaluation-comms","Needs improvement")
+	if p.destroy_freighter_remaining_HVLI >= gm_grade.superior then
+		magazine = _("evaluation-comms","Superior")
 		evaluation_score = evaluation_score + 3
-	elseif average < gm_grade.exceed then
-		average_grade = _("evaluation-comms","E")
+	elseif p.destroy_freighter_remaining_HVLI >= gm_grade.exceed then
+		magazine = _("evaluation-comms","Exceeds expectations")
 		evaluation_score = evaluation_score + 2
-	elseif average < gm_grade.competent then
-		average_grade = _("evaluation-comms","C")
-		evaluation_score = evaluation_score + 1
-	end
-	local median = (p.orbital_body_research[7].start_scan_clock + research_task_length) - p.research_start_clock
-	local median_grade = _("evaluation-comms","N")
-	gm_grade = gm_grades["median"]
-	if median < gm_grade.superior then
-		median_grade = _("evaluation-comms","S")
-		evaluation_score = evaluation_score + 3
-	elseif median < gm_grade.exceed then
-		median_grade = _("evaluation-comms","E")
-		evaluation_score = evaluation_score + 2
-	elseif median < gm_grade.competent then
-		median_grade = _("evaluation-comms","C")
+	elseif p.destroy_freighter_remaining_HVLI >= gm_grade.competent then
+		magazine = _("evaluation-comms","Competent")
 		evaluation_score = evaluation_score + 1
 	end
 	if gm == "gm" then
-		out = string.format("%s\nAverage: %s %s    Median: %s %s",out,colonTime(average),average_grade,colonTime(median),median_grade)
-	else
-		out = string.format("%s\nAverage: %s     Median: %s",out,colonTime(average),colonTime(median))
+		out = string.format("%s %s",out,magazine)
 	end
 	local final_grade = _("evaluation-comms","Needs improvement")
-	if evaluation_score >= 48 then
+	if evaluation_score >= 6 then
 		final_grade = _("evaluation-comms","Perfect")
-	elseif evaluation_score >= 40 then
+	elseif evaluation_score >= 5 then
 		final_grade = _("evaluation-comms","Superior")
-	elseif evaluation_score >= 31 then
+	elseif evaluation_score >= 4 then
 		final_grade = _("evaluation-comms","Exceeds expectations")
-	elseif evaluation_score >= 19 then
+	elseif evaluation_score >= 2 then
 		final_grade = _("evaluation-comms","Competent")
 	end
 	if gm == "gm" then
-		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 48, the system gives a rating of %s"),out,evaluation_score,final_grade)
+		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 6, the system gives a rating of %s"),out,evaluation_score,final_grade)
 		out = string.format(_("evaluation-comms","%s\n\nFor each subtask, the single letter evaluations are:\n    N = Needs improvement\n    C = Competent\n    E = Exceeds expectations\n    S = Superior"),out)
 	end
 	return out
 end
+--	Fourth Task: Assist freighter
+--	Hurdles: Get parts from station, find freighter, fend off attackers
+--	Participants: Helm, science, relay, engineering, weapons
 function assistFreighterTaskEvaluation()
 	if func_diagnostic then print("assist freighter task evaluation") end
 	local out = assistFreighterTaskEvaluationOutput(comms_source)
@@ -4222,324 +4330,241 @@ function assistFreighterTaskEvaluationOutput(p,gm)
 	end
 	return out
 end
-function destroyFreighterTaskEvaluation()
-	if func_diagnostic then print("destroy freighter task evaluation") end
-	local out = destroyFreighterTaskEvaluationOutput(comms_source)
-	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Third Task: Destroy Freighter -----\n%s"),out)
+--	Fifth task: Research anomalous planetary orbital behavior
+--	Hurdles: Bumping into planets causes severe damage to ship, navigate carefully
+--	Participants: Helm, Science, Relay, Engineering
+function researchTaskEvaluation()
+	if func_diagnostic then print("research task evaluation") end
+	local out = researchTaskEvaluationOutput(comms_source)
+	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Fifth Task: Research -----\n%s"),out)
 	setCommsMessage(out)
 	addCommsReply(_("Back"), commsStation)
 end
-function destroyFreighterTaskEvaluationOutput(p,gm)
-	if func_diagnostic then print("destroy freighter task evaluation output") end
+function researchTaskEvaluationOutput(p,gm)
+	if func_diagnostic then print("research task evaluation output") end
 	if player_insight then
 		gm = "gm"
 	end
 	local gm_grades = {
-		["overall"] =	{superior = 100,	exceed = 200,	competent = 350},
-		["magazine"] =	{superior = 16,		exceed = 14,	competent = 10},
+		{superior = 80,		exceed = 120,	competent = 160},
+		{superior = 120,	exceed = 160,	competent = 200},
+		{superior = 150,	exceed = 190,	competent = 230},
+		{superior = 200,	exceed = 240,	competent = 280},
+		{superior = 240,	exceed = 280,	competent = 320},
+		{superior = 280,	exceed = 320,	competent = 360},
+		{superior = 320,	exceed = 360,	competent = 400},
+		{superior = 360,	exceed = 400,	competent = 440},
+		{superior = 400,	exceed = 440,	competent = 480},
+		{superior = 440,	exceed = 480,	competent = 520},
+		{superior = 480,	exceed = 520,	competent = 560},
+		{superior = 520,	exceed = 560,	competent = 600},
+		{superior = 560,	exceed = 600,	competent = 640},
+		["overall"] =	{superior = 500,	exceed = 600,	competent = 700},
+		["average"] =	{superior = 250,	exceed = 280,	competent = 350},
+		["median"] =	{superior = 250,	exceed = 280,	competent = 350},
 	}
-	local evaluation_score = 0
-	local overall_time = p.destroy_freighter_end_clock - p.destroy_freighter_start_clock
+	local overall_time = p.research_end_clock - p.research_start_clock
 	local gm_grade = gm_grades["overall"]
-	local overall = _("evaluation-comms","Needs improvement")
+	local overall = _("evaluation-comms","N")
+	local evaluation_score = 0
 	if overall_time < gm_grade.superior then
-		overall = _("evaluation-comms","Superior")
+		overall = _("evaluation-comms","S")
 		evaluation_score = evaluation_score + 3
 	elseif overall_time < gm_grade.exceed then
-		overall = _("evaluation-comms","Exceeds expectations")
+		overall = _("evaluation-comms","E")
 		evaluation_score = evaluation_score + 2
 	elseif overall_time < gm_grade.competent then
-		overall = _("evaluation-comms","Competent")
+		overall = _("evaluation-comms","C")
 		evaluation_score = evaluation_score + 1
 	end
 	local out = string.format(_("evaluation-comms","Overall time to complete the task: %s"),colonTime(overall_time))
 	if gm == "gm" then
 		out = string.format("%s %s",out,overall)
 	end
-	out = string.format(_("evaluation-comms","%s\nHelm/Weapons HVLI in storage: %i"),out,p.destroy_freighter_remaining_HVLI)
-	gm_grade = gm_grades["magazine"]
-	local magazine = _("evaluation-comms","Needs improvement")
-	if p.destroy_freighter_remaining_HVLI >= gm_grade.superior then
-		magazine = _("evaluation-comms","Superior")
+	for i, orbit in ipairs(p.orbital_body_research) do
+		if orbit.start_scan_clock == nil then
+			orbit.start_scan_clock = 0
+		end
+	end
+	table.sort(p.orbital_body_research, function(a,b)
+		return a.start_scan_clock < b.start_scan_clock or
+			(a.start_scan_clock == b.start_scan_clock and a.body:getCallSign() < b.body:getCallSign())
+	end)
+	local total = 0
+	local bodies_scanned = 0
+	for i, orbit in ipairs(p.orbital_body_research) do
+		if orbit.start_scan_clock ~= 0 and orbit.research == "Y" then
+			bodies_scanned = bodies_scanned + 1
+			local length = (orbit.start_scan_clock + research_task_length) - p.research_start_clock
+			local length_grade = _("evaluation-comms","N")
+			gm_grade = gm_grades[i]
+			if length < gm_grade.superior then
+				length_grade = _("evaluation-comms","S")
+				evaluation_score = evaluation_score + 3
+			elseif length < gm_grade.exceed then
+				length_grade = _("evaluation-comms","E")
+				evaluation_score = evaluation_score + 2
+			elseif length < gm_grade.competent then
+				length_grade = _("evaluation-comms","C")
+				evaluation_score = evaluation_score + 1
+			end
+			total = total + length
+			out = string.format("%s\n%s %s",out,colonTime(length),orbit.body:getCallSign())
+			if gm == "gm" then
+				out = string.format("%s %s",out,length_grade)
+			end
+		end
+	end
+	local average = total / bodies_scanned
+	local average_grade = _("evaluation-comms","N")
+	gm_grade = gm_grades["average"]
+	local average_grade = _("evaluation-comms","N")
+	if average < gm_grade.superior then
+		average_grade = _("evaluation-comms","S")
 		evaluation_score = evaluation_score + 3
-	elseif p.destroy_freighter_remaining_HVLI >= gm_grade.exceed then
-		magazine = _("evaluation-comms","Exceeds expectations")
+	elseif average < gm_grade.exceed then
+		average_grade = _("evaluation-comms","E")
 		evaluation_score = evaluation_score + 2
-	elseif p.destroy_freighter_remaining_HVLI >= gm_grade.competent then
-		magazine = _("evaluation-comms","Competent")
+	elseif average < gm_grade.competent then
+		average_grade = _("evaluation-comms","C")
+		evaluation_score = evaluation_score + 1
+	end
+	local median = (p.orbital_body_research[7].start_scan_clock + research_task_length) - p.research_start_clock
+	local median_grade = _("evaluation-comms","N")
+	gm_grade = gm_grades["median"]
+	if median < gm_grade.superior then
+		median_grade = _("evaluation-comms","S")
+		evaluation_score = evaluation_score + 3
+	elseif median < gm_grade.exceed then
+		median_grade = _("evaluation-comms","E")
+		evaluation_score = evaluation_score + 2
+	elseif median < gm_grade.competent then
+		median_grade = _("evaluation-comms","C")
 		evaluation_score = evaluation_score + 1
 	end
 	if gm == "gm" then
-		out = string.format("%s %s",out,magazine)
+		out = string.format("%s\nAverage: %s %s    Median: %s %s",out,colonTime(average),average_grade,colonTime(median),median_grade)
+	else
+		out = string.format("%s\nAverage: %s     Median: %s",out,colonTime(average),colonTime(median))
 	end
 	local final_grade = _("evaluation-comms","Needs improvement")
-	if evaluation_score >= 6 then
+	if evaluation_score >= 48 then
 		final_grade = _("evaluation-comms","Perfect")
-	elseif evaluation_score >= 5 then
-		final_grade = _("evaluation-comms","Superior")
-	elseif evaluation_score >= 4 then
-		final_grade = _("evaluation-comms","Exceeds expectations")
-	elseif evaluation_score >= 2 then
-		final_grade = _("evaluation-comms","Competent")
-	end
-	if gm == "gm" then
-		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 6, the system gives a rating of %s"),out,evaluation_score,final_grade)
-		out = string.format(_("evaluation-comms","%s\n\nFor each subtask, the single letter evaluations are:\n    N = Needs improvement\n    C = Competent\n    E = Exceeds expectations\n    S = Superior"),out)
-	end
-	return out
-end
-function scanTaskEvaluation()
-	if func_diagnostic then print("scan task evaluation") end
-	local out = scanTaskEvaluationOutput(comms_source)
-	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Second Task: Scan -----\n%s"),out)
-	setCommsMessage(out)
-	addCommsReply(_("Back"), commsStation)
-end
-function scanTaskEvaluationOutput(p,gm)
-	if func_diagnostic then print("scan task evaluation output") end
-	if player_insight then
-		gm = "gm"
-	end
-	local gm_grades = {
-		["overall"] =	{superior = 200,	exceed = 300,	competent = 450},
-		["interval"] =	{superior = 15,		exceed = 20,	competent = 35},
-	}
-	local timeline = {}
-	local evaluation_score = 0
-	local overall_time = p.scan_end_clock - p.scan_start_clock
-	local gm_grade = gm_grades["overall"]
-	local overall = _("evaluation-comms","Needs improvement")
-	if overall_time < gm_grade.superior then
-		overall = _("evaluation-comms","Superior")
-		evaluation_score = evaluation_score + 6
-	elseif overall_time < gm_grade.exceed then
-		overall = _("evaluation-comms","Exceeds expectations")
-		evaluation_score = evaluation_score + 4
-	elseif overall_time < gm_grade.competent then
-		overall = _("evaluation-comms","Competent")
-		evaluation_score = evaluation_score + 2
-	end
-	local out = string.format(_("evaluation-comms","Overall time to complete the task: %s"),colonTime(overall_time))
-	if gm == "gm" then
-		out = string.format("%s %s",out,overall)
-	end
-	out = string.format(_("evaluation-comms","%s\nReport line per scan ship: faction name: SS = Simple Scan time in seconds, DS = Deep Scan time in seconds, RT = Reported Type time in seconds (yes/no), RF = Reported Frequency time in seconds (yes/no)"),out)
-	local task_time = nil
-	for i, scan_target in ipairs(p.scan_targets) do
-		local ss = "--"
-		task_time = scan_target.single_scan_clock - p.scan_start_clock
-		if scan_target.single_scan_clock ~= nil then
-			ss = string.format("%.1f",task_time)
-			table.insert(timeline,task_time)
-		else
-			table.insert(timeline,9999)
-		end
-		local ds = "--"
-		task_time = scan_target.full_scan_clock - p.scan_start_clock
-		if scan_target.full_scan_clock ~= nil then
-			ds = string.format("%.1f",task_time)
-			table.insert(timeline,task_time)
-		else
-			table.insert(timeline,9999)
-		end
-		local rt = "--"
-		task_time = scan_target.type_report_clock - p.scan_start_clock
-		if scan_target.type_report_clock ~= nil then
-			rt = string.format("%.1f",task_time)
-			table.insert(timeline,task_time)
-		else
-			table.insert(timeline,9999)
-		end
-		local rta = _("evaluation-comms","(no)")
-		if scan_target.typeName == scan_target.identified_type then
-			rta = _("evaluation-comms","(yes)")
-			evaluation_score = evaluation_score + 2
-		end
-		local rf = "--"
-		task_time = scan_target.frequency_report_clock - p.scan_start_clock
-		if scan_target.frequency_report_clock ~= nil then
-			rf = string.format("%.1f",task_time)
-			table.insert(timeline,task_time)
-		else
-			table.insert(timeline,9999)
-		end
-		local rfa = _("evaluation-comms","(no)")
-		if scan_target.shield_frequency == scan_target.identified_frequency then
-			rfa = _("evaluation-comms","(yes)")
-			evaluation_score = evaluation_score + 2
-		end
-		out = string.format(_("evaluation-comms","%s\n%s %s: SS:%s, DS:%s, RT:%s %s, RF:%s %s"),out,scan_target.faction,scan_target.name,ss,ds,rt,rta,rf,rfa)
-	end
-	table.sort(timeline)
-	gm_grade = gm_grades["interval"]
-	for i, clock in ipairs(timeline) do
-		if clock < gm_grade.superior*i then
-			evaluation_score = evaluation_score + 3
-		elseif clock < gm_grade.exceed*i then
-			evaluation_score = evaluation_score + 2
-		elseif clock < gm_grade.competent*i then
-			evaluation_score = evaluation_score + 1
-		end
-	end
-	local final_grade = _("evaluation-comms","Needs improvement")
-	if evaluation_score >= 54 then
-		final_grade = _("evaluation-comms","Perfect")
-	elseif evaluation_score >= 42 then
+	elseif evaluation_score >= 40 then
 		final_grade = _("evaluation-comms","Superior")
 	elseif evaluation_score >= 31 then
 		final_grade = _("evaluation-comms","Exceeds expectations")
-	elseif evaluation_score >= 21 then
+	elseif evaluation_score >= 19 then
 		final_grade = _("evaluation-comms","Competent")
 	end
 	if gm == "gm" then
-		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 54, the system gives a rating of %s"),out,evaluation_score,final_grade)
+		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 48, the system gives a rating of %s"),out,evaluation_score,final_grade)
 		out = string.format(_("evaluation-comms","%s\n\nFor each subtask, the single letter evaluations are:\n    N = Needs improvement\n    C = Competent\n    E = Exceeds expectations\n    S = Superior"),out)
 	end
 	return out
 end
-function dockTaskEvaluation()
-	if func_diagnostic then print("dock task evaluation") end
-	local out = dockTaskEvaluationOutput(comms_source)
-	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- First Task: Dock -----\n%s"),out)
+--	Bonus task: Destroy enemy base
+--	Hurdles: Enemy space ships, enemy base is far from primary base
+--	Participants: Helm, Weapons, Engineering, Science, Relay
+function bonusTaskEvaluation()
+	if func_diagnostic then print("bonus task evaluation") end
+	local out = bonusTaskEvaluationOutput(comms_source)
+	out = string.format(_("evaluation-comms","We only have objective evaluation data. Subjective evaluation must come from a different source. The entire crew contributes to the success of a task. Certain members are measured on part of the task.\n----- Bonus Task -----\n%s"),out)
 	setCommsMessage(out)
 	addCommsReply(_("Back"), commsStation)
 end
-function dockTaskEvaluationOutput(p,gm)
-	if func_diagnostic then print("dock task evaluation output") end
-	--	S = Superior, E = Exceeds expectations, C = Competent, N = Needs improvement
-	if player_insight then
-		gm = "gm"
+function bonusTaskEvaluationOutput(p,gm)
+	if func_diagnostic then print("bonus task evaluation output") end
+	local bonus_task_complete = true
+	local my_nemesis_index = nil
+	for i, nemesis in ipairs(nemesis_stations) do
+		if p.nemesis_station == nemesis.station then
+			my_nemesis_index = i
+		end
+		if nemesis.station:isValid() then
+			bonus_task_complete = false
+		end
 	end
-	local gm_grades = {
-		["overall"] =	{superior = 40, 	exceed = 60,	competent = 120},
-		["protocol"] =	{superior = 10,		exceed = 20,	competent = 40},
-		["beam"] =		{superior = 10,		exceed = 20,	competent = 40},
-		["shield"] =	{superior = 10,		exceed = 20,	competent = 40},
-		["missile"] =	{superior = 15,		exceed = 30,	competent = 60},
-		["speed"] =		{superior = 16.199,	exceed = 10,	competent = 5.4},
+	local nem = nemesis_stations[my_nemesis_index]
+	local bonus_task_time = getScenarioTime() - p.research_end_clock
+	local status_desc = {
+		["complete"] = _("evaluation-comms","complete"),
+		["incomplete"] = _("evaluation-comms","incomplete"),
+		["partially complete"] = _("evaluation-comms","partially complete"),
 	}
-	local grade_total = 0
-	local overall = _("evaluation-comms","N")
-	local overall_speed = p.dock_end_clock - p.dock_start_clock
-	local grade = gm_grades["overall"]
-	if overall_speed < grade.superior then
-		overall = _("evaluation-comms","S")
-		grade_total = grade_total + 3
-	elseif overall_speed < grade.exceed then
-		overall = _("evaluation-comms","E")
-		grade_total = grade_total + 2
-	elseif overall_speed < grade.competent then
-		overall = _("evaluation-comms","C")
-		grade_total = grade_total + 1
+	local bonus_task_status = "complete"
+	local my_nemesis_state = "(destroyed)"
+	if p.nemesis_station:isValid() then
+		bonus_task_status = "incomplete"
+		my_nemesis_state = ""
+	else
+		if bonus_task_complete then
+			bonus_task_time = bonus_task_end_clock - p.research_end_clock
+		else
+			my_nemesis_state = string.format(_("evaluation-comms","%s time: %s"),my_nemesis_state,colonTime(p.complete_my_nemesis_clock - p.research_end_clock))
+			bonus_task_status = "partially complete"
+		end
 	end
-	local out = string.format(_("evaluation-comms","Overall time to complete the task: %s"),colonTime(overall_speed))
-	if gm == "gm" then
-		out = string.format("%s %s",out,overall)
-	end
-	local relay_time = p.dock_call_port_authority_clock - p.dock_start_clock
-	local relay = _("evaluation-comms","N")
-	grade = gm_grades["protocol"]
-	if relay_time < grade.superior then
-		relay = _("evaluation-comms","S")
-		grade_total = grade_total + 3
-	elseif relay_time < grade.exceed then
-		relay = _("evaluation-comms","E")
-		grade_total = grade_total + 2
-	elseif relay_time < grade.competent then
-		relay = _("evaluation-comms","C")
-		grade_total = grade_total + 1
-	end
-	out = string.format(_("evaluation-comms","%s\nRelay time taken to request dock protocol: %s"),out,colonTime(relay_time))
-	if gm == "gm" then
-		out = string.format("%s %s",out,relay)
-	end
-	local beam = _("evaluation-comms","N")
-	local beam_speed = p.dock_set_beam_clock - p.dock_start_clock - relay_time
-	grade = gm_grades["beam"]
-	if beam_speed < grade.superior then
-		beam = _("evaluation-comms","S")
-		grade_total = grade_total + 3
-	elseif beam_speed < grade.exceed then
-		beam = _("evaluation-comms","E")
-		grade_total = grade_total + 2
-	elseif beam_speed < grade.competent then
-		beam = _("evaluation-comms","C")
-		grade_total = grade_total + 1
-	end
-	out = string.format(_("evaluation-comms","%s\nWeapons time taken to calibrate beams: %s"),out,colonTime(beam_speed))
-	if gm == "gm" then
-		out = string.format("%s %s",out,beam)
-	end
-	local shield = _("evaluation-comms","N")
-	local shield_speed = p.dock_set_shield_clock - p.dock_start_clock - relay_time
-	grade = gm_grades["shield"]
-	if shield_speed < grade.superior then
-		shield = _("evaluation-comms","S")
-		grade_total = grade_total + 3
-	elseif shield_speed < grade.exceed then
-		shield = _("evaluation-comms","E")
-		grade_total = grade_total + 2
-	elseif shield_speed < grade.competent then
-		shield = _("evaluation-comms","C")
-		grade_total = grade_total + 1
-	end
-	out = string.format(_("evaluation-comms","%s\nWeapons time taken to calibrate shields: %s"),out,colonTime(shield_speed))
-	if gm == "gm" then
-		out = string.format("%s %s",out,shield)
-	end
-	local missile = _("evaluation-comms","N")
-	local missile_time = p.dock_engineer_missile_zero_clock - p.dock_start_clock - relay_time
-	if missile_time < 0 then
-		missile_time = p.dock_engineer_missile_zero_clock - p.dock_start_clock
-	end
-	grade = gm_grades["missile"]
-	if missile_time < grade.superior then
-		missile = _("evaluation-comms","S")
-		grade_total = grade_total + 3
-	elseif missile_time < grade.exceed then
-		missile = _("evaluation-comms","E")
-		grade_total = grade_total + 2
-	elseif missile_time < grade.competent then
-		missile = _("evaluation-comms","C")
-		grade_total = grade_total + 1
-	end
-	out = string.format(_("evaluation-comms","%s\nEngineering time taken to power down missile system: %s"),out,colonTime(missile_time))
-	if gm == "gm" then
-		out = string.format("%s %s",out,missile)
-	end
-	local speed = _("evaluation-comms","N")
-	grade = gm_grades["speed"]
-	if p.dock_max_velocity >= grade.superior then
-		speed = _("evaluation-comms","S")
-		grade_total = grade_total + 3
-	elseif p.dock_max_velocity >= grade.exceed then
-		speed = _("evaluation-comms","E")
-		grade_total = grade_total + 2
-	elseif p.dock_max_velocity >= grade.competent then
-		speed = _("evaluation-comms","C")
-		grade_total = grade_total + 1
-	end
-	out = string.format(_("evaluation-comms","%s\nHelm/Engineering maximum velocity reached: %.1f units per minute"),out,p.dock_max_velocity)
-	if gm == "gm" then
-		out = string.format("%s %s",out,speed)
-	end
-	local final_grade = _("evaluation-comms","Needs improvement")
-	if grade_total >= 18 then
-		final_grade = _("evaluation-comms","Perfect")
-	elseif grade_total >= 15 then
-		final_grade = _("evaluation-comms","Superior")
-	elseif grade_total >= 11 then
-		final_grade = _("evaluation-comms","Exceeds expectations")
-	elseif grade_total >= 6 then
-		final_grade = _("evaluation-comms","Competent")
-	end
-	if gm == "gm" then
-		out = string.format(_("evaluation-comms","%s\n\nWith a score of %i points out of 18, the system gives a rating of %s"),out,grade_total,final_grade)
-		out = string.format(_("evaluation-comms","%s\n\nFor each subtask, the single letter evaluations are:\n    N = Needs improvement\n    C = Competent\n    E = Exceeds expectations\n    S = Superior"),out)
+	out = string.format(_("evaluation-comms","Bonus task length: %s     Status: %s"),colonTime(bonus_task_time),status_desc[bonus_task_status])
+	out = string.format(_("evaluation-comms","%s\nStation %s %s"),out,nem.name,my_nemesis_state)
+	out = string.format(_("evaluation-comms","%s\n     Ships spawned: count: %i, strength: %.1f"),out,nem.defense_ship_spawn_count,nem.defense_spawn_strength)
+	out = string.format(_("evaluation-comms","%s\n     Ships destroyed: count: %i, strength: %.1f"),out,nem.defense_ship_destroyed_count,nem.defense_ship_destroyed_strength)
+	if bonus_task_status == "complete" or bonus_task_status == "partially complete" then
+		for i, nemesis in ipairs(nemesis_stations) do
+			if i ~= my_nemesis_index then
+				local nemesis_state = _("evaluation-comms","(destroyed)")
+				if nemesis.station:isValid() then
+					nemesis_state = ""
+				end
+				out = string.format(_("evaluation-comms","%s\nStation %s %s"),out,nemesis.name,nemesis_state)
+				out = string.format(_("evaluation-comms","%s\n     Ships spawned: count: %i, strength: %.1f"),out,nemesis.defense_ship_spawn_count,nemesis.defense_spawn_strength)
+				out = string.format(_("evaluation-comms","%s\n     Ships destroyed: count: %i, strength: %.1f"),out,nemesis.defense_ship_destroyed_count,nemesis.defense_ship_destroyed_strength)
+			end
+		end
 	end
 	return out
 end
-
+function playerPosthumousEvaluations()
+	if func_diagnostic then print("player posthumous evaluations") end
+	local out = _("evaluation-comms","Posthumous evaluations are intended for those times when you want the evaluation information, but the player ship has been destroyed. A copy is made in the posthumous list at the time the task is completed. So, just because they are on the posthumous list does not mean the player ship has been destroyed. Only the first instance of a task is recorded. If the player ship does a task again, the posthumous table only keeps their first attempt. If they are destroyed a second time, no new record is made of any tasks they had already completed the first time. Of course if they live, their current evaluation information is attached to their ship and thus is available.\n\nSingle letter evaluation decode:\nN = Needs improvement\nC = Competent\nE = Exceeds expectations\nS = Superior")
+	local count = 0
+	for i, eval in ipairs(posthumous) do
+		count = count + 1
+		addCommsReply(string.format("%s %s",eval.name,eval.task),function()
+			setCommsMessage(string.format(_("evaluation-comms","%s     %s     Clock: %.1f\n%s"),eval.name,eval.task,colonTime(eval.clock),eval.desc))
+			addCommsReply(_("Back"), commsStation)
+		end)
+	end
+	if count == 0 then
+		out = string.format(_("evaluation-comms","%s\n\nNo tasks completed, so no tasks recorded in the posthumous table"),out)
+	end
+	setCommsMessage(out)
+	addCommsReply(_("evaluation-comms","Current Evaluations"),function()
+		setCommsMessage(_("station-comms","Which task evaluation would you like to view?"))
+		addCommsReply(_("station-comms","View docking task evalutation"),function()
+			setCommsMessage(dockTaskEvaluationOutput(comms_source,"gm"))
+			addCommsReply(_("Back"), commsStation)
+		end)
+		addCommsReply(_("station-comms","View scanning task evalutation"),function()
+			setCommsMessage(scanTaskEvaluationOutput(comms_source,"gm"))
+			addCommsReply(_("Back"), commsStation)
+		end)
+		addCommsReply(_("station-comms","View destroy freighter task evalutation"),function()
+			setCommsMessage(destroyFreighterTaskEvaluationOutput(comms_source,"gm"))
+			addCommsReply(_("Back"), commsStation)
+		end)
+		addCommsReply(_("station-comms","View assist freighter task evalutation"),function()
+			setCommsMessage(assistFreighterTaskEvaluationOutput(comms_source,"gm"))
+			addCommsReply(_("Back"), commsStation)
+		end)
+		addCommsReply(_("station-comms","View research task evalutation"),function()
+			setCommsMessage(researchTaskEvaluationOutput(comms_source,"gm"))
+			addCommsReply(_("Back"), commsStation)
+		end)
+		addCommsReply(_("Back"), commsStation)
+	end)
+	addCommsReply(_("Back"), commsStation)
+end
 ------------------------
 -- Ship communication --
 ------------------------
@@ -5741,6 +5766,9 @@ function playerTask(p)
 		task_list[p.task](p)
 	end
 end
+--	First Task: Dock
+--	Hurdles: request permission to dock, calibrate shields and beams, power down missiles
+--	Participants: Helm, weapons, relay, engineering
 function taskDock(p)
 	if func_diagnostic then print("task dock") end
 	if p.start_dock_message == nil then
@@ -5871,6 +5899,9 @@ function taskCompletedDock(p)
 --		destroy_freighter = {ship = ship,front_shield = ship:getShieldLevel(0),rear_shield = ship:getShieldLevel(1)}
 	table.insert(p.scan_targets,{ship = ship,name = ship:getCallSign(), faction = ship:getFaction(), single_scan_clock = nil,full_scan_clock = nil,typeName = ship:getTypeName(),identified_type = nil,shield_frequency = ship:getShieldsFrequency(),identified_frequency = nil,type_report_clock = nil, frequency_report_clock = nil})
 end
+--	Second Task: Scan to discriminate targets
+--	Hurdles: nebula obscures some targets
+--	Participants: Science, relay
 function taskScan(p)
 	if func_diagnostic then print("task scan") end
 	if p.scan_message == nil then
@@ -5950,6 +5981,9 @@ function taskCompletedScan(p)
 		destroy_freighter = {player_ship_name = p:getCallSign(), ship = ship,front_shield = ship:getShieldLevel(0),rear_shield = ship:getShieldLevel(1)}
 	end
 end
+--	Third Task: Destroy enemy freighter
+--	Hurdles: Limited beam function, only HVLI type missiles
+--	Participants: Helm, Weapons, engineering, science, relay
 function taskDestroyFreighter(p)
 	if func_diagnostic then print("task destroy freighter") end
 	if p.destroy_freighter_message == nil then
@@ -6081,6 +6115,9 @@ function taskCompletedDestroyFreighter(p)
 		end
 	end)
 end
+--	Fourth Task: Assist freighter
+--	Hurdles: Get parts from station, find freighter, fend off attackers
+--	Participants: Helm, science, relay, engineering, weapons
 function taskAssistFreighter(p)
 	if func_diagnostic then print("task assist freighter") end
 	if p.assist_freighter_message == nil then
@@ -6171,6 +6208,9 @@ function taskCompletedAssistFreighter(p)
 	end
 	p.task = "research"
 end
+--	Fifth task: Research anomalous planetary orbital behavior
+--	Hurdles: Bumping into planets causes severe damage to ship, navigate carefully
+--	Participants: Helm, Science, Relay, Engineering
 function taskResearch(p)
 	if func_diagnostic then print("task research") end
 	if p.research_message == nil then
@@ -6304,6 +6344,9 @@ function taskResearchCleanup(p)
 		end
 	end
 end
+--	Bonus task: Destroy enemy base
+--	Hurdles: Enemy space ships, enemy base is far from primary base
+--	Participants: Helm, Weapons, Engineering, Science, Relay
 function taskBonus(p)
 	if func_diagnostic then print("task bonus") end
 	local bonus_task_complete = true
