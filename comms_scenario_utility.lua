@@ -20,7 +20,9 @@
 --		make changes directly, be sure to test existing scenarios that use this utility.
 --		I intend to start switching several scenarios to using this utility.
 --	Scenarios that depend on this utility:
---		Liberation Day	scenario_27_liberation.lua
+--		Liberation Day		scenario_27_liberation.lua
+--		Surf's Up!			scenario_29_surf.lua
+--		Shop Til You Drop	scenario_40_shop.lua
 ----------------------------------------------
 --	Functions you may want to set up outside of this utility
 --		setCommsStationFriendliness - returns a number between 0 and 100 representing the
@@ -3431,13 +3433,15 @@ function commercialOptions()
 							if stations_sell_goods then
 								local good_sale_count = 0
 								local good_sale_list = ""
-								for good, good_data in pairs(station.comms_data.goods) do
-									if good_data.quantity ~= nil and good_data.quantity > 0 then
-										good_sale_count = good_sale_count + 1
-										if good_sale_list == "" then
-											good_sale_list = good_desc[good]
-										else
-											good_sale_list = string.format("%s, %s",good_sale_list,good_desc[good])
+								if station.comms_data.goods ~= nil then
+									for good, good_data in pairs(station.comms_data.goods) do
+										if good_data.quantity ~= nil and good_data.quantity > 0 then
+											good_sale_count = good_sale_count + 1
+											if good_sale_list == "" then
+												good_sale_list = good_desc[good]
+											else
+												good_sale_list = string.format("%s, %s",good_sale_list,good_desc[good])
+											end
 										end
 									end
 								end
@@ -3449,17 +3453,19 @@ function commercialOptions()
 								if station.comms_data.buy ~= nil then
 									local good_buy_list = ""
 									local match_good_buy_list = ""
-									for good, price in pairs(station.comms_data.buy) do
-										if good_buy_list == "" then
-											good_buy_list = good_desc[good]
-										else
-											string.format("%s, %s",good_buy_list,good_desc[good])
-										end
-										if comms_source.goods ~= nil and comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
-											if match_good_buy_list == "" then
-												match_good_buy_list = good_desc[good]
+									if station.comms_data.buy ~= nil then
+										for good, price in pairs(station.comms_data.buy) do
+											if good_buy_list == "" then
+												good_buy_list = good_desc[good]
 											else
-												match_good_buy_list = string.format("%s, %s",match_good_buy_list,good_desc[good])
+												string.format("%s, %s",good_buy_list,good_desc[good])
+											end
+											if comms_source.goods ~= nil and comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
+												if match_good_buy_list == "" then
+													match_good_buy_list = good_desc[good]
+												else
+													match_good_buy_list = string.format("%s, %s",match_good_buy_list,good_desc[good])
+												end
 											end
 										end
 									end
@@ -3848,6 +3854,8 @@ end
 --	Booleans to set outside of this utility to control this utility. Default is false
 --		current_orders_button - set true if players can check with stations to get their
 --			current orders.
+--		current_orders_at_neutral_stations - set to true if players can get their
+--			current orders from neutral stations
 --		stellar_cartography_button - set true if stations support stellar cartography
 --		station_gossip - set true if stations gossip about stuff
 --		station_general_information - set true if stations talk about themselves
@@ -3867,6 +3875,8 @@ function stationInformation()
 	stationStatusReport()
 	if current_orders_button then
 		if comms_target:isFriendly(comms_source) then
+			getCurrentOrders()
+		elseif current_orders_at_neutral_stations then
 			getCurrentOrders()
 		elseif comms_target.comms_data.friendlyness > 50 then
 			getCurrentOrders()
