@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.39.1"
+	scenario_version = "6.40.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1635,6 +1635,7 @@ function setConstants()
 		["Mantis"]				= { strength = 30,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 9,		pods = 2,	turbo_torp = true,	patrol_probe = 0,	prox_scan = 1,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E3","E4","N3","N4"},	balance_shield = false,	},
 		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, tractor = true,		mining = false,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 2,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
 		["Midian"]				= { strength = 30,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5500, tractor = false,	mining = false,	probes = 9,		pods = 3,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = true,	trigger_missile = {"E3","E4"},				balance_shield = false,	},
+		["Mortar"]				= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 4500, tractor = false,	mining = true,	probes = 9,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
 		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 6000, tractor = false,	mining = false,	probes = 5,		pods = 1,	turbo_torp = false,	patrol_probe = 3,	prox_scan = 9,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
 		["Noble"]				= { strength = 37,	cargo = 6,	distance = 400,	long_range_radar = 27000, short_range_radar = 5000, tractor = true,		mining = false,	probes = 8,		pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
 		["Nusret"]				= { strength = 16,	cargo = 7,	distance = 200,	long_range_radar = 25000, short_range_radar = 4000, tractor = false,	mining = true,	probes = 10,	pods = 1,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 3,	power_sensor_interval = 5,	beam_damage_switch = false,	way_dist = true,	trigger_missile = nil,						balance_shield = false,	},
@@ -1713,6 +1714,7 @@ function setConstants()
 	addPlayerShip("Gabble",		"Squid",		createPlayerShipGabble		,"J")
 	addPlayerShip("George",		"Rodent",		createPlayerShipGeorge		,"J")
 	addPlayerShip("Gorn",		"Proto-Atlantis",createPlayerShipGorn		,"J")
+	addPlayerShip("Grad",		"Mortar",		createPlayerShipMortar		,"W")
 	addPlayerShip("Guinevere",	"Caretaker",	createPlayerShipGuinevere	,"J")
 	addPlayerShip("Halberd",	"Proto-Atlantis",createPlayerShipHalberd	,"J")	--proto-atlantis
 	addPlayerShip("Headhunter",	"Redhook",		createPlayerShipHeadhunter	,"J")
@@ -1825,6 +1827,7 @@ function setConstants()
 		["Mantis"] =				{carry = false,	class = "Corvette",		create = createPlayerShipCrux,	},
 		["Maverick XP"] =			{carry = false,	class = "Corvette",		create = createPlayerShipRogue,	},
 		["Midian"] =				{carry = false,	class = "Corvette",		create = createPlayerShipFlipper,	},
+		["Mortar"] =				{carry = false,	class = "Corvette",		create = createPlayerShipMortar,	},
 		["MX-Lindworm"] =			{carry = false,	class = "Starfighter",	create = createPlayerShipRattler,	},
 		["Noble"] =					{carry = false,	class = "Corvette",		create = createPlayerShipLancelot,	},
 		["Nusret"] =				{carry = false,	class = "Frigate",		create = createPlayerShipManxman,	},	--or Argonaut or Hrothgar
@@ -1908,6 +1911,7 @@ function setConstants()
 		["Mantis"] =				{"Ray","Nemo","Skelter"},
 		["Maverick XP"] =			{"Condensed","Impact","Compound"},
 		["Midian"] =				{"Ethereal","Torn","Zapper"},
+		["Mortar"] =				{"Galadriel","Belinda","Slippery"},
 		["MX-Lindworm"] =			{"Tickler","Lickety","Vex"},
 		["Noble"] =					{"Word","Stature","Knight"},
 		["Nusret"] =				{"Trembler","Bright","Terse"},
@@ -2284,6 +2288,7 @@ function setConstants()
 		["Transport5x4"] =					800,
 		["Transport5x5"] =					800,
 		["Tug"] =							200,
+		["Twister"] =						200,
 		["Tyr"] =							2000,
 		["Waddle 5"] =						100,
 		["Warden"] =						600,
@@ -12362,9 +12367,10 @@ function createIcarusStations()
 		stationBikolipox:destroy()
 	end
 	--Borlan
---	local borlanZone = squareZone(68808, 39300, "Borlan 3 G8")
---	borlanZone:setColor(51,153,255):setLabel("B")
-    stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 3"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
+	local borlanZone = squareZone(68808, 39300, "Borlan 4 G8")
+	borlanZone:setColor(51,153,255):setLabel("B")
+	--[[
+    stationBorlan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Borlan 4"):setPosition(68808, 39300):setDescription("Mining and Supply"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationBorlan:setFaction("Spacer")
 	end
@@ -12441,6 +12447,7 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationBorlan:setSharesEnergyWithDocked(false) end
 	station_names[stationBorlan:getCallSign()] = {stationBorlan:getSectorName(), stationBorlan}
 	table.insert(stations,stationBorlan)
+	--]]
 	--Chitlok
 	stationChitlok = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Chitlok"):setPosition(-72708, -106381):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationChitlok.comms_data = {
@@ -13209,10 +13216,10 @@ function createIcarusStations()
 	--Mermaid
 	-- only destroyed in non mirror universe
 --	if not mirrorUniverse then
---		local mermaidZone = squareZone(28889, -4417, "Mermaid 12 E6")
+--		local mermaidZone = squareZone(28889, -4417, "Mermaid 13 E6")
 --		mermaidZone:setColor(51,153,255):setLabel("11")
 --	else
-		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 12"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 13"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
 		end
@@ -13273,6 +13280,9 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
+	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	    setBeamColor(mdp1)
+	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
 --	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
@@ -13655,9 +13665,10 @@ function createIcarusStations()
 		stationPurple:destroy()
 	end
 	--Relay-13
-	--local relay13Zone = squareZone(77918, 23876, "Relay-13 F G8")
-	--relay13Zone:setColor(0,255,0)
-    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 F"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+	local relay13Zone = squareZone(77918, 23876, "Relay-13 G G8")
+	relay13Zone:setColor(0,255,0):setLabel("R")
+	--[[
+    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 G"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     stationRelay13:setShortRangeRadarRange(12000)
 	if mirrorUniverse then
 		stationRelay13:setFaction("Holy Terra")
@@ -13717,6 +13728,7 @@ function createIcarusStations()
 	if random(1,100) <= 3  then stationRelay13:setSharesEnergyWithDocked(false) end
 	station_names[stationRelay13:getCallSign()] = {stationRelay13:getSectorName(), stationRelay13}
 	table.insert(stations,stationRelay13)
+	--]]
 	--Slurry
 --	local slurryZone = squareZone(100342, 27871, "Slurry VI G10")
 --	slurryZone:setColor(51,153,255)
@@ -13863,9 +13875,10 @@ function createIcarusStations()
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
-	--local speculatorZone = squareZone(55000,108000, "Speculator 3 K7")
-	--speculatorZone:setColor(0,255,0)
-    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 3"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local speculatorZone = squareZone(55000,108000, "Speculator 4 K7")
+	speculatorZone:setColor(0,255,0):setLabel("S")
+	--[[
+    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 4"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
 	if mirrorUniverse then
 		stationSpeculator:setFaction("Holy Terra")
@@ -13929,6 +13942,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationSpeculator:setSharesEnergyWithDocked(false) end
 	station_names[stationSpeculator:getCallSign()] = {stationSpeculator:getSectorName(), stationSpeculator}
 	table.insert(stations,stationSpeculator)
+	--]]
 	--Stromboli
 	--local stromboliZone = squareZone(109555, 12685, "Stromboli 3 F10")
 	--stromboliZone:setColor(51,153,255)
@@ -31578,6 +31592,44 @@ function createPlayerShipManxman()
 	playerManxman:onTakingDamage(playerShipDamage)
 	playerManxman:addReputationPoints(50)
 	return playerManxman
+end
+function createPlayerShipMortar()
+	playerMortar = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Grad")
+	setBeamColor(playerMortar)
+	playerMortar:setTypeName("Mortar")
+	playerMortar:setRadarTrace("laser.png")
+	playerMortar:setHullMax(160)						--weaker hull (vs 200)
+	playerMortar:setHull(160)
+	playerMortar:setShieldsMax(160,160)					--stronger shields (vs 110,70)
+	playerMortar:setShields(160,160)
+	playerMortar:setImpulseMaxSpeed(80)					--faster impulse max (vs 60)
+	playerMortar:setRotationMaxSpeed(15)				--faster spin (vs 8)
+	playerMortar:setAcceleration(40,40)					--faster (vs 15)
+	playerMortar:setCombatManeuver(400,250)				--changed vs (450,150)
+--                  			  Arc, Dir,Range, CycleTime,  Dmg
+	playerMortar:setBeamWeapon(0,  60, -15,	1500,		6.0,	6):setBeamWeaponDamageType(0,"emp")
+	playerMortar:setBeamWeapon(1,  60,  15,	1500,		6.0,	6):setBeamWeaponDamageType(0,"emp")
+	playerMortar:setBeamWeapon(2,  60, -15,	1000,		6.0,	6):setBeamWeaponDamageType(0,"kinetic")
+	playerMortar:setBeamWeapon(3,  60,  15,	1000,		6.0,	6):setBeamWeaponDamageType(0,"kinetic")
+	playerMortar:setBeamWeapon(4,  60, -15,	 500,		6.0,	6)
+	playerMortar:setBeamWeapon(5,  60,  15,	 500,		6.0,	6)
+	playerMortar:setWeaponTubeCount(3)					--fewer (vs 7)
+	playerMortar:setWeaponTubeDirection(0, -90):setTubeSize(0,"medium"):setTubeLoadTime(0, 8):setWeaponTubeExclusiveFor(0,"HVLI"):weaponTubeAllowMissle(0,"Homing"):weaponTubeAllowMissle(0,"EMP"):weaponTubeAllowMissle(0,"Nuke")
+	playerMortar:setWeaponTubeDirection(1,  90):setTubeSize(1,"medium"):setTubeLoadTime(1, 8):setWeaponTubeExclusiveFor(1,"HVLI"):weaponTubeAllowMissle(1,"Homing"):weaponTubeAllowMissle(1,"EMP"):weaponTubeAllowMissle(1,"Nuke")
+	playerMortar:setWeaponTubeDirection(2, 180):setTubeSize(2,"medium"):setTubeLoadTime(2, 8):setWeaponTubeExclusiveFor(2,"Mine")
+	playerMortar:setWeaponStorageMax("HVLI",	10)			--more (vs 0)
+	playerMortar:setWeaponStorage(   "HVLI",	10)				
+	playerMortar:setWeaponStorageMax("Homing",	6)			--fewer (vs 30)
+	playerMortar:setWeaponStorage(   "Homing",	6)				
+	playerMortar:setWeaponStorageMax("Mine",	2)			--fewer (vs 12)
+	playerMortar:setWeaponStorage(   "Mine",	2)				
+	playerMortar:setWeaponStorageMax("EMP", 	4)			--fewer (vs 10)
+	playerMortar:setWeaponStorage(   "EMP", 	4)					
+	playerMortar:setWeaponStorageMax("Nuke",	2)			--fewer (vs 8)
+	playerMortar:setWeaponStorage(   "Nuke",	2)				
+	playerMortar:onTakingDamage(playerShipDamage)
+	playerMortar:addReputationPoints(50)
+	return playerMortar
 end
 function createPlayerShipNarsil()
 	--experimental
@@ -54923,10 +54975,14 @@ end
 function commonServiceOptions()
 	addCommsReply("Service options",function()
 		local offer_primary_repair = false
-		for system, repair in pairs(comms_target.comms_data.system_repair) do
-			if comms_source:hasSystem(system) then
-				if comms_source:getSystemHealthMax(system) < repair.max then
-					offer_primary_repair = true
+		if comms_target.comms_data.system_repair == nil then
+			print(comms_target:getCallSign(),"system_repair is nil")
+		else
+			for system, repair in pairs(comms_target.comms_data.system_repair) do
+				if comms_source:hasSystem(system) then
+					if comms_source:getSystemHealthMax(system) < repair.max then
+						offer_primary_repair = true
+					end
 				end
 			end
 		end
@@ -55691,6 +55747,8 @@ function stationStatusReport(calling_function)
 					end
 				end
 			end
+		else
+			print(comms_target:getCallSign(),"comms_data or system_repair is nil")
 		end
 		if major_repairs ~= _("situationReport-comms","Repair these major systems:") then
 			msg = string.format("%s\n%s.",msg,major_repairs)
@@ -60134,15 +60192,19 @@ function restockShip()
 		missilePresence = missilePresence + comms_source:getWeaponStorageMax(missile_type)
 	end
 	if missilePresence > 0 then
-		if 	(comms_target.comms_data.weapon_available.Nuke   and comms_source:getWeaponStorageMax("Nuke") > 0)   or 
-			(comms_target.comms_data.weapon_available.EMP    and comms_source:getWeaponStorageMax("EMP") > 0)    or 
-			(comms_target.comms_data.weapon_available.Homing and comms_source:getWeaponStorageMax("Homing") > 0) or 
-			(comms_target.comms_data.weapon_available.Mine   and comms_source:getWeaponStorageMax("Mine") > 0)   or 
-			(comms_target.comms_data.weapon_available.HVLI   and comms_source:getWeaponStorageMax("HVLI") > 0)   then
-				if restock_ship_restock_ordnance == nil or getScenarioTime() > restock_ship_restock_ordnance + comms_fudge then
-					restockOrdnance()
-					restock_ship_restock_ordnance = getScenarioTime()
-				end
+		if comms_target.comms_data.weapon_available == nil then
+			print(comms_target:getCallSign(),"weapon_available is nil")
+		else
+			if 	(comms_target.comms_data.weapon_available.Nuke   and comms_source:getWeaponStorageMax("Nuke") > 0)   or 
+				(comms_target.comms_data.weapon_available.EMP    and comms_source:getWeaponStorageMax("EMP") > 0)    or 
+				(comms_target.comms_data.weapon_available.Homing and comms_source:getWeaponStorageMax("Homing") > 0) or 
+				(comms_target.comms_data.weapon_available.Mine   and comms_source:getWeaponStorageMax("Mine") > 0)   or 
+				(comms_target.comms_data.weapon_available.HVLI   and comms_source:getWeaponStorageMax("HVLI") > 0)   then
+					if restock_ship_restock_ordnance == nil or getScenarioTime() > restock_ship_restock_ordnance + comms_fudge then
+						restockOrdnance()
+						restock_ship_restock_ordnance = getScenarioTime()
+					end
+			end
 		end
 	end	
 	if comms_source:isFriendly(comms_target) then
@@ -60898,6 +60960,8 @@ function repairShip()
 				end
 			end
 		end
+	else
+		print(comms_target:getCallSign(),"system_repair is nil in repairShip()")
 	end
 	if offer_repair then
 		options_presented_count = options_presented_count + 1
@@ -65677,6 +65741,8 @@ function updatePlayerDamageControl(p)
 							if station_system.avail then
 								station_max = station_system.max
 							end
+						else
+							print(docked_station:getCallSign(),"system_repair is nil in updatePlayerDamageControl(p)")
 						end
 					end
 				end
@@ -67036,7 +67102,6 @@ function updatePlayerCarrierSpaceGroup(delta,p)
 						end				
 					end
 					if valid_variables then
-						local fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)	--attempt to index nil value
 						p:setReputationPoints(currrent_reputation)
 	--					print("player heading:",p:getHeading(),"player rotation:",p:getRotation())
 						fighter:setPosition(fx,fy):setCallSign(carrier_ship.name):setSystemPower("maneuver",0):commandSetSystemPowerRequest("maneuver",0):commandSetSystemPowerRequest("beamweapons",0):commandSetSystemPowerRequest("missilesystem",0):commandSetSystemPowerRequest("impulse",0)
