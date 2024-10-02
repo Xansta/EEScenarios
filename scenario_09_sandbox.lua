@@ -16,6 +16,7 @@
 -- Start Region[Lafrina]: Small station no defenses near primarily Arlenian occupied space
 -- Start Region[Teresh]: Large station normally with 5 defense platforms and small minefields
 -- Start Region[Bask]: Medium station no defenses. Multiple factions, intense star, Magnasol
+-- Start Region[Staunch]: Small station, multiple factions actively fighting
 -- Start Region[None] : Skeleton only, mostly for development
 -- Setting[Warning]: Configures whether stations and ships in a region warn the players about enemies
 -- Warning[On With Ship Type|Default]: Players warned about enemies observed. Warning includes ship type

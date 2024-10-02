@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "6.40.1"
+	scenario_version = "7.1.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2922,11 +2922,105 @@ function createSkeletonUniverse()
     BlackHole():setPosition(80429, -10486)
     BlackHole():setPosition(75695, 2427)
     wormholeIcarus = WormHole():setPosition(-46716, 17958):setTargetPosition(19080, -19780)
-    wormholeIcarus.exit = "default"
-    wormholeIcarus.default_exit_point_x = 19080
-    wormholeIcarus.default_exit_point_y = -19780
-    wormholeIcarus.kentar_exit_point_x = 251000
-    wormholeIcarus.kentar_exit_point_y = 250000
+    wormholeIcarus.exit = "Macassa"
+    wormholeIcarus.exits = {
+    	{name = "Astron",		x = 460500,		y = 320500,		tax = wormholeTax1,	region_name = "Astron",		},
+    	{name = "Bask",			x = 1027800,	y = 251000,		tax = wormholeTax1,	region_name = "Bask",		},
+    	{name = "Micro Sol.",	x = -331836,	y = -443517,	tax = wormholeTax1,	region_name = "FilkRoad",	},
+    	{name = "Kentar",		x = 251000,		y = 250000,		tax = wormholeTax1,	region_name = "Kentar",		},
+    	{name = "Lafrina",		x = -237666,	y = 296975,		tax = wormholeTax1,	region_name = "Lafrina",	},
+    	{name = "Macassa",		x = 19080,		y = -19780,		tax = wormholeTax1,	region_name = "Icarus",		},
+    	{name = "Staunch",		x = 153668,		y = 775877,		tax = wormholeTax1,	region_name = "Staunch",	},
+    	{name = "Teresh",		x = 800001,		y = 120001,		tax = wormholeTax1,	region_name = "Teresh",		},
+    }
+	stationWormholeWrangler = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wormhole Wrangler"):setPosition(-41977, 17955):setDescription("Wormhole control and trading post"):setCommsScript(""):setCommsFunction(commsStation)
+    stationWormholeWrangler.wormhole = wormholeIcarus
+    stationWormholeWrangler.comms_data = {
+    	friendlyness = 85,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(3,7),Nuke = 13,					EMP = 9 },
+        weapon_available = 	{Homing = homeAvail,HVLI = hvliAvail,		Mine = mineAvail,		Nuke = nukeAvail,			EMP = empAvail},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<70},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<70},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<85},
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	dilithium = {quantity = 10,		cost = math.random(80,120)},
+        			lifter =	{quantity = 10,		cost = math.random(80,120)},
+        			luxury =	{quantity = 10,		cost = math.random(80,120)}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Main purpose is to reprogram the wormhole and provide trading and other commerce options",
+    	history = "This started off as simply a wormhole reprogramming station station. As space ship traffic became heavier, other business opportunists put more shopping options in.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+    	},
+	}
+	stationWormholeWrangler.long_range_sensor_upgrade = true
+	stationWormholeWrangler.long_range_sensor_upgrade_recipients = {}
+	stationWormholeWrangler.patrol_probe = math.random(1,4)
+	stationWormholeWrangler.trigger_missile = {}
+	local trigger_flavors = {"E3","E4","N3","N4"}
+	local trigger_flavor = tableRemoveRandom(trigger_flavors)
+	table.insert(stationWormholeWrangler.trigger_missile,trigger_flavor)
+	if random(1,100) < 50 then
+		trigger_flavor = tableRemoveRandom(trigger_flavors)
+		table.insert(stationWormholeWrangler.trigger_missile,trigger_flavor)
+		if random(1,100) < 40 then
+			trigger_flavor = tableRemoveRandom(trigger_flavors)
+			table.insert(stationWormholeWrangler.trigger_missile,trigger_flavor)
+			if random(1,100) < 30 then
+				table.insert(stationWormholeWrangler.trigger_missile,trigger_flavors[1])
+			end
+		end
+	end
+	stationWormholeWrangler.balance_shield = true
+	stationWormholeWrangler.proximity_scanner = true
+	stationWormholeWrangler.proximity_scanner_range = math.random(1,5)
+	stationWormholeWrangler.max_health_widgets = true
+	stationWormholeWrangler.shield_banner = true
+	stationWormholeWrangler.hull_banner = true
+	stationWormholeWrangler.way_dist = true
+	stationWormholeWrangler.installable_sensor_boost = true
+	stationWormholeWrangler.installable_sensor_boost_ranges = {}
+	local sensor_boost_ranges_pool = {}
+	for i=5,9,.5 do
+		table.insert(sensor_boost_ranges_pool,{interval = i,cost=math.random(3,6)*2*i})
+	end
+	for i=1,3 do
+		table.insert(stationWormholeWrangler.installable_sensor_boost_ranges,tableRemoveRandom(sensor_boost_ranges_pool))
+	end
+	table.insert(skeleton_stations,stationWormholeWrangler)
+	stationWormholeWrangler.skeleton_station = true
+	station_names[stationWormholeWrangler:getCallSign()] = {stationWormholeWrangler:getSectorName(), stationWormholeWrangler}
     wormhole_cindy = WormHole():setPosition(150513, -44624)
     wormhole_exuari_pirate = WormHole():setPosition(216461,-376269)
     local wep_x, wep_y = wormhole_exuari_pirate:getPosition()
@@ -11656,32 +11750,68 @@ end
 function setIcarusWormholeExit()
 	clearGMFunctions()
 	addGMFunction("-Wormhole",setWormholes)
-	local icarus_label = "Default"
-	if wormholeIcarus.exit == "default" then
-		icarus_label = "Default*"
-	end
-	addGMFunction(icarus_label, function()
-		wormholeIcarus.exit = "default"
-		wormholeIcarus:setTargetPosition(wormholeIcarus.default_exit_point_x,wormholeIcarus.default_exit_point_y)
-		setIcarusWormholeExit()
-	end)
-	icarus_label = "Kentar"
-	if wormholeIcarus.exit == "kentar" then
-		icarus_label = "Kentar*"
-	end
-	addGMFunction(icarus_label, function()
-		wormholeIcarus.exit = "kentar"
-		wormholeIcarus:setTargetPosition(wormholeIcarus.kentar_exit_point_x,wormholeIcarus.kentar_exit_point_y)
-		setIcarusWormholeExit()
-	end)
-end
-function throughWormhole(worm_hole,transportee)
-	if worm_hole == wormholeIcarus then
-		if worm_hole.exit == "default" then
-			--exited near Icarus, near station Macassa
+	for i,w_exit in ipairs(wormholeIcarus.exits) do
+		local button_label = w_exit.name
+		if button_label == wormholeIcarus.exit then
+			button_label = button_label .. "*"
 		end
-		if worm_hole.exit == "kentar" then
-			--exited near station Kentar
+		addGMFunction(button_label,function()
+			wormholeIcarus.exit = w_exit.name
+			wormholeIcarus:setTargetPosition(w_exit.x,w_exit.y):onTeleportation(w_exit.tax)
+			setIcarusWormholeExit()
+		end)
+	end
+end
+function createRegionUponTeleportation(worm_hole)
+	local exit_region = nil
+	for i,w_exit in ipairs(worm_hole.exits) do
+		if w_exit.name == worm_hole.exit then
+			exit_region = w_exit.region_name
+			break
+		end
+	end
+	if exit_region ~= nil then
+		for i=1,#universe.available_regions do
+			local region = universe.available_regions[i]
+			if string.find(region.name,exit_region) then
+				if not universe:hasRegionSpawned(region) then
+					universe:spawnRegion(region)
+				end
+				break
+			end
+		end
+	end
+end
+function wormholeTax1(worm_hole,transportee)
+	createRegionUponTeleportation(worm_hole)
+	if transportee ~= nil then
+		if transportee.typeName == "PlayerSpaceship" or transportee.typeName == "CpuShip" then
+			for i,system in ipairs(system_list) do
+				if transportee:hasSystem(system) then
+					local adjust = random(.7,.95)
+					if transportee:getShieldsActive() then
+						adjust = math.min(1,adjust + .2)
+					end
+					transportee:setSystemHealth(system,transportee:getSystemHealth(system)*adjust)
+				end
+			end
+		end
+	end
+end
+function wormholeTax2(worm_hole,transportee)
+	createRegionUponTeleportation(worm_hole)
+	if transportee ~= nil then
+		if transportee.typeName == "PlayerSpaceship" or transportee.typeName == "CpuShip" then
+			local system_pool = {}
+			for i,system in ipairs(system_list) do
+				if transportee:hasSystem(system) then
+					table.insert(system_pool,system)
+				end
+			end
+			for i=1,3 do
+				local damage_system = tableRemoveRandom(system_pool)
+				transportee:setSystemHealth(damage_system,transportee:getSystemHealth(damage_system)*random(.2,.6))
+			end
 		end
 	end
 end
@@ -23154,11 +23284,11 @@ function createBaskPatrols()
 		"Arlenians03",
 		"Independent06",
 	}
-	for _, patrol_name in ipairs(patrol_list) do
+	for i, patrol_name in ipairs(patrol_list) do
 		local patrol = createBaskPatrol(patrol_name)
 		if patrol ~= nil then
 			table.insert(bask_patrol_fleets,{name=patrol_name,ships=patrol})
-			for _, ship in ipairs(patrol) do
+			for j, ship in ipairs(patrol) do
 				table.insert(patrol_ships,ship)
 			end
 		end
@@ -24222,15 +24352,422 @@ function staunchSector()
 	staunch_phenomenon = createStaunchPhenomenon()
 	staunch_defense_platforms = {}
 	staunch_stations = createStaunchStations()
+	staunch_patrols = createStaunchPatrols()
+	updateStaunch = updateStaunchPhenomenon
 	regionStations = staunch_stations
 	return {destroy=removeStaunchColor}
 end
+function createStaunchPatrols()
+	staunch_patrol_fleets = {}
+	local patrol_ships = {}
+	local patrol_list = {
+		"HumanStaunch01",
+		"HumanStaunch02",
+		"IndependentWortast01",
+		"IndependentWortast02",
+		"CUFTrendy01",
+		"CUFTrendy02",
+		"IndependentKoonts01",
+		"IndependentKoonts02",
+		"TSNArchon01",
+		"TSNArchon02",
+		"GhostsInversion01",
+		"KtlitansChitin01",
+		"GhostsVectoria01",
+		"ArleniansLumpid01",
+		"ArleniansLumpid02",
+		"KtlitansUnira01",
+		"USNDalton01",
+		"KraylorHorst01",
+		"KraylorHorst02",
+		"KraylorHorst03",
+	}
+	for i, patrol_name in ipairs(patrol_list) do
+		local patrol = createStaunchPatrol(patrol_name)
+		if patrol ~= nil then
+			table.insert(staunch_patrol_fleets,{name=patrol_name,ships=patrol})
+			for j, ship in ipairs(patrol) do
+				table.insert(patrol_ships,ship)
+			end
+		end
+	end
+	return patrol_ships
+end
+function createStaunchPatrol(patrol_name)
+	local patrol = {}
+	local named_patrol = {
+		["HumanStaunch01"] = {
+			faction = "Human Navy",
+			station = stationStaunch,
+			leader_template = "Cucaracha",
+			follower_template = "K3 Fighter",
+			formation_shape = "V",
+			formation_spacing = 500,
+			patrol_points = {
+				{x = 162783,	y = 728481},
+				{x = 217991,	y = 732387},
+				{x = 196376,	y = 811294},
+				{x = 165908,	y = 761554},
+				{x = 144999,	y = 772379},
+			},
+		},
+		["HumanStaunch02"] = {
+			faction = "Human Navy",
+			station = stationStaunch,
+			leader_template = "Nirvana R5A",
+			follower_template = "Fighter",
+			formation_shape = "X",
+			formation_spacing = 600,
+			patrol_points = {
+				{x = 116428,	y = 795929},
+				{x = 107835,	y = 776137},
+				{x = 135960,	y = 780304},
+			},
+		},
+		["IndependentWortast01"] = {
+			faction = "Independent",
+			station = stationWortast,
+			leader_template = "Phobos T3",
+			follower_template = "MT55 Hornet",
+			formation_shape = "V4",
+			formation_spacing = 400,
+			patrol_points = {
+				{x = 111700,	y = 714273},
+				{x = 145408,	y = 691024},
+				{x = 138320,	y = 729439},
+				{x = 118547,	y = 729390},
+			},
+		},
+		["IndependentWortast02"] = {
+			faction = "Independent",
+			station = stationWortast,
+			leader_template = "Phobos T3",
+			follower_template = "K2 Fighter",
+			formation_shape = "W",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 107790,	y = 731245},
+				{x = 103243,	y = 759400},
+				{x = 72462,		y = 765423},
+				{x = 88689,		y = 746686},
+				{x = 94210,		y = 727281},
+			},
+		},
+		["CUFTrendy01"] = {
+			faction = "CUF",
+			station = stationTrendy,
+			leader_template = "Cucaracha",
+			follower_template = "MU52 Hornet",
+			formation_shape = "V4",
+			formation_spacing = 700,
+			patrol_points = {
+				{x = 83620,		y = 698563},
+				{x = 106462,	y = 700847},
+				{x = 109616,	y = 683879},
+				{x = 93301,		y = 683118},
+			},
+		},
+		["CUFTrendy02"] = {
+			faction = "CUF",
+			station = stationTrendy,
+			leader_template = "Farco 8",
+			follower_template = "Ktlitan Scout",
+			formation_shape = "*",
+			formation_spacing = 900,
+			patrol_points = {
+				{x = 81336,		y = 700086},
+				{x = 74374,		y = 714009},
+				{x = 59908,		y = 705307},
+				{x = 76876,		y = 704437},
+			},
+		},
+		["IndependentKoonts01"] = {
+			faction = "Independent",
+			station = stationKoonts,
+			leader_template = "Nirvana R5",
+			follower_template = "K3 Fighter",
+			formation_shape = "X",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = 12078,		y = 715432},
+				{x = 10076,		y = 739088},
+				{x = 33857,		y = 715307},
+			},
+		},
+		["IndependentKoonts02"] = {
+			faction = "Independent",
+			station = stationKoonts,
+			leader_template = "Phobos T3",
+			follower_template = "Fighter",
+			formation_shape = "H",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 18272,		y = 707510},
+				{x = 7949,		y = 704589},
+				{x = 60,		y = 711406},
+				{x = 7267,		y = 701570},
+			},
+		},
+		["TSNArchon01"] = {
+			faction = "TSN",
+			station = stationArchon,
+			leader_template = "Nirvana R5A",
+			follower_template = "Ktlitan Scout",
+			formation_shape = "X8",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = -18424,	y = 755833},
+				{x = -9500,		y = 749644},
+				{x = 8059,		y = 762022},
+				{x = 1870,		y = 773536},
+				{x = -16985,	y = 766627},
+			},
+		},
+		["TSNArchon02"] = {
+			faction = "TSN",
+			station = stationArchon,
+			leader_template = "Farco 11",
+			follower_template = "K2 Fighter",
+			formation_shape = "V4",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = -19863,	y = 748493},
+				{x = -20583,	y = 765908},
+				{x = -34112,	y = 761734},
+				{x = -30658,	y = 748349},
+			},
+		},
+		["GhostsInversion01"] = {
+			faction = "Ghosts",
+			station = stationInversion,
+			leader_template = "Phobos T3",
+			follower_template = "MT55 Hornet",
+			formation_shape = "X8",
+			formation_spacing = 600,
+			patrol_points = {
+				{x = 23088,	y = 789440},
+				{x = 2732,	y = 784626},
+				{x = 39730,	y = 776924},
+			},
+		},
+		["KtlitansChitin01"] = {
+			faction = "Ktlitans",
+			station = stationChitin,
+			leader_template = "Cucaracha",
+			follower_template = "K3 Fighter",
+			formation_shape = "*",
+			formation_spacing = 700,
+			patrol_points = {
+				{x = 27154,	y = 801516},
+				{x = 38108,	y = 807836},
+				{x = 15568,	y = 828479},
+			},
+		},
+		["GhostsVectoria01"] = {
+			faction = "Ghosts",
+			station = stationVectoria,
+			leader_template = "Nirvana R5",
+			follower_template = "Ktlitan Scout",
+			formation_shape = "X8",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = -20294,	y = 803797},
+				{x = -46755,	y = 782230},
+				{x = -15764,	y = 796185},
+				{x = 3085,		y = 809415},
+			},
+		},
+		["ArleniansLumpid01"] = {
+			faction = "Arlenians",
+			station = stationLumpid,
+			leader_template = "Phobos T3",
+			follower_template = "Fighter",
+			formation_shape = "V",
+			formation_spacing = 500,
+			patrol_points = {
+				{x = -27725,	y = 823914},
+				{x = -27320,	y = 833199},
+				{x = -19687,	y = 842970},
+				{x = -10870,	y = 826270},
+			},
+		},
+		["ArleniansLumpid02"] = {
+			faction = "Arlenians",
+			station = stationLumpid,
+			leader_template = "Cucaracha",
+			follower_template = "K2 Fighter",
+			formation_shape = "X",
+			formation_spacing = 800,
+			patrol_points = {
+				{x = -36243,	y = 816483},
+				{x = -37330,	y = 824639},
+				{x = -68321,	y = 820833},
+				{x = -55998,	y = 799810},
+			},
+		},
+		["KtlitansUnira01"] = {
+			faction = "Ktlitans",
+			station = stationUnira,
+			leader_template = "Dreadnought",
+			follower_template = "Fighter",
+			formation_shape = "*",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = -12731,	y = 837796},
+				{x = 7559,		y = 823671},
+				{x = -6117,		y = 843065},
+				{x = -28898,	y = 861392},
+			},
+		},
+		["USNDalton01"] = {
+			faction = "USN",
+			station = stationDalton,
+			leader_template = "Phobos T3",
+			follower_template = "K3 Fighter",
+			formation_shape = "Xac",
+			formation_spacing = 500,
+			patrol_points = {
+				{x = 112636,	y = 829858},
+				{x = 119480,	y = 856949},
+				{x = 145002,	y = 832710},
+			},
+		},
+		["KraylorHorst01"] = {
+			faction = "Kraylor",
+			station = stationHorst,
+			leader_template = "Nirvana R5",
+			follower_template = "Touchy",
+			formation_shape = "X",
+			formation_spacing = 1000,
+			patrol_points = {
+				{x = 60444,		y = 865098},
+				{x = 45268,		y = 875493},
+				{x = 43501,		y = 850754},
+			},
+		},
+		["KraylorHorst02"] = {
+			faction = "Kraylor",
+			station = stationHorst,
+			leader_template = "Dreadnought",
+			follower_template = "Fighter",
+			formation_shape = "*",
+			formation_spacing = 900,
+			patrol_points = {
+				{x = 68760,		y = 867593},
+				{x = 57742,		y = 882353},
+				{x = 83832,		y = 880482},
+			},
+		},
+		["KraylorHorst03"] = {
+			faction = "Kraylor",
+			station = stationHorst,
+			leader_template = "Phobos T3",
+			follower_template = "K3 Fighter",
+			formation_shape = "Vac4",
+			formation_spacing = 900,
+			patrol_points = {
+				{x = 71723,		y = 859765},
+				{x = 61180,		y = 829540},
+				{x = 73229,		y = 830441},
+			},
+		},
+	}
+	if named_patrol[patrol_name] ~= nil and named_patrol[patrol_name].station ~= nil and named_patrol[patrol_name].station:isValid() then
+		local leader_ship = ship_template[named_patrol[patrol_name].leader_template].create(named_patrol[patrol_name].faction,named_patrol[patrol_name].leader_template)
+		table.insert(patrol,leader_ship)
+		leader_ship.patrol_points = named_patrol[patrol_name].patrol_points
+		local fleet_prefix = generateCallSignPrefix()
+		local start_point = math.random(1,#leader_ship.patrol_points-1)
+		local next_point = start_point + 1
+		local prebuilt_fleet_x = leader_ship.patrol_points[start_point].x
+		local prebuilt_fleet_y = leader_ship.patrol_points[start_point].y
+		leader_ship:setPosition(prebuilt_fleet_x, prebuilt_fleet_y)
+		local first_patrol_point_x = leader_ship.patrol_points[next_point].x
+		local first_patrol_point_y = leader_ship.patrol_points[next_point].y
+		local prebuilt_angle = angleFromVectorNorth(first_patrol_point_x,first_patrol_point_y,prebuilt_fleet_x,prebuilt_fleet_y)
+		leader_ship:setHeading(prebuilt_angle)
+		leader_ship.formation_ships = {}
+		for _, form in ipairs(fly_formation[named_patrol[patrol_name].formation_shape]) do
+			local ship = ship_template[named_patrol[patrol_name].follower_template].create(named_patrol[patrol_name].faction,named_patrol[patrol_name].follower_template)
+			table.insert(patrol,ship)
+			local form_x, form_y = vectorFromAngleNorth(prebuilt_angle + form.angle, form.dist * named_patrol[patrol_name].formation_spacing)
+			local form_prime_x, form_prime_y = vectorFromAngle(form.angle, form.dist * named_patrol[patrol_name].formation_spacing)
+			ship:setPosition(prebuilt_fleet_x + form_x, prebuilt_fleet_y + form_y):setHeading(prebuilt_angle):orderFlyFormation(leader_ship,form_prime_x,form_prime_y)
+			ship:setCallSign(generateCallSign(fleet_prefix))
+			table.insert(leader_ship.formation_ships,ship)
+		end
+		leader_ship:orderFlyTowards(first_patrol_point_x,first_patrol_point_y)
+		update_system:addPatrol(leader_ship,leader_ship.patrol_points,next_point,5)
+		return patrol
+	else
+		return nil
+	end
+end
 function createStaunchStations()
+	staunch_expedition_stations = {}
+	staunch_defender_stations = {}
 	local stations = {}
+    stationArchon = SpaceStation():setTemplate("Medium Station"):setFaction("TSN"):setCallSign("Archon"):setPosition(-20536, 754616)
+	stationArchon:setShortRangeRadarRange(8000)
+	stationArchon.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,3), 	HVLI = math.random(1,4),	Mine = math.random(2,5),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 70,	Nuke = random(1,100) <= 50,	EMP = random(1,100) <= 60},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<50},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<50,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		true,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<70,
+        self_destruct_repair =	random(1,100)<20,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	circuit =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We get minerals and remain diligent regarding our enemies",
+    	history = "This looked like a place for pretty easy mining and observation",
+    	idle_defense_fleet = {
+			DF1 = "MT55 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5",
+    	},
+	}
+	if random(1,100) <= 14 then stationArchon:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationArchon:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationArchon:setSharesEnergyWithDocked(false) end
+	station_names[stationArchon:getCallSign()] = {stationArchon:getSectorName(), stationArchon}
+	table.insert(stations,stationArchon)
+	table.insert(staunch_expedition_stations,stationArchon)
+	table.insert(staunch_defender_stations,stationArchon)
 	--	Chitin
     stationChitin = SpaceStation():setTemplate("Huge Station"):setFaction("Ktlitans"):setCallSign("Chitin"):setPosition(30000, 808300)
 	station_names[stationChitin:getCallSign()] = {stationChitin:getSectorName(), stationChitin}
 	table.insert(stations,stationChitin)
+	table.insert(staunch_expedition_stations,stationChitin)
+	table.insert(staunch_defender_stations,stationChitin)
 	--	Chitin defense platforms and sniper towers
     local cdp1 = CpuShip():setFaction("Ktlitans"):setTemplate("Defense platform"):setCallSign("CDP1"):setPosition(32500, 808300):orderStandGround()
 	setBeamColor(cdp1)
@@ -24305,14 +24842,78 @@ function createStaunchStations()
 	if random(1,100) <= 12 then stationDalton:setSharesEnergyWithDocked(false) end
 	station_names[stationDalton:getCallSign()] = {stationDalton:getSectorName(), stationDalton}
 	table.insert(stations,stationDalton)
+	table.insert(staunch_expedition_stations,stationDalton)
+	table.insert(staunch_defender_stations,stationDalton)
 	--	Horst
 	stationHorst = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Horst"):setPosition(68783, 865202)
 	station_names[stationHorst:getCallSign()] = {stationHorst:getSectorName(), stationHorst}
 	table.insert(stations,stationHorst)
+	table.insert(staunch_expedition_stations,stationHorst)
+	table.insert(staunch_defender_stations,stationHorst)
 	--	Inversion
 	stationInversion = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("Inversion"):setPosition(21713, 784706)
 	station_names[stationInversion:getCallSign()] = {stationInversion:getSectorName(), stationInversion}
 	table.insert(stations,stationInversion)
+	table.insert(staunch_expedition_stations,stationInversion)
+ 	table.insert(staunch_defender_stations,stationInversion)
+   --	Koonts
+    stationKoonts = SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("Koonts"):setPosition(10729, 713496)
+	stationKoonts:setShortRangeRadarRange(6000)
+	stationKoonts.comms_data = {
+    	friendlyness = 72,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(2,5), 	HVLI = math.random(1,4),	Mine = math.random(3,7),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = true,				Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<30},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			true,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			true,
+        self_destruct_repair =	random(1,100)<20,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	autodoc =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We extract minerals",
+    	history = "We located here due to the ready availability of asteroids for mining.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MT52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Phobos T3",
+			DF5 = "Nirvana R5",
+			DF6 = "Nirvana R5",
+    	},
+	}
+	if random(1,100) <= 14 then stationKoonts:setRestocksScanProbes(false) end
+	if random(1,100) <= 11 then stationKoonts:setRepairDocked(false) end
+	if random(1,100) <= 12 then stationKoonts:setSharesEnergyWithDocked(false) end
+	station_names[stationKoonts:getCallSign()] = {stationKoonts:getSectorName(), stationKoonts}
+	table.insert(stations,stationKoonts)
+	table.insert(staunch_expedition_stations,stationKoonts)
+ 	table.insert(staunch_defender_stations,stationKoonts)
 	--	Lumpid
     stationLumpid = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lumpid"):setPosition(-34224, 819847)
 	stationLumpid:setShortRangeRadarRange(6000)
@@ -24367,6 +24968,8 @@ function createStaunchStations()
 	if random(1,100) <= 12 then stationLumpid:setSharesEnergyWithDocked(false) end
 	station_names[stationLumpid:getCallSign()] = {stationLumpid:getSectorName(), stationLumpid}
 	table.insert(stations,stationLumpid)
+	table.insert(staunch_expedition_stations,stationLumpid)
+ 	table.insert(staunch_defender_stations,stationLumpid)
 	--	Trendy
 	stationTrendy = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Trendy"):setPosition(79971, 697816):setDescription("Mining and monitoring"):setCommsScript(""):setCommsFunction(commsStation)
 	stationTrendy:setShortRangeRadarRange(6000)
@@ -24431,14 +25034,20 @@ function createStaunchStations()
 	table.insert(staunch_defense_platforms,tdp_2)
 	station_names[stationTrendy:getCallSign()] = {stationTrendy:getSectorName(), stationTrendy}
 	table.insert(stations,stationTrendy)
+	table.insert(staunch_expedition_stations,stationTrendy)
+ 	table.insert(staunch_defender_stations,stationTrendy)
 	--	Unira
     stationUnira = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Unira"):setPosition(-9491, 840610)
 	station_names[stationUnira:getCallSign()] = {stationUnira:getSectorName(), stationUnira}
 	table.insert(stations,stationUnira)
+	table.insert(staunch_expedition_stations,stationUnira)
+ 	table.insert(staunch_defender_stations,stationUnira)
 	--	Vectoria
     stationVectoria = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Vectoria"):setPosition(-18651, 800915)
 	station_names[stationVectoria:getCallSign()] = {stationVectoria:getSectorName(), stationVectoria}
 	table.insert(stations,stationVectoria)
+	table.insert(staunch_expedition_stations,stationVectoria)
+ 	table.insert(staunch_defender_stations,stationVectoria)
 	--	Wortast
 	stationWortast = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wortast"):setPosition(112296, 730897):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	stationWortast:setShortRangeRadarRange(5000)
@@ -24503,6 +25112,8 @@ function createStaunchStations()
 	table.insert(staunch_defense_platforms,wdp2)
 	station_names[stationWortast:getCallSign()] = {stationWortast:getSectorName(), stationWortast}
 	table.insert(stations,stationWortast)
+	table.insert(staunch_expedition_stations,stationWortast)
+ 	table.insert(staunch_defender_stations,stationWortast)
     return stations
 end
 
@@ -24515,25 +25126,25 @@ function createStaunchPlanets()
 	py = py + gizen_y
 	--	original position x,y: 92074, 751601
 	planet_merc = Planet():setPosition(px, py):setPlanetRadius(6000):setDistanceFromMovementPlane(-1000.00):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(6300.00)
-	planet_merc:setOrbit(planet_gizen, 10)	--final: 600
+	planet_merc:setOrbit(planet_gizen, 600)	--final: 600, test: 10
 	px, py = vectorFromAngle(random(0,360),165884)
 	px = px + gizen_x
 	py = py + gizen_y
 	--	original position x,y: 173959, 678936
 	planet_medusa = Planet():setPosition(px, py):setPlanetRadius(21000):setDistanceFromMovementPlane(-6000.00):setPlanetSurfaceTexture("planets/gas-1.png"):setPlanetCloudRadius(22050.00)
-	planet_medusa:setOrbit(planet_gizen, 30)	--final: 3400
+	planet_medusa:setOrbit(planet_gizen, 3400)	--final: 3400, test: 30
 	local ox, oy = vectorFromAngle(random(0,360),33021)
 	ox = ox + px
 	oy = oy + py
 	--	original position x,y: 146932, 697907
 	planet_phantom = Planet():setPosition(ox, oy):setPlanetRadius(2000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-1.png"):setPlanetCloudRadius(2100.00)
-	planet_phantom:setOrbit(planet_medusa, 2)	--final: 890
+	planet_phantom:setOrbit(planet_medusa, 890)	--final: 890, test: 2
 	ox, oy = vectorFromAngle(random(0,360),55376)
 	ox = ox + px
 	oy = oy + py
 	--	original position x,y: 132685, 715854
 	planet_gorgon = Planet():setPosition(ox, oy):setPlanetRadius(3000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-3.png"):setPlanetCloudRadius(3150.00)
-	planet_gorgon:setOrbit(planet_medusa, 3)	--final: 1790
+	planet_gorgon:setOrbit(planet_medusa, 1790)	--final: 1790, test: 3
 end
 function createStaunchAsteroids()
 	local asteroid_list = {}
@@ -24806,6 +25417,94 @@ function createStaunchAsteroids()
 	table.insert(asteroid_list,Asteroid():setPosition(-41366, 827397):setSize(96))
 	table.insert(asteroid_list,Asteroid():setPosition(-19687, 842970):setSize(170))
 	table.insert(asteroid_list,Asteroid():setPosition(-21824, 836558):setSize(626))
+	--	Northwest quadrant
+    table.insert(asteroid_list,Asteroid():setPosition( -4634, 713113):setSize(211))
+    table.insert(asteroid_list,Asteroid():setPosition( -1549, 716198):setSize(326))
+    table.insert(asteroid_list,Asteroid():setPosition(  2147, 711642):setSize(415))
+    table.insert(asteroid_list,Asteroid():setPosition(  5532, 715027):setSize(121))
+    table.insert(asteroid_list,Asteroid():setPosition(  7355, 718673):setSize(228))
+    table.insert(asteroid_list,Asteroid():setPosition(  8136, 716069):setSize(325))
+    table.insert(asteroid_list,Asteroid():setPosition(  2407, 715288):setSize(430))
+    table.insert(asteroid_list,Asteroid():setPosition(  5898, 713382):setSize(122))
+    table.insert(asteroid_list,Asteroid():setPosition(   324, 719194):setSize(215))
+    table.insert(asteroid_list,Asteroid():setPosition(  4230, 717892):setSize(323))
+    table.insert(asteroid_list,Asteroid():setPosition( -3605, 719077):setSize(418))
+    table.insert(asteroid_list,Asteroid():setPosition(  5239, 709000):setSize(123))
+    table.insert(asteroid_list,Asteroid():setPosition(   302, 713524):setSize(210))
+    table.insert(asteroid_list,Asteroid():setPosition( 12739, 708462):setSize( 21))
+    table.insert(asteroid_list,Asteroid():setPosition( 13832, 709798):setSize( 16))
+    table.insert(asteroid_list,Asteroid():setPosition( 14402, 707692):setSize(314))
+    table.insert(asteroid_list,Asteroid():setPosition( 11779, 706986):setSize(419))
+    table.insert(asteroid_list,Asteroid():setPosition( 14906, 711222):setSize( 33))
+    table.insert(asteroid_list,Asteroid():setPosition( -9981, 718872):setSize(226))
+    table.insert(asteroid_list,Asteroid():setPosition(  6866, 710891):setSize( 25))
+    table.insert(asteroid_list,Asteroid():setPosition(  8245, 711013):setSize( 43))
+    table.insert(asteroid_list,Asteroid():setPosition(  3509, 713442):setSize( 36))
+    table.insert(asteroid_list,Asteroid():setPosition(  5344, 711859):setSize( 22))
+    table.insert(asteroid_list,Asteroid():setPosition( -7719, 726070):setSize(750))
+    table.insert(asteroid_list,Asteroid():setPosition(-16108, 737925):setSize(126))
+    table.insert(asteroid_list,Asteroid():setPosition(  7697, 708815):setSize( 27))
+    table.insert(asteroid_list,Asteroid():setPosition(  9945, 709798):setSize(315))
+    table.insert(asteroid_list,Asteroid():setPosition(  9056, 707591):setSize( 38))
+    table.insert(asteroid_list,Asteroid():setPosition( 20775, 711758):setSize(427))
+    table.insert(asteroid_list,Asteroid():setPosition( 14301, 710818):setSize(117))
+    table.insert(asteroid_list,Asteroid():setPosition(-19904, 735458):setSize(620))
+    table.insert(asteroid_list,Asteroid():setPosition(-18955, 742290):setSize(119))
+    table.insert(asteroid_list,Asteroid():setPosition(  3994, 710406):setSize( 20))
+    table.insert(asteroid_list,Asteroid():setPosition(-24034, 750018):setSize(216))
+    table.insert(asteroid_list,Asteroid():setPosition(-22371, 751779):setSize(317))
+    table.insert(asteroid_list,Asteroid():setPosition( -9845, 733560):setSize(425))
+    table.insert(asteroid_list,Asteroid():setPosition( 11174, 707994):setSize( 30))
+    table.insert(asteroid_list,Asteroid():setPosition( 10067, 708584):setSize( 16))
+    table.insert(asteroid_list,Asteroid():setPosition(  8488, 709434):setSize( 15))
+    table.insert(asteroid_list,Asteroid():setPosition( 12010, 709677):setSize( 24))
+    table.insert(asteroid_list,Asteroid():setPosition(-21860, 757702):setSize(126))
+    table.insert(asteroid_list,Asteroid():setPosition(-25319, 752945):setSize(219))
+    table.insert(asteroid_list,Asteroid():setPosition( -4342, 729385):setSize(318))
+    table.insert(asteroid_list,Asteroid():setPosition( 12617, 711013):setSize( 35))
+    table.insert(asteroid_list,Asteroid():setPosition(  7143, 712275):setSize( 34))
+    table.insert(asteroid_list,Asteroid():setPosition( -3605, 721751):setSize(428))
+    table.insert(asteroid_list,Asteroid():setPosition( -6690, 716815):setSize(121))
+    table.insert(asteroid_list,Asteroid():setPosition(-12860, 721545):setSize(222))
+    table.insert(asteroid_list,Asteroid():setPosition(-11832, 727715):setSize(327))
+    table.insert(asteroid_list,Asteroid():setPosition(-16357, 730800):setSize(413))
+    table.insert(asteroid_list,Asteroid():setPosition(-16974, 727304):setSize(122))
+    table.insert(asteroid_list,Asteroid():setPosition( 15031, 712562):setSize( 41))
+    table.insert(asteroid_list,Asteroid():setPosition( 17903, 711069):setSize(226))
+    table.insert(asteroid_list,Asteroid():setPosition( 19512, 710609):setSize( 42))
+    table.insert(asteroid_list,Asteroid():setPosition( 16116, 712129):setSize(325))
+    table.insert(asteroid_list,Asteroid():setPosition( 19167, 711528):setSize( 38))
+    table.insert(asteroid_list,Asteroid():setPosition( 18592, 712218):setSize( 28))
+    table.insert(asteroid_list,Asteroid():setPosition(-23589, 756404):setSize( 26))
+    table.insert(asteroid_list,Asteroid():setPosition(-24264, 754499):setSize( 19))
+    table.insert(asteroid_list,Asteroid():setPosition(-26791, 758520):setSize(419))
+    table.insert(asteroid_list,Asteroid():setPosition(-24269, 745136):setSize(800))
+    table.insert(asteroid_list,Asteroid():setPosition(-25968, 755323):setSize(113))
+    table.insert(asteroid_list,Asteroid():setPosition(-23157, 753378):setSize( 18))
+    table.insert(asteroid_list,Asteroid():setPosition( 17125, 712129):setSize( 17))
+    table.insert(asteroid_list,Asteroid():setPosition( -6896, 722985):setSize(217))
+--	Nebulae
+    table.insert(asteroid_list,Nebula():setPosition(70658, 856823))
+    table.insert(asteroid_list,Nebula():setPosition(72220, 864375))
+    table.insert(asteroid_list,Nebula():setPosition(77689, 860208))
+    table.insert(asteroid_list,Nebula():setPosition(77428, 865417))
+    table.insert(asteroid_list,Nebula():setPosition(104425, 843589))
+    table.insert(asteroid_list,Nebula():setPosition(17793, 794323))
+    table.insert(asteroid_list,Nebula():setPosition(23262, 788333))
+    table.insert(asteroid_list,Nebula():setPosition(-18665, 820885))
+    table.insert(asteroid_list,Nebula():setPosition(-22572, 815417))
+    table.insert(asteroid_list,Nebula():setPosition(-28301, 811771))
+    table.insert(asteroid_list,Nebula():setPosition(-34290, 815937))
+    table.insert(asteroid_list,Nebula():setPosition(-17363, 759167))
+    table.insert(asteroid_list,Nebula():setPosition(-15540, 752396))
+    table.insert(asteroid_list,Nebula():setPosition(-17103, 743281))
+    table.insert(asteroid_list,Nebula():setPosition(-14499, 731042))
+    table.insert(asteroid_list,Nebula():setPosition(-14238, 738333))
+    table.insert(asteroid_list,Nebula():setPosition(99564, 719062))
+    table.insert(asteroid_list,Nebula():setPosition(96178, 714114))
+    table.insert(asteroid_list,Nebula():setPosition(124303, 746146))
+    table.insert(asteroid_list,Nebula():setPosition(118053, 742500))
+    table.insert(asteroid_list,Nebula():setPosition(121439, 737292))
 	return asteroid_list
 end
 function createStaunchPhenomenon()
@@ -35936,7 +36635,7 @@ function modifyShip(ship)
 		until(ship:getBeamWeaponRange(beamIndex) < 1)
 	end
 end
-function spawnNPCs(x, y, strength, faction, action, composition, exclude, tinkered, shape, spawn_distance, spawn_angle, px, py)
+function spawnNPCs(x, y, strength, faction, action, composition, exclude, tinkered, shape, spawn_distance, spawn_angle, px, py, enhancement)
 	--	x and y are the spawn coordinates
 	--	strength is the numerical value of the strength of the ships spawned
 	--		if nil, will use relative strength as selected in GM buttons
@@ -35977,6 +36676,11 @@ function spawnNPCs(x, y, strength, faction, action, composition, exclude, tinker
 	local restore_composition = nil
 	local restore_exclude = nil
 	local restore_tinkered = nil
+	local restore_enhancement = nil
+	if enhancement ~= nil then
+		restore_enhancement = ship_enhancement_factor
+		ship_enhancement_factor = enhancement
+	end
 	if strength ~= nil then
 		restore_strength = fleetStrengthFixedValue
 		restore_strength_boolean = fleetStrengthFixed
@@ -36011,7 +36715,10 @@ function spawnNPCs(x, y, strength, faction, action, composition, exclude, tinker
 		restore_tinkered = fleetChange
 		fleetChange = tinkered
 	end
-	spawnRandomArmed(x, y, nil, shape, spawn_distance, spawn_angle, px, py)
+	local fleet = spawnRandomArmed(x, y, nil, shape, spawn_distance, spawn_angle, px, py)
+	if restore_enhancement ~= nil then
+		ship_enhancement_factor = restore_enhancement
+	end
 	if restore_tinkered ~= nil then
 		fleetChange = restore_tinkered
 	end
@@ -36031,6 +36738,7 @@ function spawnNPCs(x, y, strength, faction, action, composition, exclude, tinker
 		fleetStrengthFixedValue = restore_strength
 		fleetStrengthFixed = restore_strength_boolean
 	end
+	return fleet
 end
 function spawnRandomArmed(x, y, fleetIndex, shape, spawn_distance, spawn_angle, px, py)
 --x and y are central spawn coordinates
@@ -56050,6 +56758,7 @@ function interactiveUndockedStationComms()
 	addCommsReply("Interact with station relay officer on duty",interactiveUndockedStationCommsMeat)
 end
 function interactiveUndockedStationCommsMeat()
+	string.format("")
 	local help_prompts = {
 		"What can I do for you?",
 		"How may I help?",
@@ -56110,6 +56819,9 @@ function interactiveUndockedStationCommsMeat()
 			magnasolHeatDiscussion({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
 			interactive_undocked_station_magnasol_heat = getScenarioTime()
 		end
+	end
+	if comms_target == stationWormholeWrangler then
+		wormholeWranglerOptions({identifier=interactiveUndockedStationCommsMeat,name="interactive relay officer"})
 	end
 	if comms_target == stationHossenfelder then
 		if interactive_undocked_station_riptide_hossenfelder == nil or getScenarioTime() > interactive_undocked_station_riptide_hossenfelder + comms_fudge then
@@ -58650,6 +59362,41 @@ function commercialOptions(calling_function)
 	end)
 end
 --	circumstantial comms
+function wormholeWranglerOptions(calling_function)
+	string.format("")
+	local wormhole_destination_change_prompt = {
+		"Change wormhole destination",
+		"Set wormhole destination",
+		"Change wormhole exit point",
+		"Adjust the wormhole's destination",
+	}
+	addCommsReply(tableSelectRandom(wormhole_destination_change_prompt),function()
+		local wormhole_destination_current_possible = {
+			string.format("The wormhole spits you out near %s. Would you like for us to change that?",comms_target.wormhole.exit),
+			string.format("The wormhole exit is near %s. Do you need that changed?",comms_target.wormhole.exit),
+			string.format("The wormhole transports you to %s. Need to go somewhere else?",comms_target.wormhole.exit),
+			string.format("The wormhole currently goes to %s. Do you want an alternative destination?",comms_target.wormhole.exit),
+		}
+		setCommsMessage(tableSelectRandom(wormhole_destination_current_possible))
+		for i,w_exit in ipairs(comms_target.wormhole.exits) do
+			if w_exit.name ~= comms_target.wormhole.exit then
+				addCommsReply(string.format("%s for 5 reputation",w_exit.name),function()
+					if comms_source:takeReputationPoints(5) then
+						comms_target.wormhole.exit = w_exit.name
+						comms_target.wormhole:setTargetPosition(w_exit.x,w_exit.y):onTeleportation(w_exit.tax)
+						setCommsMessage(string.format("Changed to %s",w_exit.name))
+					else
+						setCommsMessage("Insufficient reputation")
+					end
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+					addCommsReply("Back to station communication", commsStation)
+				end)
+			end
+		end
+		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+		addCommsReply("Back to station communication", commsStation)
+	end)
+end
 function magnasolHeatDiscussion(calling_function)
 	local magnasol_protection_prompt = {
 		"How can I protect my ship from Magnasol heat?",
@@ -58679,7 +59426,7 @@ function magnasolHeatDiscussion(calling_function)
 				"Your shields protect you from about half of Magnasol's heat impact",
 			}
 			setCommsMessage(tableSelectRandom(shield_heat_response))
-			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 			addCommsReply("Back to station communication", commsStation)
 		end)
 		local run_away_prompt = {
@@ -58696,7 +59443,7 @@ function magnasolHeatDiscussion(calling_function)
 				string.format("Move %s 100 units or more away from Magnasol and the heat impact goes away. The closer you are to Magnasol, though, the more the heat impacts %s",comms_source:getCallSign(),comms_source:getCallSign()),
 			}
 			setCommsMessage(tableSelectRandom(distance_explained))
-			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 			addCommsReply("Back to station communication", commsStation)
 		end)
 		local get_coolant_additive_prompt = {
@@ -58816,14 +59563,14 @@ function magnasolHeatDiscussion(calling_function)
 								injectCoolantAdditive(exchange_good)
 							end
 						end
-						addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+						addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 						addCommsReply("Back to station communication", commsStation)
 					end)
 				end
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
-			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+			addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 			addCommsReply("Back to station communication", commsStation)
 		end)
 	end)
@@ -58867,7 +59614,7 @@ function riptideHossenfelderDiscussion(calling_function)
 			"To complete the information set, Lagrange point 1 is between Riptide Alpha and Riptide Gamme. There's nothing of interest there.",
 		}
 		setCommsMessage(string.format("%s\n%s\n%s\n%s\n%s",tableSelectRandom(psamtik_info),tableSelectRandom(wormhole_to_Icarus),tableSelectRandom(hossenfelder_info),tableSelectRandom(l5_info),tableSelectRandom(l1_info)))
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 		addCommsReply("Back to station communication", commsStation)
 	end)
 end
@@ -58911,10 +59658,10 @@ function lafrinaDiscussion(calling_function)
 						string.format("Waypoint %i set for station Marielle",comms_source:getWaypointCount()),
 					}
 					setCommsMessage(tableSelectRandom(marielle_waypoint_set))
-					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 					addCommsReply("Back to station communication", commsStation)
 				end)
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
 		end
@@ -58943,10 +59690,10 @@ function lafrinaDiscussion(calling_function)
 						string.format("Waypoint %i set for station Ilorea",comms_source:getWaypointCount()),
 					}
 					setCommsMessage(tableSelectRandom(ilorea_waypoint_set))
-					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 					addCommsReply("Back to station communication", commsStation)
 				end)
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
 		end
@@ -58975,10 +59722,10 @@ function lafrinaDiscussion(calling_function)
 						string.format("Waypoint %i set for station Rivelle",comms_source:getWaypointCount()),
 					}
 					setCommsMessage(tableSelectRandom(rivelle_waypoint_set))
-					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 					addCommsReply("Back to station communication", commsStation)
 				end)
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
 		end
@@ -59007,10 +59754,10 @@ function lafrinaDiscussion(calling_function)
 						string.format("Waypoint %i set for station Borie",comms_source:getWaypointCount()),
 					}
 					setCommsMessage(tableSelectRandom(borie_waypoint_set))
-					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 					addCommsReply("Back to station communication", commsStation)
 				end)
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
 		end
@@ -59039,10 +59786,10 @@ function lafrinaDiscussion(calling_function)
 						string.format("Waypoint %i set for station Lurive",comms_source:getWaypointCount()),
 					}
 					setCommsMessage(tableSelectRandom(lurive_waypoint_set))
-					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 					addCommsReply("Back to station communication", commsStation)
 				end)
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
 		end
@@ -59071,14 +59818,14 @@ function lafrinaDiscussion(calling_function)
 						string.format("Waypoint %i has been set for station Vilairre. Note: the waypoint will not move with Vilairre, so it will soon be inaccurate.",comms_source:getWaypointCount()),
 					}
 					setCommsMessage(tableSelectRandom(vilairre_waypoint_set))
-					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+					addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 					addCommsReply("Back to station communication", commsStation)
 				end)
-				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 				addCommsReply("Back to station communication", commsStation)
 			end)
 		end
-		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identity)
+		addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
 		addCommsReply("Back to station communication", commsStation)
 	end)
 end
@@ -59393,6 +60140,7 @@ function interactiveDockedStationComms()
 	addCommsReply("Interact with station relay officer on duty",interactiveDockedStationCommsMeat)
 end
 function interactiveDockedStationCommsMeat()
+	string.format("")
 	local help_prompts = {
 		"What can I do for you?",
 		"How may I help?",
@@ -59472,6 +60220,9 @@ function interactiveDockedStationCommsMeat()
 			magnasolHeatDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
 			interactive_docked_station_magnasol = getScenarioTime()
 		end
+	end
+	if comms_target == stationWormholeWrangler then
+		wormholeWranglerOptions({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
 	end
 	if comms_target == stationHossenfelder then
 		if interactive_docked_station_riptide_hossenfelder == nil or getScenarioTime() > interactive_docked_station_riptide_hossenfelder + comms_fudge then
@@ -65216,7 +65967,7 @@ function update(delta)
 	updateShowMineBlob()
 	expeditedDockingServices()
 	if staunch_phenomenon ~= nil then
-		updateStaunchPhenomenon(delta)
+		updateStaunch(delta)
 	end
 	if escape_pod_floaters ~= nil then
 		podFloat()
@@ -67974,6 +68725,157 @@ function updateStaunchPhenomenon(delta)
 			end
 		end
 	end
+	updateStaunch = updateStaunchPatrols
+end
+function updateStaunchPatrols(delta)
+	for _, fleet in ipairs(staunch_patrol_fleets) do
+		if fleet ~= nil and fleet.ships ~= nil then
+			local ship_deleted = false
+			for index, ship in ipairs(fleet.ships) do
+				if ship ~= nil then
+					if not ship:isValid() then
+						fleet.ships[index] = fleet.ships[#fleet.ships]
+						fleet.ships[#fleet.ships] = nil
+						ship_deleted = true
+						break
+					end
+				else
+					fleet.ships[index] = fleet.ships[#fleet.ships]
+					fleet.ships[#fleet.ships] = nil
+					ship_deleted = true
+					break
+				end
+			end
+			if not ship_deleted then
+				if #fleet.ships == 0 then
+					if fleet.regen == nil then
+						fleet.regen = getScenarioTime() + 30
+					else
+						if fleet.regen < getScenarioTime() then
+							fleet.ships = createStaunchPatrol(fleet.name)
+							fleet.regen = nil
+						end
+					end
+				end
+			end
+		end
+	end
+	updateStaunch = updateStaunchExpeditions
+end
+function updateStaunchExpeditions(delta)
+	if staunch_expedition_stations ~= nil then
+		if #staunch_expedition_stations > 0 then
+			local expedition_pool = {}
+			local station_deleted = false
+			for i,station in ipairs(staunch_expedition_stations) do
+				if station:isValid() then
+					if station.expedition == nil then
+						table.insert(expedition_pool,station)
+					else
+						if #station.expedition > 0 then
+							for j,ship in ipairs(station.expedition) do
+								if not ship:isValid() then
+									station.expedition[j] = station.expedition[#station.expedition]
+									station.expedition[#station.expedition] = nil
+									break
+								end
+							end
+						else
+							station.expedition = nil
+							table.insert(expedition_pool,station)
+						end
+					end
+				else
+					staunch_expedition_stations[i] = staunch_expedition_stations[#staunch_expedition_stations]
+					staunch_expedition_stations[#staunch_expedition_stations] = nil
+					station_deleted = true
+					break
+				end
+			end
+			if not station_deleted then
+				if #expedition_pool > 0 then
+					if staunch_expedition_time == nil then
+						staunch_expedition_time = getScenarioTime() + 5	--test: 5, final: 180 - 600
+					end
+					if getScenarioTime() > staunch_expedition_time then
+						staunch_expedition_time = nil
+						local station = tableRemoveRandom(expedition_pool)
+						local enemy_station = nil
+						local enemy_pool = {}
+						for i,enemy_station in ipairs(expedition_pool) do
+							if station:isEnemy(enemy_station) then
+								table.insert(enemy_pool,enemy_station)
+							end
+						end
+						if #enemy_pool > 0 then
+							enemy_station = tableSelectRandom(enemy_pool)
+						end
+						if enemy_station ~= nil then
+							station.expedition = {}
+							local sx,sy = station:getPosition()
+							local fleet = spawnNPCs(sx,sy,nil,station:getFaction(),"Idle","Random",nil,"unmodified","none",nil,nil,nil,nil,0)
+							local tx, ty = enemy_station:getPosition()
+							for i,ship in ipairs(fleet) do
+								ship:orderFlyTowards(tx,ty)
+								table.insert(station.expedition,ship)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	updateStaunch = updateStaunchDefenders
+end
+function updateStaunchDefenders(delta)
+	if staunch_defender_stations ~= nil then
+		for i,station in ipairs(staunch_defender_stations) do
+			if station:isValid() then
+				if station.defenders == nil then
+					if station.defend_check_time == nil then
+						station.defend_check_time = getScenarioTime() + random(5,10)
+					end
+					if getScenarioTime() > station.defend_check_time then
+						station.defend_check_time = nil
+						local sx,sy = station:getPosition()
+						local obj_list = getObjectsInRadius(sx,sy,8000)
+						for j,obj in ipairs(obj_list) do
+							if obj ~= station then
+								if obj.typeName == "PlayerSpaceship" or obj.typeName == "CpuShip" then
+									if obj:isEnemy(station) then
+										station.defenders = {}
+										local fleet = spawnNPCs(sx,sy,nil,station:getFaction(),"Idle","Random",nil,"unmodified","none",nil,nil,nil,nil,0)
+										for k,ship in ipairs(fleet) do
+											ship:orderDefendTarget(station)
+											table.insert(station.defenders,ship)
+										end
+										break
+									end
+								end
+							end
+						end
+					end
+				else
+					if #station.defenders > 0 then
+						for j,ship in ipairs(station.defenders) do
+							if not ship:isValid() then
+								station.defenders[j] = station.defenders[#station.defenders]
+								station.defenders[#station.defenders] = nil
+								break
+							end
+						end
+					else
+						station.defenders = nil
+					end
+				end
+			else
+				staunch_defender_stations[i] = staunch_defender_stations[#staunch_defender_stations]
+				staunch_defender_stations[#staunch_defender_stations] = nil
+				break
+			end
+		end
+	end
+	updateStaunch = updateStaunchPhenomenon
 end
 function updatePlayerMagnasolLevelCoolant(p)
 	if p:isValid() then
