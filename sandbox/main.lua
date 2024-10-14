@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.1.1"
+	scenario_version = "7.2.1"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2601,6 +2601,9 @@ function setConstants()
 	bask_commerce = false
 	bask_commerce_assets = {}
 	bask_commerce_timer = commerce_timer_interval
+	staunch_commerce = false
+	staunch_commerce_assets = {}
+	staunch_commerce_timer = commerce_timer_interval
 	explosion_type = "Normal"
 	explosion_damage = 50
 	explosion_size = 1000
@@ -6648,58 +6651,204 @@ function freighterCommerce()
 	clearGMFunctions()
 	addGMFunction("-Main from Commerce",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
-	local button_label = "Skeletal"
-	if skeletal_commerce then
-		button_label = button_label .. " On"
+	local commerce_regions = {
+		{name = "Skeletal", status = skeletal_commerce,	func = skeletalFreighterCommerce},
+		{name = "Icarus",	status = icarus_commerce,	color = icarus_color,	func = icarusFreighterCommerce},
+		{name = "Kentar",	status = kentar_commerce,	color = kentar_color,	func = kentarFreighterCommerce},
+		{name = "Teresh",	status = teresh_commerce,	color = teresh_color,	func = tereshFreighterCommerce},
+		{name = "Lafrina",	status = lafrina_commerce,	color = lafrina_color,	func = lafrinaFreighterCommerce},
+		{name = "Bask",		status = bask_commerce,		color = bask_color,		func = baskFreighterCommerce},
+		{name = "Staunch",	status = staunch_commerce,	color = staunch_color,	func = staunchFreighterCommerce},
+	}
+	for i,commerce in ipairs(commerce_regions) do
+		local button_label = commerce.name
+		if commerce.status then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		if commerce.color ~= nil then
+			if commerce.color then
+				addGMFunction(button_label,commerce.func)
+			end
+		else
+			addGMFunction(button_label,commerce.func)
+		end
+	end
+end
+function staunchFreighterCommerce()
+	if staunch_commerce then
+		removeStaunchCommerce()
 	else
-		button_label = button_label .. " Off"
-	end
-	addGMFunction(button_label,skeletalFreighterCommerce)
-	if icarus_color then
-		button_label = "Icarus"
-		if icarus_commerce then
-			button_label = button_label .. " On"
-		else
-			button_label = button_label .. " Off"
+		local staunch_freighters_message = "Staunch Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		local escort_ship = nil
+		local escort_count = 0
+		local escort_type = {
+			{chance = 36, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 23, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				setBeamColor(escort_ship)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(staunch_commerce_assets,escort_ship)
+			end
 		end
-		addGMFunction(button_label,icarusFreighterCommerce)
-	end
-	if kentar_color then
-		button_label = "Kentar"
-		if kentar_commerce then
-			button_label = button_label .. " On"
-		else
-			button_label = button_label .. " Off"
+		--Space Sedan
+		ship = spaceSedan()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 63, type = "MT52 Hornet"},
+			{chance = 38, type = "MU52 Hornet"},
+			{chance = 21, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				setBeamColor(escort_ship)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(staunch_commerce_assets,escort_ship)
+			end
 		end
-		addGMFunction(button_label,kentarFreighterCommerce)
-	end
-	if teresh_color then
-		button_label = "Teresh"
-		if teresh_commerce then
-			button_label = button_label .. " On"
-		else
-			button_label = button_label .. " Off"
+		--Omnibus
+		ship = omnibus()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 47, type = "MT52 Hornet"},
+			{chance = 28, type = "MU52 Hornet"},
+			{chance = 16, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				setBeamColor(escort_ship)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(staunch_commerce_assets,escort_ship)
+			end
 		end
-		addGMFunction(button_label,tereshFreighterCommerce)
-	end
-	if lafrina_color then
-		button_label = "Lafrina"
-		if lafrina_commerce then
-			button_label = button_label .. " On"
-		else
-			button_label = button_label .. " Off"
+		--Garbage Freighter 2
+		local ship = CpuShip():setTemplate("Garbage Freighter 2")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		local origin_x, origin_y = ship.commerce_origin:getPosition()
+		local destination_x, destination_y = ship.commerce_target:getPosition()
+		local start_x = (origin_x + destination_x) / 2
+		local start_y = (origin_y + destination_y) / 2
+		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		--Laden Lorry
+		ship = ladenLorry()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		origin_x, origin_y = ship.commerce_origin:getPosition()
+		destination_x, destination_y = ship.commerce_target:getPosition()
+		start_x = (origin_x + destination_x) / 2
+		start_y = (origin_y + destination_y) / 2
+		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+		ship:setPosition(start_x + ds_x, start_y + ds_y)
+		ship:orderDock(ship.commerce_target)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		escort_count = 0
+		escort_type = {
+			{chance = 75, type = "MT52 Hornet"},
+			{chance = 55, type = "MU52 Hornet"},
+			{chance = 34, type = "Fighter"},
+		}
+		for i=1,#escort_type do
+			if random(1,100) < escort_type[i].chance then
+				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+				setBeamColor(escort_ship)
+				escort_ship:setJumpDrive(true)
+				escort_ship:setFaction(ship:getFaction())
+				escort_count = escort_count + 1
+				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
+				escort_ship:orderDefendTarget(ship)
+				escort_ship.commerce_escort = true
+				table.insert(staunch_commerce_assets,escort_ship)
+			end
 		end
-		addGMFunction(button_label,lafrinaFreighterCommerce)
+		addGMMessage(staunch_freighters_message)
+		staunch_commerce = true
 	end
-	if bask_color then
-		button_label = "Bask"
-		if bask_commerce then
-			button_label = button_label .. " On"
-		else
-			button_label = button_label .. " Off"
-		end
-		addGMFunction(button_label,baskFreighterCommerce)
-	end
+	freighterCommerce()
 end
 function baskFreighterCommerce()
 	if bask_commerce then
@@ -7290,6 +7439,13 @@ function icarusFreighterCommerce()
 	end
 	freighterCommerce()
 end
+function removeStaunchCommerce()
+	for index,ship in ipairs(staunch_commerce_assets) do
+		ship:destroy()
+	end
+	staunch_commerce_assets = {}
+	staunch_commerce = false
+end
 function removeBaskCommerce()
 	for index, ship in ipairs(bask_commerce_assets) do
 		ship:destroy()
@@ -7648,6 +7804,7 @@ function skeletalDestination(ship)
 			print("got nothing from station pool, assigning Icarus")
 		end
 		ship.commerce_target = stationIcarus
+		ship:setFaction(stationIcarus:getFaction())
 	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
@@ -7702,6 +7859,11 @@ function getRegionStations(region_station)
 		region_stations = bask_stations
 		if stationBask ~= nil and stationBask:isValid() then
 			primary_station = stationBask
+		end
+	elseif region_station == stationStaunch then
+		region_stations = staunch_stations
+		if stationStaunch ~= nil and stationStaunch:isValid() then
+			primary_station = stationStaunch
 		end
 	end
 	return region_stations, primary_station
@@ -7780,6 +7942,7 @@ function regionCommerceDestination(ship,region_station)
 			print("got nothing from station pool, assigning primary station:",primary_station:getCallSign())
 		end
 		ship.commerce_target = primary_station
+		ship:setFaction(primary_station:getFaction())
 	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
@@ -33919,6 +34082,11 @@ function stockPlayer(template)
 	ship:setTemplate(template):setFaction("Human Navy")
 	setBeamColor(ship)
 	ship:onTakingDamage(playerShipDamage)
+	if template == "Player Fighter" then
+--                  		  Arc, Dir,Range, Cyc,Dmg
+		ship:setBeamWeapon(0,  20,   0,	1200,	6,	8):setBeamWeaponDamageType(0,"emp")
+		ship:setBeamWeapon(1,  30,   0,	1000,	6,	8)
+	end
 	return ship
 end
 --	************************************************************  --
@@ -65961,6 +66129,13 @@ function update(delta)
 		if bask_commerce_timer < 0 then
 			updateCommerce(bask_commerce_assets,stationBask)
 			bask_commerce_timer = commerce_timer_interval
+		end
+	end
+	if staunch_commerce then
+		staunch_commerce_timer = staunch_commerce_timer - delta
+		if staunch_commerce_timer < 0 then
+			updateCommerce(staunch_commerce_assets,stationStaunch)
+			staunch_commerce_timer = commerce_timer_interval
 		end
 	end
 	updateProbeLabor()
