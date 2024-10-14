@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.2.1"
+	scenario_version = "7.2.2"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1768,11 +1768,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Hearken")			--J
-	makePlayerShipActive("Cobra")			--J
-	makePlayerShipActive("Magnum") 			--J 
+	makePlayerShipActive("Terror")			--J
+	makePlayerShipActive("Enola")			--J
+	makePlayerShipActive("Mixer") 			--J 
 	makePlayerShipActive("Watson")			--W
-	makePlayerShipActive("Tango")			--W
+	makePlayerShipActive("Florentine")		--W
 	makePlayerShipActive("Spike") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
