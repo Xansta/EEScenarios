@@ -7,6 +7,7 @@
 -- Type: Replayable Mission
 -- Author: Xansta
 -- Setting[First]: Configures how long until the first major event occurs. The default is ten minutes. Shorter is harder. Longer is easier.
+-- First[Seconds]: Ten seconds until the first major event occurs. This is used mainly for testing.
 -- First[Five]: Five minutes until the first major event occurs.
 -- First[Ten|Default]: Ten minutes until the first major event occurs.
 -- First[Fifteen]: Fifteen minutes until the first major event occurs.
@@ -18,16 +19,20 @@
 -- Enemies[Extreme]: Much stronger, many more enemies
 -- Enemies[Quixotic]: Insanely strong and/or inordinately large numbers of enemies
 -- Setting[Second]: Configures how long between the first event and the second event. The default is ten minutes. Shorter is harder. Longer is easier.
+-- Second[Seconds]: Ten seconds between the first event and the second event. This is used mainly for testing.
+-- Second[One]: One minute between the first event and the second event (test)
 -- Second[Five]: Five minutes between the first event and the second event.
 -- Second[Ten|Default]: Ten minutes between the first event and the second event.
 -- Second[Fifteen]: Fifteen minutes between the first event and the second event.
 -- Second[Twenty]: Twenty minutes between the first event and the second event.
 -- Setting[Third]: Configures how long between the 2nd and 3rd events. Default: 10. Combining 1st, 2nd and 3rd gives you overall scenario length (30 - 60 minutes).
+-- Third[Seconds]: Ten seconds between 2nd and 3rd events. Mainly used for testing.
 -- Third[Five]: Five minutes between the 2nd and 3rd events.
 -- Third[Ten|Default]: Ten minutes between the 2nd and 3rd events.
 -- Third[Fifteen]: Fifteen minutes between the 2nd and 3rd events.
 -- Third[Twenty]: Twenty minutes between the 2nd and 3rd events.
 -- Setting[Cloak]: Degree of device cloaking mechanism
+-- Cloak[None]: Device is not cloaked
 -- Cloak[Partial|Default]: Device is partially cloaked
 -- Cloak[Strong]: Device is mostly cloaked
 -- Cloak[Full]: Device is cloaked (but it's not perfect)
@@ -629,10 +634,10 @@ function setGlobals()	--variables that might change
 	nova_beam_targets = {}
 	jasmine_purdue_hint = false
 	jasmine_purdue_answers = {
-		"She studies the Exuari. She's *the* expert around here",
-		"She studies the Exuari so hard that sometimes I wonder if she's got some kind of fixation.",
-		"I heard that her family was killed by the Exuari. That's why she studies them so much.",
-		"After studying the Exuari using our extensive resources, she took a job on a freighter to gather more data in the field.",
+		_("station-comms","She studies the Exuari. She's *the* expert around here"),
+		_("station-comms","She studies the Exuari so hard that sometimes I wonder if she's got some kind of fixation."),
+		_("station-comms","I heard that her family was killed by the Exuari. That's why she studies them so much."),
+		_("station-comms","After studying the Exuari using our extensive resources, she took a job on a freighter to gather more data in the field."),
 	}
 	jasmine_freighter_hint = false
 	jasmine_freighter_identified = false
