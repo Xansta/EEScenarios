@@ -1655,7 +1655,6 @@ function interactiveUndockedStationComms()
 		}
 		addCommsReply(tableSelectRandom(virtual_stellar_cartography_prompts),stellarCartographyBrochure)
 	end
-	addCommsReply(_("Back"), commsStation)
 end
 function requestJonque()
 	if comms_target.comms_data.service_cost.servicejonque ~= nil then
@@ -4574,10 +4573,12 @@ function dispatchOffice()
 	}
 	setCommsMessage(tableSelectRandom(mission_select_prompts))
 	local improvements = {}
-	local msg = ""
-	msg, improvements = catalogImprovements(msg)
-	if #improvements > 0 and (comms_target.comms_data.friendlyness > 33 or comms_source:isDocked(comms_target)) then
-		improveStationService(improvements)
+	if stations_sell_goods then
+		local msg = ""
+		msg, improvements = catalogImprovements(msg)
+		if #improvements > 0 and (comms_target.comms_data.friendlyness > 33 or comms_source:isDocked(comms_target)) then
+			improveStationService(improvements)
+		end
 	end
 	local mission_options_presented_count = #improvements
 	local transport_and_cargo_mission_count = 0
@@ -5622,7 +5623,7 @@ function restockOrdnance()
 		string.format(_("ammo-comms","Please provide ordnance for %s"),comms_source:getCallSign()),
 	}
 	addCommsReply(tableSelectRandom(ordnance_restock_prompt), function()
-		setCommsMessage("What type of ordnance do you need?")
+		setCommsMessage(_("ammo-comms","What type of ordnance do you need?"))
 		local prompts = {
 			["Nuke"] = {
 				_("ammo-comms","Can you supply us with some nukes?"),
