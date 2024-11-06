@@ -61,6 +61,9 @@ function init()
     include_goods_for_sale_in_status = true
     include_ordnance_in_status = true
     stations_sell_goods = true
+    current_orders_button = true
+    primary_orders = _("orders-comms","Defend friendly stations.")
+    secondary_orders = ""
     enemy_list = {}
     friendly_stations = {}
     neutral_stations = {}
@@ -191,12 +194,12 @@ function init()
     storm_asteroids = {}
     
     -- Enemy strength configuration and primary enemy type list
-	local enemy_config = {
-		["Easy"] =		{number = .5},
-		["Normal"] =	{number = 1},
-		["Hard"] =		{number = 2},
-		["Extreme"] =	{number = 3},
-		["Quixotic"] =	{number = 5},
+	enemy_config = {
+		["Easy"] =		{number = .5,	desc = _("msgMainscreen","Easy")},
+		["Normal"] =	{number = 1,	desc = _("msgMainscreen","Normal")},
+		["Hard"] =		{number = 2,	desc = _("msgMainscreen","Hard")},
+		["Extreme"] =	{number = 3,	desc = _("msgMainscreen","Extreme")},
+		["Quixotic"] =	{number = 5,	desc = _("msgMainscreen","Quixotic")},
 	}
 	enemy_power =	enemy_config[getScenarioSetting("Enemies")].number
 	local enemy_speed = {
@@ -443,7 +446,13 @@ function init()
     	["Fighter"] = "Player Fighter",
     }
     if getScenarioSetting("Prototype") ~= "None" then
-    	PlayerSpaceship():setTemplate(prototype_config[getScenarioSetting("Prototype")])
+    	local ship = PlayerSpaceship():setTemplate(prototype_config[getScenarioSetting("Prototype")])
+    	if prototype_config[getScenarioSetting("Prototype")] == "Player Fighter" then
+--       		          		 Arc, Dir,Range,Cycle, Dmg
+			ship:setBeamWeapon(0, 65,   0,  700,	4, 4)
+			ship:setBeamWeapon(1, 40, -10, 1000,	6, 6)
+			ship:setBeamWeapon(2, 40,  10, 1000,	6, 6)	
+    	end
     end
 end
 function setReinforcements(station)
@@ -750,7 +759,7 @@ function earlyEnd()
 		trigger_end_status = "button created"
 		addGMFunction(_("buttonGM","End with Odin"),function()
 			for i,p in ipairs(getActivePlayerShips()) do
-				p:addToShipLog(string.format(_("shipLog","We picked up an anomalous chroniton particle reading near %s. Encoded within the anomalous reading is a designated point along the timeline in the future. We are still working on the decoding rest of the information, but initial efforts hint at some major military action being taken by the Ghosts. We have placed countdown timers on some of your consoles indicating when this event is supposed to occur."),friendly_stations[1]:getCallSign()),"Magenta")
+				p:addToShipLog(_("shipLog","We picked up an anomalous chroniton particle reading nearby. Encoded within the anomalous reading is a designated point along the timeline in the future. We are still working on the decoding rest of the information, but initial efforts hint at some major military action being taken by the Ghosts. We have placed countdown timers on some of your consoles indicating when this event is supposed to occur."),"Magenta")
 			end
 			trigger_end_status = "started"
 			odin_spawn_time = getScenarioTime() + 30
@@ -825,6 +834,13 @@ end
 ----------------------
 --	Plot functions  --
 ----------------------
+function getCurrentOrders()
+	addCommsReply(_("orders-comms", "What are my current orders?"), function()
+		ordMsg = primary_orders .. "\n" .. secondary_orders
+		setCommsMessage(ordMsg)
+		addCommsReply(_("Back"), commsStation)
+	end)
+end
 function spawnWave()
 	wave_number = wave_number + 1
 	if not asteroid_storm then
@@ -847,7 +863,7 @@ function spawnWave()
 			player_power = player_power + 24
 		end
 	end
-	enemy_strength = math.pow((wave_number + wave_advance),1.3) * 10 * enemy_power + player_power
+	enemy_strength = math.pow((wave_number + wave_advance),1.35) * 10 * enemy_power + player_power
 	current_enemy_strength = 0
 	spawn_angle = random(0,360)
 	spawn_range = random(20000,25000 + 1000 * (wave_number + wave_advance))
@@ -860,13 +876,18 @@ function spawnWave()
 	}
 	local roll = random(1,100) - (wave_number + wave_advance)
 	local wave_style = nil
-	print("Roll:",roll,"Wave number:",wave_number,"Enemy strength:",enemy_strength,"Player power:",player_power,"Advance:",wave_advance + 1)
+--	print("Roll:",roll,"Wave number:",wave_number,"Enemy strength:",enemy_strength,"Player power:",player_power,"Advance:",wave_advance + 1)
 	for i, wave in ipairs(wave_styles) do
 		if roll <= wave.chance then
-			print("Wave type selected:",wave.style)
+--			print("Wave type selected:",wave.style)
 			wave_style = wave
 			break
 		end
+	end
+	if wave_style.style == "defense" or wave_style.style == "base" then
+		secondary_orders = _("orders-comms","Hunt down enemy base.")
+	else
+		secondary_orders = ""
 	end
 	local wave_message = wave_style.msg
 	if asteroid_storm then
@@ -875,7 +896,7 @@ function spawnWave()
 	for i,p in ipairs(getActivePlayerShips()) do
 		p:addToShipLog(wave_message,"Green")
 		p:addReputationPoints(50 + wave_number * 10)
-		local wave_number_out = string.format("Wave %i",wave_number)
+		local wave_number_out = string.format(_("tabRelay&Ops","Wave %i"),wave_number)
 		p.wave_number_banner_rel = "wave_number_banner_rel"
 		p:addCustomInfo("Relay",p.wave_number_banner_rel,wave_number_out,5)
 		p.wave_number_banner_ops = "wave_number_banner_ops"
@@ -1737,11 +1758,11 @@ function update(delta)
     		msg = string.format(_("msgMainscreen","%s\nOne player ship deployed."),msg)
     	end
     	if completed_waves > 1 then
-    		msg = string.format(_("msgMainscreen","%s\n%i waves completed at the %s setting."),msg,completed_waves,getScenarioSetting("Enemies"))
+    		msg = string.format(_("msgMainscreen","%s\n%i waves completed at the %s setting."),msg,completed_waves,enemy_config[getScenarioSetting("Enemies")].desc)
     	elseif completed_waves > 0 then
-    		msg = string.format(_("msgMainscreen","%s\nOne wave completed at the %s setting."),msg,completed_waves,getScenarioSetting("Enemies"))
+    		msg = string.format(_("msgMainscreen","%s\nOne wave completed at the %s setting."),msg,completed_waves,enemy_config[getScenarioSetting("Enemies")].desc)
     	else
-    		msg = string.format(_("msgMainscreen","%s\nNo waves completed at the %s setting."),msg,getScenarioSetting("Enemies"))
+    		msg = string.format(_("msgMainscreen","%s\nNo waves completed at the %s setting."),msg,enemy_config[getScenarioSetting("Enemies")].desc)
     	end
 		local duration_string = getDuration()
 		msg = string.format(_("msgMainscreen","%s\nDuration: %s."),msg,duration_string)
