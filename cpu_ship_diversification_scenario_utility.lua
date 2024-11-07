@@ -350,6 +350,34 @@ function droneHeavy(enemyFaction)
 	end
 	return ship
 end
+function droneHyper(enemyFaction)
+	--Relative strength reference number: 4
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone")
+	ship:setTypeName("Hyper Drone")
+	ship:setWarpDrive(true)
+	local ships_key = _("scienceDB","Ships")
+	local no_class_key = _("scienceDB","No Class")
+	local drone_hyper_key = _("scienceDB","Hyper Drone")
+	local ktlitan_key = _("scienceDB","Ktlitan Drone")
+	local drone_hyper_db = queryScienceDatabase(ships_key,no_class_key,drone_hyper_key)
+	if drone_hyper_db == nil then
+		local no_class_db = queryScienceDatabase(ships_key,no_class_key)
+		if no_class_db ~= nil then
+			no_class_db:addEntry(drone_hyper_key)
+			drone_hyper_db = queryScienceDatabase(ships_key,no_class_key,drone_hyper_key)
+			addShipToDatabase(
+				queryScienceDatabase(ships_key,no_class_key,ktlitan_key),	--base ship database entry
+				drone_hyper_db,	--modified ship database entry
+				ship,			--ship just created, long description on the next line
+				_("scienceDB","The hyper drone is a normal Ktlitan Drone with a warp drive installed"),
+				nil,	--misc key value pairs
+				nil,	--jump
+				"sci_fi_alien_ship_4"
+			)
+		end
+	end
+	return ship
+end
 function droneJacket(enemyFaction)
 	--Relative strength reference number: 4
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone")
