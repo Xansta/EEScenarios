@@ -673,7 +673,7 @@ function addStationToDatabase(station)
 			first_time_entry = true
 		end
 	elseif not station:isEnemy(temp_artifact) then
-		local neutral_key = "Neutral"
+		local neutral_key = _("scienceDB","Neutral")
 		local neutral_db = queryScienceDatabase(stations_key,neutral_key)
 		if neutral_db == nil then
 			stations_db:addEntry(neutral_key)
@@ -985,7 +985,7 @@ function stationStatusReport()
 				msg = string.format(_("situationReport-comms","%s\nGoods or components available:"),msg)
 				for good, good_data in pairs(comms_target.comms_data.goods) do
 					if good_data["quantity"] > 0 then
-						msg = string.format("%s %s@%s",msg,good_desc[good],good_data["cost"])
+						msg = string.format(_("situationReport-comms","%s %s@%s"),msg,good_desc[good],good_data["cost"])
 					end
 				end
 			end
@@ -11453,6 +11453,7 @@ function updatePowerSensorButtons(p)
 		end,30)
 		p.power_sensor_button["Engineering+"] = "power_sensor_button_standby_plus"
 	elseif p.power_sensor_state == "configure" then
+--		print(p.power_sensor_state,"expected: configure")
 		p.power_sensor_button = {}
 		for i=1,3 do
 			p:addCustomButton("Engineering",string.format("power_sensor_button_config_eng%i",i),string.format(_("buttonEngineer","Sensor Boost %i"),i),function()
