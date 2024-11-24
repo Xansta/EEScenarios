@@ -71,7 +71,7 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.2.2"
+	scenario_version = "7.2.3"
 	ee_version = "2024.08.09"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1768,12 +1768,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Terror")			--J
-	makePlayerShipActive("Enola")			--J
-	makePlayerShipActive("Mixer") 			--J 
-	makePlayerShipActive("Watson")			--W
-	makePlayerShipActive("Florentine")		--W
-	makePlayerShipActive("Spike") 			--W 
+	makePlayerShipActive("Knuckle Drag")	--J
+	makePlayerShipActive("Levant")			--J
+	makePlayerShipActive("George") 			--J 
+	makePlayerShipActive("Anvil")			--W
+	makePlayerShipActive("Narsil")			--W
+	makePlayerShipActive("Quill") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -12286,13 +12286,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 6 and not mirrorUniverse then
---			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
---			dp6Zone:setColor(0,128,0):setLabel("6")
+		if i == 2 and not mirrorUniverse then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 1 and not mirrorUniverse then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 --			dp1Zone:setColor(0,128,0):setLabel("1")
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -12301,7 +12301,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -25281,26 +25281,30 @@ function createStaunchStations()
 end
 
 function createStaunchPlanets()
-	local gizen_x = 50292
-	local gizen_y = 789498
+	gizen_x = 50292
+	gizen_y = 789498
 	planet_gizen = Planet():setPosition(gizen_x, gizen_y):setPlanetRadius(1000):setDistanceFromMovementPlane(-2000.00):setPlanetSurfaceTexture("planets/star-1.png"):setPlanetCloudRadius(1050.00):setPlanetAtmosphereColor(1.0,.9,.9)
+	planet_gizen:setCallSign("Gizen")
 	local px, py = vectorFromAngle(random(0,360),56409)
 	px = px + gizen_x
 	py = py + gizen_y
 	--	original position x,y: 92074, 751601
 	planet_merc = Planet():setPosition(px, py):setPlanetRadius(6000):setDistanceFromMovementPlane(-1000.00):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(6300.00)
+	planet_merc:setCallSign("Mercenary")
 	planet_merc:setOrbit(planet_gizen, 600)	--final: 600, test: 10
 	px, py = vectorFromAngle(random(0,360),165884)
 	px = px + gizen_x
 	py = py + gizen_y
 	--	original position x,y: 173959, 678936
 	planet_medusa = Planet():setPosition(px, py):setPlanetRadius(21000):setDistanceFromMovementPlane(-6000.00):setPlanetSurfaceTexture("planets/gas-1.png"):setPlanetCloudRadius(22050.00)
+	planet_medusa:setCallSign("Medusa")
 	planet_medusa:setOrbit(planet_gizen, 3400)	--final: 3400, test: 30
 	local ox, oy = vectorFromAngle(random(0,360),33021)
 	ox = ox + px
 	oy = oy + py
 	--	original position x,y: 146932, 697907
 	planet_phantom = Planet():setPosition(ox, oy):setPlanetRadius(2000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-1.png"):setPlanetCloudRadius(2100.00)
+	planet_phantom:setCallSign("Phantom")
 	planet_phantom:setOrbit(planet_medusa, 890)	--final: 890, test: 2
 	ox, oy = vectorFromAngle(random(0,360),55376)
 	ox = ox + px
@@ -25674,6 +25678,20 @@ function createStaunchPhenomenon()
 	spr_x = 302000
 	spr_y = 780000
 	local phen_list = {}
+	staunch_cheat_top_zone = Zone():setPoints(
+		spr_x,			spr_y - 200000,
+		spr_x + 36000,	spr_y - 200000,
+		spr_x + 36000,	spr_y - 100000,
+		spr_x,			spr_y - 100000
+	)
+	staunch_cheat_bot_zone = Zone():setPoints(
+		spr_x,			spr_y + 100000,
+		spr_x + 36000,	spr_y + 100000,
+		spr_x + 36000,	spr_y + 200000,
+		spr_x,			spr_y + 200000
+	)
+	table.insert(phen_list,staunch_cheat_top_zone)
+	table.insert(phen_list,staunch_cheat_bot_zone)
 	--[[
 	local pbz1 = Zone():setPoints(
 		spr_x,			spr_y - 100000,
@@ -68897,6 +68915,24 @@ function updateStaunchPhenomenon(delta)
 				else
 					sp:setPosition(sp_x,sp_y)
 				end
+			end
+		end
+	end
+	for i,p in ipairs(getActivePlayerShips()) do
+		if staunch_cheat_top_zone ~= nil then
+			if staunch_cheat_top_zone:isInside(p) then
+				local npx, npy = vectorFromAngle(random(0,360),random(2000,56000))
+				npx = npx + gizen_x
+				npy = npy + gizen_y
+				p:setPosition(npx,npy)
+			end
+		end
+		if staunch_cheat_bot_zone ~= nil then
+			if staunch_cheat_bot_zone:isInside(p) then
+				local npx, npy = vectorFromAngle(random(0,360),random(2000,56000))
+				npx = npx + gizen_x
+				npy = npy + gizen_y
+				p:setPosition(npx,npy)
 			end
 		end
 	end
