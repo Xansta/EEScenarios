@@ -1726,11 +1726,11 @@ function update(delta)
             dropWarpJammer(enemy)
         end
     end
-    for i, friendly in ipairs(friendly_stations) do
-        if friendly ~= nil and friendly:isValid() then
-            friendly_count = friendly_count + 1
-        end
-    end
+	for i, friendly in ipairs(friendly_stations) do
+		if friendly ~= nil and friendly:isValid() then
+			friendly_count = friendly_count + 1
+		end
+	end
     -- Continue ...
     if enemy_count == 0 then
         spawn_wave_delay = 15.0
@@ -1749,21 +1749,21 @@ function update(delta)
     	subWave()
     end
     -- ... or lose
-    if friendly_count == 0 then
-    	local completed_waves = wave_number - 1
-    	local msg = _("msgMainscreen","All friendly bases destroyed.")
-    	if player_spawn_count > 1 then
-    		msg = string.format(_("msgMainscreen","%s\n%i player ships deployed."),msg,player_spawn_count)
-    	else
-    		msg = string.format(_("msgMainscreen","%s\nOne player ship deployed."),msg)
-    	end
-    	if completed_waves > 1 then
-    		msg = string.format(_("msgMainscreen","%s\n%i waves completed at the %s setting."),msg,completed_waves,enemy_config[getScenarioSetting("Enemies")].desc)
-    	elseif completed_waves > 0 then
-    		msg = string.format(_("msgMainscreen","%s\nOne wave completed at the %s setting."),msg,completed_waves,enemy_config[getScenarioSetting("Enemies")].desc)
-    	else
-    		msg = string.format(_("msgMainscreen","%s\nNo waves completed at the %s setting."),msg,enemy_config[getScenarioSetting("Enemies")].desc)
-    	end
+	if friendly_count == 0 then
+		local completed_waves = wave_number - 1
+		local msg = _("msgMainscreen","All friendly bases destroyed.")
+		if player_spawn_count > 1 then
+			msg = string.format(_("msgMainscreen","%s\n%i player ships deployed."),msg,player_spawn_count)
+		else
+			msg = string.format(_("msgMainscreen","%s\nOne player ship deployed."),msg)
+		end
+		if completed_waves > 1 then
+			msg = string.format(_("msgMainscreen","%s\n%i waves completed at the %s setting."),msg,completed_waves,enemy_config[getScenarioSetting("Enemies")].desc)
+		elseif completed_waves > 0 then
+			msg = string.format(_("msgMainscreen","%s\nOne wave completed at the %s setting."),msg,completed_waves,enemy_config[getScenarioSetting("Enemies")].desc)
+		else
+			msg = string.format(_("msgMainscreen","%s\nNo waves completed at the %s setting."),msg,enemy_config[getScenarioSetting("Enemies")].desc)
+		end
 		local duration_string = getDuration()
 		msg = string.format(_("msgMainscreen","%s\nDuration: %s."),msg,duration_string)
 		if wave_advance > 0 then
@@ -1772,9 +1772,9 @@ function update(delta)
 		if getScenarioSetting("Pace") ~= "Normal" then
 			msg = string.format(_("msgMainscreen","%s\nPace setting: %s"),msg,getScenarioSetting("Pace"))
 		end
-    	globalMessage(msg)
-        victory("Ghosts") -- Victory for the Ghosts (= defeat for the players)
-    end
+		globalMessage(msg)
+		victory("Ghosts") -- Victory for the Ghosts (= defeat for the players)
+	end
     if getScenarioTime() > 60*15 then
     	earlyEnd()
     end
