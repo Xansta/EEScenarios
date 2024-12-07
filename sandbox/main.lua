@@ -1768,12 +1768,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Knuckle Drag")	--J
-	makePlayerShipActive("Levant")			--J
-	makePlayerShipActive("George") 			--J 
-	makePlayerShipActive("Anvil")			--W
-	makePlayerShipActive("Narsil")			--W
-	makePlayerShipActive("Quill") 			--W 
+	makePlayerShipActive("Wiggy")			--J
+	makePlayerShipActive("Raptor")			--J
+	makePlayerShipActive("Magnum") 			--J 
+	makePlayerShipActive("Falcon")			--W
+	makePlayerShipActive("Grad")			--W
+	makePlayerShipActive("Thelonius") 		--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -20432,6 +20432,12 @@ function tereshSector()
 		if i == 5 then
 			tdp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
 			tdp5Zone:setColor(0,128,0):setLabel("5")
+		elseif i == 3 then
+			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
+			tdp3Zone:setColor(0,128,0):setLabel("3")
+		elseif i == 4 then
+			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
+			tdp4Zone:setColor(0,128,0):setLabel("4")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			setBeamColor(dp)
@@ -20663,9 +20669,9 @@ function createTereshNebulae()
 	local nebula_list = {}
 	--	Kraylor dragged black hole and nebula close to Teresh 8Jul2023
 	table.insert(nebula_list,BlackHole():setPosition(812580, 86993))
-    table.insert(nebula_list,Nebula():setPosition(789277, 103983))
-    table.insert(nebula_list,Nebula():setPosition(792520, 112381))
-    table.insert(nebula_list,Nebula():setPosition(801334, 115541))
+--	table.insert(nebula_list,Nebula():setPosition(789277, 103983))
+--	table.insert(nebula_list,Nebula():setPosition(792520, 112381))
+--	table.insert(nebula_list,Nebula():setPosition(801334, 115541))
 	--	Northwest
     table.insert(nebula_list,Nebula():setPosition(707214, 27941))
     table.insert(nebula_list,Nebula():setPosition(704379, 42874))
@@ -20706,6 +20712,10 @@ function createTereshNebulae()
     table.insert(nebula_list,Nebula():setPosition(851988, -9842))
     table.insert(nebula_list,Nebula():setPosition(845371, -12678))
     table.insert(nebula_list,Nebula():setPosition(856146, -12867))
+    --towed add-ons
+	table.insert(nebula_list,Nebula():setPosition(787568, 51557))
+	table.insert(nebula_list,Nebula():setPosition(789826, 148829))
+	table.insert(nebula_list,Nebula():setPosition(777844, 153810))
     return nebula_list
 end
 function createTereshStations()
