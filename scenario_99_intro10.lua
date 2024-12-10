@@ -5,6 +5,7 @@
 -- Level[Easy]: Destroy Kraylor station
 -- Level[Normal|Default]: Destroy Kraylor stations and ships
 -- Level[Hard]: Destroy kraylor station and ships. Station protected by defense platforms
+require("utils.lua")
 function init()
 	constructEnvironment()
 	onNewPlayerShip(setPlayer)
@@ -52,13 +53,17 @@ function constructEnvironment()
 	Mine():setPosition(-915, 7622)
 	Mine():setPosition(610, 9756)
 	home_station = SpaceStation():setTemplate("Huge Station"):setFaction("Human Navy"):setCallSign("DS231"):setPosition(22713, 21646)
-	enemy_station = SpaceStation():setTemplate("Large Station"):setFaction("Kraylor"):setPosition(-22713,-25000)
-    if getScenarioSetting("Level") == "Hard" then
-		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("CSS3"):setPosition(-22019, -23113):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("CV4"):setPosition(-23915, -23332):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("SS5"):setPosition(-24206, -26321):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("CSS6"):setPosition(-22748, -26977):orderRoaming()
-		CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setCallSign("SS7"):setPosition(-21144, -25227):orderRoaming()
+	enemy_station_x, enemy_station_y = vectorFromAngle(random(0,360),random(50000,80000))
+	enemy_station = SpaceStation():setTemplate("Large Station"):setFaction("Kraylor"):setPosition(enemy_station_x, enemy_station_y)
+	if getScenarioSetting("Level") == "Hard" then
+		local angle = 0
+		for i=1,5 do
+			local dp_x, dp_y = vectorFromAngle(angle,2500)
+			dp_x = dp_x + enemy_station_x
+			dp_y = dp_y + enemy_station_y
+			CpuShip():setFaction("Kraylor"):setTemplate("Defense platform"):setPosition(dp_x, dp_y):orderRoaming()
+			angle = angle + (360/5)
+		end
 	end
 	stations = {}
 	table.insert(stations,SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS238"):setPosition(15848, 31096))
