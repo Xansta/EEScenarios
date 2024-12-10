@@ -95,7 +95,7 @@ function constructEnvironment()
 	end
 	local black_sheep = tableSelectRandom(transports)
 --	print("black sheep:",black_sheep:getCallSign(),black_sheep:getSectorName())
-	black_sheep:setDescriptionForScanState("fullscan",string.format(_("scienceDescription","Ship log shows that freighter visited Independent stations and Kraylor station in %s"),enemy_station:getSectorName()))
+	black_sheep:setDescriptionForScanState("fullscan",_("scienceDescription","Ship log shows that freighter visited Independent stations and Kraylor station in D3"))
     CpuShip():setFaction("Human Navy"):setTemplate("Dreadnought"):setCallSign("Elan (flagship)"):setPosition(27276, 20092):orderDefendTarget(home_station):setCanBeDestroyed(false):setCommsFunction(commsFlagship):setScanned(true)
 end
 function commsFlagship()
