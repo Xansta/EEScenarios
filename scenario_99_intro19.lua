@@ -515,7 +515,6 @@ function enemyChasers()
 							:orderAttack(p)
 						table.insert(enemy_ships,chaser)
 						table.insert(enemy_chasers,chaser)
-						chaser:setCallSign(generateCallSign(nil,"Kraylor"))
 						angle = angle + increment
 					end
 					if flagship:isValid() and distance(p,enemy_station) > 30000 then
