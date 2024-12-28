@@ -21,15 +21,14 @@
 -- Ending[Quixotic]: Cutoffs 20% harder than normal
 -- Setting[Timed]: Sets whether or not the scenario has a time limit. Default is no time limit
 -- Timed[None|Default]: No time limit
--- Timed[15]: Scenario ends in 15 minutes
 -- Timed[20]: Scenario ends in 20 minutes
--- Timed[25]: Scenario ends in 25 minutes
 -- Timed[30]: Scenario ends in 30 minutes
--- Timed[35]: Scenario ends in 35 minutes
 -- Timed[40]: Scenario ends in 40 minutes
--- Timed[45]: Scenario ends in 45 minutes
 -- Timed[50]: Scenario ends in 50 minutes
--- Timed[55]: Scenario ends in 55 minutes
+-- Timed[60]: Scenario ends in 60 minutes
+-- Timed[70]: Scenario ends in 70 minutes
+-- Timed[80]: Scenario ends in 80 minutes
+-- Timed[90]: Scenario ends in 90 minutes
 -- Setting[Reputation]: Starting reputation per player ship. The more initial reputation, the easier the scenario. Default: Hero = 400 reputation
 -- Reputation[Unknown]: Nobody knows you. Zero reputation
 -- Reputation[Nice]: 200 reputation - you've helped a few people
@@ -275,15 +274,14 @@ function setVariations()
 		destructionDifferenceEndCondition = completion_conditions[getScenarioSetting("Ending")].destruction_difference
 		local timed_config = {
 			["None"] =	{limit = 0,	limited = false,	plot = nil},
-			["15"] =	{limit = 15,limited = true,		plot = timedGame},
 			["20"] =	{limit = 20,limited = true,		plot = timedGame},
-			["25"] =	{limit = 25,limited = true,		plot = timedGame},
 			["30"] =	{limit = 30,limited = true,		plot = timedGame},
-			["35"] =	{limit = 35,limited = true,		plot = timedGame},
 			["40"] =	{limit = 40,limited = true,		plot = timedGame},
-			["45"] =	{limit = 45,limited = true,		plot = timedGame},
 			["50"] =	{limit = 50,limited = true,		plot = timedGame},
-			["55"] =	{limit = 55,limited = true,		plot = timedGame},
+			["60"] =	{limit = 60,limited = true,		plot = timedGame},
+			["70"] =	{limit = 70,limited = true,		plot = timedGame},
+			["80"] =	{limit = 80,limited = true,		plot = timedGame},
+			["90"] =	{limit = 90,limited = true,		plot = timedGame},
 		}
 		playWithTimeLimit =				timed_config[getScenarioSetting("Timed")].limited
 		defaultGameTimeLimitInMinutes =	timed_config[getScenarioSetting("Timed")].limit
@@ -5386,7 +5384,7 @@ end
 function setGameTimeLimit()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM", "-From time limit"),mainGMButtons)
-	for gt=15,55,5 do
+	for gt=20,90,10 do
 		addGMFunction(string.format(_("buttonGM", "%i minutes"),gt),function()
 			defaultGameTimeLimitInMinutes = gt
 			gameTimeLimit = defaultGameTimeLimitInMinutes*60
