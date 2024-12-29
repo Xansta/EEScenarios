@@ -5,7 +5,7 @@
 ---
 --- Get the player ship access codes from the GM screen after you generate the terrain
 ---
---- Version 2.1
+--- Version 2.2
 -- Type: PvP
 -- Setting[Difficulty]: Determines the degree the environment helps or hinders the players
 -- Difficulty[Normal|Default]: Normal difficulty
@@ -41,26 +41,15 @@
 -- Station Sensors[10U]: Stations warn friendly players of enemies within 10 units
 -- Station Sensors[20U|Default]: Stations warn friendly players of enemies within 20 units
 -- Station Sensors[30U]: Stations warn friendly players of enemies within 30 units
--- Setting[Time]: Determines how long the game will last. Default: 45 minutes
--- Time[5]: Game ends in 5 minutes
--- Time[10]: Game ends in 10 minutes
--- Time[15]: Game ends in 15 minutes
+-- Setting[Time]: Determines how long the game will last. Default: 50 minutes
 -- Time[20]: Game ends in 20 minutes
--- Time[25]: Game ends in 25 minutes
 -- Time[30]: Game ends in 30 minutes
--- Time[35]: Game ends in 35 minutes
 -- Time[40]: Game ends in 40 minutes
--- Time[45|Default]: Game ends in 45 minutes
--- Time[50]: Game ends in 50 minutes
--- Time[55]: Game ends in 55 minutes
+-- Time[50|Default]: Game ends in 50 minutes
 -- Time[60]: Game ends in 60 minutes (one hour)
--- Time[65]: Game ends in 65 minutes (one hour and 5 minutes)
 -- Time[70]: Game ends in 70 minutes (one hour and 10 minutes)
--- Time[75]: Game ends in 75 minutes (one hour and 15 minutes)
 -- Time[80]: Game ends in 80 minutes (one hour and 20 minutes)
--- Time[85]: Game ends in 85 minutes (one hour and 25 minutes)
 -- Time[90]: Game ends in 90 minutes (one hour and 30 minutes)
--- Time[95]: Game ends in 95 minutes (one hour and 35 minutes)
 -- Time[100]: Game ends in 100 minutes (one hour and 40 minutes)
 
 --------------------------------------------------------------------------------------------------------
@@ -71,95 +60,13 @@
 require "utils.lua"
 require "place_station_scenario_utility.lua"
 
-function getFilenameCompatible(new_filename)
-	if getEEVersion() ==  2021623 then
-		local lookup = {
-			["adv_gunship.png"] = "radar_adv_gunship.png",
-			["adv_striker.png"] = "radar_adv_striker.png",
-			["battleship.png"] = "radar_battleship.png",
-			["blockade.png"] = "radar_blockade.png",
-			["cruiser.png"] = "radar_cruiser.png",
-			["dread.png"] = "radar_dread.png",
-			["exuari_1.png"] = "radar_exuari_1.png",
-			["exuari_2.png"] = "radar_exuari_2.png",
-			["exuari_3.png"] = "radar_exuari_3.png",
-			["exuari_4.png"] = "radar_exuari_4.png",
-			["exuari_5.png"] = "radar_exuari_5.png",
-			["exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["fighter.png"] = "radar_fighter.png",
-			["ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["laser.png"] = "radar_laser.png",
-			["missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["piranha.png"] = "radar_piranha.png",
-			["striker.png"] = "radar_striker.png",
-			["hugestation.png"] = "radartrace_hugestation.png",
-			["largestation.png"] = "radartrace_largestation.png",
-			["mediumstation.png"] = "radartrace_mediumstation.png",
-			["smallstation.png"] = "radartrace_smallstation.png",
-			["transport.png"] = "radar_transport.png",
-			["tug.png"] = "radar_tug.png",
-
-			["radar/adv_gunship.png"] = "radar_adv_gunship.png",
-			["radar/adv_striker.png"] = "radar_adv_striker.png",
-			["radar/battleship.png"] = "radar_battleship.png",
-			["radar/blockade.png"] = "radar_blockade.png",
-			["radar/cruiser.png"] = "radar_cruiser.png",
-			["radar/dread.png"] = "radar_dread.png",
-			["radar/exuari_1.png"] = "radar_exuari_1.png",
-			["radar/exuari_2.png"] = "radar_exuari_2.png",
-			["radar/exuari_3.png"] = "radar_exuari_3.png",
-			["radar/exuari_4.png"] = "radar_exuari_4.png",
-			["radar/exuari_5.png"] = "radar_exuari_5.png",
-			["radar/exuari_fighter.png"] = "radar_exuari_fighter.png",
-			["radar/exuari_frigate_1.png"] = "radar_exuari_frigate_1.png",
-			["radar/exuari_frigate_2.png"] = "radar_exuari_frigate_2.png",
-			["radar/exuari_frigate_3.png"] = "radar_exuari_frigate_3.png",
-			["radar/fighter.png"] = "radar_fighter.png",
-			["radar/ktlitan_breaker.png"] = "radar_ktlitan_breaker.png",
-			["radar/ktlitan_destroyer.png"] = "radar_ktlitan_destroyer.png",
-			["radar/ktlitan_drone.png"] = "radar_ktlitan_drone.png",
-			["radar/ktlitan_feeder.png"] = "radar_ktlitan_feeder.png",
-			["radar/ktlitan_fighter.png"] = "radar_ktlitan_fighter.png",
-			["radar/ktlitan_queen.png"] = "radar_ktlitan_queen.png",
-			["radar/ktlitan_scout.png"] = "radar_ktlitan_scout.png",
-			["radar/ktlitan_worker.png"] = "radar_ktlitan_worker.png",
-			["radar/laser.png"] = "radar_laser.png",
-			["radar/missile_cruiser.png"] = "radar_missile_cruiser.png",
-			["radar/piranha.png"] = "radar_piranha.png",
-			["radar/striker.png"] = "radar_striker.png",
-			["radar/hugestation.png"] = "radartrace_hugestation.png",
-			["radar/largestation.png"] = "radartrace_largestation.png",
-			["radar/mediumstation.png"] = "radartrace_mediumstation.png",
-			["radar/smallstation.png"] = "radartrace_smallstation.png",
-			["radar/transport.png"] = "radar_transport.png",
-			["radar/tug.png"] = "radar_tug.png",
-
-			["ProbeBlip.png"] = "radar/probe.png",
-		}
-		local old_filename = lookup[new_filename]
-		if old_filename == nil then
-			return new_filename
-		else
-			return old_filename
-		end
-	end
-	return new_filename
-end
-
 function init()
-	scenario_version = "2.1"
-	print(string.format("Scenario version %s",scenario_version))
-	print(_VERSION)
+	scenario_version = "2.2.0"
+	ee_version = "2024.12.08"
+	print(string.format("    ----    Scenario: Chaos of War    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	if _VERSION ~= nil then
+		print("Lua version:",_VERSION)
+	end
 	setVariations()
 	setConstants()
 	setStaticScienceDatabase()
@@ -252,12 +159,12 @@ function setConstants()
 	storage = getScriptStorage()
 	storage.gatherStats = gatherStats
 	predefined_player_ships = {
-		{name = "Phoenix",		control_code = "BURN265"},
-		{name = "Callisto",		control_code = "MOON558"},
-		{name = "Charybdis",	control_code = "JACKPOT777"},
-		{name = "Sentinel",		control_code = "FERENGI432"},
-		{name = "Omnivore",		control_code = "EQUILATERAL180"},
-		{name = "Tarquin",		control_code = "TIME909"},
+		{name = "Damocles",		control_code = "SWORD265"},
+		{name = "Endeavor",		control_code = "TRY558"},
+		{name = "Hyperion",		control_code = "SQUIRREL777"},
+		{name = "Liberty",		control_code = "BELL432"},
+		{name = "Prismatic",	control_code = "COLOR180"},
+		{name = "Visionary",	control_code = "EYE909"},
 	}
 	f2s = {	--faction name to short name
 		["Human Navy"] = "human",
@@ -941,7 +848,7 @@ function setStaticScienceDatabase()
 		station_db:addEntry("Small")
 		local small_station_db = queryScienceDatabase("Stations","Small")
 		small_station_db:setLongDescription("Stations of this size are often used as research outposts, listening stations, and security checkpoints. Crews turn over frequently in a small station's cramped accommodatations, but they are small enough to look like ships on many long-range sensors, and organized raiders sometimes take advantage of this by placing small stations in nebulae to serve as raiding bases. They are lightly shielded and vulnerable to swarming assaults.")
-		small_station_db:setImage(getFilenameCompatible("smallstation.png"))
+		small_station_db:setImage("smallstation.png")
 		small_station_db:setKeyValue("Class","Small")
 		small_station_db:setKeyValue("Size",300)
 		small_station_db:setKeyValue("Shield",300)
@@ -949,7 +856,7 @@ function setStaticScienceDatabase()
 		station_db:addEntry("Medium")
 		local medium_station_db = queryScienceDatabase("Stations","Medium")
 		medium_station_db:setLongDescription("Large enough to accommodate small crews for extended periods of times, stations of this size are often trading posts, refuelling bases, mining operations, and forward military bases. While their shields are strong, concerted attacks by many ships can bring them down quickly.")
-		medium_station_db:setImage(getFilenameCompatible("mediumstation.png"))
+		medium_station_db:setImage("mediumstation.png")
 		medium_station_db:setKeyValue("Class","Medium")
 		medium_station_db:setKeyValue("Size",1000)
 		medium_station_db:setKeyValue("Shield",800)
@@ -957,7 +864,7 @@ function setStaticScienceDatabase()
 		station_db:addEntry("Large")
 		local large_station_db = queryScienceDatabase("Stations","Large")
 		large_station_db:setLongDescription("These spaceborne communities often represent permanent bases in a sector. Stations of this size can be military installations, commercial hubs, deep-space settlements, and small shipyards. Only a concentrated attack can penetrate a large station's shields, and its hull can withstand all but the most powerful weaponry.")
-		large_station_db:setImage(getFilenameCompatible("largestation.png"))
+		large_station_db:setImage("largestation.png")
 		large_station_db:setKeyValue("Class","Large")
 		large_station_db:setKeyValue("Size",1300)
 		large_station_db:setKeyValue("Shield","1000/1000/1000")
@@ -965,7 +872,7 @@ function setStaticScienceDatabase()
 		station_db:addEntry("Huge")
 		local huge_station_db = queryScienceDatabase("Stations","Huge")
 		huge_station_db:setLongDescription("The size of a sprawling town, stations at this scale represent a faction's center of spaceborne power in a region. They serve many functions at once and represent an extensive investment of time, money, and labor. A huge station's shields and thick hull can keep it intact long enough for reinforcements to arrive, even when faced with an ongoing siege or massive, perfectly coordinated assault.")
-		huge_station_db:setImage(getFilenameCompatible("hugestation.png"))
+		huge_station_db:setImage("hugestation.png")
 		huge_station_db:setKeyValue("Class","Huge")
 		huge_station_db:setKeyValue("Size",1500)
 		huge_station_db:setKeyValue("Shield","1200/1200/1200/1200")
@@ -1032,7 +939,7 @@ function setStaticScienceDatabase()
 	mp52_hornet_db:setKeyValue("Turn speed","32 deg/sec")
 	mp52_hornet_db:setKeyValue("Beam weapon 355:30","Rng:.9 Dmg:2.5 Cyc:4")
 	mp52_hornet_db:setKeyValue("Beam weapon 5:30","Rng:.9 Dmg:2.5 Cyc:4")
-	mp52_hornet_db:setImage(getFilenameCompatible("radar/fighter.png"))
+	mp52_hornet_db:setImage("radar/fighter.png")
 --	Player Fighter
 	fighter_stock_db:addEntry("Player Fighter")
 	local player_fighter_db = queryScienceDatabase("Ships","Mainstream","Starfighter","Player Fighter")
@@ -1052,7 +959,7 @@ function setStaticScienceDatabase()
 	player_fighter_db:setKeyValue("Beam weapon 350:40","Rng:1 Dmg:8 Cyc:6")
 	player_fighter_db:setKeyValue("Tube 0","10 sec")
 	player_fighter_db:setKeyValue("Storage HVLI","4")
-	player_fighter_db:setImage(getFilenameCompatible("radar/fighter.png"))
+	player_fighter_db:setImage("radar/fighter.png")
 --	Striker
 	fighter_stock_db:addEntry("Striker")
 	local striker_db = queryScienceDatabase("Ships","Mainstream","Starfighter","Striker")
@@ -1069,7 +976,7 @@ function setStaticScienceDatabase()
 	striker_db:setKeyValue("Turn speed","15 deg/sec")
 	striker_db:setKeyValue("Beam weapon 345:100","Rng:1 Dmg:6 Cyc:6 Tur:6")
 	striker_db:setKeyValue("Beam weapon 15:100","Rng:1 Dmg:6 Cyc:6 Tur:6")
-	striker_db:setImage(getFilenameCompatible("radar_adv_striker.png"))
+	striker_db:setImage("radar_adv_striker.png")
 --	ZX-Lindworm
 	fighter_stock_db:addEntry("ZX-Lindworm")
 	local zx_lindworm_db = queryScienceDatabase("Ships","Mainstream","Starfighter","ZX-Lindworm")
@@ -1091,7 +998,7 @@ function setStaticScienceDatabase()
 	zx_lindworm_db:setKeyValue("Small Tube 1","10 sec")
 	zx_lindworm_db:setKeyValue("Storage Homing","3")
 	zx_lindworm_db:setKeyValue("Storage HVLI","12")
-	zx_lindworm_db:setImage(getFilenameCompatible("radar/fighter.png"))
+	zx_lindworm_db:setImage("radar/fighter.png")
 ----	Frigates
 	stock_db:addEntry("Frigate")
 	local frigate_stock_db = queryScienceDatabase("Ships","Mainstream","Frigate")
@@ -1117,7 +1024,7 @@ function setStaticScienceDatabase()
 	flavia_p_falcon_db:setKeyValue("Storage Nuke","1")
 	flavia_p_falcon_db:setKeyValue("Storage Mine","1")
 	flavia_p_falcon_db:setKeyValue("Storage HVLI","5")
-	flavia_p_falcon_db:setImage(getFilenameCompatible("radar/tug.png"))
+	flavia_p_falcon_db:setImage("radar/tug.png")
 --	Hathcock
 	frigate_stock_db:addEntry("Hathcock")
 	local hathcock_db = queryScienceDatabase("Ships","Mainstream","Frigate","Hathcock")
@@ -1142,7 +1049,7 @@ function setStaticScienceDatabase()
 	hathcock_db:setKeyValue("Storage Nuke","1")
 	hathcock_db:setKeyValue("Storage EMP","2")
 	hathcock_db:setKeyValue("Storage HVLI","8")
-	hathcock_db:setImage(getFilenameCompatible("radar/piranha.png"))
+	hathcock_db:setImage("radar/piranha.png")
 --	Nautilus
 	frigate_stock_db:addEntry("Nautilus")
 	local nautilus_db = queryScienceDatabase("Ships","Mainstream","Frigate","Nautilus")
@@ -1163,7 +1070,7 @@ function setStaticScienceDatabase()
 	nautilus_db:setKeyValue(" Tube 180","10 sec / Mine")
 	nautilus_db:setKeyValue("  Tube 180","10 sec / Mine")
 	nautilus_db:setKeyValue("Storage Mine","12")
-	nautilus_db:setImage(getFilenameCompatible("radar/tug.png"))
+	nautilus_db:setImage("radar/tug.png")
 --	Phobos M3P
 	frigate_stock_db:addEntry("Phobos M3P")
 	local phobos_m3p_db = queryScienceDatabase("Ships","Mainstream","Frigate","Phobos M3P")
@@ -1188,7 +1095,7 @@ function setStaticScienceDatabase()
 	phobos_m3p_db:setKeyValue("Storage Mine","4")
 	phobos_m3p_db:setKeyValue("Storage EMP","3")
 	phobos_m3p_db:setKeyValue("Storage HVLI","20")
-	phobos_m3p_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+	phobos_m3p_db:setImage("radar/cruiser.png")
 --	Piranha
 	frigate_stock_db:addEntry("Piranha")
 	local piranha_db = queryScienceDatabase("Ships","Mainstream","Frigate","Piranha")
@@ -1215,7 +1122,7 @@ function setStaticScienceDatabase()
 	piranha_db:setKeyValue("Storage Nuke","6")
 	piranha_db:setKeyValue("Storage Mine","8")
 	piranha_db:setKeyValue("Storage HVLI","20")
-	piranha_db:setImage(getFilenameCompatible("radar/piranha.png"))
+	piranha_db:setImage("radar/piranha.png")
 --	Repulse
 	frigate_stock_db:addEntry("Repulse")
 	local repulse_db = queryScienceDatabase("Ships","Mainstream","Frigate","Repulse")
@@ -1236,7 +1143,7 @@ function setStaticScienceDatabase()
 	repulse_db:setKeyValue("Tube 180","20 sec")
 	repulse_db:setKeyValue("Storage Homing","4")
 	repulse_db:setKeyValue("Storage HVLI","6")
-	repulse_db:setImage(getFilenameCompatible("radar/tug.png"))
+	repulse_db:setImage("radar/tug.png")
 ----	Corvettes
 	stock_db:addEntry("Corvette")
 	local corvette_stock_db = queryScienceDatabase("Ships","Mainstream","Corvette")
@@ -1267,7 +1174,7 @@ function setStaticScienceDatabase()
 	atlantis_db:setKeyValue("Storage Mine","8")
 	atlantis_db:setKeyValue("Storage EMP","6")
 	atlantis_db:setKeyValue("Storage HVLI","20")
-	atlantis_db:setImage(getFilenameCompatible("radar/dread.png"))
+	atlantis_db:setImage("radar/dread.png")
 --	Benedict
 	corvette_stock_db:addEntry("Benedict")
 	local benedict_db = queryScienceDatabase("Ships","Mainstream","Corvette","Benedict")
@@ -1284,7 +1191,7 @@ function setStaticScienceDatabase()
 	benedict_db:setKeyValue("Turn speed","6 deg/sec")
 	benedict_db:setKeyValue("Beam weapon 0:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
 	benedict_db:setKeyValue("Beam weapon 180:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
-	benedict_db:setImage(getFilenameCompatible("radar/transport.png"))
+	benedict_db:setImage("radar/transport.png")
 --	Crucible
 	corvette_stock_db:addEntry("Crucible")
 	local crucible_db = queryScienceDatabase("Ships","Mainstream","Corvette","Crucible")
@@ -1308,7 +1215,7 @@ function setStaticScienceDatabase()
 	crucible_db:setKeyValue("Tube 90","8 sec")
 	crucible_db:setKeyValue("Tube 180","8 sec / Mine")
 	crucible_db:setKeyValue("Storage Missiles","H:8 N:4 M:6 E:6 L:24")
-	crucible_db:setImage(getFilenameCompatible("radar/laser.png"))
+	crucible_db:setImage("radar/laser.png")
 --	Kiriya
 	corvette_stock_db:addEntry("Kiriya")
 	local kiriya_db = queryScienceDatabase("Ships","Mainstream","Corvette","Kiriya")
@@ -1325,7 +1232,7 @@ function setStaticScienceDatabase()
 	kiriya_db:setKeyValue("Turn speed","6 deg/sec")
 	kiriya_db:setKeyValue("Beam weapon 0:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
 	kiriya_db:setKeyValue("Beam weapon 180:90","Rng:1.5 Dmg:4 Cyc:6 Tur:6")
-	kiriya_db:setImage(getFilenameCompatible("radar/transport.png"))
+	kiriya_db:setImage("radar/transport.png")
 --	Maverick
 	corvette_stock_db:addEntry("Maverick")
 	local maverick_db = queryScienceDatabase("Ships","Mainstream","Corvette","Maverick")
@@ -1350,7 +1257,7 @@ function setStaticScienceDatabase()
 	maverick_db:setKeyValue("Tube 90","8 sec")
 	maverick_db:setKeyValue("Tube 180","8 sec / Mine")
 	maverick_db:setKeyValue("Storage Missiles","H:6 N:2 M:2 E:4 L:10")
-	maverick_db:setImage(getFilenameCompatible("radar/laser.png"))
+	maverick_db:setImage("radar/laser.png")
 --	Player Cruiser
 	corvette_stock_db:addEntry("Player Cruiser")
 	local player_cruiser_db = queryScienceDatabase("Ships","Mainstream","Corvette","Player Cruiser")
@@ -1373,7 +1280,7 @@ function setStaticScienceDatabase()
 	player_cruiser_db:setKeyValue("Storage Nuke","4")
 	player_cruiser_db:setKeyValue("Storage Mine","8")
 	player_cruiser_db:setKeyValue("Storage EMP","6")
-	player_cruiser_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+	player_cruiser_db:setImage("radar/cruiser.png")
 --	Player Missile Cruiser
 	corvette_stock_db:addEntry("Player Missile Cr.")
 	local player_missile_cruiser_db = queryScienceDatabase("Ships","Mainstream","Corvette","Player Missile Cr.")
@@ -1398,7 +1305,7 @@ function setStaticScienceDatabase()
 	player_missile_cruiser_db:setKeyValue("Storage Nuke","8")
 	player_missile_cruiser_db:setKeyValue("Storage Mine","12")
 	player_missile_cruiser_db:setKeyValue("Storage EMP","10")
-	player_missile_cruiser_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+	player_missile_cruiser_db:setImage("radar/cruiser.png")
 ---------------------------
 --	Custom player ships  --
 ---------------------------
@@ -1434,7 +1341,7 @@ function setStaticScienceDatabase()
 	striker_lx_db:setKeyValue("Storage Mine","3")
 	striker_lx_db:setKeyValue("Storage EMP","3")
 	striker_lx_db:setKeyValue("Storage HVLI","6")
-	striker_lx_db:setImage(getFilenameCompatible("radar/adv_striker.png"))
+	striker_lx_db:setImage("radar/adv_striker.png")
 ----	Frigates
 	prototype_db:addEntry("Frigate")
 	local frigate_prototype_db = queryScienceDatabase("Ships","Prototype","Frigate")
@@ -1463,7 +1370,7 @@ function setStaticScienceDatabase()
 	phobos_t2_db:setKeyValue("Storage Mine",4)
 	phobos_t2_db:setKeyValue("Storage EMP",3)
 	phobos_t2_db:setKeyValue("Storage HVLI",16)
-	phobos_t2_db:setImage(getFilenameCompatible("radar/cruiser.png"))
+	phobos_t2_db:setImage("radar/cruiser.png")
 ----	Corvettes
 	prototype_db:addEntry("Corvette")
 	local corvette_prototype_db = queryScienceDatabase("Ships","Prototype","Corvette")
@@ -1493,7 +1400,7 @@ function setStaticScienceDatabase()
 	focus_db:setKeyValue("Storage Mine",6)
 	focus_db:setKeyValue("Storage EMP",2)
 	focus_db:setKeyValue("Storage HVLI",24)
-	focus_db:setImage(getFilenameCompatible("radar/laser.png"))
+	focus_db:setImage("radar/laser.png")
 --	Holmes
 	corvette_prototype_db:addEntry("Holmes")
 	local holmes_db = queryScienceDatabase("Ships","Prototype","Corvette","Holmes")
@@ -1518,7 +1425,7 @@ function setStaticScienceDatabase()
 	holmes_db:setKeyValue("Tube 180","8 sec / Mine")
 	holmes_db:setKeyValue("Storage Homing",10)
 	holmes_db:setKeyValue("Storage Mine",6)
-	holmes_db:setImage(getFilenameCompatible("radar/laser.png"))
+	holmes_db:setImage("radar/laser.png")
 --	Maverick XP
 	corvette_prototype_db:addEntry("Maverick XP")
 	local maverick_xp_db = queryScienceDatabase("Ships","Prototype","Corvette","Maverick XP")
@@ -1542,7 +1449,7 @@ function setStaticScienceDatabase()
 	maverick_xp_db:setKeyValue("Storage Mine",2)
 	maverick_xp_db:setKeyValue("Storage EMP",4)
 	maverick_xp_db:setKeyValue("Storage HVLI",10)
-	maverick_xp_db:setImage(getFilenameCompatible("radar/laser.png"))
+	maverick_xp_db:setImage("radar/laser.png")
 end
 ------------------
 --	GM Buttons  --
@@ -1942,7 +1849,7 @@ function setPlayerShipTypes()
 	end
 	addGMFunction(string.format("+%s",button_label),setCustomPlayerShipSet)
 	addGMFunction(_("buttonGM", "Explain"),function()
-		addGMMessage(_("msgGM", "This is where you determine the kinds of whips the players will use.\n\nDefault: There is a default set of ships depending on the number of players and the number of teams.\n\nSpawned: Whatever is spawned from the first screen for one team will be replicated for the other team or teams. If the number of ships spawned does not match the team size selected, the default player ship set will be used.\n\nCustom: There are several sets of defaults under custom: Warp (ships equipped with warp drive), Jump (ships equipped with jump drive), Light (ships that are not as heavily armed or armored) and Heavy (ships that are more heavily armed or armored). There is also custom button where you can select the ship or ships you want from a list. To set up the list, use the +Customize Custom button."))
+		addGMMessage(_("msgGM", "This is where you determine the kinds of ships the players will use.\n\nDefault: There is a default set of ships depending on the number of players and the number of teams.\n\nSpawned: Whatever is spawned from the first screen for one team will be replicated for the other team or teams. If the number of ships spawned does not match the team size selected, the default player ship set will be used.\n\nCustom: There are several sets of defaults under custom: Warp (ships equipped with warp drive), Jump (ships equipped with jump drive), Light (ships that are not as heavily armed or armored) and Heavy (ships that are more heavily armed or armored). There is also custom button where you can select the ship or ships you want from a list. To set up the list, use the +Customize Custom button."))
 	end)
 end
 function setCustomPlayerShipSet()
@@ -2011,7 +1918,7 @@ function setCustomSet()
 		setCustomSet()
 	end)
 	addGMFunction(_("buttonGM", "Explain"),function()
-		addGMMessage(_("msgGM", "The +Out button shows the current list of player ships. The ship named on the button or the one with the asterisk if you click the +Out button is the ship in the list that you can swap with another.\n\nThe +In button shows the list of ships that you might want to put in the custom list of ships. The ship on the button ot the one with the asterisk if you click the +In button is the ship you can place in the custom list.\n\nThe Swap button swaps the ships on the +In and +Out buttons removing the ship on the +Out button from the custom list to be used in the game and putting the ship on the +In button in the custom list of ships to be used.\n\nNotice that some of the ships that can be swapped in to the custom list are not stock Empty Epsilon ships, but are specialized versions of stock Empty Epsilon ships."))
+		addGMMessage(_("msgGM", "The +Out button shows the current list of player ships. The ship named on the button or the one with the asterisk if you click the +Out button is the ship in the list that you can swap with another.\n\nThe +In button shows the list of ships that you might want to put in the custom list of ships. The ship on the button or the one with the asterisk if you click the +In button is the ship you can place in the custom list.\n\nThe Swap button swaps the ships on the +In and +Out buttons removing the ship on the +Out button from the custom list to be used in the game and putting the ship on the +In button in the custom list of ships to be used.\n\nNotice that some of the ships that can be swapped in to the custom list are not stock Empty Epsilon ships, but are specialized versions of stock Empty Epsilon ships."))
 	end)
 end
 function setTemplateOut()
@@ -2035,7 +1942,7 @@ function setTemplateIn()
 		table.insert(sorted_templates,name)
 	end
 	table.sort(sorted_templates)
-	for _, name in ipairs(sorted_templates) do
+	for idx, name in ipairs(sorted_templates) do
 		local button_label = name
 		if template_in == name then
 			button_label = button_label .. _("buttonGM", "*")
@@ -2246,7 +2153,7 @@ function showControlCodes(faction_filter)
 	end
 	table.sort(sorted_names)
 	local output = ""
-	for _, name in ipairs(sorted_names) do
+	for idx, name in ipairs(sorted_names) do
 		local faction = ""
 		if code_list[name].faction == "Kraylor" then
 			faction = " (Kraylor)"
@@ -2859,7 +2766,7 @@ function generateTerrain()
 			psx, psy = station_primary_human:getPosition()
 			local human_fleet = spawnRandomArmed(psx + fcx, psy + fcy, fleet_strength, fleet_index, nil, angle)
 			fleet_index = fleet_index + 1
-			for _, ship in ipairs(human_fleet) do
+			for idx, ship in ipairs(human_fleet) do
 				ship.score_value = ship_template[ship:getTypeName()].strength
 				ship:setScannedByFaction("Human Navy",true)
 				table.insert(human_ref_list,ship)
@@ -2869,7 +2776,7 @@ function generateTerrain()
 			fleet_index = fleet_index + 1
 			local fleet_prefix = generateCallSignPrefix()
 			angle = (kraylor_angle + n * fleet_angle_increment) % 360
-			for _, source_ship in ipairs(human_fleet) do
+			for idx, source_ship in ipairs(human_fleet) do
 				local sx, sy = source_ship:getPosition()
 				local obj_ref_angle = angleFromVectorNorth(sx, sy, terrain_center_x, terrain_center_y)
 				local obj_ref_distance = distance(terrain_center_x, terrain_center_y, sx, sy)
@@ -2893,7 +2800,7 @@ function generateTerrain()
 				fleet_index = fleet_index + 1
 				local fleet_prefix = generateCallSignPrefix()
 				angle = (exuari_angle + n * fleet_angle_increment) % 360
-				for _, source_ship in ipairs(human_fleet) do
+				for idx, source_ship in ipairs(human_fleet) do
 					local sx, sy = source_ship:getPosition()
 					local obj_ref_angle = angleFromVectorNorth(sx, sy, terrain_center_x, terrain_center_y)
 					local obj_ref_distance = distance(terrain_center_x, terrain_center_y, sx, sy)
@@ -2918,7 +2825,7 @@ function generateTerrain()
 				fleet_index = fleet_index + 1
 				local fleet_prefix = generateCallSignPrefix()
 				angle = (ktlitan_angle + n * fleet_angle_increment) % 360
-				for _, source_ship in ipairs(human_fleet) do
+				for idx, source_ship in ipairs(human_fleet) do
 					local sx, sy = source_ship:getPosition()
 					local obj_ref_angle = angleFromVectorNorth(sx, sy, terrain_center_x, terrain_center_y)
 					local obj_ref_distance = distance(terrain_center_x, terrain_center_y, sx, sy)
@@ -3300,7 +3207,7 @@ function generateTerrain()
 						tm:destroy()
 					end
 				end
-				for _, tm in ipairs(mine_ref_list) do
+				for idx, tm in ipairs(mine_ref_list) do
 					table.insert(place_ref_list,tm)
 				end
 			elseif mine_field_type == "arc" then
@@ -3354,7 +3261,7 @@ function generateTerrain()
 						tm:destroy()
 					end
 				end
-				for _, tm in ipairs(mine_ref_list) do
+				for idx, tm in ipairs(mine_ref_list) do
 					table.insert(place_ref_list,tm)
 				end
 			end
@@ -3407,7 +3314,7 @@ function generateTerrain()
 					ta:destroy()
 				end
 			end
-			for _, ta in ipairs(asteroid_ref_list) do
+			for idx, ta in ipairs(asteroid_ref_list) do
 				table.insert(place_ref_list,ta)
 			end
 		elseif asteroid_field_type == "line" then
@@ -3440,7 +3347,7 @@ function generateTerrain()
 					ta:destroy()
 				end
 			end
-			for _, ta in ipairs(asteroid_ref_list) do
+			for idx, ta in ipairs(asteroid_ref_list) do
 				table.insert(place_ref_list,ta)
 			end
 		elseif asteroid_field_type == "arc" then
@@ -3477,7 +3384,7 @@ function generateTerrain()
 					ta:destroy()
 				end
 			end
-			for _, ta in ipairs(asteroid_ref_list) do
+			for idx, ta in ipairs(asteroid_ref_list) do
 				table.insert(place_ref_list,ta)
 			end
 		end
@@ -3627,7 +3534,7 @@ function getTemplatePool(max_strength)
 	local template_pool = {}
 --	print("fleet composition:",fleetComposition,"fleet group sub fleet composition:",fleet_group[fleetComposition])
 	if pool_selectivity == "less/heavy" then
-		for _, current_ship_template in ipairs(ship_template_by_strength) do
+		for idx, current_ship_template in ipairs(ship_template_by_strength) do
 --			print("currrent ship template:",current_ship_template,"strength:",ship_template[current_ship_template].strength,"max strength:",max_strength)
 			if ship_template[current_ship_template].strength <= max_strength then
 				if fleetComposition == "Non-DB" then
@@ -3685,7 +3592,7 @@ function getTemplatePool(max_strength)
 		end
 	end
 	--print("returning template pool containing these templates:")
-	--for _, template in ipairs(template_pool) do
+	--for idx, template in ipairs(template_pool) do
 	--	print(template)
 	--end
 	return template_pool
@@ -4037,7 +3944,7 @@ function enforcer(enemyFaction)
 		end
 	end)
 	ship:setTypeName("Enforcer")
-	ship:setRadarTrace(getFilenameCompatible("radar/ktlitan_destroyer.png"))			--different radar trace
+	ship:setRadarTrace("radar/ktlitan_destroyer.png")			--different radar trace
 	ship:setWarpDrive(true)										--warp (vs none)
 	ship:setWarpSpeed(600)
 	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
@@ -4074,7 +3981,7 @@ function enforcer(enemyFaction)
 			},
 			nil
 		)
-		enforcer_db:setImage(getFilenameCompatible("radar/ktlitan_destroyer.png"))		--override default radar image
+		enforcer_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
 	end
 	return ship		
 end
@@ -4119,7 +4026,7 @@ function predator(enemyFaction)
 	ship:setWeaponStorage("Homing", 32)		
 	ship:setWeaponStorageMax("HVLI",0)							--less (vs 10)
 	ship:setWeaponStorage("HVLI", 0)
-	ship:setRadarTrace(getFilenameCompatible("radar/missile_cruiser.png"))				--different radar trace
+	ship:setRadarTrace("radar/missile_cruiser.png")				--different radar trace
 	local predator_db = queryScienceDatabase("Ships","Frigate","Predator")
 	if predator_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
@@ -4142,7 +4049,7 @@ function predator(enemyFaction)
 			},
 			"5 - 35 U"		--jump range
 		)
-		predator_db:setImage(getFilenameCompatible("radar/missile_cruiser.png"))		--override default radar image
+		predator_db:setImage("radar/missile_cruiser.png")		--override default radar image
 	end
 	return ship		
 end
@@ -4772,7 +4679,7 @@ function addShipToDatabase(base_db,modified_db,ship,description,tube_directions,
 			end
 		end
 		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-		for _, missile_type in ipairs(missile_types) do
+		for idx, missile_type in ipairs(missile_types) do
 			local max_storage = ship:getWeaponStorageMax(missile_type)
 			if max_storage > 0 then
 				modified_db:setKeyValue(string.format(_("scienceDB", "Storage %s"),missile_type),string.format("%i",max_storage))
@@ -5677,7 +5584,7 @@ function placeCustomPlayerShips()
 		end
 	end
 	local angle = human_angle
-	for _, template in ipairs(custom_player_ship_sets[custom_player_ship_type][ships_per_team]) do
+	for idx, template in ipairs(custom_player_ship_sets[custom_player_ship_type][ships_per_team]) do
 --		print("Human ships per team template:",template)
 		local p = nil
 		if player_ship_stats[template].stock then
@@ -5837,7 +5744,7 @@ function placeDefaultPlayerShips()
 		end
 	end
 	angle = faction_angle["Human Navy"]
-	for _, template in ipairs(default_player_ship_sets[ships_per_team]) do
+	for idx, template in ipairs(default_player_ship_sets[ships_per_team]) do
 		local p = PlayerSpaceship():setTemplate(template):setFaction("Human Navy")
 		setPlayer(p)
 		startPlayerPosition(p,angle)
@@ -6310,7 +6217,7 @@ function handleDockedState()
 	boostSensorsWhileDocked(commsStation)
 	overchargeJump(commsStation)
 	activateDefenseFleet(commsStation)
-	for _, scientist in ipairs(scientist_list[comms_target:getFaction()]) do
+	for idx, scientist in ipairs(scientist_list[comms_target:getFaction()]) do
 		if scientist.location == comms_target then
 			addCommsReply(string.format("Speak with scientist %s",scientist.name),function()
 				setCommsMessage(string.format("Greetings, %s\nI've got great ideas for the war effort.\nWhat can I do for you?",comms_source:getCallSign()))
@@ -6417,7 +6324,7 @@ function handleDockedState()
 						if comms_target == faction_primary_station[comms_target:getFaction()].station then
 							local colleage_count = 0
 							local conferee = nil
-							for _, colleague in ipairs(scientist_list[comms_target:getFaction()]) do
+							for idx, colleague in ipairs(scientist_list[comms_target:getFaction()]) do
 								if colleague.location == comms_target and colleague ~= scientist then
 									colleage_count = colleage_count + 1
 									conferee = colleague
@@ -6582,7 +6489,7 @@ function handleUndockedState()
 	requestSupplyDrop(commsStation)
 	requestJumpSupplyDrop(commsStation)
 	requestReinforcements(commsStation)
-	for _, scientist in ipairs(scientist_list[comms_target:getFaction()]) do
+	for idx, scientist in ipairs(scientist_list[comms_target:getFaction()]) do
 		if scientist.location == comms_target then
 			addCommsReply(string.format("Speak with scientist %s",scientist.name),function()
 				setCommsMessage(string.format("Greetings, %s\nI've got great ideas for the war effort.\nWhat can I do for you?",comms_source:getCallSign()))
@@ -7384,7 +7291,7 @@ end
 function restockOrdnance(return_function)
 	local missilePresence = 0
 	local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
-	for _, missile_type in ipairs(missile_types) do
+	for idx, missile_type in ipairs(missile_types) do
 		missilePresence = missilePresence + comms_source:getWeaponStorageMax(missile_type)
 	end
 	if missilePresence > 0 then
@@ -8339,7 +8246,7 @@ function shipAssistPlayer(comms_data,return_function)
 	end
 end
 function shipDockNearby(return_function)
-	for _, obj in ipairs(comms_target:getObjectsInRange(5000)) do
+	for idx, obj in ipairs(comms_target:getObjectsInRange(5000)) do
 		local player_carrier = false
 		local template_name = ""
 		if obj.typeName == "PlayerSpaceship" then
@@ -8368,7 +8275,7 @@ function fleetCommunication(return_function)
 	if comms_target.fleetIndex ~= nil then
 		addCommsReply(string.format(_("shipAssist-comms", "Direct fleet %i"),comms_target.fleetIndex), function()
 			local fleet_state = string.format(_("shipAssist-comms", "Fleet %i consists of:\n"),comms_target.fleetIndex)
-			for _, ship in ipairs(npc_fleet[comms_target:getFaction()]) do
+			for idx, ship in ipairs(npc_fleet[comms_target:getFaction()]) do
 				if ship ~= nil and ship:isValid() then
 					if ship.fleetIndex == comms_target.fleetIndex then
 						fleet_state = fleet_state .. ship:getCallSign() .. " "
@@ -8378,7 +8285,7 @@ function fleetCommunication(return_function)
 			setCommsMessage(string.format(_("shipAssist-comms", "%s\n\nWhat command should be given to fleet %i?"),fleet_state,comms_target.fleetIndex))
 			addCommsReply(_("shipAssist-comms", "Report hull and shield status"), function()
 				msg = string.format(_("shipAssist-comms", "Fleet %i status:"),comms_target.fleetIndex)
-				for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+				for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 					if fleetShip.fleetIndex == comms_target.fleetIndex then
 						if fleetShip ~= nil and fleetShip:isValid() then
 							msg = msg .. string.format(_("shipAssist-comms", "\n %s:"), fleetShip:getCallSign())
@@ -8404,13 +8311,13 @@ function fleetCommunication(return_function)
 			end)
 			addCommsReply(_("shipAssist-comms", "Report missile status"), function()
 				msg = string.format(_("shipAssist-comms", "Fleet %i missile status:"),comms_target.fleetIndex)
-				for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+				for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 					if fleetShip.fleetIndex == comms_target.fleetIndex then
 						if fleetShip ~= nil and fleetShip:isValid() then
 							msg = msg .. string.format(_("shipAssist-comms", "\n %s:"), fleetShip:getCallSign())
 							local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 							missileMsg = ""
-							for _, missile_type in ipairs(missile_types) do
+							for idx2, missile_type in ipairs(missile_types) do
 								if fleetShip:getWeaponStorageMax(missile_type) > 0 then
 									missileMsg = missileMsg .. string.format(_("shipAssist-comms", "\n      %s: %d/%d"), missile_type, math.floor(fleetShip:getWeaponStorage(missile_type)), math.floor(fleetShip:getWeaponStorageMax(missile_type)))
 								end
@@ -8425,7 +8332,7 @@ function fleetCommunication(return_function)
 				addCommsReply(_("Back"), return_function)
 			end)
 			addCommsReply(_("shipAssist-comms", "Assist me"), function()
-				for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+				for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 					if fleetShip.fleetIndex == comms_target.fleetIndex then
 						if fleetShip ~= nil and fleetShip:isValid() then
 							fleetShip:orderDefendTarget(comms_source)
@@ -8443,7 +8350,7 @@ function fleetCommunication(return_function)
 					setCommsMessage(_("shipAssist-comms", "Which waypoint should we defend?"));
 					for n=1,comms_source:getWaypointCount() do
 						addCommsReply(string.format(_("shipAssist-comms", "Defend WP %d"), n), function()
-							for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+							for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 								if fleetShip.fleetIndex == comms_target.fleetIndex then
 									if fleetShip ~= nil and fleetShip:isValid() then
 										fleetShip:orderDefendLocation(comms_source:getWaypoint(n))
@@ -8464,7 +8371,7 @@ function fleetCommunication(return_function)
 					setCommsMessage(_("shipAssist-comms", "Which waypoint?"));
 					for n=1,comms_source:getWaypointCount() do
 						addCommsReply(string.format(_("shipAssist-comms", "Go to WP%d"),n), function()
-							for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+							for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 								if fleetShip.fleetIndex == comms_target.fleetIndex then
 									if fleetShip ~= nil and fleetShip:isValid() then
 										fleetShip:orderFlyTowards(comms_source:getWaypoint(n))
@@ -8485,7 +8392,7 @@ function fleetCommunication(return_function)
 					setCommsMessage(_("shipAssist-comms", "Which waypoint?"));
 					for n=1,comms_source:getWaypointCount() do
 						addCommsReply(string.format(_("shipAssist-comms", "Go to WP%d"),n), function()
-							for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+							for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 								if fleetShip.fleetIndex == comms_target.fleetIndex then
 									if fleetShip ~= nil and fleetShip:isValid() then
 										fleetShip:orderFlyTowardsBlind(comms_source:getWaypoint(n))
@@ -8499,7 +8406,7 @@ function fleetCommunication(return_function)
 				end
 			end)
 			addCommsReply(_("shipAssist-comms", "Go offensive, attack all enemy targets"), function()
-				for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+				for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 					if fleetShip.fleetIndex == comms_target.fleetIndex then
 						if fleetShip ~= nil and fleetShip:isValid() then
 							fleetShip:orderRoaming()
@@ -8510,7 +8417,7 @@ function fleetCommunication(return_function)
 				addCommsReply(_("Back"), return_function)
 			end)
 			addCommsReply(_("shipAssist-comms", "Stop and defend your current position"), function()
-				for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+				for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 					if fleetShip.fleetIndex == comms_target.fleetIndex then
 						fleetShip:orderStandGround()
 					end
@@ -8519,7 +8426,7 @@ function fleetCommunication(return_function)
 				addCommsReply(_("Back"), return_function)
 			end)
 			addCommsReply(_("shipAssist-comms", "Stop and do nothing"), function()
-				for _, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
+				for idx, fleetShip in ipairs(npc_fleet[comms_target:getFaction()]) do
 					if fleetShip.fleetIndex == comms_target.fleetIndex then
 						fleetShip:orderIdle()
 					end
@@ -8814,7 +8721,7 @@ function gatherStats()
 	end
 	if npc_fleet ~= nil then
 		for faction, list in pairs(npc_fleet) do
-			for _, ship in ipairs(list) do
+			for idx, ship in ipairs(list) do
 				if ship:isValid() then
 					stat_list[f2s[faction]].npc_score_total = stat_list[f2s[faction]].npc_score_total + ship.score_value
 					stat_list[f2s[faction]].npc[ship:getCallSign()] = {template_type = ship:getTypeName(), is_alive = true, score_value = ship.score_value}
@@ -8824,7 +8731,7 @@ function gatherStats()
 	end
 	if scientist_list ~= nil then
 		for faction, list in pairs(scientist_list) do
-			for _, scientist in ipairs(list) do
+			for idx, scientist in ipairs(list) do
 				if scientist.location:isValid() then
 					stat_list[f2s[faction]].npc_score_total = stat_list[f2s[faction]].npc_score_total + scientist.score_value
 					stat_list[f2s[faction]].npc[scientist.name] = {topic = scientist.topic, is_alive = true, score_value = scientist.score_value, location_name = scientist.location_name}	
@@ -8833,7 +8740,7 @@ function gatherStats()
 		end
 	end
 	for faction, list in pairs(station_list) do
-		for _, station in ipairs(list) do
+		for idx, station in ipairs(list) do
 			if station:isValid() then
 				stat_list[f2s[faction]].station_score_total = stat_list[f2s[faction]].station_score_total + station.score_value
 				stat_list[f2s[faction]].station[station:getCallSign()] = {template_type = station:getTypeName(), is_alive = true, score_value = station.score_value}
@@ -9030,7 +8937,7 @@ function update(delta)
 						else
 							p:addToShipLog("In addition to the stations and fleet assets, Command has deemed this scientist as critical to the war effort. Loss of this scientist will count against you like the loss of stations and fleet assets will. Scientist:","Magenta")
 						end
-						for _, scientist in ipairs(scientist_list[p:getFaction()]) do
+						for idx, scientist in ipairs(scientist_list[p:getFaction()]) do
 							p:addToShipLog(string.format("Value: %i, Name: %s, Specialization: %s, Location: %s",scientist.score_value,scientist.name,scientist.topic,scientist.location_name),"Magenta")
 						end
 						if #scientist_list[p:getFaction()] > 1 then
@@ -9053,7 +8960,7 @@ function update(delta)
 			local current_station = stn_list[station_index]
 			if current_station ~= nil and current_station:isValid() then
 				if current_station.proximity_warning == nil then
-					for _, obj in ipairs(current_station:getObjectsInRange(station_sensor_range)) do
+					for idx, obj in ipairs(current_station:getObjectsInRange(station_sensor_range)) do
 						if obj ~= nil and obj:isValid() then
 							if obj:isEnemy(current_station) then
 								local obj_type_name = obj.typeName
