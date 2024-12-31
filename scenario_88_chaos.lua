@@ -63,7 +63,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.2.3"
+	scenario_version = "2.2.4"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Chaos of War    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1556,170 +1556,202 @@ function mainGMButtonsAfterPause()
 	addGMFunction(_("buttonGM", "Statistics Summary"),function()
 		local stat_list = gatherStats()
 		local out = _("buttonGM", "Current Scores:")
-		out = out .. string.format(_("msgGM", "\n   Human Navy: %.2f (%.1f%%)"),stat_list.human.weighted_score,stat_list.human.weighted_score/original_score["Human Navy"]*100)
-		out = out .. string.format(_("msgGM", "\n   Kraylor: %.2f (%.1f%%)"),stat_list.kraylor.weighted_score,stat_list.kraylor.weighted_score/original_score["Kraylor"]*100)
+		out = string.format(_("msgGM", "%s\n   Human Navy: %.2f (%.1f%%)"),out,stat_list.human.weighted_score,stat_list.human.weighted_score/original_score["Human Navy"]*100)
+		out = string.format(_("msgGM", "%s\n   Kraylor: %.2f (%.1f%%)"),out,stat_list.kraylor.weighted_score,stat_list.kraylor.weighted_score/original_score["Kraylor"]*100)
 		if exuari_angle ~= nil then
-			out = out .. string.format(_("msgGM", "\n   Exuari: %.2f (%.1f%%)"),stat_list.exuari.weighted_score,stat_list.exuari.weighted_score/original_score["Exuari"]*100)
+			out = string.format(_("msgGM", "%s\n   Exuari: %.2f (%.1f%%)"),out,stat_list.exuari.weighted_score,stat_list.exuari.weighted_score/original_score["Exuari"]*100)
 		end
 		if ktlitan_angle ~= nil then
-			out = out .. string.format(_("msgGM", "\n   Ktlitans: %.2f (%.1f%%)"),stat_list.ktlitan.weighted_score,stat_list.ktlitan.weighted_score/original_score["Ktlitans"]*100)
+			out = string.format(_("msgGM", "\n   Ktlitans: %.2f (%.1f%%)"),out,stat_list.ktlitan.weighted_score,stat_list.ktlitan.weighted_score/original_score["Ktlitans"]*100)
 		end
-		local out = out .. _("msgGM", "\nOriginal scores:")
-		out = out .. string.format(_("msgGM", "\n   Human Navy: %.2f"),original_score["Human Navy"])
-		out = out .. string.format(_("msgGM", "\n   Kraylor: %.2f"),original_score["Kraylor"])
+		local out = string.format(_("msgGM", "%s\nOriginal scores:"),out)
+		out = string.format(_("msgGM", "%s\n   Human Navy: %.2f"),out,original_score["Human Navy"])
+		out = string.format(_("msgGM", "%s\n   Kraylor: %.2f"),out,original_score["Kraylor"])
 		if exuari_angle ~= nil then
-			out = out .. string.format(_("msgGM", "\n   Exuari: %.2f"),original_score["Exuari"])
+			out = string.format(_("msgGM", "%s\n   Exuari: %.2f"),out,original_score["Exuari"])
 		end
 		if ktlitan_angle ~= nil then
-			out = out .. string.format(_("msgGM", "\n   Ktlitans: %.2f"),original_score["Ktlitans"])
+			out = string.format(_("msgGM", "%s\n   Ktlitans: %.2f"),out,original_score["Ktlitans"])
 		end
 		addGMMessage(out)
 	end)
 	addGMFunction(_("buttonGM", "Statistics Details"),function()
 		local stat_list = gatherStats()
+		local tie_breaker = {}
+		for i,p in ipairs(getActivePlayerShips()) do
+			tie_breaker[p:getFaction()] = p:getReputationPoints()/10000
+		end
 		out = _("msgGM", "Human Navy:\n    Stations: (score value, type, name)")
 		print("Human Navy:")
 		print("    Stations: (score value, type, name)")
 		for name, details in pairs(stat_list.human.station) do
-			out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+			out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 			print(" ",details.score_value,details.template_type,name)
 		end
 		local weighted_stations = stat_list.human.station_score_total * stat_list.weight.station
-		out = out .. string.format(_("msgGM", "\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.human.station_score_total,stat_list.weight.station,weighted_stations)
+		out = string.format(_("msgGM", "%s\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.human.station_score_total,stat_list.weight.station,weighted_stations)
 		print("    Station Total:",stat_list.human.station_score_total,"Weight:",stat_list.weight.station,"Weighted Total:",weighted_stations)
-		out = out .. _("msgGM", "\n    Player Ships: (score value, type, name)")
+		out = string.format(_("msgGM", "%s\n    Player Ships: (score value, type, name)"),out)
 		print("    Player Ships: (score value, type, name)")
 		for name, details in pairs(stat_list.human.ship) do
-			out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+			out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 			print(" ",details.score_value,details.template_type,name)
 		end
 		local weighted_players = stat_list.human.ship_score_total * stat_list.weight.ship
-		out = out .. string.format(_("msgGM", "\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.human.ship_score_total,stat_list.weight.ship,weighted_players)
+		out = string.format(_("msgGM", "%s\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.human.ship_score_total,stat_list.weight.ship,weighted_players)
 		print("    Player Ship Total:",stat_list.human.ship_score_total,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_players)
-		out = out .. _("msgGM", "\n    NPC Assets: score value, type, name (location)")
+		out = string.format(_("msgGM", "%s\n    NPC Assets: score value, type, name (location)"),out)
 		print("    NPC Assets: score value, type, name (location)")
 		for name, details in pairs(stat_list.human.npc) do
 			if details.template_type ~= nil then
-				out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 				print(" ",details.score_value,details.template_type,name)
 			elseif details.topic ~= nil then
-				out = out .. string.format(_("msgGM", "\n        %i %s %s (%s)"),details.score_value,details.topic,name,details.location_name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s (%s)"),out,details.score_value,details.topic,name,details.location_name)
 				print(" ",details.score_value,details.topic,name,"(" .. details.location_name .. ")")
 			end
 		end
 		local weighted_npcs = stat_list.human.npc_score_total * stat_list.weight.npc
-		out = out .. string.format(_("msgGM", "\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.human.npc_score_total,stat_list.weight.npc,weighted_npcs)
+		out = string.format(_("msgGM", "%s\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.human.npc_score_total,stat_list.weight.npc,weighted_npcs)
 		print("    NPC Asset Total:",stat_list.human.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
-		out = out .. string.format(_("msgGM", "\n----Human weighted total:%.1f Original:%.1f Change:%.2f%%"),stat_list.human.weighted_score,original_score["Human Navy"],stat_list.human.weighted_score/original_score["Human Navy"]*100)
+		if respawn_type == "self" then
+			local weighted_death_penalty = stat_list.human.death_penalty * stat_list.weight.ship
+			out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.human.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+			print("    Player ship death penalty:",stat_list.human.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
+		end
+		out = string.format(_("msgGM", "%s\n----Human weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.human.weighted_score,original_score["Human Navy"],stat_list.human.weighted_score/original_score["Human Navy"]*100)
 		print("----Human weighted total:",stat_list.human.weighted_score,"Original:",original_score["Human Navy"],"Change:",stat_list.human.weighted_score/original_score["Human Navy"]*100 .. "%")
-		out = out .. _("msgGM", "\nKraylor:\n    Stations: (score value, type, name)")
+		out = string.format(_("msgGM","%sHuman tie breaker points:%f"),out,tie_breaker["Human Navy"])
+		print("Human tie breaker points:",tie_breaker["Human Navy"])
+		out = string.format(_("msgGM", "%s\nKraylor:\n    Stations: (score value, type, name)"),out)
 		print("Kraylor:")
 		print("    Stations: (score value, type, name)")
 		for name, details in pairs(stat_list.kraylor.station) do
-			out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+			out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 			print(" ",details.score_value,details.template_type,name)
 		end
 		local weighted_stations = stat_list.kraylor.station_score_total * stat_list.weight.station
-		out = out .. string.format(_("msgGM", "\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.kraylor.station_score_total,stat_list.weight.station,weighted_stations)
+		out = string.format(_("msgGM", "%s\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.kraylor.station_score_total,stat_list.weight.station,weighted_stations)
 		print("    Station Total:",stat_list.kraylor.station_score_total,"Weight:",stat_list.weight.station,"Weighted Total:",weighted_stations)
-		out = out .. _("msgGM", "\n    Player Ships: (score value, type, name)")
+		out = string.format(_("msgGM", "%s\n    Player Ships: (score value, type, name)"),out)
 		print("    Player Ships: (score value, type, name)")
 		for name, details in pairs(stat_list.kraylor.ship) do
-			out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+			out = string.format(_("msgGM", "\n        %i %s %s"),out,details.score_value,details.template_type,name)
 			print(" ",details.score_value,details.template_type,name)
 		end
 		local weighted_players = stat_list.kraylor.ship_score_total * stat_list.weight.ship
-		out = out .. string.format(_("msgGM", "\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.kraylor.ship_score_total,stat_list.weight.ship,weighted_players)
+		out = string.format(_("msgGM", "%s\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.kraylor.ship_score_total,stat_list.weight.ship,weighted_players)
 		print("    Player Ship Total:",stat_list.kraylor.ship_score_total,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_players)
-		out = out .. _("msgGM", "\n    NPC Assets: score value, type, name (location)")
+		out = string.format(_("msgGM", "%s\n    NPC Assets: score value, type, name (location)"),out)
 		print("    NPC Assets: score value, type, name (location)")
 		for name, details in pairs(stat_list.kraylor.npc) do
 			if details.template_type ~= nil then
-				out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 				print(" ",details.score_value,details.template_type,name)
 			elseif details.topic ~= nil then
-				out = out .. string.format(_("msgGM", "\n        %i %s %s (%s)"),details.score_value,details.topic,name,details.location_name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s (%s)"),out,details.score_value,details.topic,name,details.location_name)
 				print(" ",details.score_value,details.topic,name,"(" .. details.location_name .. ")")
 			end
 		end
 		local weighted_npcs = stat_list.kraylor.npc_score_total * stat_list.weight.npc
-		out = out .. string.format(_("msgGM", "\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.kraylor.npc_score_total,stat_list.weight.npc,weighted_npcs)
+		out = string.format(_("msgGM", "%s\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.kraylor.npc_score_total,stat_list.weight.npc,weighted_npcs)
 		print("    NPC Asset Total:",stat_list.kraylor.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
-		out = out .. string.format(_("msgGM", "\n----Kraylor weighted total:%.1f Original:%.1f Change:%.2f%%"),stat_list.kraylor.weighted_score,original_score["Kraylor"],stat_list.kraylor.weighted_score/original_score["Kraylor"]*100)
+		if respawn_type == "self" then
+			local weighted_death_penalty = stat_list.kraylor.death_penalty * stat_list.weight.ship
+			out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.kraylor.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+			print("    Player ship death penalty:",stat_list.kraylor.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
+		end
+		out = string.format(_("msgGM", "%s\n----Kraylor weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.kraylor.weighted_score,original_score["Kraylor"],stat_list.kraylor.weighted_score/original_score["Kraylor"]*100)
 		print("----Kraylor weighted total:",stat_list.kraylor.weighted_score,"Original:",original_score["Kraylor"],"Change:",stat_list.kraylor.weighted_score/original_score["Kraylor"]*100 .. "%")
+		out = string.format(_("msgGM","%sKraylor tie breaker points:%f"),out,tie_breaker["Kraylor"])
+		print("Kraylor tie breaker points:",tie_breaker["Kraylor"])
 		if exuari_angle ~= nil then
-			out = out .. _("msgGM", "\nExuari:\n    Stations: (score value, type, name)")
+			out = string.format(_("msgGM", "%s\nExuari:\n    Stations: (score value, type, name)"),out)
 			print("Exuari:")
 			print("    Stations: (score value, type, name)")
 			for name, details in pairs(stat_list.exuari.station) do
-				out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 				print(" ",details.score_value,details.template_type,name)
 			end
 			local weighted_stations = stat_list.exuari.station_score_total * stat_list.weight.station
-			out = out .. string.format(_("msgGM", "\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.exuari.station_score_total,stat_list.weight.station,weighted_stations)
+			out = string.format(_("msgGM", "%s\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.exuari.station_score_total,stat_list.weight.station,weighted_stations)
 			print("    Station Total:",stat_list.exuari.station_score_total,"Weight:",stat_list.weight.station,"Weighted Total:",weighted_stations)
-			out = out .. _("msgGM", "\n    Player Ships: (score value, type, name)")
+			out = string.format(_("msgGM", "\n    Player Ships: (score value, type, name)"),out)
 			print("    Player Ships: (score value, type, name)")
 			for name, details in pairs(stat_list.exuari.ship) do
-				out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 				print(" ",details.score_value,details.template_type,name)
 			end
 			local weighted_players = stat_list.exuari.ship_score_total * stat_list.weight.ship
-			out = out .. string.format(_("msgGM", "\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.exuari.ship_score_total,stat_list.weight.ship,weighted_players)
+			out = string.format(_("msgGM", "%s\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.exuari.ship_score_total,stat_list.weight.ship,weighted_players)
 			print("    Player Ship Total:",stat_list.exuari.ship_score_total,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_players)
-			out = out .. _("msgGM", "\n    NPC Assets: score value, type, name (location)")
+			out = string.format(_("msgGM", "%s\n    NPC Assets: score value, type, name (location)"),out)
 			print("    NPC Assets: score value, type, name (location)")
 			for name, details in pairs(stat_list.exuari.npc) do
 				if details.template_type ~= nil then
-					out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+					out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 					print(" ",details.score_value,details.template_type,name)
 				elseif details.topic ~= nil then
-					out = out .. string.format(_("msgGM", "\n        %i %s %s (%s)"),details.score_value,details.topic,name,details.location_name)
+					out = string.format(_("msgGM", "%s\n        %i %s %s (%s)"),out,details.score_value,details.topic,name,details.location_name)
 					print(" ",details.score_value,details.topic,name,"(" .. details.location_name .. ")")
 				end
 			end
 			local weighted_npcs = stat_list.exuari.npc_score_total * stat_list.weight.npc
-			out = out .. string.format(_("msgGM", "\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.exuari.npc_score_total,stat_list.weight.npc,weighted_npcs)
+			out = string.format(_("msgGM", "%s\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.exuari.npc_score_total,stat_list.weight.npc,weighted_npcs)
 			print("    NPC Asset Total:",stat_list.exuari.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
-			out = out .. string.format(_("msgGM", "\n----Exuari weighted total:%.1f Original:%.1f Change:%.2f%%"),stat_list.exuari.weighted_score,original_score["Exuari"],stat_list.exuari.weighted_score/original_score["Exuari"]*100)
+			if respawn_type == "self" then
+				local weighted_death_penalty = stat_list.exuari.death_penalty * stat_list.weight.ship
+				out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.exuari.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+				print("    Player ship death penalty:",stat_list.exuari.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
+			end
+			out = string.format(_("msgGM", "%s\n----Exuari weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.exuari.weighted_score,original_score["Exuari"],stat_list.exuari.weighted_score/original_score["Exuari"]*100)
 			print("----Exuari weighted total:",stat_list.exuari.weighted_score,"Original:",original_score["Exuari"],"Change:",stat_list.exuari.weighted_score/original_score["Exuari"]*100 .. "%")
+			out = string.format(_("msgGM","%sExuari tie breaker points:%f"),out,tie_breaker["Exuari"])
+			print("Exuari tie breaker points:",tie_breaker["Exuari"])
 		end
 		if ktlitan_angle ~= nil then
-			out = out .. _("msgGM", "\nKtlitan:\n    Stations: (score value, type, name)")
+			out = string.format(_("msgGM", "\nKtlitan:\n    Stations: (score value, type, name)"),out)
 			print("Ktlitan:")
 			print("    Stations: (score value, type, name)")
 			for name, details in pairs(stat_list.ktlitan.station) do
-				out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 				print(" ",details.score_value,details.template_type,name)
 			end
 			local weighted_stations = stat_list.ktlitan.station_score_total * stat_list.weight.station
-			out = out .. string.format(_("msgGM", "\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.ktlitan.station_score_total,stat_list.weight.station,weighted_stations)
+			out = string.format(_("msgGM", "%s\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.ktlitan.station_score_total,stat_list.weight.station,weighted_stations)
 			print("    Station Total:",stat_list.ktlitan.station_score_total,"Weight:",stat_list.weight.station,"Weighted Total:",weighted_stations)
-			out = out .. _("msgGM", "\n    Player Ships: (score value, type, name)")
+			out = string.format(_("msgGM", "%s\n    Player Ships: (score value, type, name)"),out)
 			print("    Player Ships: (score value, type, name)")
 			for name, details in pairs(stat_list.ktlitan.ship) do
-				out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 				print(" ",details.score_value,details.template_type,name)
 			end
 			local weighted_players = stat_list.ktlitan.ship_score_total * stat_list.weight.ship
-			out = out .. string.format(_("msgGM", "\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.ktlitan.ship_score_total,stat_list.weight.ship,weighted_players)
+			out = string.format(_("msgGM", "%s\n            Player Ship Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.ktlitan.ship_score_total,stat_list.weight.ship,weighted_players)
 			print("    Player Ship Total:",stat_list.ktlitan.ship_score_total,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_players)
-			out = out .. _("msgGM", "\n    NPC Assets: score value, type, name (location)")
+			out = string.format(_("msgGM", "%s\n    NPC Assets: score value, type, name (location)"),out)
 			print("    NPC Assets: score value, type, name (location)")
 			for name, details in pairs(stat_list.ktlitan.npc) do
 				if details.template_type ~= nil then
-					out = out .. string.format(_("msgGM", "\n        %i %s %s"),details.score_value,details.template_type,name)
+					out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 					print(" ",details.score_value,details.template_type,name)
 				elseif details.topic ~= nil then
-					out = out .. string.format(_("msgGM", "\n        %i %s %s (%s)"),details.score_value,details.topic,name,details.location_name)
+					out = string.format(_("msgGM", "%s\n        %i %s %s (%s)"),out,details.score_value,details.topic,name,details.location_name)
 					print(" ",details.score_value,details.topic,name,"(" .. details.location_name .. ")")
 				end
 			end
 			local weighted_npcs = stat_list.ktlitan.npc_score_total * stat_list.weight.npc
-			out = out .. string.format(_("msgGM", "\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),stat_list.ktlitan.npc_score_total,stat_list.weight.npc,weighted_npcs)
+			out = string.format(_("msgGM", "%s\n            NPC Asset Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.ktlitan.npc_score_total,stat_list.weight.npc,weighted_npcs)
 			print("    NPC Asset Total:",stat_list.ktlitan.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
-			out = out .. string.format(_("msgGM", "\n----Ktlitan weighted total:%.1f Original:%.1f Change:%.2f%%"),stat_list.ktlitan.weighted_score,original_score["Ktlitans"],stat_list.ktlitan.weighted_score/original_score["Ktlitans"]*100)
+			if respawn_type == "self" then
+				local weighted_death_penalty = stat_list.ktlitan.death_penalty * stat_list.weight.ship
+				out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.ktlitan.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+				print("    Player ship death penalty:",stat_list.ktlitan.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
+			end
+			out = string.format(_("msgGM", "%s\n----Ktlitan weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.ktlitan.weighted_score,original_score["Ktlitans"],stat_list.ktlitan.weighted_score/original_score["Ktlitans"]*100)
 			print("----Ktlitan weighted total:",stat_list.ktlitan.weighted_score,"Original:",original_score["Ktlitans"],"Change:",stat_list.ktlitan.weighted_score/original_score["Ktlitans"]*100 .. "%")
+			out = string.format(_("msgGM","%sKtlitan tie breaker points:%f"),out,tie_breaker["Ktlitans"])
+			print("Ktlitan tie breaker points:",tie_breaker["Ktlitans"])
 		end
 		addGMMessage(out)
 	end)
@@ -4810,95 +4842,97 @@ function handleUndockedState()
 	requestJumpSupplyDrop(commsStation)
 	requestReinforcements(commsStation)
 	activateDefenseFleet(commsStation)
-	for idx, scientist in ipairs(scientist_list[comms_target:getFaction()]) do
-		if scientist.location == comms_target then
-			addCommsReply(string.format(_("station-comms","Speak with scientist %s"),scientist.name),function()
-				setCommsMessage(string.format(_("station-comms","Greetings, %s\nI've got great ideas for the war effort.\nWhat can I do for you?"),comms_source:getCallSign()))
-				addCommsReply(_("station-comms","Can you tell me some more about your ideas?"),function()
-					local rc = false
-					local msg = ""
-					local completed_message = ""
-					local npc_message = ""
-					if string.find(scientist.upgrade_requirement,"talk") then
-						if string.find(scientist.upgrade_requirement,"primary") then
-							if faction_primary_station[comms_target:getFaction()].station ~= nil and faction_primary_station[comms_target:getFaction()].station:isValid() then
-								if faction_primary_station[comms_target:getFaction()].station.available_upgrades == nil then
-									faction_primary_station[comms_target:getFaction()].station.available_upgrades = {}
-								end
-								faction_primary_station[comms_target:getFaction()].station.available_upgrades[scientist.upgrade.name] = scientist.upgrade.action
-								setCommsMessage(string.format(_("station-comms","I just sent details on a %s to %s. With their facilities, you should be able to apply the upgrade the next time you dock there."),scientist.upgrade.name,faction_primary_station[comms_target:getFaction()].station:getCallSign()))
-							else
-								setCommsMessage(_("station-comms","Without your primary station to apply my research, I'm afraid my information is useless"))
-							end
-						else
-							local rc, msg = scientist.upgrade.action(comms_source)
-							if rc then
-								completed_message = string.format(_("station-comms","After an extended conversation with %s and the exchange of technical information with various crew members, you apply the insight into %s gained by %s.\n\n%s"),scientist.name,scientist.topic,scientist.name,msg)
-								if scientist.upgrade_automated_application == "single" then
-									setCommsMessage(completed_message)
-								elseif scientist.upgrade_automated_application == "players" then
-									for pidx=1,32 do
-										local p = getPlayerShip(pidx)
-										if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
-											rc, msg = scientist.upgrade.action(p)
-											if rc then
-												p:addToShipLog(string.format(_("shipLog","%s provided details from %s for an upgrade. %s"),comms_source:getCallSign(),scientist.name,msg),"Magenta")
-											end
-										end
+	if scientist_list[comms_target:getFaction()] ~= nil then
+		for idx, scientist in ipairs(scientist_list[comms_target:getFaction()]) do
+			if scientist.location == comms_target then
+				addCommsReply(string.format(_("station-comms","Speak with scientist %s"),scientist.name),function()
+					setCommsMessage(string.format(_("station-comms","Greetings, %s\nI've got great ideas for the war effort.\nWhat can I do for you?"),comms_source:getCallSign()))
+					addCommsReply(_("station-comms","Can you tell me some more about your ideas?"),function()
+						local rc = false
+						local msg = ""
+						local completed_message = ""
+						local npc_message = ""
+						if string.find(scientist.upgrade_requirement,"talk") then
+							if string.find(scientist.upgrade_requirement,"primary") then
+								if faction_primary_station[comms_target:getFaction()].station ~= nil and faction_primary_station[comms_target:getFaction()].station:isValid() then
+									if faction_primary_station[comms_target:getFaction()].station.available_upgrades == nil then
+										faction_primary_station[comms_target:getFaction()].station.available_upgrades = {}
 									end
-									setCommsMessage(string.format(_("station-comms","\nThe upgrade details were also provided to the other players in your faction."),completed_message))
-								elseif scientist.upgrade_automated_application == "all" then
-									if scientist.upgrade.action ~= longerSensorsUpgrade and scientist.upgrade.action ~= batteryEfficiencyUpgrade then
-										if npc_fleet ~= nil and npc_fleet[comms_source:getFaction()] ~= nil and #npc_fleet[comms_source:getFaction()] > 0 then
-											for i=1,#npc_fleet[comms_source:getFaction()] do
-												local npc = npc_fleet[comms_source:getFaction()][i]
-												if npc ~= nil and npc:isValid() then
-													rc, msg = scientist.upgrade.action(npc)
+									faction_primary_station[comms_target:getFaction()].station.available_upgrades[scientist.upgrade.name] = scientist.upgrade.action
+									setCommsMessage(string.format(_("station-comms","I just sent details on a %s to %s. With their facilities, you should be able to apply the upgrade the next time you dock there."),scientist.upgrade.name,faction_primary_station[comms_target:getFaction()].station:getCallSign()))
+								else
+									setCommsMessage(_("station-comms","Without your primary station to apply my research, I'm afraid my information is useless"))
+								end
+							else
+								local rc, msg = scientist.upgrade.action(comms_source)
+								if rc then
+									completed_message = string.format(_("station-comms","After an extended conversation with %s and the exchange of technical information with various crew members, you apply the insight into %s gained by %s.\n\n%s"),scientist.name,scientist.topic,scientist.name,msg)
+									if scientist.upgrade_automated_application == "single" then
+										setCommsMessage(completed_message)
+									elseif scientist.upgrade_automated_application == "players" then
+										for pidx=1,32 do
+											local p = getPlayerShip(pidx)
+											if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+												rc, msg = scientist.upgrade.action(p)
+												if rc then
+													p:addToShipLog(string.format(_("shipLog","%s provided details from %s for an upgrade. %s"),comms_source:getCallSign(),scientist.name,msg),"Magenta")
 												end
 											end
-											npc_message = _("station-comms","and npc ships ")
 										end
+										setCommsMessage(string.format(_("station-comms","\nThe upgrade details were also provided to the other players in your faction."),completed_message))
+									elseif scientist.upgrade_automated_application == "all" then
+										if scientist.upgrade.action ~= longerSensorsUpgrade and scientist.upgrade.action ~= batteryEfficiencyUpgrade then
+											if npc_fleet ~= nil and npc_fleet[comms_source:getFaction()] ~= nil and #npc_fleet[comms_source:getFaction()] > 0 then
+												for i=1,#npc_fleet[comms_source:getFaction()] do
+													local npc = npc_fleet[comms_source:getFaction()][i]
+													if npc ~= nil and npc:isValid() then
+														rc, msg = scientist.upgrade.action(npc)
+													end
+												end
+												npc_message = _("station-comms","and npc ships ")
+											end
+										end
+										for pidx=1,32 do
+											local p = getPlayerShip(pidx)
+											if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
+												rc, msg = scientist.upgrade.action(p)
+												if rc then
+													p:addToShipLog(string.format(_("station-comms","%s provided details from %s for an upgrade. %s"),comms_source:getCallSign(),scientist.name,msg),"Magenta")
+												end
+											end
+										end
+										setCommsMessage(string.format(_("station-comms","%s\nThe upgrade details were also provided to the other players %sin your faction."),completed_message,npc_message))
 									end
+								else
+									setCommsMessage(string.format(_("station-comms","Your conversation with %s about %s was interesting, but not directly applicable.\n\n%s"),scientist.name,scientist.topic,msg))
+								end
+								local overhear_chance = 16
+								if scientist.upgrade_automated_application == "players" then
+									overhear_chance = 28
+								end
+								if scientist.upgrade_automated_application == "all" then
+									overhear_chance = 39
+								end
+								if random(1,100) <= overhear_chance then
 									for pidx=1,32 do
 										local p = getPlayerShip(pidx)
-										if p ~= nil and p:isValid() and p ~= comms_source and p:getFaction() == comms_source:getFaction() then
-											rc, msg = scientist.upgrade.action(p)
-											if rc then
-												p:addToShipLog(string.format(_("station-comms","%s provided details from %s for an upgrade. %s"),comms_source:getCallSign(),scientist.name,msg),"Magenta")
+										if p ~= nil and p:isValid() then
+											if p:getFaction() == comms_source:getFaction() then
+												p:addToShipLog(string.format(_("station-comms","Communication between %s and %s intercepted by enemy faction"),comms_source:getCallSign(),comms_target:getCallSign()),"Magenta")
+											else
+												p:addToShipLog(string.format(_("station-comms","%s conversation intercepted regarding %s. Probable military application. Suggest you contact our own scientist in the same field"),comms_source:getFaction(),scientist.topic),"Magenta")
 											end
 										end
 									end
-									setCommsMessage(string.format(_("station-comms","%s\nThe upgrade details were also provided to the other players %sin your faction."),completed_message,npc_message))
-								end
-							else
-								setCommsMessage(string.format(_("station-comms","Your conversation with %s about %s was interesting, but not directly applicable.\n\n%s"),scientist.name,scientist.topic,msg))
-							end
-							local overhear_chance = 16
-							if scientist.upgrade_automated_application == "players" then
-								overhear_chance = 28
-							end
-							if scientist.upgrade_automated_application == "all" then
-								overhear_chance = 39
-							end
-							if random(1,100) <= overhear_chance then
-								for pidx=1,32 do
-									local p = getPlayerShip(pidx)
-									if p ~= nil and p:isValid() then
-										if p:getFaction() == comms_source:getFaction() then
-											p:addToShipLog(string.format(_("station-comms","Communication between %s and %s intercepted by enemy faction"),comms_source:getCallSign(),comms_target:getCallSign()),"Magenta")
-										else
-											p:addToShipLog(string.format(_("station-comms","%s conversation intercepted regarding %s. Probable military application. Suggest you contact our own scientist in the same field"),comms_source:getFaction(),scientist.topic),"Magenta")
-										end
-									end
 								end
 							end
+						else
+							setCommsMessage(_("station-comms","I should not discuss it over an open communication line. Perhaps you should visit and we can talk"))
 						end
-					else
-						setCommsMessage(_("station-comms","I should not discuss it over an open communication line. Perhaps you should visit and we can talk"))
-					end
+					end)
+					addCommsReply(_("Back"), commsStation)
 				end)
-				addCommsReply(_("Back"), commsStation)
-			end)
+			end
 		end
 	end
 end
@@ -5028,14 +5062,28 @@ function completionConditions(return_function)
 		local out = string.format(_("stationStats-comms","The war ends in one of three ways:\n1) Time runs out\n2) A faction drops below half of original score\n3) A faction either leads or trails the other factions by %i%%\n"),thresh*100)
 		local stat_list = gatherStats()
 		out = string.format(_("stationStats-comms","%s\nHuman Navy Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.human.weighted_score,original_score["Human Navy"],(stat_list.human.weighted_score/original_score["Human Navy"])*100)
+		out = string.format(_("stationStats-comms","%s\nHuman Navy loss of player ship penalty: %.1f"),out,stat_list.human.death_penalty * stat_list.weight.ship)
 		out = string.format(_("stationStats-comms","%s\nKraylor Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.kraylor.weighted_score,original_score["Kraylor"],(stat_list.kraylor.weighted_score/original_score["Kraylor"])*100)
+		out = string.format(_("stationStats-comms","%s\nKraylor loss of player ship penalty: %.1f"),out,stat_list.kraylor.death_penalty * stat_list.weight.ship)
 		if exuari_angle ~= nil then
 			out = string.format(_("stationStats-comms","%s\nExuari Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.exuari.weighted_score,original_score["Exuari"],(stat_list.exuari.weighted_score/original_score["Exuari"])*100)
+			out = string.format(_("stationStats-comms","%s\nExuari loss of player ship penalty: %.1f"),out,stat_list.exuari.death_penalty * stat_list.weight.ship)
 		end
 		if ktlitan_angle ~= nil then
 			out = string.format(_("stationStats-comms","%s\nKtlitan Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.ktlitan.weighted_score,original_score["Ktlitans"],(stat_list.ktlitan.weighted_score/original_score["Ktlitans"])*100)
+			out = string.format(_("stationStats-comms","%s\nKtlitan loss of player ship penalty: %.1f"),out,stat_list.ktlitan.death_penalty * stat_list.weight.ship)
 		end
 		out = string.format(_("stationStats-comms","%s\n\nStation weight:%i%%   Player ship weight:%i%%   NPC weight:%i%%"),out,stat_list.weight.station*100,stat_list.weight.ship*100,stat_list.weight.npc*100)
+		local tie_breaker = {}
+		for i,p in ipairs(getActivePlayerShips()) do
+			tie_breaker[p:getFaction()] = p:getReputationPoints()
+		end
+		out = string.format(_("stationStats-comms","%s\nTie breaker points:"),out)
+		local faction_points_list = ""
+		for faction,points in pairs(tie_breaker) do
+			faction_points_list = string.format(_("stationStats-comms","%s %s:%f"),faction_points_list,faction,points/10000)
+		end
+		out = string.format(_("stationStats-comms","%s %s"),out,faction_points_list)
 		setCommsMessage(out)
 		addCommsReply(string.format(_("stationStats-comms","Station values (Total:%i)"),stat_list[f2s[comms_source:getFaction()]].station_score_total),function()
 			local out = _("stationStats-comms","Stations: (value, type, name)")
@@ -7050,37 +7098,63 @@ function gatherStats()
 	local ktlitan_death_penalty = 0
 	if respawn_type == "self" then
 		human_death_penalty = death_penalty["Human Navy"]
+		stat_list.human.death_penalty = death_penalty["Human Navy"]
 		kraylor_death_penalty = death_penalty["Kraylor"]
+		stat_list.kraylor.death_penalty = death_penalty["Kraylor"]
 		if exuari_angle ~= nil then
 			exuari_death_penalty = death_penalty["Exuari"]
+			stat_list.exuari.death_penalty = death_penalty["Exuari"]
 		end
 		if ktlitan_angle ~= nil then
 			ktlitan_death_penalty = death_penalty["Ktlitans"]
+			stat_list.ktlitan.death_penalty = death_penalty["Ktlitans"]
+		end
+	end
+	for i,p in ipairs(getActivePlayerShips()) do
+		if p:getFaction() == "Human Navy" then
+			stat_list.human.tie_breaker = p:getReputationPoints()/10000
+		end
+		if p:getFaction() == "Kraylor" then
+			stat_list.kraylor.tie_breaker = p:getReputationPoints()/10000
+		end
+		if exuari_angle ~= nil then
+			if p:getFaction() == "Exuari" then
+				stat_list.exuari.tie_breaker = p:getReputationPoints()/10000
+			end
+		end
+		if ktlitan_angle ~= nil then
+			if p:getFaction() == "Ktlitans" then
+				stat_list.ktlitan.tie_breaker = p:getReputationPoints()/10000
+			end
 		end
 	end
 	stat_list.human.weighted_score = 
 		stat_list.human.station_score_total*station_weight + 
 		stat_list.human.ship_score_total*player_ship_weight + 
 		stat_list.human.npc_score_total*npc_ship_weight - 
-		human_death_penalty*player_ship_weight
+		human_death_penalty*player_ship_weight + 
+		stat_list.human.tie_breaker
 	stat_list.kraylor.weighted_score = 
 		stat_list.kraylor.station_score_total*station_weight + 
 		stat_list.kraylor.ship_score_total*player_ship_weight + 
 		stat_list.kraylor.npc_score_total*npc_ship_weight - 
-		kraylor_death_penalty*player_ship_weight
+		kraylor_death_penalty*player_ship_weight +
+		stat_list.kraylor.tie_breaker
 	if exuari_angle ~= nil then
 		stat_list.exuari.weighted_score = 
 			stat_list.exuari.station_score_total*station_weight + 
 			stat_list.exuari.ship_score_total*player_ship_weight + 
 			stat_list.exuari.npc_score_total*npc_ship_weight - 
-			exuari_death_penalty*player_ship_weight
+			exuari_death_penalty*player_ship_weight +
+			stat_list.exuari.tie_breaker
 	end
 	if ktlitan_angle ~= nil then
 		stat_list.ktlitan.weighted_score = 
 			stat_list.ktlitan.station_score_total*station_weight + 
 			stat_list.ktlitan.ship_score_total*player_ship_weight + 
 			stat_list.ktlitan.npc_score_total*npc_ship_weight - 
-			ktlitan_death_penalty*player_ship_weight
+			ktlitan_death_penalty*player_ship_weight + 
+			stat_list.ktlitan.tie_breaker
 	end
 	if original_score ~= nil then
 		stat_list.human.original_weighted_score = original_score["Human Navy"]
@@ -7119,9 +7193,9 @@ function pickWinner(reason)
 	table.sort(sorted_faction,function(a,b)
 		return a.score > b.score
 	end)
-	local out = string.format(_("msgMainscreen", "%s wins with a score of %.1f!\n"),sorted_faction[1].name,sorted_faction[1].score)
+	local out = string.format(_("msgMainscreen", "%s wins with a score of %f!\n"),sorted_faction[1].name,sorted_faction[1].score)
 	for i=2,#sorted_faction do
-		out = out .. string.format(_("msgMainscreen", "%s:%.1f "),sorted_faction[i].name,sorted_faction[i].score)
+		out = out .. string.format(_("msgMainscreen", "%s:%f "),sorted_faction[i].name,sorted_faction[i].score)
 	end
 	out = out .. "\n" .. reason
 	print(out)
