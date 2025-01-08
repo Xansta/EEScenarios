@@ -3518,39 +3518,39 @@ function update(delta)
 			end
 			if follow_up_message == nil then
 				follow_up_message = "sent"
-				local msg = _("race-", "The race has begun!")
+				local msg = _("race-shipLog", "The race has begun!")
 				for name, p in pairs(player_start_list) do
 					p:addToShipLog(msg,"Magenta")
 				end
 				if player_count == original_player_count then
-					msg = string.format(_("race-", "With %i racers, we have the following points awarded for final race place:"),player_count)
+					msg = string.format(_("race-shipLog", "With %i racers, we have the following points awarded for final race place:"),player_count)
 				else
-					msg = string.format(_("race-", "With %i racers remaining from the original %i registrants, we have the following points awarded for final race place:"),player_count,original_player_count)
+					msg = string.format(_("race-shipLog", "With %i racers remaining from the original %i registrants, we have the following points awarded for final race place:"),player_count,original_player_count)
 				end
 				for name, p in pairs(player_start_list) do
 					p:addToShipLog(msg,"Magenta")
 				end
 				msg = ""
 				local place_name = {
-					_("race-","First"),
-					_("race-","Second"),
-					_("race-","Third"),
-					_("race-","Fourth"),
-					_("race-","Fifth"),
-					_("race-","Sixth"),
-					_("race-","Seventh"),
-					_("race-","Eighth"),
-					_("race-","Ninth"),
-					_("race-","Tenth"),
+					_("race-shipLog","First"),
+					_("race-shipLog","Second"),
+					_("race-shipLog","Third"),
+					_("race-shipLog","Fourth"),
+					_("race-shipLog","Fifth"),
+					_("race-shipLog","Sixth"),
+					_("race-shipLog","Seventh"),
+					_("race-shipLog","Eighth"),
+					_("race-shipLog","Ninth"),
+					_("race-shipLog","Tenth"),
 				}
 				if player_count > 0 then
 					for i=1,#reward_grid[player_count] do
 						if reward_grid[player_count][i] > 0 then
 							if i > 1 then
-								msg = string.format(_("race-","%s, %s:%s"),msg,place_name[i],reward_grid[player_count][i])
+								msg = string.format(_("race-shipLog","%s, %s:%s"),msg,place_name[i],reward_grid[player_count][i])
 --								msg = msg .. ", " .. place_name[i] .. ":" .. reward_grid[player_count][i]
 							else
-								msg = string.format(_("race-","%s:%s"),place_name[i],reward_grid[player_count][i])
+								msg = string.format(_("race-shipLog","%s:%s"),place_name[i],reward_grid[player_count][i])
 --								msg = place_name[i] .. ":" .. reward_grid[player_count][i]
 							end
 						else
