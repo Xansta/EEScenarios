@@ -159,7 +159,7 @@ function pickStation(name)
 	local station = nil
 	if name == nil then
 		--default to random in priority order
-		for _, group in ipairs(station_priority) do
+		for idx, group in ipairs(station_priority) do
 			if station_pool[group] ~= nil then
 				for station, details in pairs(station_pool[group]) do
 					table.insert(station_selection_list,station)
@@ -2480,6 +2480,43 @@ function populateStationPool()
 				general = "", 
 				history = "",
 			},
+			["Carradine"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),	
+		        	HVLI =				random(1,13)<=(9-difficulty),	
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 2.0,
+		        },
+				goods = {
+					impulse = {
+						quantity =	5,
+						cost =		100,
+					},
+				},
+				trade = {
+					food = random(1,100) <= 42, 
+					medicine = false, 
+					luxury = true,
+				},
+				description = _("scienceDescription-station", "Impulse engine components"), 
+				general = _("stationGeneralInfo-comms", "We research and manufacture impulse engine components and systems"), 
+				history = _("stationStory-comms", "Named after one of the station commander's favorite actors from the 20th century"),
+			},
 			["Impala"] = {
 		        weapon_available = {
 		        	Homing =			random(1,13)<=(8-difficulty),	
@@ -2520,6 +2557,86 @@ function populateStationPool()
 				general = _("stationGeneralInfo-comms", "We mine nearby asteroids for precious minerals"), 
 				history = "",
 			},
+			["Grup"] = {
+		        weapon_available = {
+		        	Homing =			random(1,13)<=(8-difficulty),
+		        	HVLI =				random(1,13)<=(9-difficulty),
+		        	Mine =				true,	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {
+					nickel = {
+						quantity =	5,
+						cost =		20,
+					},
+				},
+				trade = {
+					food = random(1,100) < 50, 
+					medicine = true, 
+					luxury = random(1,100) < 50,
+				},
+				buy = {
+					[randomComponent()] = math.random(40,200),
+				},
+				description = _("scienceDescription-station", "Mining station"), 
+				general = "", 
+				history = "",
+			},	
+			["Grap"] = {
+		        weapon_available = {
+		        	Homing =			true,	
+		        	HVLI =				random(1,13)<=(9-difficulty),
+		        	Mine =				random(1,13)<=(7-difficulty),	
+		        	Nuke =				random(1,13)<=(5-difficulty),	
+		        	EMP =				random(1,13)<=(6-difficulty),
+		        },
+				services = {
+					supplydrop =		"friend",
+					reinforcements =	"friend",
+					jumpsupplydrop =	"friend",
+				},
+		        service_cost = {
+		        	supplydrop =		math.random(80,120), 
+		        	reinforcements =	math.random(125,175),
+		        	jumpsupplydrop =	math.random(110,140),
+		        },
+		        reputation_cost_multipliers = {
+		        	friend = 1.0, 
+		        	neutral = 3.0,
+		        },
+				goods = {
+					nickel = {
+						quantity =	5,
+						cost =		20,
+					},
+				},
+				trade = {
+					food = random(1,100) < 50, 
+					medicine = true, 
+					luxury = random(1,100) < 50,
+				},
+				buy = {
+					[randomComponent()] = math.random(40,200),
+				},
+				description = _("scienceDescription-station", "Mining station"), 
+				general = "", 
+				history = "",
+			},			
 			["Krak"] = {
 		        weapon_available = {
 		        	Homing =			random(1,13)<=(8-difficulty),	
@@ -3241,7 +3358,7 @@ function populateStationPool()
 		["Sinister"] = {
 			["Aramanth"] =	{goods = {}, description = "", general = "", history = ""},
 			["Empok Nor"] =	{goods = {}, description = "", general = "", history = ""},
-			["Gandala"] =	{goods = {}, description = "", general = "", history = ""},
+			["Ganalda"] =	{goods = {}, description = "", general = "", history = ""},
 			["Hassenstadt"] =	{goods = {}, description = "", general = "", history = ""},
 			["Kaldor"] =	{goods = {}, description = "", general = "", history = ""},
 			["Magenta Mesra"] =	{goods = {}, description = "", general = "", history = ""},
@@ -3305,7 +3422,7 @@ function populateStationPool()
 	end
 	for group, list in pairs(station_pool) do
 		local already_inserted = false
-		for _, previous_group in ipairs(station_priority) do
+		for idx, previous_group in ipairs(station_priority) do
 			if group == previous_group then
 				already_inserted = true
 				break
