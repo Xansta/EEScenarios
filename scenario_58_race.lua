@@ -30,7 +30,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.2.1"
+	scenario_version = "2.2.2"
 	print(string.format("     -----     Scenario: Fermi 500     -----     Version %s     -----",scenario_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
@@ -573,7 +573,7 @@ function mainGMButtonsDuringPause()
 		print(version_message)
 	end)
 	addGMFunction(_("buttonGM", "Show control codes"),showControlCodes)
-	addGMFunction("Reset control codes",resetControlCodes)
+	addGMFunction(_("buttonGM","Reset control codes"),resetControlCodes)
 	addGMFunction(string.format(_("buttonGM", "+Start Delay: %i"),raceStartDelay/60),setStartDelay)
 	addGMFunction(string.format(_("buttonGM", "+Patience: %i"),patienceTimeLimit/60),setPatienceTimeLimit)
 	if predefined_player_ships ~= nil then
