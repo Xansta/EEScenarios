@@ -21,10 +21,11 @@
 -- Ending[Quixotic]: Cutoffs 20% harder than normal
 -- Setting[Timed]: Sets whether or not the scenario has a time limit. Default is no time limit
 -- Timed[None|Default]: No time limit
--- Timed[20]: Scenario ends in 20 minutes
 -- Timed[30]: Scenario ends in 30 minutes
 -- Timed[40]: Scenario ends in 40 minutes
+-- Timed[45]: Scenario ends in 45 minutes
 -- Timed[50]: Scenario ends in 50 minutes
+-- Timed[55]: Scenario ends in 55 minutes
 -- Timed[60]: Scenario ends in 60 minutes
 -- Timed[70]: Scenario ends in 70 minutes
 -- Timed[80]: Scenario ends in 80 minutes
@@ -58,11 +59,13 @@ require("cpu_ship_diversification_scenario_utility.lua")
 --------------------
 function init()
 	popupGMDebug = "once"
-	scenario_version = "5.6.1"
+	scenario_version = "5.6.2"
 	print(string.format("     -----     Scenario: Borderline Fever     -----     Version %s     -----",scenario_version))
-	print(_VERSION)
-	print("Example of calling a function via http API, assuming you start EE with parameter httpserver=8080 (or it's in options.ini):")
-	print('curl --data "getScriptStorage().scenario.createPlayerShipSting()" http://localhost:8080/exec.lua')
+	if _VERSION ~= nil then
+		print("Lua version:",_VERSION)
+	end
+	--print("Example of calling a function via http API, assuming you start EE with parameter httpserver=8080 (or it's in options.ini):")
+	--print('curl --data "getScriptStorage().scenario.createPlayerShipSting()" http://localhost:8080/exec.lua')
 	setGlobals()
 	setVariations()
 	setConstants()
@@ -274,10 +277,11 @@ function setVariations()
 		destructionDifferenceEndCondition = completion_conditions[getScenarioSetting("Ending")].destruction_difference
 		local timed_config = {
 			["None"] =	{limit = 0,	limited = false,	plot = nil},
-			["20"] =	{limit = 20,limited = true,		plot = timedGame},
 			["30"] =	{limit = 30,limited = true,		plot = timedGame},
 			["40"] =	{limit = 40,limited = true,		plot = timedGame},
+			["45"] =	{limit = 45,limited = true,		plot = timedGame},
 			["50"] =	{limit = 50,limited = true,		plot = timedGame},
+			["55"] =	{limit = 55,limited = true,		plot = timedGame},
 			["60"] =	{limit = 60,limited = true,		plot = timedGame},
 			["70"] =	{limit = 70,limited = true,		plot = timedGame},
 			["80"] =	{limit = 80,limited = true,		plot = timedGame},
@@ -5384,14 +5388,16 @@ end
 function setGameTimeLimit()
 	clearGMFunctions()
 	addGMFunction(_("buttonGM", "-From time limit"),mainGMButtons)
-	for gt=20,90,10 do
-		addGMFunction(string.format(_("buttonGM", "%i minutes"),gt),function()
-			defaultGameTimeLimitInMinutes = gt
-			gameTimeLimit = defaultGameTimeLimitInMinutes*60
-			plot2 = timedGame
-			playWithTimeLimit = true
-			addGMMessage(string.format(_("msgGM", "Game time limit set to %i minutes"),defaultGameTimeLimitInMinutes))
-		end)
+	for gt=30,90,5 do
+		if gt ~= 35 and gt ~= 65 and gt ~= 75 and gt ~= 85 then
+			addGMFunction(string.format(_("buttonGM", "%i minutes"),gt),function()
+				defaultGameTimeLimitInMinutes = gt
+				gameTimeLimit = defaultGameTimeLimitInMinutes*60
+				plot2 = timedGame
+				playWithTimeLimit = true
+				addGMMessage(string.format(_("msgGM", "Game time limit set to %i minutes"),defaultGameTimeLimitInMinutes))
+			end)
+		end
 	end
 end
 -- Dynamic game master buttons --
@@ -13516,6 +13522,13 @@ function enemyBorderCheck(delta)
 	end
 end
 -- Plot ER enemy reinforcements
+function tableSelectRandom(array)
+	local array_item_count = #array
+    if array_item_count == 0 then
+        return nil
+    end
+	return array[math.random(1,#array)]	
+end
 function enemyReinforcements(delta)
 	if #enemyReinforcementSchedule > 0 then
 		if enemyReinforcementTimer == nil then
@@ -13523,16 +13536,13 @@ function enemyReinforcements(delta)
 		else
 			enemyReinforcementTimer = enemyReinforcementTimer - delta
 			if enemyReinforcementTimer < 0 then
-				local ta = VisualAsteroid():setPosition(kraylorCentroidX,kraylorCentroidY)
-				local p = closestPlayerTo(ta)
-				ta:destroy()
+				if kraylorCentroidX ~= nil then
+					local ta = VisualAsteroid():setPosition(kraylorCentroidX,kraylorCentroidY)
+					local p = closestPlayerTo(ta)
+					ta:destroy()
+				end
 				if p == nil then
-					for pidx=1,32 do
-						p = getPlayerShip(pidx)
-						if p ~= nil and p:isValid() then
-							break
-						end
-					end
+					p = tableSelectRandom(getActivePlayerShips())
 				end
 				if p ~= nil then
 					local dirx, diry = vectorFromAngle(random(0,360),random(15000,25000))
