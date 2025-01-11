@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.4"
+	scenario_version = "5.0.5"
 	print(string.format("     -----     Scenario: Escape     -----     Version %s     -----",scenario_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
@@ -382,6 +382,7 @@ function addRepulseToDatabase()
 	local subclass_key = _("scienceDB","Sub-class")
 	local move_speed_key = _("scienceDB","Move speed")
 	local turn_speed_key = _("scienceDB","Turn speed")
+	--[[
 	if cruiser_db == nil then
 		frigate_db:addEntry(cruiser_key)
 		cruiser_db = queryScienceDatabase(ships_key,frigate_key,cruiser_key)
@@ -398,6 +399,7 @@ function addRepulseToDatabase()
 		cruiser_db:setImage("radar/cruiser.png")
 		cruiser_db:setModelDataName("small_frigate_4")
 	end
+	--]]
 --------------------------
 --	Stock player ships  --
 --------------------------
