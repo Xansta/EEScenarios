@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.7"
+	scenario_version = "5.0.8"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1462,7 +1462,7 @@ function handleDockedState()
 							impulse_good_quantity = comms_source.goods[impulseFixStation.impulse_good]
 						end
 						if impulse_good_quantity > 0 then
-							setCommsMessage(string.format(_("crewFriends-comms", "Piece of cake. Thanks for the %s."),impulseFixStation.impulse_good))
+							setCommsMessage(string.format(_("crewFriends-comms", "Piece of cake. Thanks for the %s."),comms_source.goods[impulseFixStation.impulse_good]))
 							playerRepulse:setSystemHealthMax("impulse",1)
 							playerRepulse.impulseFix = "done"
 							comms_source.goods[impulseFixStation.impulse_good] = comms_source.goods[impulseFixStation.impulse_good] - 1
@@ -1473,7 +1473,7 @@ function handleDockedState()
 								addCommsReply(_("Back"),commsStation)
 							end)
 						else
-							setCommsMessage(string.format(_("crewFriends-comms", "Piece of cake, but I'll need %s."),impulseFixStation.impulse_good))
+							setCommsMessage(string.format(_("crewFriends-comms", "Piece of cake, but I'll need %s."),comms_source.goods[impulseFixStation.impulse_good]))
 						end
 					else
 						setCommsMessage(_("crewFriends-comms", "Piece of cake."))
