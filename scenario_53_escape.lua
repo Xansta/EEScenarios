@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.8"
+	scenario_version = "5.0.9"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -238,7 +238,7 @@ function init()
 		["maneuver"] =		{max = nil},
 		["missilesystem"] =	{max = -.1,	msg = _("repair-msgEngineer", "Reached maximum repair on missile weapons"),	},
 		["impulse"] =		{max = .4,	msg = _("repair-msgEngineer", "Reached maximum repair on impulse engines"),	},
-		["warp"] =			{max = -.1,	msg = _("repair-msgEngineer", "Reached maximum repair on warp drive"),		},
+		["warp"] =			{max = 0,	msg = _("repair-msgEngineer", "Reached maximum repair on warp drive"),		},
 		["jumpdrive"] =		{max = -.1,	msg = _("repair-msgEngineer", "Reached maximum repair on jump drive"),		},
 		["frontshield"] =	{max = .3,	msg = _("repair-msgEngineer", "Reached maximum repair on front shields"),	},
 		["rearshield"] =	{max = .3,	msg = _("repair-msgEngineer", "Reached maximum repair on rear shield"),		},
