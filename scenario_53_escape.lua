@@ -22,8 +22,9 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.5"
-	print(string.format("     -----     Scenario: Escape     -----     Version %s     -----",scenario_version))
+	scenario_version = "5.0.6"
+	ee_version = "2024.12.08"
+	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
 	end
@@ -305,6 +306,7 @@ function addRepulseToDatabase()
 	local size_key = _("scienceDB","Size")
 	local shield_key = _("scienceDB","Shield")
 	local hull_key = _("scienceDB","Hull")
+	--[[
 	if station_db == nil then
 		station_db = ScienceDatabase():setName(station_key)
 		station_db:setLongDescription(_("scienceDB","Stations are places for ships to dock, get repaired and replenished, interact with station personnel, etc. They are like oases, service stations, villages, towns, cities, etc."))
@@ -349,6 +351,7 @@ function addRepulseToDatabase()
 		huge_station_db:setKeyValue(hull_key,800)
 		huge_station_db:setModelDataName("space_station_1")
 	end
+	--]]
 -----------------------------------------------------------------------------------
 --	Template ship category descriptions: text from other shipTemplates... files  --
 -----------------------------------------------------------------------------------
