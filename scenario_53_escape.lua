@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.3"
+	scenario_version = "5.0.4"
 	print(string.format("     -----     Scenario: Escape     -----     Version %s     -----",scenario_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
@@ -2427,25 +2427,26 @@ function friendlyComms(comms_data)
 	end
 	shipType = comms_target:getTypeName()
 	if shipType:find("Freighter") ~= nil then
-		addCommsReply(_("trade-comms", "Do you have cargo you might sell?"), function()
-			local goodCount = 0
-			local cargoMsg = _("trade-comms", "We've got ")
-			for good, goodData in pairs(comms_data.goods) do
-				if goodData.quantity > 0 then
-					if goodCount > 0 then
-						cargoMsg = cargoMsg .. _("trade-comms", ", ") .. good
-					else
-						cargoMsg = cargoMsg .. good
+		if distance(comms_source,comms_target) > 5000 then
+			addCommsReply(_("trade-comms", "Do you have cargo you might sell?"), function()
+				local goodCount = 0
+				local cargoMsg = _("trade-comms", "We've got ")
+				for good, goodData in pairs(comms_data.goods) do
+					if goodData.quantity > 0 then
+						if goodCount > 0 then
+							cargoMsg = cargoMsg .. _("trade-comms", ", ") .. good
+						else
+							cargoMsg = cargoMsg .. good
+						end
 					end
+					goodCount = goodCount + goodData.quantity
 				end
-				goodCount = goodCount + goodData.quantity
-			end
-			if goodCount == 0 then
-				cargoMsg = cargoMsg .. _("trade-comms", "nothing")
-			end
-			setCommsMessage(cargoMsg)
-		end)
-		if distance(comms_source,comms_target) < 5000 then
+				if goodCount == 0 then
+					cargoMsg = cargoMsg .. _("trade-comms", "nothing")
+				end
+				setCommsMessage(cargoMsg)
+			end)
+		else
 			local goodCount = 0
 			if comms_source.goods ~= nil then
 				for good, goodQuantity in pairs(comms_source.goods) do
