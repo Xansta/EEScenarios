@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.9"
+	scenario_version = "5.0.10"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1858,7 +1858,7 @@ function handleDockedState()
 					end
 				end
 			end
-			if ctd.trade.food and comms_source.goods ~= nil and comms_source.goods.food ~= nil and comms_source.goods.food.quantity > 0 then
+			if ctd.trade.food and comms_source.goods ~= nil and comms_source.goods.food ~= nil and comms_source.goods.food > 0 then
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format(_("trade-comms", "Trade food for %s"),good), function()
 						local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
@@ -1881,7 +1881,7 @@ function handleDockedState()
 					end)
 				end
 			end
-			if ctd.trade.medicine and comms_source.goods ~= nil and comms_source.goods.medicine ~= nil and comms_source.goods.medicine.quantity > 0 then
+			if ctd.trade.medicine and comms_source.goods ~= nil and comms_source.goods.medicine ~= nil and comms_source.goods.medicine > 0 then
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format(_("trade-comms", "Trade medicine for %s"),good), function()
 						local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
@@ -1904,7 +1904,7 @@ function handleDockedState()
 					end)
 				end
 			end
-			if ctd.trade.luxury and comms_source.goods ~= nil and comms_source.goods.luxury ~= nil and comms_source.goods.luxury.quantity > 0 then
+			if ctd.trade.luxury and comms_source.goods ~= nil and comms_source.goods.luxury ~= nil and comms_source.goods.luxury > 0 then
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format(_("trade-comms", "Trade luxury for %s"),good), function()
 						local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
