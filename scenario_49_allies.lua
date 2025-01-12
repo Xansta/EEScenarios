@@ -34,8 +34,8 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.1"
-	ee_version = "2024.08.09"
+	scenario_version = "2.0.2"
+	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
@@ -4498,14 +4498,14 @@ function handleUndockedState()
 		end)
 	end)
 	if isAllowedTo(comms_target.comms_data.services.supplydrop) then
-        addCommsReply(string.format(_("stationAssist-comms", "Can you send a supply drop? (%.1f rep)"),getServiceCost("supplydrop")), function()
+        addCommsReply(string.format(_("stationAssist-comms", "Can you send a supply drop? (%i rep)"),math.floor(getServiceCost("supplydrop"))), function()
             if player:getWaypointCount() < 1 then
                 setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request supplies."))
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we deliver your supplies?"))
                 for n=1,player:getWaypointCount() do
                     addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"),n), function()
-						if player:takeReputationPoints(getServiceCost("supplydrop")) then
+						if player:takeReputationPoints(math.floor(getServiceCost("supplydrop"))) then
 							local position_x, position_y = comms_target:getPosition()
 							local target_x, target_y = player:getWaypoint(n)
 							local script = Script()
@@ -4524,14 +4524,14 @@ function handleUndockedState()
         end)
     end
     if isAllowedTo(comms_target.comms_data.services.reinforcements) then
-        addCommsReply(string.format(_("stationAssist-comms", "Please send Adder MK5 reinforcements! (%.1f rep)"),getServiceCost("reinforcements")), function()
+        addCommsReply(string.format(_("stationAssist-comms", "Please send Adder MK5 reinforcements! (%i rep)"),math.floor(getServiceCost("reinforcements"))), function()
             if player:getWaypointCount() < 1 then
                 setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request reinforcements."))
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we dispatch the reinforcements?"))
                 for n=1,player:getWaypointCount() do
                     addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"),n), function()
-						if player:takeReputationPoints(getServiceCost("reinforcements")) then
+						if player:takeReputationPoints(math.floor(getServiceCost("reinforcements"))) then
 							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setScanned(true):orderDefendLocation(player:getWaypoint(n))
 							ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(humanVesselDestroyed)
 							table.insert(friendlyHelperFleet,ship)
@@ -4545,14 +4545,14 @@ function handleUndockedState()
             end
             addCommsReply(_("Back"), commsStation)
         end)
-        addCommsReply(string.format(_("stationAssist-comms", "Please send Phobos T3 reinforcements! (%.1f rep)"),getServiceCost("phobosReinforcements")), function()
+        addCommsReply(string.format(_("stationAssist-comms", "Please send Phobos T3 reinforcements! (%i rep)"),math.floor(getServiceCost("phobosReinforcements"))), function()
             if player:getWaypointCount() < 1 then
                 setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request reinforcements."))
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we dispatch the reinforcements?"))
                 for n=1,player:getWaypointCount() do
                     addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"),n), function()
-						if player:takeReputationPoints(getServiceCost("phobosReinforcements")) then
+						if player:takeReputationPoints(math.floor(getServiceCost("phobosReinforcements"))) then
 							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Phobos T3"):setScanned(true):orderDefendLocation(player:getWaypoint(n))
 							ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(humanVesselDestroyed)
 							table.insert(friendlyHelperFleet,ship)
@@ -4566,14 +4566,14 @@ function handleUndockedState()
             end
             addCommsReply(_("Back"), commsStation)
         end)
-        addCommsReply(string.format(_("stationAssist-comms", "Please send Stalker Q7 reinforcements! (%.1f rep)"),getServiceCost("stalkerReinforcements")), function()
+        addCommsReply(string.format(_("stationAssist-comms", "Please send Stalker Q7 reinforcements! (%i rep)"),math.floor(getServiceCost("stalkerReinforcements"))), function()
             if player:getWaypointCount() < 1 then
                 setCommsMessage(_("stationAssist-comms", "You need to set a waypoint before you can request reinforcements."))
             else
                 setCommsMessage(_("stationAssist-comms", "To which waypoint should we dispatch the reinforcements?"))
                 for n=1,player:getWaypointCount() do
                     addCommsReply(string.format(_("stationAssist-comms", "Waypoint %d"),n), function()
-						if player:takeReputationPoints(getServiceCost("stalkerReinforcements")) then
+						if player:takeReputationPoints(math.floor(getServiceCost("stalkerReinforcements"))) then
 							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Stalker Q7"):setScanned(true):orderDefendLocation(player:getWaypoint(n))
 							ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(humanVesselDestroyed)
 							table.insert(friendlyHelperFleet,ship)
@@ -6182,6 +6182,7 @@ function startMiningConflict()
 	planetBespin:setPlanetSurfaceTexture("planets/gas-1.png"):setAxialRotationTime(300):setDescription(_("scienceDescription-planet", "Gas giant suitable for mining"))
 	stationCloudCity = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCommsScript(""):setCommsFunction(commsStation)
 	stationCloudCity:setPosition(bespinX,bespinY+3500):setCallSign("Cloud City"):setDescription(_("scienceDescription-station", "Bespin Gas Mining"))
+	goods[stationCloudCity] = {{"cobalt",5,68}}
 	ccOrbitDelayInterval = 3						-- Cloud city orbit delay interval
 	ccOrbitDelayTimer = ccOrbitDelayInterval		-- Cloud city orbit delay timer
 	ccoa = 90										-- cloud city orbit angle
