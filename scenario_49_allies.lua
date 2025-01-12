@@ -24,7 +24,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.4"
+	scenario_version = "2.0.5"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -4507,7 +4507,6 @@ function handleUndockedState()
 						if player:takeReputationPoints(math.floor(getServiceCost("reinforcements"))) then
 							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Adder MK5"):setScanned(true):orderDefendLocation(player:getWaypoint(n))
 							ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(humanVesselDestroyed)
-							table.insert(friendlyHelperFleet,ship)
 							setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched %s to assist at waypoint %d"),ship:getCallSign(),n))
 						else
 							setCommsMessage(_("needRep-comms", "Not enough reputation!"))
@@ -4528,7 +4527,6 @@ function handleUndockedState()
 						if player:takeReputationPoints(math.floor(getServiceCost("phobosReinforcements"))) then
 							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Phobos T3"):setScanned(true):orderDefendLocation(player:getWaypoint(n))
 							ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(humanVesselDestroyed)
-							table.insert(friendlyHelperFleet,ship)
 							setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched %s to assist at waypoint %d"),ship:getCallSign(),n))
 						else
 							setCommsMessage(_("needRep-comms", "Not enough reputation!"))
@@ -4549,7 +4547,6 @@ function handleUndockedState()
 						if player:takeReputationPoints(math.floor(getServiceCost("stalkerReinforcements"))) then
 							ship = CpuShip():setFactionId(comms_target:getFactionId()):setPosition(comms_target:getPosition()):setTemplate("Stalker Q7"):setScanned(true):orderDefendLocation(player:getWaypoint(n))
 							ship:setCommsScript(""):setCommsFunction(commsShip):onDestruction(humanVesselDestroyed)
-							table.insert(friendlyHelperFleet,ship)
 							setCommsMessage(string.format(_("stationAssist-comms", "We have dispatched %s to assist at waypoint %d"),ship:getCallSign(),n))
 						else
 							setCommsMessage(_("needRep-comms", "Not enough reputation!"))
