@@ -16,16 +16,6 @@
 -- Enemies[Easy]: Easier set of enemies
 -- Enemies[Normal|Default]: Normal set of enemies
 -- Enemies[Hard]: Hard set of enemies
--- Setting[Timer]: Configures whether game is times and if so, for how long. Defaults to no timer.
--- Timer[None|Default]: No timer (default)
--- Timer[30]: 30 minute timer
--- Timer[40]: 40 minute timer
--- Timer[50]: 50 minute timer
--- Timer[60]: 60 minute timer
-
--- Enemies[One]: Only one mission randomly chosen from several possible missions (Default is all missions in random order)
--- Enemies[Easy One]: Easy goals and/or enemies, only one mission randomly chosen from several possible missions (Default is all missions in random order)
--- Enemies[Hard One]: Hard goals and/or enemies, only one mission randomly chosen from several possible missions (Default is all missions in random order)
 
 require("utils.lua")
 require("place_station_scenario_utility.lua")
@@ -34,7 +24,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.3"
+	scenario_version = "2.0.4"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -175,19 +165,6 @@ function setVariations()
 		["Hard"] =		2,
 	}
 	enemy_power = enemy_config[getScenarioSetting("Enemies")]
-	local timer_config = {
-		["None"] = 	{timed = false,	minutes = 0},
-		["30"] =	{timed = true,	minutes = 30},
-		["40"] =	{timed = true,	minutes = 40},
-		["50"] =	{timed = true,	minutes = 50},
-		["60"] =	{timed = true,	minutes = 60},
-	}
-	playWithTimeLimit =				timer_config[getScenarioSetting("Timer")].timed
-	gameTimeLimit =					timer_config[getScenarioSetting("Timer")].minutes*60
-	defaultGameTimeLimitInMinutes =	timer_config[getScenarioSetting("Timer")].minutes
-	if playWithTimeLimit then
-		plotTimed = timedGame
-	end
 end
 function setConstants()
 	repeatExitBoundary = 100
@@ -3880,9 +3857,6 @@ function handleDockedState()
 			setOptionalOrders()
 			setSecondaryOrders()
 			ordMsg = primaryOrders .. "\n" .. secondaryOrders .. optionalOrders
-			if playWithTimeLimit then
-				ordMsg = ordMsg .. string.format(_("orders-comms", "\n   %i Minutes remain in game"),math.floor(gameTimeLimit/60))
-			end
 			setCommsMessage(ordMsg)
 			addCommsReply(_("Back"), commsStation)
 		end)
@@ -4372,9 +4346,6 @@ function handleUndockedState()
 				setOptionalOrders()
 				setSecondaryOrders()
 				ordMsg = primaryOrders .. "\n" .. secondaryOrders .. optionalOrders
-				if playWithTimeLimit then
-					ordMsg = ordMsg .. string.format(_("orders-comms", "\n   %i Minutes remain in game"),math.floor(gameTimeLimit/60))
-				end
 				setCommsMessage(ordMsg)
 				addCommsReply(_("Back"), commsStation)
 			end)
@@ -5608,18 +5579,6 @@ function getCoolant(p)
 	p:removeCustom(p.get_coolant_button)
 	p:removeCustom(p.get_coolant_button_plus)
 	p.coolant_trigger = true
-end
------------------------
---	Timed game plot  --
------------------------
-function timedGame(delta)
-	gameTimeLimit = gameTimeLimit - delta
-	if gameTimeLimit < 0 then
-		missionVictory = true
-		missionCompleteReason = string.format(_("msgMainscreen", "Player survived for %i minutes"),defaultGameTimeLimitInMinutes)
-		endStatistics()
-		victory("Human Navy")
-	end
 end
 --------------------
 --	Manage plots  --
