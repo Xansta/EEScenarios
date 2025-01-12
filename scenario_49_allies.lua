@@ -34,7 +34,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.2"
+	scenario_version = "2.0.3"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -4413,13 +4413,15 @@ function handleUndockedState()
 			addCommsReply(_("Back"), commsStation)
 		end)
 		local goodsQuantityAvailable = 0
-		local gi = 1
-		repeat
-			if goods[comms_target][gi][2] > 0 then
-				goodsQuantityAvailable = goodsQuantityAvailable + goods[comms_target][gi][2]
-			end
-			gi = gi + 1
-		until(gi > #goods[comms_target])
+		if goods[comms_target] ~= nil then
+			local gi = 1
+			repeat
+				if goods[comms_target][gi][2] > 0 then
+					goodsQuantityAvailable = goodsQuantityAvailable + goods[comms_target][gi][2]
+				end
+				gi = gi + 1
+			until(gi > #goods[comms_target])
+		end
 		if goodsQuantityAvailable > 0 then
 			addCommsReply(_("trade-comms", "What goods do you have available for sale or trade?"), function()
 				oMsg = string.format(_("trade-comms", "Station %s:\nGoods or components available: quantity, cost in reputation\n"),comms_target:getCallSign())
@@ -4945,7 +4947,7 @@ function neutralComms(comms_data)
 		if scarceResources then
 			addCommsReply(_("path-comms", "Where is Bespin?"), function()
 				setCommsMessage(string.format(_("path-comms", "Bespin is in %s"),planetBespin:getSectorName()))
-				addCommsReply(_("Back"), commsStation)
+				addCommsReply(_("Back"), commsShip)
 			end)
 		end
 	end
