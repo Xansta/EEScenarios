@@ -24,7 +24,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.5"
+	scenario_version = "2.0.8"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -6639,75 +6639,160 @@ end
 function endStatistics()
 	if endStatDiagnostic then print("starting end statistics") end
 	local humanCountPercentage, humanValuePercentage, kraylorCountPercentage, kraylorValuePercentage, exuariCountPercentage, exuariValuePercentage, arlenianCountPercentage, arlenianValuePercentage, neutralCountPercentage, neutralValuePercentage, humanMilitaryShipValuePercentage, kraylorMilitaryShipValuePercentage, exuariMilitaryShipValuePercentage, arlenianMilitaryShipValuePercentage = listStatuses()
-	if humanCountPercentage == nil then
-		globalMessage(_("msgMainscreen", "statistics unavailable"))
-		return
+	local human_stations = ""
+	if type(humanCountPercentage) == "number" then
+		human_stations = string.format(_("msgMainscreen","Human stations: survived:%.1f%%"),humanCountPercentage)
 	end
-	if endStatDiagnostic then print("got statuses")	end
-	local gMsg = ""
-	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format(_("msgMainscreen", "Allied stations: Human: survived: %.1f%%, strength: %.1f%%; Arlenian: survived: %.1f%%, strength: %.1f%%\n"),humanCountPercentage,humanValuePercentage,arlenianCountPercentage,arlenianValuePercentage)
-	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format(_("msgMainscreen", "Enemy stations: Kraylor: survived: %.1f%%, strength: %.1f%%; Exuari: survived: %.1f%%, strength: %.1f%%\n"),kraylorCountPercentage,kraylorValuePercentage,exuariCountPercentage,exuariValuePercentage)
-	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	if neutralCountPercentage  ~= nil and neutralCountPercentage > 0 then
-		gMsg = gMsg .. string.format(_("msgMainscreen", "Neutral stations: survived: %.1f%%, strength: %.1f%%"),neutralCountPercentage,neutralValuePercentage)
+	if type(humanValuePercentage) == "number" then
+		if human_stations ~= "" then
+			human_stations = string.format(_("msgMainscreen","%s, strength:%.1f%%"),human_stations,humanValuePercentage)
+		else
+			human_stations = string.format(_("msgMainscreen","Human stations: strength:%.1f%%"),humanValuePercentage)
+		end
 	end
-	gMsg = gMsg .. "\n\n\n\n"
-	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	--ship information
-	gMsg = gMsg .. string.format(_("msgMainscreen", "Allied ships: Human: strength: %.1f%%, Arlenian: strength: %.1f%%\n"),humanMilitaryShipValuePercentage,arlenianMilitaryShipValuePercentage)
-	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	gMsg = gMsg .. string.format(_("msgMainscreen", "Enemy ships: Kraylor: strength: %.1f%%, Exuari: strength: %.1f%%\n"),kraylorMilitaryShipValuePercentage,exuariMilitaryShipValuePercentage)
-	if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	if endStatDiagnostic then print("set raw stats") end
+	local arlenian_stations = ""
+	if type(arlenianCountPercentage) == "number" then
+		arlenian_stations = string.format(_("msgMainscreen","Arlenian stations: survived:%.1f%%"),arlenianCountPercentage)
+	end
+	if type(arlenianValuePercentage) == "number" then
+		if arlenian_stations ~= "" then
+			arlenian_stations = string.format(_("msgMainscreen","%s, strength:%.1f%%"),arlenian_stations,arlenianValuePercentage)
+		else
+			arlenian_stations = string.format(_("msgMainscreen","Arlenian stations: strength:%.1f%%"),arlenianValuePercentage)
+		end
+	end
+	local kraylor_stations = ""
+	if type(kraylorCountPercentage) == "number" then
+		kraylor_stations = string.format(_("msgMainscreen","Kraylor stations: survived:%.1f%%"),kraylorCountPercentage)
+	end
+	if type(kraylorValuePercentage) == "number" then
+		if kraylor_stations ~= "" then
+			kraylor_stations = string.format(_("msgMainscreen","%s, strength:%.1f%%"),kraylor_stations,kraylorValuePercentage)
+		else
+			kraylor_stations = string.format(_("msgMainscreen","Kraylor stations: strength:%.1f%%"),kraylorValuePercentage)
+		end
+	end
+	local exuari_stations = ""
+	if type(exuariCountPercentage) == "number" then
+		exuari_stations = string.format(_("msgMainscreen","Exuari stations: survived:%.1f%%"),exuariCountPercentage)
+	end
+	if type(exuariValuePercentage) == "number" then
+		if exuari_stations ~= "" then
+			exuari_stations = string.format(_("msgMainscreen","%s, strength:%.1f%%"),exuari_stations,exuariValuePercentage)
+		else
+			exuari_stations = string.format(_("msgMainscreen","Exuari stations: strength:%.1f%%"),exuariValuePercentage)
+		end
+	end
+	local neutral_stations = ""
+	if type(neutralCountPercentage) == "number" then
+		neutral_stations = string.format(_("msgMainscreen","Neutral stations: survived:%.1f%%"),neutralCountPercentage)
+	end
+	if type(neutralValuePercentage) == "number" then
+		if neutral_stations ~= "" then
+			neutral_stations = string.format(_("msgMainscreen","%s, strength:%.1f%%"),neutral_stations,neutralValuePercentage)
+		else
+			neutral_stations = string.format(_("msgMainscreen","Neutral stations: strength:%.1f%%"),neutralValuePercentage)
+		end
+	end
+	local human_ships = ""
+	if type(humanMilitaryShipValuePercentage) == "number" then
+		human_ships = string.format(_("msgMainscreen","Human ships: strength:%.1f%%"),humanMilitaryShipValuePercentage)
+	end
+	local arlenian_ships = ""
+	if type(arlenianMilitaryShipValuePercentage) == "number" then
+		arlenian_ships = string.format(_("msgMainscreen","Arlenian ships: strength:%.1f%%"),arlenianMilitaryShipValuePercentage)
+	end
 	local alliedValue = humanValuePercentage/100*.5 + arlenianValuePercentage/100*.25 + humanMilitaryShipValuePercentage/100*.17 + arlenianMilitaryShipValuePercentage/100*.08
 	local enemyValue = kraylorValuePercentage/100*.35 + exuariValuePercentage/100*.35 + kraylorMilitaryShipValuePercentage/100*.15 + exuariMilitaryShipValuePercentage/100*.15
-	if endStatDiagnostic then print(string.format(_("msgMainscreen", "Allied value: %.2f, Enemy value: %.2f"),alliedValue,enemyValue)) end
 	local rankVal = alliedValue*.5 + (1-enemyValue)*.5
-	if endStatDiagnostic then print(string.format("rank value: %.2f",rankVal)) end
+	local reason_for_mission_end = ""
 	if missionCompleteReason ~= nil then
-		gMsg = gMsg .. string.format(_("msgMainscreen", "Mission ended because %s\n"), missionCompleteReason)
-		if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
+		reason_for_mission_end = string.format(_("msgMainscreen", "Mission ended because %s"), missionCompleteReason)
 	end
-	if missionVictory then
-		if endStatDiagnostic then print("mission victory true") end
-		if rankVal < .7 then
-			rank = _("msgMainscreen", "Ensign")
-		elseif rankVal < .8 then
-			rank = _("msgMainscreen", "Lieutenant")
-		elseif rankVal < .9 then
-			rank = _("msgMainscreen", "Commander")
-		elseif rankVal < .95 then
-			rank = _("msgMainscreen", "Captain")
+	local rank_weight = {
+		{rank = _("msgMainscreen","Ensign"),		v_thresh = .7,	d_thresh = .6,	},
+		{rank = _("msgMainscreen","Lieutenant"),	v_thresh = .8,	d_thresh = .7,	},
+		{rank = _("msgMainscreen","Commander"),		v_thresh = .9,	d_thresh = .8,	},
+		{rank = _("msgMainscreen","Captain"),		v_thresh = .95,	d_thresh = .9,	},
+		{rank = _("msgMainscreen","Admiral"),		v_thresh = 1,	d_thresh = 1,	},
+	}
+	local rank = ""
+	for i,r_item in ipairs(rank_weight) do
+		if missionVictory then
+			if rankVal < r_item.v_thresh then
+				rank = string.format(_("msgMainscreen","Earned rank: %s"),r_item.rank)
+				break
+			end
 		else
-			rank = _("msgMainscreen", "Admiral")
+			if rankVal < r_item.d_thresh then
+				rank = string.format(_("msgMainscreen","Earned rank: %s"),r_item.rank)
+				break
+			end
 		end
-		gMsg = gMsg .. string.format(_("msgMainscreen", "Earned rank: %s"), rank)
-		if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
-	else
-		if endStatDiagnostic then print("mission victory false or nil") end
-		if rankVal < .6 then
-			rank = _("msgMainscreen", "Ensign")
-		elseif rankVal < .7 then
-			rank = _("msgMainscreen", "Lieutenant")
-		elseif rankVal < .8 then
-			rank = _("msgMainscreen", "Commander")
-		elseif rankVal < .9 then
-			rank = _("msgMainscreen", "Captain")
+	end
+	local gMsg = ""
+	if human_stations ~= "" then
+		gMsg = human_stations
+	end
+	if arlenian_stations ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,arlenian_stations)
 		else
-			rank = _("msgMainscreen", "Admiral")
+			gMsg = arlenian_stations
 		end
-		gMsg = gMsg .. string.format(_("msgMainscreen", "Rank after military reductions due to ignominious defeat: %s"), rank)
-		if endStatDiagnostic then print("gMsg so far: " .. gMsg) end
+	end
+	if kraylor_stations ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,kraylor_stations)
+		else
+			gMsg = kraylor_stations
+		end
+	end
+	if exuari_stations ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,exuari_stations)
+		else
+			gMsg = exuari_stations
+		end
+	end
+	if neutral_stations ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,neutral_stations)
+		else
+			gMsg = neutral_stations
+		end
+	end
+	if human_ships ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,human_ships)
+		else
+			gMsg = human_ships
+		end
+	end
+	if arlenian_ships ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,arlenian_ships)
+		else
+			gMsg = arlenian_ships
+		end
+	end
+	if reason_for_mission_end ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,reason_for_mission_end)
+		else
+			gMsg = reason_for_mission_end
+		end
+	end
+	if rank ~= "" then
+		if gMsg ~= "" then
+			gMsg = string.format("%s\n%s",gMsg,rank)
+		else
+			gMsg = rank
+		end
 	end
 	if endStatDiagnostic then print(gMsg) end
 	globalMessage(gMsg)
 	if endStatDiagnostic then print("sent to the global message function") end
---	if printDetailedStats then
---		detailedStats()
---		if endStatDiagnostic then print("executed detalied stats function") end
---	end
 end
 function update(delta)
 	if delta == 0 then
