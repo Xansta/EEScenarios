@@ -71,8 +71,8 @@ require("sandbox/library.lua")
 
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.2.3"
-	ee_version = "2024.08.09"
+	scenario_version = "7.3.1"
+	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version",_VERSION)	--Lua version
@@ -1771,7 +1771,7 @@ function setConstants()
 	makePlayerShipActive("Wiggy")			--J
 	makePlayerShipActive("Raptor")			--J
 	makePlayerShipActive("Magnum") 			--J 
-	makePlayerShipActive("Falcon")			--W
+	makePlayerShipActive("Crux")			--W
 	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Thelonius") 		--W 
 	carrier_class_launch_time = {
@@ -19758,7 +19758,7 @@ function createLafrinaStations()
 	station_names[stationBond:getCallSign()] = {stationBond:getSectorName(), stationBond}
 	table.insert(stations,stationBond)
 	--Borie
---	local BorieZone = squareZone(-326622, 278067, "Borie S88")
+--	local BorieZone = squareZone(-326622, 278067, "Borie S-12")
 --	BorieZone:setColor(51,153,255):setLabel("Br")
 	--Arlenian prefixes: Del = 2, Til = 3
 	stationBorie = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Til Borie"):setPosition(-326622, 278067):setDescription("Mining and gambling"):setCommsScript(""):setCommsFunction(commsStation)
@@ -19827,7 +19827,11 @@ function createLafrinaStations()
 	station_names[stationBorie:getCallSign()] = {stationBorie:getSectorName(), stationBorie}
 	table.insert(stations,stationBorie)
 	--Ilorea	
-	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
+	local IloreaZone = squareZone(-381821, 316064, "Ilorea U-15")
+	IloreaZone:setColor(51,153,255):setLabel("I")
+	--Arlenian prefixes: Del = 2, Til = 3
+	--[[
+	stationIlorea = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Del Ilorea"):setPosition(-381821, 316064):setDescription("Mining and resupply"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -19894,6 +19898,7 @@ function createLafrinaStations()
 	if random(1,100) <= 12 then stationIlorea:setSharesEnergyWithDocked(false) end
 	station_names[stationIlorea:getCallSign()] = {stationIlorea:getSectorName(), stationIlorea}
 	table.insert(stations,stationIlorea)
+	--]]
 	--Lurive
 	--local luriveZone = squareZone(-294864, 225704, "Lurive Q90")
 	--luriveZone:setColor(51,153,255):setLabel("LV")
@@ -65497,11 +65502,20 @@ function togglePatrolProbeState(p)
 	else
 		p.patrol_probe_state = "Off"
 	end
-	p:removeCustom(p.patrol_probe_button)
+	if p.patrol_probe_button ~= nil then
+		p:removeCustom(p.patrol_probe_button)
+	else
+		p.patrol_probe_button = "patrol_probe_button"
+	end
 	p:addCustomButton("Relay",p.patrol_probe_button,string.format("Patrol Probe %s",p.patrol_probe_state),function()
 		string.format("")
 		togglePatrolProbeState(p)
 	end,10)
+	if p.patrol_probe_button_ops ~= nil then
+		p:removeCustom(p.patrol_probe_button_ops)
+	else
+		p.patrol_probe_button_ops = "patrol_probe_button_ops"
+	end
 	p:removeCustom(p.patrol_probe_button_ops)
 	p:addCustomButton("Operations",p.patrol_probe_button_ops,string.format("Patrol Probe %s",p.patrol_probe_state),function()
 		string.format("")
