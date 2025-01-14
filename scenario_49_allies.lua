@@ -24,7 +24,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.9"
+	scenario_version = "2.1.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -6594,6 +6594,62 @@ function listStatuses()
 	return humanCountPercentage, humanValuePercentage, kraylorCountPercentage, kraylorValuePercentage, exuariCountPercentage, exuariValuePercentage, arlenianCountPercentage, arlenianValuePercentage, neutralCountPercentage, neutralValuePercentage, humanMilitaryShipValuePercentage, kraylorMilitaryShipValuePercentage, exuariMilitaryShipValuePercentage, arlenianMilitaryShipValuePercentage
 end
 function stationStatus()
+	local strengths = {
+		["Huge Station"] = 10,
+		["Large Station"] = 5,
+		["Medium Station"] = 3,
+		["Small Station"] = 1,
+	}
+	local counts = {
+		["Human Navy"] = 0,
+		["Kraylor"] = 0,
+		["Exuari"] = 0,
+		["Arlenians"] = 0,
+		["Independent"] = 0,
+	}
+	local values = {
+		["Human Navy"] = 0,
+		["Kraylor"] = 0,
+		["Exuari"] = 0,
+		["Arlenians"] = 0,
+		["Independent"] = 0,
+	}
+	local percentages = {
+		["Human Navy"] =	{count = 0, value = 0, count_base = #humanStationList,		strength_base = humanStationStrength},
+		["Kraylor"] =		{count = 0, value = 0, count_base = #kraylorStationList,	strength_base = kraylorStationStrength},
+		["Exuari"] =		{count = 0, value = 0, count_base = #exuariStationList,		strength_base = exuariStationStrength},
+		["Arlenians"] =		{count = 0, value = 0, count_base = #arlenianStationList,	strength_base = arlenianStationStrength},
+		["Independent"] =	{count = 0, value = 0, count_base = #neutralStationList,	strength_base = neutralStationStrength},
+	}
+	for i,station in ipairs(stationList) do
+		if station:isValid() then
+			counts[station:getFaction()] = counts[station:getFaction()] + 1
+			values[station:getFaction()] = values[station:getFaction()] + strengths[station:getTypeName()]
+		end
+	end
+	for faction, item in pairs(percentages) do
+		if item.count_base > 0 then
+			item.count = counts[faction]/item.count_base*100
+		else
+			item.count = -1
+		end
+		if item.strength_base > 0 then
+			item.value = values[faction]/item.strength_base*100
+		else
+			item.value = -1
+		end
+	end
+	return	percentages["Human Navy"].count,
+			percentages["Human Navy"].value,
+			percentages["Kraylor"].count,
+			percentages["Kraylor"].value,
+			percentages["Exuari"].count,
+			percentages["Exuari"].value,
+			percentages["Arlenians"].count,
+			percentages["Arlenians"].value,
+			percentages["Independent"].count,
+			percentages["Independent"].value
+	--[[
 	local humanSurvivedCount = 0
 	local humanSurvivedValue = 0
 	local kraylorSurvivedCount = 0
@@ -6641,6 +6697,7 @@ function stationStatus()
 		local neutralValuePercentage = -1
 	end
 	return humanCountPercentage, humanValuePercentage, kraylorCountPercentage, kraylorValuePercentage, exuariCountPercentage, exuariValuePercentage, arlenianCountPercentage, arlenianValuePercentage, neutralCountPercentage, neutralValuePercentage
+	--]]
 end
 function endStatistics()
 	if endStatDiagnostic then print("starting end statistics") end
