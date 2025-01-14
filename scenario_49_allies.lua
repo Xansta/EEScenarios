@@ -24,7 +24,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization  --
 ----------------------
 function init()
-	scenario_version = "2.0.8"
+	scenario_version = "2.0.9"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Allies and Enemies    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -3180,6 +3180,7 @@ function setArlenianDefensiveFleet()
 		candidate = arlenianStationList[math.random(1,#arlenianStationList)]
 		if candidate ~= arlenianFleet1base then
 			arlenianFleet2base = candidate
+			arlenian_fleet_base_2_name = arlenianFleet2base:getCallSign()
 		end
 	until(arlenianFleet2base ~= nil)
 	local f1bx, f1by = arlenianFleet2base:getPosition()
@@ -6029,6 +6030,11 @@ function checkSickArlenianAdmiralEvents(delta)
 	admiralTimeToLive = admiralTimeToLive - delta
 	if admiralTimeToLive < 0 then
 		missionCompleteReason = _("doctor-msgMainscreen", "Arlenian Admiral Koshenz dies")
+		missionVictory = false
+		endStatistics()
+		victory("Kraylor")
+	elseif not arlenianFleet2base:isValid() then
+		missionCompleteReason = string.format(_("doctor-msgMainscreen", "Arlenian Admiral Koshenz dies along with the rest of the Arlenians on station %s"),arlenian_fleet_base_2_name)
 		missionVictory = false
 		endStatistics()
 		victory("Kraylor")
