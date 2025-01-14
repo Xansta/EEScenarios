@@ -31,7 +31,7 @@ require("utils.lua")
 require("place_station_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.1"
+	scenario_version = "2.0.2"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Close the Gaps    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -108,97 +108,6 @@ function init()
 	tradeLuxury = {}			--stations that will trade luxury for other goods
 	tradeMedicine = {}			--stations that will trade medicine for other goods
 	--array of functions to facilitate randomized station placement (friendly and neutral)
-	placeStation = {placeAlcaleica,			-- 1
-					placeAnderson,			-- 2
-					placeArcher,			-- 3
-					placeArchimedes,		-- 4
-					placeArmstrong,			-- 5
-					placeAsimov,			-- 6
-					placeBarclay,			-- 7
-					placeBethesda,			-- 8
-					placeBroeck,			-- 9
-					placeCalifornia,		--10
-					placeCalvin,			--11
-					placeCavor,				--12
-					placeChatuchak,			--13
-					placeCoulomb,			--14
-					placeCyrus,				--15
-					placeDeckard,			--16
-					placeDeer,				--17
-					placeErickson,			--18
-					placeEvondos,			--19
-					placeFeynman,			--20
-					placeGrasberg,			--21
-					placeHayden,			--22
-					placeHeyes,				--23
-					placeHossam,			--24
-					placeImpala,			--25
-					placeKomov,				--26
-					placeKrak,				--27
-					placeKruk,				--28
-					placeLipkin,			--29
-					placeMadison,			--30
-					placeMaiman,			--31
-					placeMarconi,			--32
-					placeMayo,				--33
-					placeMiller,			--34
-					placeMuddville,			--35
-					placeNexus6,			--36
-					placeOBrien,			--37
-					placeOlympus,			--38
-					placeOrgana,			--39
-					placeOutpost15,			--40
-					placeOutpost21,			--41
-					placeOwen,				--42
-					placePanduit,			--43
-					placeRipley,			--44
-					placeRutherford,		--45
-					placeScience7,			--46
-					placeShawyer,			--47
-					placeShree,				--48
-					placeSoong,				--49
-					placeTiberius,			--50
-					placeTokra,				--51
-					placeToohie,			--52
-					placeUtopiaPlanitia,	--53
-					placeVactel,			--54
-					placeVeloquan,			--55
-					placeZefram}			--56
-	--array of functions to facilitate randomized station placement (friendly, neutral or enemy)
-	placeGenericStation = {placeJabba,		-- 1
-					placeKrik,				-- 2
-					placeLando,				-- 3
-					placeMaverick,			-- 4
-					placeNefatha,			-- 5
-					placeOkun,				-- 6
-					placeOutpost7,			-- 7
-					placeOutpost8,			-- 8
-					placeOutpost33,			-- 9
-					placePrada,				--10
-					placeResearch11,		--11
-					placeResearch19,		--12
-					placeRubis,				--13
-					placeScience2,			--14
-					placeScience4,			--15
-					placeSkandar,			--16
-					placeSpot,				--17
-					placeStarnet,			--18
-					placeTandon,			--19
-					placeVaiken,			--20
-					placeValero}			--21
-	--array of functions to facilitate randomized station placement (enemy)
-	placeEnemyStation = {placeAramanth,		-- 1
-					placeEmpok,				-- 2
-					placeGandala,			-- 3
-					placeHassenstadt,		-- 4
-					placeKaldor,			-- 5
-					placeMagMesra,			-- 6
-					placeMosEisley,			-- 7
-					placeQuestaVerde,		-- 8
-					placeRlyeh,				-- 9
-					placeScarletCit,		--10
-					placeStahlstadt,		--11
-					placeTic}				--12
 	buildStations()
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
@@ -401,1683 +310,42 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, end
 		end
 	end
 end
-
 function buildStations()
 	stationFaction = "Human Navy"
 	psx = 0		--place station x coordinate
 	psy = 0		--place station y coordinate
-	si = math.random(1,#placeStation)	--station index
-	pStation = placeStation[si]()		--place selected station
-	table.remove(placeStation,si)		--remove station from placement list
-	table.insert(stationList,pStation)	--save station in general station list
-	homeStation = pStation				--identify home station
-	stationFaction = "Independent"
-	psx = 31000
-	psy = 31000
-	si = math.random(1,#placeStation)	--station index
-	pStation = placeStation[si]()		--place selected station
-	table.remove(placeStation,si)		--remove station from placement list
-	table.insert(stationList,pStation)	--save station in general station list
-	psx = -31000
-	psy = 31000
-	si = math.random(1,#placeStation)	--station index
-	pStation = placeStation[si]()		--place selected station
-	table.remove(placeStation,si)		--remove station from placement list
-	table.insert(stationList,pStation)	--save station in general station list
-	psx = 31000
-	psy = -31000
-	si = math.random(1,#placeStation)	--station index
-	pStation = placeStation[si]()		--place selected station
-	table.remove(placeStation,si)		--remove station from placement list
-	table.insert(stationList,pStation)	--save station in general station list
-	psx = -31000
-	psy = -31000
-	si = math.random(1,#placeStation)	--station index
-	pStation = placeStation[si]()		--place selected station
-	table.remove(placeStation,si)		--remove station from placement list
-	table.insert(stationList,pStation)	--save station in general station list
-	stationFaction = "Kraylor"
-	psx = 0
-	psy = -60000
-	si = math.random(1,#placeEnemyStation)
-	pStation = placeEnemyStation[si]()
-	table.remove(placeEnemyStation,si)
-	table.insert(enemyStationList,pStation)
-	hf = spawnEnemies(psx,psy,10,"Kraylor")
-	for _, enemy in ipairs(hf) do
-		enemy:orderDefendTarget(pStation)
+	homeStation = placeStation(0,0,"RandomHumanNeutral","Human Navy")
+	table.insert(stationList,homeStation)
+	table.insert(stationList,placeStation(31000,31000,"RandomHumanNeutral","Independent"))
+	table.insert(stationList,placeStation(-31000,31000,"RandomHumanNeutral","Independent"))
+	table.insert(stationList,placeStation(31000,-31000,"RandomHumanNeutral","Independent"))
+	table.insert(stationList,placeStation(-31000,-31000,"RandomHumanNeutral","Independent"))
+	local placed_station = placeStation(0,-60000,"Sinister","Kraylor")
+	table.insert(enemyStationList,placed_station)
+	local fleet = spawnEnemies(0,-60000,10,"Kraylor")
+	for i,ship in ipairs(fleet) do
+		ship:orderDefendTarget(placed_station)
 	end
-	stationFaction = "Ghosts"
-	psy = 60000
-	si = math.random(1,#placeEnemyStation)
-	pStation = placeEnemyStation[si]()
-	table.remove(placeEnemyStation,si)
-	table.insert(enemyStationList,pStation)
-	hf = spawnEnemies(psx,psy,10,"Ghosts")
-	for _, enemy in ipairs(hf) do
-		enemy:orderDefendTarget(pStation)
+	placed_station = placeStation(0,60000,"Sinister","Ghosts")
+	table.insert(enemyStationList,placed_station)
+	fleet = spawnEnemies(0,60000,10,"Ghosts")
+	for i,ship in ipairs(fleet) do
+		ship:orderDefendTarget(placed_station)
 	end
-	stationFaction = "Exuari"
-	psx = 60000
-	psy = 0
-	si = math.random(1,#placeEnemyStation)
-	pStation = placeEnemyStation[si]()
-	table.remove(placeEnemyStation,si)
-	table.insert(enemyStationList,pStation)
-	hf = spawnEnemies(psx,psy,10,"Exuari")
-	for _, enemy in ipairs(hf) do
-		enemy:orderDefendTarget(pStation)
+	placed_station = placeStation(60000,0,"Sinister","Exuari")
+	table.insert(enemyStationList,placed_station)
+	fleet = spawnEnemies(60000,0,10,"Exuari")
+	for i,ship in ipairs(fleet) do
+		ship:orderDefendTarget(placed_station)
 	end
-	stationFaction = "Ktlitans"
-	psx = -60000
-	si = math.random(1,#placeEnemyStation)
-	pStation = placeEnemyStation[si]()
-	table.remove(placeEnemyStation,si)
-	table.insert(enemyStationList,pStation)
-	hf = spawnEnemies(psx,psy,10,"Ktlitans")
-	for _, enemy in ipairs(hf) do
-		enemy:orderDefendTarget(pStation)
+	placed_station = placeStation(-60000,0,"Sinister","Ktlitans")
+	table.insert(enemyStationList,placed_station)
+	fleet = spawnEnemies(-60000,0,10,"Ktlitans")
+	for i,ship in ipairs(fleet) do
+		ship:orderDefendTarget(placed_station)
 	end
 end
---Randomly choose station size template
-function szt()
-	stationSizeRandom = random(1,100)
-	if stationSizeRandom <= 8 then
-		sizeTemplate = "Huge Station"		-- 8 percent huge
-	elseif stationSizeRandom <= 24 then
-		sizeTemplate = "Large Station"		--16 percent large
-	elseif stationSizeRandom <= 50 then
-		sizeTemplate = "Medium Station"		--26 percent medium
-	else
-		sizeTemplate = "Small Station"		--50 percent small
-	end
-	return sizeTemplate
-end
---[[-------------------------------------------------------------------
-	Human and neutral stations to be placed (all need some kind of goods)
---]]-------------------------------------------------------------------
-function placeAlcaleica()
-	--Alcaleica
-	stationAlcaleica = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationAlcaleica:setPosition(psx,psy):setCallSign("Alcaleica"):setDescription(_("scienceDescription-station", "Optical Components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationAlcaleica] = {{"food",math.random(5,10),1},{"medicine",5,5},{"optic",5,66}}
-		else
-			goods[stationAlcaleica] = {{"food",math.random(5,10),1},{"optic",5,66}}
-			tradeMedicine[stationAlcaleica] = true
-		end
-	else
-		goods[stationAlcaleica] = {{"optic",5,66}}
-		tradeFood[stationAlcaleica] = true
-		tradeMedicine[stationAlcaleica] = true
-	end
-	stationAlcaleica.publicRelations = true
-	stationAlcaleica.generalInformation = _("stationGeneralInfo-comms", "We make and supply optic components for various station and ship systems")
-	stationAlcaleica.stationHistory = _("stationStory-comms", "This station continues the businesses from Earth based on the merging of several companies including Leica from Switzerland, the lens manufacturer and the Japanese advanced low carbon electronic and optic company")
-	return stationAlcaleica
-end
-
-function placeAnderson()
-	--Anderson 
-	stationAnderson = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationAnderson:setPosition(psx,psy):setCallSign("Anderson"):setDescription(_("scienceDescription-station", "Battery and software engineering"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationAnderson] = {{"food",math.random(5,10),1},{"medicine",5,5},{"battery",5,65},{"software",5,115}}
-		else
-			goods[stationAnderson] = {{"food",math.random(5,10),1},{"battery",5,65},{"software",5,115}}
-		end
-	else
-		goods[stationAnderson] = {{"battery",5,65},{"software",5,115}}
-	end
-	tradeLuxury[stationAnderson] = true
-	stationAnderson.publicRelations = true
-	stationAnderson.generalInformation = _("stationGeneralInfo-comms", "We provide high quality high capacity batteries and specialized software for all shipboard systems")
-	stationAnderson.stationHistory = _("stationStory-comms", "The station is named after a fictional software engineer in a late 20th century movie depicting humanity unknowingly conquered by aliens and kept docile by software generated illusion")
-	return stationAnderson
-end
-
-function placeArcher()
-	--Archer 
-	stationArcher = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationArcher:setPosition(psx,psy):setCallSign("Archer"):setDescription(_("scienceDescription-station", "Shield and Armor Research"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationArcher] = {{"food",math.random(5,10),1},{"medicine",5,5},{"shield",5,90}}
-		else
-			goods[stationArcher] = {{"food",math.random(5,10),1},{"shield",5,90}}
-			tradeMedicine[stationArcher] = true
-		end
-	else
-		goods[stationArcher] = {{"shield",5,90}}
-		tradeMedicine[stationArcher] = true
-	end
-	tradeLuxury[stationArcher] = true
-	stationArcher.publicRelations = true
-	stationArcher.generalInformation = _("stationGeneralInfo-comms", "The finest shield and armor manufacturer in the quadrant")
-	stationArcher.stationHistory = _("stationStory-comms", "We named this station for the pioneering spirit of the 22nd century Starfleet explorer, Captain Jonathan Archer")
-	return stationArcher
-end
-
-function placeArchimedes()
-	--Archimedes
-	stationArchimedes = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationArchimedes:setPosition(psx,psy):setCallSign("Archimedes"):setDescription(_("scienceDescription-station", "Energy and particle beam components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationArchimedes] = {{"food",math.random(5,10),1},{"medicine",5,5},{"beam",5,80}}
-		else
-			goods[stationArchimedes] = {{"food",math.random(5,10),1},{"beam",5,80}}
-			tradeMedicine[stationArchimedes] = true
-		end
-	else
-		goods[stationArchimedes] = {{"beam",5,80}}
-		tradeFood[stationArchimedes] = true
-	end
-	tradeLuxury[stationArchimedes] = true
-	stationArchimedes.publicRelations = true
-	stationArchimedes.generalInformation = _("stationGeneralInfo-comms", "We fabricate general and specialized components for ship beam systems")
-	stationArchimedes.stationHistory = _("stationStory-comms", "This station was named after Archimedes who, according to legend, used a series of adjustable focal length mirrors to focus sunlight on a Roman naval fleet invading Syracuse, setting fire to it")
-	return stationArchimedes
-end
-
-function placeArmstrong()
-	--Armstrong
-	stationArmstrong = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationArmstrong:setPosition(psx,psy):setCallSign("Armstrong"):setDescription(_("scienceDescription-station", "Warp and Impulse engine manufacturing"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationArmstrong] = {{"food",math.random(5,10),1},{"medicine",5,5},{"repulsor",5,62}}
-		else
-			goods[stationArmstrong] = {{"food",math.random(5,10),1},{"repulsor",5,62}}
-		end
-	else
-		goods[stationArmstrong] = {{"repulsor",5,62}}
-	end
---	table.insert(goods[stationArmstrong],{"warp",5,77})
-	stationArmstrong.publicRelations = true
-	stationArmstrong.generalInformation = _("stationGeneralInfo-comms", "We manufacture warp, impulse and jump engines for the human navy fleet as well as other independent clients on a contract basis")
-	stationArmstrong.stationHistory = _("stationStory-comms", "The station is named after the late 19th century astronaut as well as the fictionlized stations that followed. The station initially constructed entire space worthy vessels. In time, it transitioned into specializeing in propulsion systems.")
-	return stationArmstrong
-end
-
-function placeAsimov()
-	--Asimov
-	stationAsimov = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationAsimov:setCallSign("Asimov"):setDescription(_("scienceDescription-station", "Training and Coordination")):setPosition(psx,psy)
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationAsimov] = {{"food",math.random(5,10),1},{"medicine",5,5},{"tractor",5,48}}
-		else
-			goods[stationAsimov] = {{"food",math.random(5,10),1},{"tractor",5,48}}		
-		end
-	else
-		goods[stationAsimov] = {{"tractor",5,48}}
-	end
-	stationAsimov.publicRelations = true
-	stationAsimov.generalInformation = _("stationGeneralInfo-comms", "We train naval cadets in routine and specialized functions aboard space vessels and coordinate naval activity throughout the sector")
-	stationAsimov.stationHistory = _("stationStory-comms", "The original station builders were fans of the late 20th century scientist and author Isaac Asimov. The station was initially named Foundation, but was later changed simply to Asimov. It started off as a stellar observatory, then became a supply stop and as it has grown has become an educational and coordination hub for the region")
-	return stationAsimov
-end
-
-function placeBarclay()
-	--Barclay
-	stationBarclay = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationBarclay:setPosition(psx,psy):setCallSign("Barclay"):setDescription(_("scienceDescription-station", "Communication components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationBarclay] = {{"food",math.random(5,10),1},{"medicine",5,5},{"communication",5,58}}
-		else
-			goods[stationBarclay] = {{"food",math.random(5,10),1},{"communication",5,58}}
-			tradeMedicine[stationBarclay] = true
-		end
-	else
-		goods[stationBarclay] = {{"communication",5,58}}
-		tradeMedicine[stationBarclay] = true
-	end
-	stationBarclay.publicRelations = true
-	stationBarclay.generalInformation = _("stationGeneralInfo-comms", "We provide a range of communication equipment and software for use aboard ships")
-	stationBarclay.stationHistory = _("stationStory-comms", "The station is named after Reginald Barclay who established the first transgalactic com link through the creative application of a quantum singularity. Station personnel often refer to the station as the Broccoli station")
-	return stationBarclay
-end
-
-function placeBethesda()
-	--Bethesda 
-	stationBethesda = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationBethesda:setPosition(psx,psy):setCallSign("Bethesda"):setDescription(_("scienceDescription-station", "Medical research"))
-	goods[stationBethesda] = {{"food",math.random(5,10),1},{"medicine",5,5},{"autodoc",5,36}}
-	stationBethesda.publicRelations = true
-	stationBethesda.generalInformation = _("stationGeneralInfo-comms", "We research and treat exotic medical conditions")
-	stationBethesda.stationHistory = _("stationStory-comms", "The station is named after the United States national medical research center based in Bethesda, Maryland on earth which was established in the mid 20th century")
-	return stationBethesda
-end
-
-function placeBroeck()
-	--Broeck
-	stationBroeck = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationBroeck:setPosition(psx,psy):setCallSign("Broeck"):setDescription(_("scienceDescription-station", "Warp drive components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationBroeck] = {{"food",math.random(5,10),1},{"medicine",5,5},{"warp",5,130}}
-			if random(1,100) < 62 then tradeLuxury[stationBroeck] = true end
-		else
-			goods[stationBroeck] = {{"food",math.random(5,10),1},{"warp",5,130}}		
-			if random(1,100) < 53 then tradeMedicine[stationBroeck] = true end
-			if random(1,100) < 62 then tradeLuxury[stationBroeck] = true end
-		end
-	else
-		goods[stationBroeck] = {{"warp",5,130}}
-		if random(1,100) < 53 then tradeMedicine[stationBroeck] = true end
-		if random(1,100) < 14 then tradeFood[stationBroeck] = true end
-		if random(1,100) < 62 then tradeLuxury[stationBroeck] = true end
-	end
-	stationBroeck.publicRelations = true
-	stationBroeck.generalInformation = _("stationGeneralInfo-comms", "We provide warp drive engines and components")
-	stationBroeck.stationHistory = _("stationStory-comms", "This station is named after Chris Van Den Broeck who did some initial research into the possibility of warp drive in the late 20th century on Earth")
-	return stationBroeck
-end
-
-function placeCalifornia()
-	--California
-	stationCalifornia = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCalifornia:setPosition(psx,psy):setCallSign("California"):setDescription(_("scienceDescription-station", "Mining station"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationCalifornia] = {{"food",math.random(5,10),1},{"medicine",5,5},{"gold",5,25},{"dilithium",2,25}}
-		else
-			goods[stationCalifornia] = {{"food",math.random(5,10),1},{"gold",5,25},{"dilithium",2,25}}		
-		end
-	else
-		goods[stationCalifornia] = {{"gold",5,25},{"dilithium",2,25}}
-	end
-	return stationCalifornia
-end
-
-function placeCalvin()
-	--Calvin 
-	stationCalvin = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCalvin:setPosition(psx,psy):setCallSign("Calvin"):setDescription(_("scienceDescription-station", "Robotic research"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationCalvin] = {{"food",math.random(5,10),1},{"medicine",5,5},{"robotic",5,87}}
-		else
-			goods[stationCalvin] = {{"food",math.random(5,10),1},{"robotic",5,87}}		
-		end
-	else
-		goods[stationCalvin] = {{"robotic",5,87}}
-		if random(1,100) < 8 then tradeFood[stationCalvin] = true end
-	end
-	tradeLuxury[stationCalvin] = true
-	stationCalvin.publicRelations = true
-	stationCalvin.generalInformation = _("stationGeneralInfo-comms", "We research and provide robotic systems and components")
-	stationCalvin.stationHistory = _("stationStory-comms", "This station is named after Dr. Susan Calvin who pioneered robotic behavioral research and programming")
-	return stationCalvin
-end
-
-function placeCavor()
-	--Cavor 
-	stationCavor = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCavor:setPosition(psx,psy):setCallSign("Cavor"):setDescription(_("scienceDescription-station", "Advanced Material components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationCavor] = {{"food",math.random(5,10),1},{"medicine",5,5},{"filament",5,42}}
-			if random(1,100) < 33 then tradeLuxury[stationCavor] = true end
-		else
-			goods[stationCavor] = {{"food",math.random(5,10),1},{"filament",5,42}}	
-			if random(1,100) < 50 then
-				tradeMedicine[stationCavor] = true
-			else
-				tradeLuxury[stationCavor] = true
-			end
-		end
-	else
-		goods[stationCavor] = {{"filament",5,42}}
-		whatTrade = random(1,100)
-		if whatTrade < 33 then
-			tradeMedicine[stationCavor] = true
-		elseif whatTrade > 66 then
-			tradeFood[stationCavor] = true
-		else
-			tradeLuxury[stationCavor] = true
-		end
-	end
-	stationCavor.publicRelations = true
-	stationCavor.generalInformation = _("stationGeneralInfo-comms", "We fabricate several different kinds of materials critical to various space industries like ship building, station construction and mineral extraction")
-	stationCavor.stationHistory = _("stationStory-comms", "We named our station after Dr. Cavor, the physicist that invented a barrier material for gravity waves - Cavorite")
-	return stationCavor
-end
-
-function placeChatuchak()
-	--Chatuchak
-	stationChatuchak = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationChatuchak:setPosition(psx,psy):setCallSign("Chatuchak"):setDescription(_("scienceDescription-station", "Trading station"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationChatuchak] = {{"food",math.random(5,10),1},{"medicine",5,5},{"luxury",5,60}}
-		else
-			goods[stationChatuchak] = {{"food",math.random(5,10),1},{"luxury",5,60}}		
-		end
-	else
-		goods[stationChatuchak] = {{"luxury",5,60}}		
-	end
-	stationChatuchak.publicRelations = true
-	stationChatuchak.generalInformation = _("stationGeneralInfo-comms", "Only the largest market and trading location in twenty sectors. You can find your heart's desire here")
-	stationChatuchak.stationHistory = _("stationStory-comms", "Modeled after the early 21st century bazaar on Earth in Bangkok, Thailand. Designed and built with trade and commerce in mind")
-	return stationChatuchak
-end
-
-function placeCoulomb()
-	--Coulomb
-	stationCoulomb = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCoulomb:setPosition(psx,psy):setCallSign("Coulomb"):setDescription(_("scienceDescription-station", "Shielded circuitry fabrication"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationCoulomb] = {{"food",math.random(5,10),1},{"medicine",5,5},{"circuit",5,50}}
-		else
-			goods[stationCoulomb] = {{"food",math.random(5,10),1},{"circuit",5,50}}		
-			if random(1,100) < 27 then tradeMedicine[stationCoulomb] = true end
-		end
-	else
-		goods[stationCoulomb] = {{"circuit",5,50}}		
-		if random(1,100) < 27 then tradeMedicine[stationCoulomb] = true end
-		if random(1,100) < 16 then tradeFood[stationCoulomb] = true end
-	end
-	if random(1,100) < 82 then tradeLuxury[stationCoulomb] = true end
-	stationCoulomb.publicRelations = true
-	stationCoulomb.generalInformation = _("stationGeneralInfo-comms", "We make a large variety of circuits for numerous ship systems shielded from sensor detection and external control interference")
-	stationCoulomb.stationHistory = _("stationStory-comms", "Our station is named after the law which quantifies the amount of force with which stationary electrically charged particals repel or attact each other - a fundamental principle in the design of our circuits")
-	return stationCoulomb
-end
-
-function placeCyrus()
-	--Cyrus
-	stationCyrus = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationCyrus:setPosition(psx,psy):setCallSign("Cyrus"):setDescription(_("scienceDescription-station", "Impulse engine components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationCyrus] = {{"food",math.random(5,10),1},{"medicine",5,5},{"impulse",5,124}}
-		else
-			goods[stationCyrus] = {{"food",math.random(5,10),1},{"impulse",5,124}}		
-			if random(1,100) < 34 then tradeMedicine[stationCyrus] = true end
-		end
-	else
-		goods[stationCyrus] = {{"impulse",5,124}}		
-		if random(1,100) < 34 then tradeMedicine[stationCyrus] = true end
-		if random(1,100) < 13 then tradeFood[stationCyrus] = true end
-	end
-	if random(1,100) < 78 then tradeLuxury[stationCyrus] = true end
-	stationCyrus.publicRelations = true
-	stationCyrus.generalInformation = _("stationGeneralInfo-comms", "We supply high quality impulse engines and parts for use aboard ships")
-	stationCyrus.stationHistory = _("stationStory-comms", "This station was named after the fictional engineer, Cyrus Smith created by 19th century author Jules Verne")
-	return stationCyrus
-end
-
-function placeDeckard()
-	--Deckard
-	stationDeckard = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationDeckard:setPosition(psx,psy):setCallSign("Deckard"):setDescription(_("scienceDescription-station", "Android components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationDeckard] = {{"food",math.random(5,10),1},{"medicine",5,5},{"android",5,73}}
-		else
-			goods[stationDeckard] = {{"food",math.random(5,10),1},{"android",5,73}}		
-		end
-	else
-		goods[stationDeckard] = {{"android",5,73}}		
-		tradeFood[stationDeckard] = true
-	end
-	tradeLuxury[stationDeckard] = true
-	stationDeckard.publicRelations = true
-	stationDeckard.generalInformation = _("stationGeneralInfo-comms", "Supplier of android components, programming and service")
-	stationDeckard.stationHistory = _("stationStory-comms", "Named for Richard Deckard who inspired many of the sophisticated safety security algorithms now required for all androids")
-	return stationDeckard
-end
-
-function placeDeer()
-	--Deer
-	stationDeer = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationDeer:setPosition(psx,psy):setCallSign("Deer"):setDescription(_("scienceDescription-station", "Repulsor and Tractor Beam Components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationDeer] = {{"food",math.random(5,10),1},{"medicine",5,5},{"tractor",5,90},{"repulsor",5,95}}
-		else
-			goods[stationDeer] = {{"food",math.random(5,10),1},{"tractor",5,90},{"repulsor",5,95}}		
-			tradeMedicine[stationDeer] = true
-		end
-	else
-		goods[stationDeer] = {{"tractor",5,90},{"repulsor",5,95}}		
-		tradeFood[stationDeer] = true
-		tradeMedicine[stationDeer] = true
-	end
-	tradeLuxury[stationDeer] = true
-	stationDeer.publicRelations = true
-	stationDeer.generalInformation = _("stationGeneralInfo-comms", "We can meet all your pushing and pulling needs with specialized equipment custom made")
-	stationDeer.stationHistory = _("stationStory-comms", "The station name comes from a short story by the 20th century author Clifford D. Simak as well as from the 19th century developer John Deere who inspired a company that makes the Earth bound equivalents of our products")
-	return stationDeer
-end
-
-function placeErickson()
-	--Erickson
-	stationErickson = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationErickson:setPosition(psx,psy):setCallSign("Erickson"):setDescription(_("scienceDescription-station", "Transporter components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationErickson] = {{"food",math.random(5,10),1},{"medicine",5,5},{"transporter",5,63}}
-		else
-			goods[stationErickson] = {{"food",math.random(5,10),1},{"transporter",5,63}}		
-			tradeMedicine[stationErickson] = true 
-		end
-	else
-		goods[stationErickson] = {{"transporter",5,63}}		
-		tradeFood[stationErickson] = true
-		tradeMedicine[stationErickson] = true 
-	end
-	tradeLuxury[stationErickson] = true 
-	stationErickson.publicRelations = true
-	stationErickson.generalInformation = _("stationGeneralInfo-comms", "We provide transporters used aboard ships as well as the components for repair and maintenance")
-	stationErickson.stationHistory = _("stationStory-comms", "The station is named after the early 22nd century inventor of the transporter, Dr. Emory Erickson. This station is proud to have received the endorsement of Admiral Leonard McCoy")
-	return stationErickson
-end
-
-function placeEvondos()
-	--Evondos
-	stationEvondos = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationEvondos:setPosition(psx,psy):setCallSign("Evondos"):setDescription(_("scienceDescription-station", "Autodoc components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationEvondos] = {{"food",math.random(5,10),1},{"medicine",5,5},{"autodoc",5,56}}
-		else
-			goods[stationEvondos] = {{"food",math.random(5,10),1},{"autodoc",5,56}}		
-			tradeMedicine[stationEvondos] = true 
-		end
-	else
-		goods[stationEvondos] = {{"autodoc",5,56}}		
-		tradeMedicine[stationEvondos] = true 
-	end
-	if random(1,100) < 41 then tradeLuxury[stationEvondos] = true end
-	stationEvondos.publicRelations = true
-	stationEvondos.generalInformation = _("stationGeneralInfo-comms", "We provide components for automated medical machinery")
-	stationEvondos.stationHistory = _("stationStory-comms", "The station is the evolution of the company that started automated pharmaceutical dispensing in the early 21st century on Earth in Finland")
-	return stationEvondos
-end
-
-function placeFeynman()
-	--Feynman 
-	stationFeynman = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationFeynman:setPosition(psx,psy):setCallSign("Feynman"):setDescription(_("scienceDescription-station", "Nanotechnology research"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationFeynman] = {{"food",math.random(5,10),1},{"medicine",5,5},{"nanites",5,79},{"software",5,115}}
-		else
-			goods[stationFeynman] = {{"food",math.random(5,10),1},{"nanites",5,79},{"software",5,115}}		
-		end
-	else
-		goods[stationFeynman] = {{"nanites",5,79},{"software",5,115}}		
-		tradeFood[stationFeynman] = true
-		if random(1,100) < 26 then tradeFood[stationFeynman] = true end
-	end
-	tradeLuxury[stationFeynman] = true
-	stationFeynman.publicRelations = true
-	stationFeynman.generalInformation = _("stationGeneralInfo-comms", "We provide nanites and software for a variety of ship-board systems")
-	stationFeynman.stationHistory = _("stationStory-comms", "This station's name recognizes one of the first scientific researchers into nanotechnology, physicist Richard Feynman")
-	return stationFeynman
-end
-
-function placeGrasberg()
-	--Grasberg
-	placeRandomAroundPoint(Asteroid,15,1,15000,psx,psy)
-	stationGrasberg = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationGrasberg:setPosition(psx,psy):setCallSign("Grasberg"):setDescription(_("scienceDescription-station", "Mining"))
-	stationGrasberg.publicRelations = true
-	stationGrasberg.generalInformation = _("stationGeneralInfo-comms", "We mine nearby asteroids for precious minerals and process them for sale")
-	stationGrasberg.stationHistory = _("stationStory-comms", "This station's name is inspired by a large gold mine on Earth in Indonesia. The station builders hoped to have a similar amount of minerals found amongst these asteroids")
-	grasbergGoods = random(1,100)
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			if grasbergGoods < 20 then
-				goods[stationGrasberg] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif grasbergGoods < 40 then
-				goods[stationGrasberg] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif grasbergGoods < 60 then
-				goods[stationGrasberg] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			else
-				goods[stationGrasberg] = {{"luxury",5,70},{"food",math.random(5,10),1},{"medicine",5,5}}
-			end
-		else
-			if grasbergGoods < 20 then
-				goods[stationGrasberg] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			elseif grasbergGoods < 40 then
-				goods[stationGrasberg] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1}}
-			elseif grasbergGoods < 60 then
-				goods[stationGrasberg] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			else
-				goods[stationGrasberg] = {{"luxury",5,70},{"food",math.random(5,10),1}}
-			end
-		end
-	else
-		if grasbergGoods < 20 then
-			goods[stationGrasberg] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50}}
-		elseif grasbergGoods < 40 then
-			goods[stationGrasberg] = {{"luxury",5,70},{"gold",5,25}}
-		elseif grasbergGoods < 60 then
-			goods[stationGrasberg] = {{"luxury",5,70},{"cobalt",4,50}}
-		else
-			goods[stationGrasberg] = {{"luxury",5,70}}
-		end
-		tradeFood[stationGrasberg] = true
-	end
-	return stationGrasberg
-end
-
-function placeHayden()
-	--Hayden
-	stationHayden = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationHayden:setPosition(psx,psy):setCallSign("Hayden"):setDescription(_("scienceDescription-station", "Observatory and stellar mapping"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationHayden] = {{"food",math.random(5,10),1},{"medicine",5,5},{"nanites",5,65}}
-		else
-			goods[stationHayden] = {{"food",math.random(5,10),1},{"nanites",5,65}}		
-		end
-	else
-		goods[stationHayden] = {{"nanites",5,65}}		
-	end
-	stationHayden.publicRelations = true
-	stationHayden.generalInformation = _("stationGeneralInfo-comms", "We study the cosmos and map stellar phenomena. We also track moving asteroids. Look out! Just kidding")
-	return stationHayden
-end
-
-function placeHeyes()
-	--Heyes
-	stationHeyes = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationHeyes:setPosition(psx,psy):setCallSign("Heyes"):setDescription(_("scienceDescription-station", "Sensor components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationHeyes] = {{"food",math.random(5,10),1},{"medicine",5,5},{"sensor",5,72}}
-		else
-			goods[stationHeyes] = {{"food",math.random(5,10),1},{"sensor",5,72}}		
-		end
-	else
-		goods[stationHeyes] = {{"sensor",5,72}}		
-	end
-	tradeLuxury[stationHeyes] = true 
-	stationHeyes.publicRelations = true
-	stationHeyes.generalInformation = _("stationGeneralInfo-comms", "We research and manufacture sensor components and systems")
-	stationHeyes.stationHistory = _("stationStory-comms", "The station is named after Tony Heyes the inventor of some of the earliest electromagnetic sensors in the mid 20th century on Earth in the United Kingdom to assist blind human mobility")
-	return stationHeyes
-end
-
-function placeHossam()
-	--Hossam
-	stationHossam = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationHossam:setPosition(psx,psy):setCallSign("Hossam"):setDescription(_("scienceDescription-station", "Nanite supplier"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationHossam] = {{"food",math.random(5,10),1},{"medicine",5,5},{"nanites",5,48}}
-		else
-			goods[stationHossam] = {{"food",math.random(5,10),1},{"nanites",5,48}}		
-			if random(1,100) < 44 then tradeMedicine[stationHossam] = true end
-		end
-	else
-		goods[stationHossam] = {{"nanites",5,48}}		
-		if random(1,100) < 44 then tradeMedicine[stationHossam] = true end
-		if random(1,100) < 24 then tradeFood[stationHossam] = true end
-	end
-	if random(1,100) < 63 then tradeLuxury[stationHossam] = true end
-	stationHossam.publicRelations = true
-	stationHossam.generalInformation = _("stationGeneralInfo-comms", "We provide nanites for various organic and non-organic systems")
-	stationHossam.stationHistory = _("stationStory-comms", "This station is named after the nanotechnologist Hossam Haick from the early 21st century on Earth in Israel")
-	return stationHossam
-end
-
-function placeImpala()
-	--Impala
-	placeRandomAroundPoint(Asteroid,15,1,15000,psx,psy)
-	stationImpala = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationImpala:setPosition(psx,psy):setCallSign("Impala"):setDescription(_("scienceDescription-station", "Mining"))
-	tradeFood[stationImpala] = true
-	tradeLuxury[stationImpala] = true
-	stationImpala.publicRelations = true
-	stationImpala.generalInformation = _("stationGeneralInfo-comms", "We mine nearby asteroids for precious minerals")
-	impalaGoods = random(1,100)
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			if impalaGoods < 20 then
-				goods[stationImpala] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif impalaGoods < 40 then
-				goods[stationImpala] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif impalaGoods < 60 then
-				goods[stationImpala] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			else
-				goods[stationImpala] = {{"luxury",5,70},{"food",math.random(5,10),1},{"medicine",5,5}}
-			end
-		else
-			if impalaGoods < 20 then
-				goods[stationImpala] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			elseif impalaGoods < 40 then
-				goods[stationImpala] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1}}
-			elseif impalaGoods < 60 then
-				goods[stationImpala] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			else
-				goods[stationImpala] = {{"luxury",5,70},{"food",math.random(5,10),1}}
-			end
-		end
-	else
-		if impalaGoods < 20 then
-			goods[stationImpala] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50}}
-		elseif impalaGoods < 40 then
-			goods[stationImpala] = {{"luxury",5,70},{"gold",5,25}}
-		elseif impalaGoods < 60 then
-			goods[stationImpala] = {{"luxury",5,70},{"cobalt",4,50}}
-		else
-			goods[stationImpala] = {{"luxury",5,70}}
-		end
-		tradeFood[stationImpala] = true
-	end
-	return stationImpala
-end
-
-function placeKomov()
-	--Komov
-	stationKomov = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationKomov:setPosition(psx,psy):setCallSign("Komov"):setDescription(_("scienceDescription-station", "Xenopsychology training"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationKomov] = {{"food",math.random(5,10),1},{"medicine",5,5},{"filament",5,46}}
-		else
-			goods[stationKomov] = {{"food",math.random(5,10),1},{"filament",5,46}}
-			if random(1,100) < 44 then tradeMedicine[stationKomov] = true end
-		end
-	else
-		goods[stationKomov] = {{"filament",5,46}}		
-		if random(1,100) < 44 then tradeMedicine[stationKomov] = true end
-		if random(1,100) < 24 then tradeFood[stationKomov] = true end
-	end
-	stationKomov.publicRelations = true
-	stationKomov.generalInformation = _("stationGeneralInfo-comms", "We provide classes and simulation to help train diverse species in how to relate to each other")
-	stationKomov.stationHistory = _("stationStory-comms", "A continuation of the research initially conducted by Dr. Gennady Komov in the early 22nd century on Venus, supported by the application of these principles")
-	return stationKomov
-end
-
-function placeKrak()
-	--Krak
-	stationKrak = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationKrak:setPosition(psx,psy):setCallSign("Krak"):setDescription(_("scienceDescription-station", "Mining station"))
-	posAxisKrak = random(0,360)
-	posKrak = random(10000,60000)
-	negKrak = random(10000,60000)
-	spreadKrak = random(4000,7000)
-	negAxisKrak = posAxisKrak + 180
-	xPosAngleKrak, yPosAngleKrak = vectorFromAngle(posAxisKrak, posKrak)
-	posKrakEnd = random(30,70)
-	createRandomAlongArc(Asteroid, 30+posKrakEnd, psx+xPosAngleKrak, psy+yPosAngleKrak, posKrak, negAxisKrak, negAxisKrak+posKrakEnd, spreadKrak)
-	xNegAngleKrak, yNegAngleKrak = vectorFromAngle(negAxisKrak, negKrak)
-	negKrakEnd = random(40,80)
-	createRandomAlongArc(Asteroid, 30+negKrakEnd, psx+xNegAngleKrak, psy+yNegAngleKrak, negKrak, posAxisKrak, posAxisKrak+negKrakEnd, spreadKrak)
-	if random(1,100) < 50 then tradeFood[stationKrak] = true end
-	if random(1,100) < 50 then tradeLuxury[stationKrak] = true end
-	krakGoods = random(1,100)
-	if krakGoods < 10 then
-		goods[stationKrak] = {{"nickel",5,20},{"platinum",5,70},{"tritanium",5,50},{"dilithium",5,50}}
-	elseif krakGoods < 20 then
-		goods[stationKrak] = {{"nickel",5,20},{"platinum",5,70},{"tritanium",5,50}}
-	elseif krakGoods < 30 then
-		goods[stationKrak] = {{"nickel",5,20},{"platinum",5,70},{"dilithium",5,50}}
-	elseif krakGoods < 40 then
-		goods[stationKrak] = {{"nickel",5,20},{"tritanium",5,50},{"dilithium",5,50}}
-	elseif krakGoods < 50 then
-		goods[stationKrak] = {{"nickel",5,20},{"dilithium",5,50}}
-	elseif krakGoods < 60 then
-		goods[stationKrak] = {{"nickel",5,20},{"platinum",5,70}}
-	elseif krakGoods < 70 then
-		goods[stationKrak] = {{"nickel",5,20},{"tritanium",5,50}}
-	elseif krakGoods < 80 then
-		goods[stationKrak] = {{"platinum",5,70},{"tritanium",5,50},{"dilithium",5,50}}
-	else
-		goods[stationKrak] = {{"nickel",5,20}}
-	end
-	tradeMedicine[stationKrak] = true
-	return stationKrak
-end
-
-function placeKruk()
-	--Kruk
-	stationKruk = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationKruk:setPosition(psx,psy):setCallSign("Kruk"):setDescription(_("scienceDescription-station", "Mining station"))
-	posAxisKruk = random(0,360)
-	posKruk = random(10000,60000)
-	negKruk = random(10000,60000)
-	spreadKruk = random(4000,7000)
-	negAxisKruk = posAxisKruk + 180
-	xPosAngleKruk, yPosAngleKruk = vectorFromAngle(posAxisKruk, posKruk)
-	posKrukEnd = random(30,70)
-	createRandomAlongArc(Asteroid, 30+posKrukEnd, psx+xPosAngleKruk, psy+yPosAngleKruk, posKruk, negAxisKruk, negAxisKruk+posKrukEnd, spreadKruk)
-	xNegAngleKruk, yNegAngleKruk = vectorFromAngle(negAxisKruk, negKruk)
-	negKrukEnd = random(40,80)
-	createRandomAlongArc(Asteroid, 30+negKrukEnd, psx+xNegAngleKruk, psy+yNegAngleKruk, negKruk, posAxisKruk, posAxisKruk+negKrukEnd, spreadKruk)
-	krukGoods = random(1,100)
-	if krukGoods < 10 then
-		goods[stationKruk] = {{"nickel",5,20},{"platinum",5,70},{"tritanium",5,50},{"dilithium",5,50}}
-	elseif krukGoods < 20 then
-		goods[stationKruk] = {{"nickel",5,20},{"platinum",5,70},{"tritanium",5,50}}
-	elseif krukGoods < 30 then
-		goods[stationKruk] = {{"nickel",5,20},{"platinum",5,70},{"dilithium",5,50}}
-	elseif krukGoods < 40 then
-		goods[stationKruk] = {{"nickel",5,20},{"tritanium",5,50},{"dilithium",5,50}}
-	elseif krukGoods < 50 then
-		goods[stationKruk] = {{"nickel",5,20},{"dilithium",5,50}}
-	elseif krukGoods < 60 then
-		goods[stationKruk] = {{"nickel",5,20},{"platinum",5,70}}
-	elseif krukGoods < 70 then
-		goods[stationKruk] = {{"nickel",5,20},{"tritanium",5,50}}
-	elseif krukGoods < 80 then
-		goods[stationKruk] = {{"platinum",5,70},{"tritanium",5,50},{"dilithium",5,50}}
-	else
-		goods[stationKruk] = {{"nickel",5,20}}
-	end
-	tradeLuxury[stationKruk] = true
-	if random(1,100) < 50 then tradeFood[stationKruk] = true end
-	if random(1,100) < 50 then tradeMedicine[stationKruk] = true end
-	return stationKruk
-end
-
-function placeLipkin()
-	--Lipkin
-	stationLipkin = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationLipkin:setPosition(psx,psy):setCallSign("Lipkin"):setDescription(_("scienceDescription-station", "Autodoc components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationLipkin] = {{"food",math.random(5,10),1},{"medicine",5,5},{"autodoc",5,76}}
-		else
-			goods[stationLipkin] = {{"food",math.random(5,10),1},{"autodoc",5,76}}		
-		end
-	else
-		goods[stationLipkin] = {{"autodoc",5,76}}		
-		tradeFood[stationLipkin] = true 
-	end
-	tradeLuxury[stationLipkin] = true 
-	stationLipkin.publicRelations = true
-	stationLipkin.generalInformation = _("stationGeneralInfo-comms", "We build and repair and provide components and upgrades for automated facilities designed for ships where a doctor cannot be a crew member (commonly called autodocs)")
-	stationLipkin.stationHistory = _("stationStory-comms", "The station is named after Dr. Lipkin who pioneered some of the research and application around robot assisted surgery in the area of partial nephrectomy for renal tumors in the early 21st century on Earth")
-	return stationLipkin
-end
-
-function placeMadison()
-	--Madison
-	stationMadison = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMadison:setPosition(psx,psy):setCallSign("Madison"):setDescription(_("scienceDescription-station", "Zero gravity sports and entertainment"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationMadison] = {{"food",math.random(5,10),1},{"medicine",5,5},{"luxury",5,70}}
-		else
-			goods[stationMadison] = {{"food",math.random(5,10),1},{"luxury",5,70}}		
-			tradeMedicine[stationMadison] = true 
-		end
-	else
-		goods[stationMadison] = {{"luxury",5,70}}		
-		tradeMedicine[stationMadison] = true 
-	end
-	stationMadison.publicRelations = true
-	stationMadison.generalInformation = _("stationGeneralInfo-comms", "Come take in a game or two or perhaps see a show")
-	stationMadison.stationHistory = _("stationStory-comms", "Named after Madison Square Gardens from 21st century Earth, this station was designed to serve similar purposes in space - a venue for sports and entertainment")
-	return stationMadison
-end
-
-function placeMaiman()
-	--Maiman
-	stationMaiman = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMaiman:setPosition(psx,psy):setCallSign("Maiman"):setDescription(_("scienceDescription-station", "Energy beam components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationMaiman] = {{"food",math.random(5,10),1},{"medicine",5,5},{"beam",5,70}}
-		else
-			goods[stationMaiman] = {{"food",math.random(5,10),1},{"beam",5,70}}		
-			tradeMedicine[stationMaiman] = true 
-		end
-	else
-		goods[stationMaiman] = {{"beam",5,70}}		
-		tradeMedicine[stationMaiman] = true 
-	end
-	stationMaiman.publicRelations = true
-	stationMaiman.generalInformation = _("stationGeneralInfo-comms", "We research and manufacture energy beam components and systems")
-	stationMaiman.stationHistory = _("stationStory-comms", "The station is named after Theodore Maiman who researched and built the first laser in the mid 20th centuryon Earth")
-	return stationMaiman
-end
-
-function placeMarconi()
-	--Marconi 
-	stationMarconi = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMarconi:setPosition(psx,psy):setCallSign("Marconi"):setDescription(_("scienceDescription-station", "Energy Beam Components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationMarconi] = {{"food",math.random(5,10),1},{"medicine",5,5},{"beam",5,80}}
-		else
-			goods[stationMarconi] = {{"food",math.random(5,10),1},{"beam",5,80}}		
-			tradeMedicine[stationMarconi] = true 
-		end
-	else
-		goods[stationMarconi] = {{"beam",5,80}}		
-		tradeMedicine[stationMarconi] = true 
-		tradeFood[stationMarconi] = true
-	end
-	tradeLuxury[stationMarconi] = true
-	stationMarconi.publicRelations = true
-	stationMarconi.generalInformation = _("stationGeneralInfo-comms", "We manufacture energy beam components")
-	stationMarconi.stationHistory = _("stationStory-comms", "Station named after Guglielmo Marconi an Italian inventor from early 20th century Earth who, along with Nicolo Tesla, claimed to have invented a death ray or particle beam weapon")
-	return stationMarconi
-end
-
-function placeMayo()
-	--Mayo
-	stationMayo = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMayo:setPosition(psx,psy):setCallSign("Mayo"):setDescription(_("scienceDescription-station", "Medical Research"))
-	goods[stationMayo] = {{"food",5,1},{"medicine",5,5},{"autodoc",5,128}}
-	stationMayo.publicRelations = true
-	stationMayo.generalInformation = _("stationGeneralInfo-comms", "We research exotic diseases and other human medical conditions")
-	stationMayo.stationHistory = _("stationStory-comms", "We continue the medical work started by William Worrall Mayo in the late 19th century on Earth")
-	return stationMayo
-end
-
-function placeMiller()
-	--Miller
-	stationMiller = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMiller:setPosition(psx,psy):setCallSign("Miller"):setDescription(_("scienceDescription-station", "Exobiology research"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationMiller] = {{"food",math.random(5,10),1},{"medicine",5,5},{"optic",10,60}}
-		else
-			goods[stationMiller] = {{"food",math.random(5,10),1},{"optic",10,60}}		
-		end
-	else
-		goods[stationMiller] = {{"optic",10,60}}		
-	end
-	stationMiller.publicRelations = true
-	stationMiller.generalInformation = _("stationGeneralInfo-comms", "We study recently discovered life forms not native to Earth")
-	stationMiller.stationHistory = _("stationStory-comms", "This station was named after one the early exobiologists from mid 20th century Earth, Dr. Stanley Miller")
-	return stationMiller
-end
-
-function placeMuddville()
-	--Muddville 
-	stationMudd = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMudd:setPosition(psx,psy):setCallSign("Muddville"):setDescription(_("scienceDescription-station", "Trading station"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationMudd] = {{"food",math.random(5,10),1},{"medicine",5,5},{"luxury",10,60}}
-		else
-			goods[stationMudd] = {{"food",math.random(5,10),1},{"luxury",10,60}}		
-		end
-	else
-		goods[stationMudd] = {{"luxury",10,60}}		
-	end
-	stationMudd.publicRelations = true
-	stationMudd.generalInformation = _("stationGeneralInfo-comms", "Come to Muddvile for all your trade and commerce needs and desires")
-	stationMudd.stationHistory = _("stationStory-comms", "Upon retirement, Harry Mudd started this commercial venture using his leftover inventory and extensive connections obtained while he traveled the stars as a salesman")
-	return stationMudd
-end
-
-function placeNexus6()
-	--Nexus-6
-	stationNexus6 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationNexus6:setPosition(psx,psy):setCallSign("Nexus-6"):setDescription(_("scienceDescription-station", "Android components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationNexus6] = {{"food",math.random(5,10),1},{"medicine",5,5},{"android",5,93}}
-		else
-			goods[stationNexus6] = {{"food",math.random(5,10),1},{"android",5,93}}		
-			tradeMedicine[stationNexus6] = true 
-		end
-	else
-		goods[stationNexus6] = {{"android",5,93}}		
-		tradeMedicine[stationNexus6] = true 
-	end
-	stationNexus6.publicRelations = true
-	stationNexus6.generalInformation = _("stationGeneralInfo-comms", "We research and manufacture android components and systems. Our design our androids to maximize their likeness to humans")
-	stationNexus6.stationHistory = _("stationStory-comms", "The station is named after the ground breaking model of android produced by the Tyrell corporation")
-	return stationNexus6
-end
-
-function placeOBrien()
-	--O'Brien
-	stationOBrien = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOBrien:setPosition(psx,psy):setCallSign("O'Brien"):setDescription(_("scienceDescription-station", "Transporter components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationOBrien] = {{"food",math.random(5,10),1},{"medicine",5,5},{"transporter",5,76}}
-		else
-			goods[stationOBrien] = {{"food",math.random(5,10),1},{"transporter",5,76}}		
-			if random(1,100) < 34 then tradeMedicine[stationOBrien] = true end
-		end
-	else
-		goods[stationOBrien] = {{"transporter",5,76}}		
-		tradeMedicine[stationOBrien] = true 
-		if random(1,100) < 13 then tradeFood[stationOBrien] = true end
-		if random(1,100) < 34 then tradeMedicine[stationOBrien] = true end
-	end
-	if random(1,100) < 43 then tradeLuxury[stationOBrien] = true end
-	stationOBrien.publicRelations = true
-	stationOBrien.generalInformation = _("stationGeneralInfo-comms", "We research and fabricate high quality transporters and transporter components for use aboard ships")
-	stationOBrien.stationHistory = _("stationStory-comms", "Miles O'Brien started this business after his experience as a transporter chief")
-	return stationOBrien
-end
-
-function placeOlympus()
-	--Olympus
-	stationOlympus = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOlympus:setPosition(psx,psy):setCallSign("Olympus"):setDescription(_("scienceDescription-station", "Optical components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationOlympus] = {{"food",math.random(5,10),1},{"medicine",5,5},{"optic",5,66}}
-		else
-			goods[stationOlympus] = {{"food",math.random(5,10),1},{"optic",5,66}}		
-			tradeMedicine[stationOlympus] = true
-		end
-	else
-		goods[stationOlympus] = {{"optic",5,66}}		
-		tradeFood[stationOlympus] = true
-		tradeMedicine[stationOlympus] = true
-	end
-	stationOlympus.publicRelations = true
-	stationOlympus.generalInformation = _("stationGeneralInfo-comms", "We fabricate optical lenses and related equipment as well as fiber optic cabling and components")
-	stationOlympus.stationHistory = _("stationStory-comms", "This station grew out of the Olympus company based on earth in the early 21st century. It merged with Infinera, then bought several software comapnies before branching out into space based industry")
-	return stationOlympus
-end
-
-function placeOrgana()
-	--Organa
-	stationOrgana = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOrgana:setPosition(psx,psy):setCallSign("Organa"):setDescription(_("scienceDescription-station", "Diplomatic training"))
-	goods[stationOrgana] = {{"luxury",5,96}}		
-	stationOrgana.publicRelations = true
-	stationOrgana.generalInformation = _("stationGeneralInfo-comms", "The premeire academy for leadership and diplomacy training in the region")
-	stationOrgana.stationHistory = _("stationStory-comms", "Established by the royal family so critical during the political upheaval era")
-	return stationOrgana
-end
-
-function placeOutpost15()
-	--Outpost 15
-	stationOutpost15 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOutpost15:setPosition(psx,psy):setCallSign("Outpost-15"):setDescription(_("scienceDescription-station", "Mining and trade"))
-	tradeFood[stationOutpost15] = true
-	outpost15Goods = random(1,100)
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			if outpost15Goods < 20 then
-				goods[stationOutpost15] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif outpost15Goods < 40 then
-				goods[stationOutpost15] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif outpost15Goods < 60 then
-				goods[stationOutpost15] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			else
-				goods[stationOutpost15] = {{"luxury",5,70},{"food",math.random(5,10),1},{"medicine",5,5}}
-			end
-		else
-			if outpost15Goods < 20 then
-				goods[stationOutpost15] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			elseif outpost15Goods < 40 then
-				goods[stationOutpost15] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1}}
-			elseif outpost15Goods < 60 then
-				goods[stationOutpost15] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			else
-				goods[stationOutpost15] = {{"luxury",5,70},{"food",math.random(5,10),1}}
-			end
-		end
-	else
-		if outpost15Goods < 20 then
-			goods[stationOutpost15] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50}}
-		elseif outpost15Goods < 40 then
-			goods[stationOutpost15] = {{"luxury",5,70},{"gold",5,25}}
-		elseif outpost15Goods < 60 then
-			goods[stationOutpost15] = {{"luxury",5,70},{"cobalt",4,50}}
-		else
-			goods[stationOutpost15] = {{"luxury",5,70}}
-		end
-		tradeFood[stationOutpost15] = true
-	end
-	placeRandomAroundPoint(Asteroid,15,1,15000,psx,psy)
-	return stationOutpost15
-end
-
-function placeOutpost21()
-	--Outpost 21
-	stationOutpost21 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOutpost21:setPosition(psx,psy):setCallSign("Outpost-21"):setDescription(_("scienceDescription-station", "Mining and gambling"))
-	placeRandomAroundPoint(Asteroid,15,1,15000,psx,psy)
-	outpost21Goods = random(1,100)
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			if outpost21Goods < 20 then
-				goods[stationOutpost21] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif outpost21Goods < 40 then
-				goods[stationOutpost21] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1},{"medicine",5,5}}
-			elseif outpost21Goods < 60 then
-				goods[stationOutpost21] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1},{"medicine",5,5}}
-			else
-				goods[stationOutpost21] = {{"luxury",5,70},{"food",math.random(5,10),1},{"medicine",5,5}}
-			end
-		else
-			if outpost21Goods < 20 then
-				goods[stationOutpost21] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			elseif outpost21Goods < 40 then
-				goods[stationOutpost21] = {{"luxury",5,70},{"gold",5,25},{"food",math.random(5,10),1}}
-			elseif outpost21Goods < 60 then
-				goods[stationOutpost21] = {{"luxury",5,70},{"cobalt",4,50},{"food",math.random(5,10),1}}
-			else
-				goods[stationOutpost21] = {{"luxury",5,70},{"food",math.random(5,10),1}}
-			end
-			if random(1,100) < 50 then tradeMedicine[stationOutpost21] = true end
-		end
-	else
-		if outpost21Goods < 20 then
-			goods[stationOutpost21] = {{"luxury",5,70},{"gold",5,25},{"cobalt",4,50}}
-		elseif outpost21Goods < 40 then
-			goods[stationOutpost21] = {{"luxury",5,70},{"gold",5,25}}
-		elseif outpost21Goods < 60 then
-			goods[stationOutpost21] = {{"luxury",5,70},{"cobalt",4,50}}
-		else
-			goods[stationOutpost21] = {{"luxury",5,70}}
-		end
-		tradeFood[stationOutpost21] = true
-		if random(1,100) < 50 then tradeMedicine[stationOutpost21] = true end
-	end
-	tradeLuxury[stationOutpost21] = true
-	return stationOutpost21
-end
-
-function placeOwen()
-	--Owen
-	stationOwen = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOwen:setPosition(psx,psy):setCallSign("Owen"):setDescription(_("scienceDescription-station", "Load lifters and components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationOwen] = {{"food",math.random(5,10),1},{"medicine",5,5},{"lifter",5,61}}
-		else
-			goods[stationOwen] = {{"food",math.random(5,10),1},{"lifter",5,61}}		
-		end
-	else
-		goods[stationOwen] = {{"lifter",5,61}}		
-		tradeFood[stationOwen] = true 
-	end
-	tradeLuxury[stationOwen] = true 
-	stationOwen.publicRelations = true
-	stationOwen.generalInformation = _("stationGeneralInfo-comms", "We provide load lifters and components for various ship systems")
-	stationOwen.stationHistory = _("stationStory-comms", "The station is named after Lars Owen. After his extensive eperience with tempermental machinery on Tatooine, he used his subject matter expertise to expand into building and manufacturing the equipment adding innovations based on his years of experience using load lifters and their relative cousins, moisture vaporators")
-	return stationOwen
-end
-
-function placePanduit()
-	--Panduit
-	stationPanduit = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationPanduit:setPosition(psx,psy):setCallSign("Panduit"):setDescription(_("scienceDescription-station", "Optic components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationPanduit] = {{"food",math.random(5,10),1},{"medicine",5,5},{"optic",5,79}}
-		else
-			goods[stationPanduit] = {{"food",math.random(5,10),1},{"optic",5,79}}		
-			if random(1,100) < 33 then tradeMedicine[stationPanduit] = true end
-		end
-	else
-		goods[stationPanduit] = {{"optic",5,79}}		
-		if random(1,100) < 33 then tradeMedicine[stationPanduit] = true end
-		if random(1,100) < 27 then tradeFood[stationPanduit] = true end
-	end
-	tradeLuxury[stationPanduit] = true
-	stationPanduit.publicRelations = true
-	stationPanduit.generalInformation = _("stationGeneralInfo-comms", "We provide optic components for various ship systems")
-	stationPanduit.stationHistory = _("stationStory-comms", "This station is an outgrowth of the Panduit corporation started in the mid 20th century on Earth in the United States")
-	return stationPanduit
-end
-
-function placeRipley()
-	--Ripley
-	stationRipley = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationRipley:setPosition(psx,psy):setCallSign("Ripley"):setDescription(_("scienceDescription-station", "Load lifters and components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationRipley] = {{"food",math.random(5,10),1},{"medicine",5,5},{"lifter",5,82}}
-		else
-			goods[stationRipley] = {{"food",math.random(5,10),1},{"lifter",5,82}}		
-			tradeMedicine[stationRipley] = true 
-		end
-	else
-		goods[stationRipley] = {{"lifter",5,82}}		
-		if random(1,100) < 17 then tradeFood[stationRipley] = true end
-		tradeMedicine[stationRipley] = true 
-	end
-	if random(1,100) < 47 then tradeLuxury[stationRipley] = true end
-	stationRipley.publicRelations = true
-	stationRipley.generalInformation = _("stationGeneralInfo-comms", "We provide load lifters and components")
-	stationRipley.stationHistory = _("stationStory-comms", "The station is named after Ellen Ripley who made creative and effective use of one of our load lifters when defending her ship")
-	return stationRipley
-end
-
-function placeRutherford()
-	--Rutherford
-	stationRutherford = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationRutherford:setPosition(psx,psy):setCallSign("Rutherford"):setDescription(_("scienceDescription-station", "Shield components and research"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationRutherford] = {{"food",math.random(5,10),1},{"medicine",5,5},{"shield",5,90}}
-		else
-			goods[stationRutherford] = {{"food",math.random(5,10),1},{"shield",5,90}}		
-			tradeMedicine[stationRutherford] = true 
-		end
-	else
-		goods[stationRutherford] = {{"shield",5,90}}		
-		tradeMedicine[stationRutherford] = true 
-	end
-	tradeMedicine[stationRutherford] = true
-	if random(1,100) < 43 then tradeLuxury[stationRutherford] = true end
-	stationRutherford.publicRelations = true
-	stationRutherford.generalInformation = _("stationGeneralInfo-comms", "We research and fabricate components for ship shield systems")
-	stationRutherford.stationHistory = _("stationStory-comms", "This station was named after the national research institution Rutherford Appleton Laboratory in the United Kingdom which conducted some preliminary research into the feasability of generating an energy shield in the late 20th century")
-	return stationRutherford
-end
-
-function placeScience7()
-	--Science 7
-	stationScience7 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationScience7:setPosition(psx,psy):setCallSign("Science-7"):setDescription(_("scienceDescription-station", "Observatory"))
-	goods[stationScience7] = {{"food",2,1}}
-	return stationScience7
-end
-
-function placeShawyer()
-	--Shawyer
-	stationShawyer = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationShawyer:setPosition(psx,psy):setCallSign("Shawyer"):setDescription(_("scienceDescription-station", "Impulse engine components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationShawyer] = {{"food",math.random(5,10),1},{"medicine",5,5},{"impulse",5,100}}
-		else
-			goods[stationShawyer] = {{"food",math.random(5,10),1},{"impulse",5,100}}		
-			tradeMedicine[stationShawyer] = true 
-		end
-	else
-		goods[stationShawyer] = {{"impulse",5,100}}		
-		tradeMedicine[stationShawyer] = true 
-	end
-	tradeLuxury[stationShawyer] = true 
-	stationShawyer.publicRelations = true
-	stationShawyer.generalInformation = _("stationGeneralInfo-comms", "We research and manufacture impulse engine components and systems")
-	stationShawyer.stationHistory =_("stationStory-comms", "The station is named after Roger Shawyer who built the first prototype impulse engine in the early 21st century")
-	return stationShawyer
-end
-
-function placeShree()
-	--Shree
-	stationShree = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationShree:setPosition(psx,psy):setCallSign("Shree"):setDescription(_("scienceDescription-station", "Repulsor and tractor beam components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationShree] = {{"food",math.random(5,10),1},{"medicine",5,5},{"tractor",5,90},{"repulsor",5,95}}
-		else
-			goods[stationShree] = {{"food",math.random(5,10),1},{"tractor",5,90},{"repulsor",5,95}}		
-			tradeMedicine[stationShree] = true 
-		end
-	else
-		goods[stationShree] = {{"tractor",5,90},{"repulsor",5,95}}		
-		tradeMedicine[stationShree] = true 
-		tradeFood[stationShree] = true 
-	end
-	tradeLuxury[stationShree] = true 
-	stationShree.publicRelations = true
-	stationShree.generalInformation = _("stationGeneralInfo-comms", "We make ship systems designed to push or pull other objects around in space")
-	stationShree.stationHistory = _("stationStory-comms", "Our station is named Shree after one of many tugboat manufacturers in the early 21st century on Earth in India. Tugboats serve a similar purpose for ocean-going vessels on earth as tractor and repulsor beams serve for space-going vessels today")
-	return stationShree
-end
-
-function placeSoong()
-	--Soong 
-	stationSoong = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationSoong:setPosition(psx,psy):setCallSign("Soong"):setDescription(_("scienceDescription-station", "Android components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationSoong] = {{"food",math.random(5,10),1},{"medicine",5,5},{"android",5,73}}
-		else
-			goods[stationSoong] = {{"food",math.random(5,10),1},{"android",5,73}}		
-		end
-	else
-		goods[stationSoong] = {{"android",5,73}}		
-		tradeFood[stationSoong] = true 
-	end
-	tradeLuxury[stationSoong] = true 
-	stationSoong.publicRelations = true
-	stationSoong.generalInformation = _("stationGeneralInfo-comms", "We create androids and android components")
-	stationSoong.stationHistory = _("stationStory-comms", "The station is named after Dr. Noonian Soong, the famous android researcher and builder")
-	return stationSoong
-end
-
-function placeTiberius()
-	--Tiberius
-	stationTiberius = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationTiberius:setPosition(psx,psy):setCallSign("Tiberius"):setDescription(_("scienceDescription-station", "Logistics coordination"))
-	goods[stationTiberius] = {{"food",5,1}}
-	stationTiberius.publicRelations = true
-	stationTiberius.generalInformation = _("stationGeneralInfo-comms", "We support the stations and ships in the area with planning and communication services")
-	stationTiberius.stationHistory = _("stationStory-comms", "We recognize the influence of Starfleet Captain James Tiberius Kirk in the 23rd century in our station name")
-	return stationTiberius
-end
-
-function placeTokra()
-	--Tokra
-	stationTokra = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationTokra:setPosition(psx,psy):setCallSign("Tokra"):setDescription(_("scienceDescription-station", "Advanced material components"))
-	whatTrade = random(1,100)
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationTokra] = {{"food",math.random(5,10),1},{"medicine",5,5},{"filament",5,42}}
-			tradeLuxury[stationTokra] = true
-		else
-			goods[stationTokra] = {{"food",math.random(5,10),1},{"filament",5,42}}	
-			if whatTrade < 50 then
-				tradeMedicine[stationTokra] = true
-			else
-				tradeLuxury[stationTokra] = true
-			end
-		end
-	else
-		goods[stationTokra] = {{"filament",5,42}}		
-		if whatTrade < 33 then
-			tradeFood[stationTokra] = true
-		elseif whatTrade > 66 then
-			tradeMedicine[stationTokra] = true
-		else
-			tradeLuxury[stationTokra] = true
-		end
-	end
-	stationTokra.publicRelations = true
-	stationTokra.generalInformation = _("stationGeneralInfo-comms", "We create multiple types of advanced material components. Our most popular products are our filaments")
-	stationTokra.stationHistory = _("stationStory-comms", "We learned several of our critical industrial processes from the Tokra race, so we honor our fortune by naming the station after them")
-	return stationTokra
-end
-
-function placeToohie()
-	--Toohie
-	stationToohie = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationToohie:setPosition(psx,psy):setCallSign("Toohie"):setDescription(_("scienceDescription-station", "Shield and armor components and research"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationToohie] = {{"food",math.random(5,10),1},{"medicine",5,5},{"shield",5,90}}
-		else
-			goods[stationToohie] = {{"food",math.random(5,10),1},{"shield",5,90}}		
-			if random(1,100) < 25 then tradeMedicine[stationToohie] = true end
-		end
-	else
-		goods[stationToohie] = {{"shield",5,90}}		
-		if random(1,100) < 25 then tradeMedicine[stationToohie] = true end
-	end
-	tradeLuxury[stationToohie] = true
-	stationToohie.publicRelations = true
-	stationToohie.generalInformation = _("stationGeneralInfo-comms", "We research and make general and specialized components for ship shield and ship armor systems")
-	stationToohie.stationHistory = _("stationStory-comms", "This station was named after one of the earliest researchers in shield technology, Alexander Toohie back when it was considered impractical to construct shields due to the physics involved.")
-	return stationToohie
-end
-
-function placeUtopiaPlanitia()
-	--Utopia Planitia
-	stationUtopiaPlanitia = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationUtopiaPlanitia:setPosition(psx,psy):setCallSign("Utopia Planitia"):setDescription(_("scienceDescription-station", "Ship building and maintenance facility"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationUtopiaPlanitia] = {{"food",math.random(5,10),1},{"medicine",5,5},{"warp",5,167}}
-		else
-			goods[stationUtopiaPlanitia] = {{"food",math.random(5,10),1},{"warp",5,167}}
-		end
-	else
-		goods[stationUtopiaPlanitia] = {{"warp",5,167}}
-	end
-	stationUtopiaPlanitia.publicRelations = true
-	stationUtopiaPlanitia.generalInformation = _("stationGeneralInfo-comms", "We work on all aspects of naval ship building and maintenance. Many of the naval models are researched, designed and built right here on this station. Our design goals seek to make the space faring experience as simple as possible given the tremendous capabilities of the modern naval vessel")
-	return stationUtopiaPlanitia
-end
-
-function placeVactel()
-	--Vactel
-	stationVactel = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationVactel:setPosition(psx,psy):setCallSign("Vactel"):setDescription(_("scienceDescription-station", "Shielded Circuitry Fabrication"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationVactel] = {{"food",math.random(5,10),1},{"medicine",5,5},{"circuit",5,50}}
-		else
-			goods[stationVactel] = {{"food",math.random(5,10),1},{"circuit",5,50}}		
-		end
-	else
-		goods[stationVactel] = {{"circuit",5,50}}		
-	end
-	stationVactel.publicRelations = true
-	stationVactel.generalInformation = _("stationGeneralInfo-comms", "We specialize in circuitry shielded from external hacking suitable for ship systems")
-	stationVactel.stationHistory = _("stationStory-comms", "We started as an expansion from the lunar based chip manufacturer of Earth legacy Intel electronic chips")
-	return stationVactel
-end
-
-function placeVeloquan()
-	--Veloquan
-	stationVeloquan = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationVeloquan:setPosition(psx,psy):setCallSign("Veloquan"):setDescription(_("scienceDescription-station", "Sensor components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationVeloquan] = {{"food",math.random(5,10),1},{"medicine",5,5},{"sensor",5,68}}
-		else
-			goods[stationVeloquan] = {{"food",math.random(5,10),1},{"sensor",5,68}}		
-			tradeMedicine[stationVeloquan] = true 
-		end
-	else
-		goods[stationVeloquan] = {{"sensor",5,68}}		
-		tradeMedicine[stationVeloquan] = true 
-		tradeFood[stationVeloquan] = true 
-	end
-	stationVeloquan.publicRelations = true
-	stationVeloquan.generalInformation = _("stationGeneralInfo-comms", "We research and construct components for the most powerful and accurate sensors used aboard ships along with the software to make them easy to use")
-	stationVeloquan.stationHistory = _("stationStory-comms", "The Veloquan company has its roots in the manufacturing of LIDAR sensors in the early 21st century on Earth in the United States for autonomous ground-based vehicles. They expanded research and manufacturing operations to include various sensors for space vehicles. Veloquan was the result of numerous mergers and acquisitions of several companies including Velodyne and Quanergy")
-	return stationVeloquan
-end
-
-function placeZefram()
-	--Zefram
-	stationZefram = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationZefram:setPosition(psx,psy):setCallSign("Zefram"):setDescription(_("scienceDescription-station", "Warp engine components"))
-	if stationFaction == "Human Navy" then
-		if random(1,5) <= 1 then
-			goods[stationZefram] = {{"food",math.random(5,10),1},{"medicine",5,5},{"warp",5,140}}
-		else
-			goods[stationZefram] = {{"food",math.random(5,10),1},{"warp",5,140}}		
-			if random(1,100) < 27 then tradeMedicine[stationZefram] = true end
-		end
-	else
-		goods[stationZefram] = {{"warp",5,140}}		
-		if random(1,100) < 27 then tradeMedicine[stationZefram] = true end
-		if random(1,100) < 16 then tradeFood[stationZefram] = true end
-	end
-	tradeLuxury[stationZefram] = true
-	stationZefram.publicRelations = true
-	stationZefram.generalInformation = _("stationGeneralInfo-comms", "We specialize in the esoteric components necessary to make warp drives function properly")
-	stationZefram.stationHistory = _("stationStory-comms", "Zefram Cochrane constructed the first warp drive in human history. We named our station after him because of the specialized warp systems work we do")
-	return stationZefram
-end
---[[-------------------------------------------------------------------
-	Generic stations to be placed
---]]-------------------------------------------------------------------
-function placeJabba()
-	--Jabba
-	stationJabba = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationJabba:setPosition(psx,psy):setCallSign("Jabba"):setDescription(_("scienceDescription-station", "Commerce and gambling"))
-	stationJabba.publicRelations = true
-	stationJabba.generalInformation = _("stationGeneralInfo-comms", "Come play some games and shop. House take does not exceed 4 percent")
-	return stationJabba
-end
-
-function placeKrik()
-	--Krik
-	stationKrik = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationKrik:setPosition(psx,psy):setCallSign("Krik"):setDescription(_("scienceDescription-station", "Mining station"))
-	posAxisKrik = random(0,360)
-	posKrik = random(30000,80000)
-	negKrik = random(20000,60000)
-	spreadKrik = random(5000,8000)
-	negAxisKrik = posAxisKrik + 180
-	xPosAngleKrik, yPosAngleKrik = vectorFromAngle(posAxisKrik, posKrik)
-	posKrikEnd = random(40,90)
-	createRandomAlongArc(Asteroid, 30+posKrikEnd, psx+xPosAngleKrik, psy+yPosAngleKrik, posKrik, negAxisKrik, negAxisKrik+posKrikEnd, spreadKrik)
-	xNegAngleKrik, yNegAngleKrik = vectorFromAngle(negAxisKrik, negKrik)
-	negKrikEnd = random(30,60)
-	createRandomAlongArc(Asteroid, 30+negKrikEnd, psx+xNegAngleKrik, psy+yNegAngleKrik, negKrik, posAxisKrik, posAxisKrik+negKrikEnd, spreadKrik)
-	tradeFood[stationKrik] = true
-	if random(1,100) < 50 then tradeLuxury[stationKrik] = true end
-	tradeMedicine[stationKrik] = true
-	krikGoods = random(1,100)
-	if krikGoods < 10 then
-		goods[stationKrik] = {{"nickel",5,20},{"platinum",5,70},{"tritanium",5,50},{"dilithium",5,50}}
-	elseif krikGoods < 20 then
-		goods[stationKrik] = {{"nickel",5,20},{"platinum",5,70},{"tritanium",5,50}}
-	elseif krikGoods < 30 then
-		goods[stationKrik] = {{"nickel",5,20},{"platinum",5,70},{"dilithium",5,50}}
-	elseif krikGoods < 40 then
-		goods[stationKrik] = {{"nickel",5,20},{"tritanium",5,50},{"dilithium",5,50}}
-	elseif krikGoods < 50 then
-		goods[stationKrik] = {{"nickel",5,20},{"dilithium",5,50}}
-	elseif krikGoods < 60 then
-		goods[stationKrik] = {{"nickel",5,20},{"platinum",5,70}}
-	elseif krikGoods < 70 then
-		goods[stationKrik] = {{"nickel",5,20},{"tritanium",5,50}}
-	elseif krikGoods < 80 then
-		goods[stationKrik] = {{"platinum",5,70},{"tritanium",5,50},{"dilithium",5,50}}
-	else
-		goods[stationKrik] = {{"nickel",5,20}}
-	end
-	return stationKrik
-end
-
-function placeLando()
-	--Lando
-	stationLando = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationLando:setPosition(psx,psy):setCallSign("Lando"):setDescription(_("scienceDescription-station", "Casino and Gambling"))
-	return stationLando
-end
-
-function placeMaverick()
-	--Maverick
-	stationMaverick = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationMaverick:setPosition(psx,psy):setCallSign("Maverick"):setDescription(_("scienceDescription-station", "Gambling and resupply"))
-	stationMaverick.publicRelations = true
-	stationMaverick.generalInformation = _("stationGeneralInfo-comms", "Relax and meet some interesting players")
-	return stationMaverick
-end
-
-function placeNefatha()
-	--Nefatha
-	stationNefatha = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationNefatha:setPosition(psx,psy):setCallSign("Nefatha"):setDescription(_("scienceDescription-station", "Commerce and recreation"))
-	goods[stationNefatha] = {{"luxury",5,70}}
-	return stationNefatha
-end
-
-function placeOkun()
-	--Okun
-	stationOkun = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOkun:setPosition(psx,psy):setCallSign("Okun"):setDescription(_("scienceDescription-station", "Xenopsychology research"))
-	return stationOkun
-end
-
-function placeOutpost7()
-	--Outpost 7
-	stationOutpost7 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOutpost7:setPosition(psx,psy):setCallSign("Outpost-7"):setDescription(_("scienceDescription-station", "Resupply"))
-	goods[stationOutpost7] = {{"luxury",5,80}}
-	return stationOutpost7
-end
-
-function placeOutpost8()
-	--Outpost 8
-	stationOutpost8 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOutpost8:setPosition(psx,psy):setCallSign("Outpost-8")
-	return stationOutpost8
-end
-
-function placeOutpost33()
-	--Outpost 33
-	stationOutpost33 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationOutpost33:setPosition(psx,psy):setCallSign("Outpost-33"):setDescription(_("scienceDescription-station", "Resupply"))
-	goods[stationOutpost33] = {{"luxury",5,75}}
-	return stationOutpost33
-end
-
-function placePrada()
-	--Prada
-	stationPrada = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationPrada:setPosition(psx,psy):setCallSign("Prada"):setDescription(_("scienceDescription-station", "Textiles and fashion"))
-	return stationPrada
-end
-
-function placeResearch11()
-	--Research-11
-	stationResearch11 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationResearch11:setPosition(psx,psy):setCallSign("Research-11"):setDescription(_("scienceDescription-station", "Stress Psychology Research"))
-	return stationResearch11
-end
-
-function placeResearch19()
-	--Research-19
-	stationResearch19 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationResearch19:setPosition(psx,psy):setCallSign("Research-19"):setDescription(_("scienceDescription-station", "Low gravity research"))
-	return stationResearch19
-end
-
-function placeRubis()
-	--Rubis
-	stationRubis = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationRubis:setPosition(psx,psy):setCallSign("Rubis"):setDescription(_("scienceDescription-station", "Resupply"))
-	goods[stationRubis] = {{"luxury",5,76}}
-	stationRubis.publicRelations = true
-	stationRubis.generalInformation = _("stationGeneralInfo-comms", "Get your energy here! Grab a drink before you go!")
-	return stationRubis
-end
-
-function placeScience2()
-	--Science 2
-	stationScience2 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationScience2:setPosition(psx,psy):setCallSign("Science-2"):setDescription(_("scienceDescription-station", "Research Lab and Observatory"))
-	return stationScience2
-end
-
-function placeScience4()
-	--Science 4
-	stationScience4 = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationScience4:setPosition(psx,psy):setCallSign("Science-4"):setDescription(_("scienceDescription-station", "Biotech research"))
-	return stationScience4
-end
-
-function placeSkandar()
-	--Skandar
-	stationSkandar = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationSkandar:setPosition(psx,psy):setCallSign("Skandar"):setDescription(_("scienceDescription-station", "Routine maintenance and entertainment"))
-	goods[stationSkandar] = {{"luxury",5,87}}
-	stationSkandar.publicRelations = true
-	stationSkandar.generalInformation = _("stationGeneralInfo-comms", "Stop by for repairs. Take in one of our juggling shows featuring the four-armed Skandars")
-	stationSkandar.stationHistory = _("stationStory-comms", "The nomadic Skandars have set up at this station to practice their entertainment and maintenance skills as well as build a community where Skandars can relax")
-	return stationSkandar
-end
-
-function placeSpot()
-	--Spot
-	stationSpot = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationSpot:setPosition(psx,psy):setCallSign("Spot"):setDescription(_("scienceDescription-station", "Observatory"))
-	return stationSpot
-end
-
-function placeStarnet()
-	--Starnet 
-	stationStarnet = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationStarnet:setPosition(psx,psy):setCallSign("Starnet"):setDescription(_("scienceDescription-station", "Automated weapons systems"))
-	stationStarnet.publicRelations = true
-	stationStarnet.generalInformation = _("stationGeneralInfo-comms", "We research and create automated weapons systems to improve ship combat capability")
-	return stationStarnet
-end
-
-function placeTandon()
-	--Tandon
-	stationTandon = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationTandon:setPosition(psx,psy):setCallSign("Tandon"):setDescription(_("scienceDescription-station", "Biotechnology research"))
-	return stationTandon
-end
-
-function placeVaiken()
-	--Vaiken
-	stationVaiken = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationVaiken:setPosition(psx,psy):setCallSign("Vaiken"):setDescription(_("scienceDescription-station", "Ship building and maintenance facility"))
-	goods[stationVaiken] = {{"food",10,1},{"medicine",5,5}}
-	return stationVaiken
-end
-
-function placeValero()
-	--Valero
-	stationValero = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationValero:setPosition(psx,psy):setCallSign("Valero"):setDescription(_("scienceDescription-station", "Resupply"))
-	goods[stationValero] = {{"luxury",5,77}}
-	return stationValero
-end
---[[-------------------------------------------------------------------
-	Enemy stations to be placed
---]]-------------------------------------------------------------------
-function placeAramanth()
-	--Aramanth
-	stationAramanth = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Aramanth"):setPosition(psx,psy)
-	return stationAramanth
-end
-
-function placeEmpok()
-	--Empok Nor
-	stationEmpok = SpaceStation():setTemplate(szt()):setFaction(stationFaction)
-	stationEmpok:setPosition(psx,psy):setCallSign("Empok Nor")
-	return stationEmpok
-end
-
-function placeGandala()
-	--Gandala
-	stationGanalda = SpaceStation():setTemplate(szt()):setFaction(stationFaction)
-	stationGanalda:setPosition(psx,psy):setCallSign("Ganalda")
-	return stationGanalda
-end
-
-function placeHassenstadt()
-	--Hassenstadt
-	stationHassenstadt = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Hassenstadt"):setPosition(psx,psy)
-	return stationHassenstadt
-end
-
-function placeKaldor()
-	--Kaldor
-	stationKaldor = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Kaldor"):setPosition(psx,psy)
-	return stationKaldor
-end
-
-function placeMagMesra()
-	--Magenta Mesra
-	stationMagMesra = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Magenta Mesra"):setPosition(psx,psy)
-	return stationMagMesra
-end
-
-function placeMosEisley()
-	--Mos Eisley
-	stationMosEisley = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Mos Eisley"):setPosition(psx,psy)
-	return stationMosEisley
-end
-
-function placeQuestaVerde()
-	--Questa Verde
-	stationQuestaVerde = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Questa Verde"):setPosition(psx,psy)
-	return stationQuestaVerde
-end
-
-function placeRlyeh()
-	--R'lyeh
-	stationRlyeh = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("R'lyeh"):setPosition(psx,psy)
-	return stationRlyeh
-end
-
-function placeScarletCit()
-	--Scarlet Citadel
-	stationScarletCitadel = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCommsScript(""):setCommsFunction(commsStation)
-	stationScarletCitadel:setPosition(psx,psy):setCallSign("Scarlet Citadel")
-	return stationScarletCitadel
-end
-
-function placeStahlstadt()
-	--Stahlstadt
-	stationStahlstadt = SpaceStation():setTemplate(szt()):setFaction(stationFaction):setCallSign("Stahlstadt"):setPosition(psx,psy)
-	return stationStahlstadt
-end
-
-function placeTic()
-	--Ticonderoga
-	stationTic = SpaceStation():setTemplate(szt()):setFaction(stationFaction)
-	stationTic:setPosition(psx,psy):setCallSign("Ticonderoga")
-	return stationTic
-end
---[[-----------------------------------------------------------------
-    Transport ship generation and handling 
------------------------------------------------------------------]]--
+--	Transport ship generation and handling 
 function nearStations(station, compareStationList)
 	remainingStations = {}
 	if compareStationList[1]:isValid() then
@@ -2108,7 +376,6 @@ function nearStations(station, compareStationList)
 	end
 	return closest, remainingStations
 end
-
 function randomNearStation5(nobj)
 	distanceStations = {}
 	cs, rs1 = nearStations(nobj,stationList)
@@ -2123,7 +390,6 @@ function randomNearStation5(nobj)
 	table.insert(distanceStations,cs)
 	return distanceStations[irandom(1,5)]
 end
-
 function transportPlot(delta)
 	if transportSpawnDelay > 0 then
 		transportSpawnDelay = transportSpawnDelay - delta
@@ -2198,9 +464,7 @@ function transportPlot(delta)
 		end
 	end
 end
---[[-----------------------------------------------------------------
-    Station communication 
------------------------------------------------------------------]]--
+--	Station communication 
 function commsStation()
     if comms_target.comms_data == nil then
         comms_target.comms_data = {}
@@ -2262,7 +526,6 @@ function commsStation()
     end
     return true
 end
-
 function handleDockedState()
     if player:isFriendly(comms_target) then
 		oMsg = _("station-comms", "Good day, officer!\nWhat can we do for you today?\n")
@@ -2730,7 +993,6 @@ function handleDockedState()
 		end
 	end
 end
-
 function setOptionalOrders()
 	optionalOrders = ""
 	optionalOrdersPresent = false
@@ -2800,7 +1062,6 @@ function setOptionalOrders()
 		end
 	end
 end
-
 function isAllowedTo(state)
     if state == "friend" and player:isFriendly(comms_target) then
         return true
@@ -2810,7 +1071,6 @@ function isAllowedTo(state)
     end
     return false
 end
-
 function handleWeaponRestock(weapon)
     if not player:isDocked(comms_target) then 
 		setCommsMessage(_("station-comms", "You need to stay docked for that action."))
@@ -2845,11 +1105,9 @@ function handleWeaponRestock(weapon)
         addCommsReply(_("Back"), commsStation)
     end
 end
-
 function getWeaponCost(weapon)
     return math.ceil(comms_data.weapon_cost[weapon] * comms_data.reputation_cost_multipliers[getFriendStatus()])
 end
-
 function handleUndockedState()
     --Handle communications when we are not docked with the station.
     if player:isFriendly(comms_target) then
@@ -3191,13 +1449,11 @@ function handleUndockedState()
         end)
     end
 end
-
+function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
 -- the current player.
-function getServiceCost(service)
     return math.ceil(comms_data.service_cost[service])
 end
-
 function fillStationBrains()
 	comms_target.goodsKnowledge = {}
 	comms_target.goodsKnowledgeSector = {}
@@ -3248,7 +1504,6 @@ function fillStationBrains()
 		end
 	end
 end
-
 function getFriendStatus()
     if player:isFriendly(comms_target) then
         return "friend"
@@ -3256,9 +1511,7 @@ function getFriendStatus()
         return "neutral"
     end
 end
---[[-----------------------------------------------------------------
-      Ship communication 
------------------------------------------------------------------]]--
+--	Ship communication 
 function commsShip()
 	if comms_target.comms_data == nil then
 		comms_target.comms_data = {friendlyness = random(0.0, 100.0)}
@@ -3284,7 +1537,6 @@ function commsShip()
 	end
 	return neutralComms(comms_data)
 end
-
 function friendlyComms(comms_data)
 	if comms_data.friendlyness < 20 then
 		setCommsMessage(_("shipAssist-comms", "What do you want?"));
@@ -3348,7 +1600,6 @@ function friendlyComms(comms_data)
 	end
 	return true
 end
-
 function enemyComms(comms_data)
 	if comms_data.friendlyness > 50 then
 		faction = comms_target:getFaction()
@@ -3387,7 +1638,6 @@ function enemyComms(comms_data)
 	end
 	return false
 end
-
 function neutralComms(comms_data)
 	shipType = comms_target:getTypeName()
 	if shipType:find("Freighter") ~= nil then
@@ -3567,9 +1817,7 @@ function neutralComms(comms_data)
 	end
 	return true
 end
---[[-----------------------------------------------------------------
-      Cargo management 
------------------------------------------------------------------]]--
+--	Cargo management 
 function incrementPlayerGoods(goodsType)
 	local gi = 1
 	repeat
@@ -3579,7 +1827,6 @@ function incrementPlayerGoods(goodsType)
 		gi = gi + 1
 	until(gi > #goods[player])
 end
-
 function decrementPlayerGoods(goodsType)
 	local gi = 1
 	repeat
@@ -3589,7 +1836,6 @@ function decrementPlayerGoods(goodsType)
 		gi = gi + 1
 	until(gi > #goods[player])
 end
-
 function decrementStationGoods(goodsType)
 	local gi = 1
 	repeat
@@ -3599,7 +1845,6 @@ function decrementStationGoods(goodsType)
 		gi = gi + 1
 	until(gi > #goods[comms_target])
 end
-
 function decrementShipGoods(goodsType)
 	local gi = 1
 	repeat
@@ -3810,7 +2055,6 @@ function setPlayers()
 	end
 	setConcurrenetPlayerCount = concurrentPlayerCount
 end
-
 function healthCheck(delta)
 	healthCheckTimer = healthCheckTimer - delta
 	if healthCheckTimer < 0 then
@@ -3876,7 +2120,6 @@ function healthCheck(delta)
 		healthCheckTimer = delta + healthCheckTimerInterval
 	end
 end
-
 function crewFate(p, fatalityChance)
 	if math.random() < (fatalityChance) then
 		p:setRepairCrewCount(p:getRepairCrewCount() - 1)
@@ -3890,7 +2133,6 @@ function crewFate(p, fatalityChance)
 		end
 	end
 end
-
 function initialInstructions(delta)
 	plot1name = "initialInstructions"
 	initialOrderTimer = initialOrderTimer - delta
@@ -3904,7 +2146,6 @@ function initialInstructions(delta)
 		plot2name = "waves"
 	end
 end
-
 function checkGaps(delta)
 	gapCheckDelayTimer = gapCheckDelayTimer - delta
 	if gapCheckDelayTimer < 0 then
@@ -4328,7 +2569,6 @@ function waves(delta)
 		end
 	end
 end
-
 function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction)
 	if enemyFaction == nil then
 		enemyFaction = "Kraylor"
@@ -4381,7 +2621,6 @@ function playerPower()
 		return playerShipScore
 	end
 end
-
 function update(delta)
 	if delta == 0 then
 		--game paused
