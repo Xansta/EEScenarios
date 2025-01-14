@@ -31,84 +31,80 @@ require("utils.lua")
 require("place_station_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.2"
+	scenario_version = "2.0.3"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Close the Gaps    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
 	end
 	setVariations()
+	setConstants()
+	setGlobals()
+	mainGMButtons()
+	buildStations()
+	spawnPlayer()
+	plot1 = initialInstructions
+	initialOrderTimer = 3
+	buildAsteroids()
+	if not diagnostic then
+		createRandomAlongArc(Nebula, difficulty*10, 50000, 50000, 70000, 180, 270, 35000)
+	end
+	wfv = "end of init"
+end
+function setConstants()
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
 	--Ship Template Score List
 	stsl = {5            ,5            ,7          ,6          ,7            ,8          ,15         ,16         ,15          ,15           ,25       ,20           ,25          ,25          ,50            ,70             ,250   ,6        ,18       ,14               ,30          ,27            ,80           ,100            ,65               ,6                ,45               ,40              ,4              ,48              ,8              ,50                 ,22}
-	--Player Ship Beams
-	psb = {}
-	psb["MP52 Hornet"] = 2
-	psb["Phobos M3P"] = 2
-	psb["Flavia P.Falcon"] = 2
-	psb["Atlantis"] = 2
-	psb["Player Cruiser"] = 2
-	psb["Player Fighter"] = 2
-	psb["Striker"] = 2
-	psb["ZX-Lindworm"] = 1
-	psb["Ender"] = 12
-	psb["Repulse"] = 2
-	psb["Benedict"] = 2
-	psb["Kiriya"] = 2
-	psb["Nautilus"] = 2
-	psb["Hathcock"] = 4
 	-- square grid deployment
 	fleetPosDelta1x = {0,1,0,-1, 0,1,-1, 1,-1,2,0,-2, 0,2,-2, 2,-2,2, 2,-2,-2,1,-1, 1,-1,0, 0,3,-3,1, 1,3,-3,-1,-1, 3,-3,2, 2,3,-3,-2,-2, 3,-3,3, 3,-3,-3,4,0,-4, 0,4,-4, 4,-4,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,5,-5,0, 0,5, 5,-5,-5,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4}
 	fleetPosDelta1y = {0,0,1, 0,-1,1,-1,-1, 1,0,2, 0,-2,2,-2,-2, 2,1,-1, 1,-1,2, 2,-2,-2,3,-3,0, 0,3,-3,1, 1, 3,-3,-1,-1,3,-3,2, 2, 3,-3,-2,-2,3,-3, 3,-3,0,4, 0,-4,4,-4,-4, 4, 1,-1, 2,-2, 3,-3,1,-1,2,-2,3,-3,-4,-4,-4,-4,-4,-4,4, 4,4, 4,4, 4,0, 0,5,-5,5,-5, 5,-5, 1,-1, 2,-2, 3,-3, 4,-4,1,-1,2,-2,3,-3,4,-4,-5,-5,-5,-5,-5,-5,-5,-5,5, 5,5, 5,5, 5,5, 5}
 	-- rough hexagonal deployment
 	fleetPosDelta2x = {0,2,-2,1,-1, 1,-1,4,-4,0, 0,2,-2,-2, 2,3,-3, 3,-3,6,-6,1,-1, 1,-1,3,-3, 3,-3,4,-4, 4,-4,5,-5, 5,-5,8,-8,4,-4, 4,-4,5,5 ,-5,-5,2, 2,-2,-2,0, 0,6, 6,-6,-6,7, 7,-7,-7,10,-10,5, 5,-5,-5,6, 6,-6,-6,7, 7,-7,-7,8, 8,-8,-8,9, 9,-9,-9,3, 3,-3,-3,1, 1,-1,-1,12,-12,6,-6, 6,-6,7,-7, 7,-7,8,-8, 8,-8,9,-9, 9,-9,10,-10,10,-10,11,-11,11,-11,4,-4, 4,-4,2,-2, 2,-2,0, 0}
 	fleetPosDelta2y = {0,0, 0,1, 1,-1,-1,0, 0,2,-2,2,-2, 2,-2,1,-1,-1, 1,0, 0,3, 3,-3,-3,3,-3,-3, 3,2,-2,-2, 2,1,-1,-1, 1,0, 0,4,-4,-4, 4,3,-3, 3,-3,4,-4, 4,-4,4,-4,2,-2, 2,-2,1,-1, 1,-1, 0,  0,5,-5, 5,-5,4,-4, 4,-4,3,-3, 3,-7,2,-2, 2,-2,1,-1, 1,-1,5,-5, 5,-5,5,-5, 5,-5, 0,  0,6, 6,-6,-6,5, 5,-5,-5,4, 4,-4,-4,3, 3,-3,-3, 2,  2,-2, -2, 1,  1,-1, -1,6, 6,-6,-6,6, 6,-6,-6,6,-6}
+end
+function setGlobals()
 	--list of goods available to buy, sell or trade (sell still under development)
-	goodsList = {	{"food",0},
-					{"medicine",0},
-					{"nickel",0},
-					{"platinum",0},
-					{"gold",0},
-					{"dilithium",0},
-					{"tritanium",0},
-					{"luxury",0},
-					{"cobalt",0},
-					{"impulse",0},
-					{"warp",0},
-					{"shield",0},
-					{"tractor",0},
-					{"repulsor",0},
-					{"beam",0},
-					{"optic",0},
-					{"robotic",0},
-					{"filament",0},
-					{"transporter",0},
-					{"sensor",0},
-					{"communication",0},
-					{"autodoc",0},
-					{"lifter",0},
-					{"android",0},
-					{"nanites",0},
-					{"software",0},
-					{"circuit",0},
-					{"battery",0}	}
-	diagnostic = false		
-	spawnStrings = {}
-	GMDiagnosticOn = _("buttonGM", "Turn On Diagnostic")
-	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
+	goodsList = {	
+		{"food",0},
+		{"medicine",0},
+		{"nickel",0},
+		{"platinum",0},
+		{"gold",0},
+		{"dilithium",0},
+		{"tritanium",0},
+		{"luxury",0},
+		{"cobalt",0},
+		{"impulse",0},
+		{"warp",0},
+		{"shield",0},
+		{"tractor",0},
+		{"repulsor",0},
+		{"beam",0},
+		{"optic",0},
+		{"robotic",0},
+		{"filament",0},
+		{"transporter",0},
+		{"sensor",0},
+		{"communication",0},
+		{"autodoc",0},
+		{"lifter",0},
+		{"android",0},
+		{"nanites",0},
+		{"software",0},
+		{"circuit",0},
+		{"battery",0}	
+	}
+	diagnostic = false
+	interwave_delay_name = _("buttonGM","Normal")
 	interWave = 150
-	GMDelayNormalToSlow = _("buttonGM", "Delay normal to slow")
-	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
 	goods = {}					--overall tracking of goods
 	stationList = {}			--friendly and neutral stations
 	enemyStationList = {}
 	tradeFood = {}				--stations that will trade food for other goods
 	tradeLuxury = {}			--stations that will trade luxury for other goods
 	tradeMedicine = {}			--stations that will trade medicine for other goods
-	--array of functions to facilitate randomized station placement (friendly and neutral)
-	buildStations()
 	--Player ship name lists to supplant standard randomized call sign generation
 	playerShipNamesForMP52Hornet = {"Dragonfly","Scarab","Mantis","Yellow Jacket","Jimminy","Flik","Thorny","Buzz"}
 	playerShipNamesForPiranha = {"Razor","Biter","Ripper","Voracious","Carnivorous","Characid","Vulture","Predator"}
@@ -132,62 +128,8 @@ function init()
 	optionalOrders = ""
 	transportList = {}
 	transportSpawnDelay = 10
-	plotT = transportPlot
-	plotH = healthCheck
 	healthCheckTimer = 5
 	healthCheckTimerInterval = 5
-	px, py = vectorFromAngle(random(0,360),random(2500,3000))
-	player = PlayerSpaceship():setFaction("Human Navy"):setTemplate("Nautilus"):setPosition(px,py)
-	ni = math.random(1,#playerShipNamesForNautilus)
-	player:setCallSign(playerShipNamesForNautilus[ni])
-	table.remove(playerShipNamesForNautilus,ni)
-	player.nameAssigned = true
-	player.shipScore = 12
-	player.maxCargo = 7
-	player.cargo = 7
-	player.maxRepairCrew = player:getRepairCrewCount()
-	player.healthyShield = 1.0
-	player.prevShield = 1.0
-	player.healthyReactor = 1.0
-	player.prevReactor = 1.0
-	player.healthyManeuver = 1.0
-	player.prevManeuver = 1.0
-	player.healthyImpulse = 1.0
-	player.prevImpulse = 1.0
-	player.healthyBeam = 1.0
-	player.prevBeam = 1.0
-	player.healthyMissile = 1.0
-	player.prevMissile = 1.0
-	player.healthyJump = 1.0
-	player.prevJump = 1.0
-	player.healthyWarp = 1.0
-	player.prevWarp = 1.0
-	goods[player] = goodsList
-	player:addReputationPoints(100)
-	player.initialRep = true
-	plot1 = initialInstructions
-	initialOrderTimer = 3
-	lowerDensity = 70
-	upperDensity = 150
-	thickness = 2000
-	--Arcs
-	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000,   5,  85, thickness)
-	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000,  95, 175, thickness)
-	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000, 185, 265, thickness)
-	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000, 275, 355, thickness)
-	--Bulges
-	ax, ay = vectorFromAngle(random(20,70),20000)
-	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
-	ax, ay = vectorFromAngle(random(110,160),20000)
-	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
-	ax, ay = vectorFromAngle(random(200,250),20000)
-	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
-	ax, ay = vectorFromAngle(random(290,340),20000)
-	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
-	--color
-	if not diagnostic then
-		createRandomAlongArc(Nebula, difficulty*10, 50000, 50000, 70000, 180, 270, 35000)
-	end
 	northMineCount = -1
 	southMineCount = -1
 	eastMineCount = -1
@@ -204,44 +146,53 @@ function init()
 	southMet = false
 	eastMet = false
 	westMet = false
-	wfv = "end of init"
 end
-function turnOnDiagnostic()
--- Diagnostic enable/disable buttons on GM screen
-	diagnostic = true
-	removeGMFunction(GMDiagnosticOn)
-	GMDiagnosticOff = _("buttonGM", "Turn Off Diagnostic")
-	addGMFunction(GMDiagnosticOff,turnOffDiagnostic)
+function mainGMButtons()
+	clearGMFunctions()
+	addGMFunction(string.format(_("buttonGM","Diagnostic %s"),diagnostic),function()
+		if diagnostic then
+			diagnostic = false
+			mainGMButtons()
+		else
+			diagnostic = true
+			mainGMButtons()
+		end
+	end)
+	addGMFunction(string.format(_("buttonGM","+Delay %s"),interwave_delay_name),setDelay)
 end
-function turnOffDiagnostic()
-	diagnostic = false
-	removeGMFunction(GMDiagnosticOff)
-	GMDiagnosticOn = _("buttonGM", "Turn On Diagnostic")
-	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
-end
-------- In game GM buttons to change the delay between waves -------
--- Default is normal, so the fist button switches from a normal delay to a slow delay.
--- The slow delay is used for typical mission testing when the tester does not wish to
--- spend all their time fighting off enemies.
--- The second button switches from slow to fast. This facilitates testing the enemy
--- spawning routines. The third button goes from fast to normal. 
-function delayNormalToSlow()
-	interWave = 600
-	removeGMFunction(GMDelayNormalToSlow)
-	GMDelaySlowToFast = _("buttonGM", "Delay slow to fast")
-	addGMFunction(GMDelaySlowToFast,delaySlowToFast)
-end
-function delaySlowToFast()
-	interWave = 20
-	removeGMFunction(GMDelaySlowToFast)
-	GMDelayFastToNormal = _("buttonGM", "Delay fast to normal")
-	addGMFunction(GMDelayFastToNormal,delayFastToNormal)
-end
-function delayFastToNormal()
-	interWave = 150
-	removeGMFunction(GMDelayFastToNormal)
-	GMDelayNormalToSlow = _("buttonGM", "Delay normal to slow")
-	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
+function setDelay()
+	clearGMFunctions()
+	addGMFunction(_("buttonGM","-Main from delay"),mainGMButtons)
+	--Slow is used for testing when the tester does not want constant enemy ships spawned while testing
+	local button_label = _("buttonGM","Slow")
+	if interwave_delay_name == _("buttonGM","Slow") then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		interwave_delay_name = _("buttonGM","Slow")
+		interWave = 600
+		setDelay()
+	end)
+	--Normal is the normal amount of time between enemy ship spawns
+	button_label = _("buttonGM","Normal")
+	if interwave_delay_name == _("buttonGM","Normal") then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		interwave_delay_name = _("buttonGM","Normal")
+		interWave = 150
+		setDelay()
+	end)
+	--Fast is for testing of the enemy ship spawn routine
+	button_label = _("buttonGM","Fast")
+	if interwave_delay_name == _("buttonGM","Fast") then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		interwave_delay_name = _("buttonGM","Fast")
+		interWave = 20
+		setDelay()
+	end)
 end
 function setVariations()
 	local enemy_config = {
@@ -344,6 +295,57 @@ function buildStations()
 	for i,ship in ipairs(fleet) do
 		ship:orderDefendTarget(placed_station)
 	end
+end
+function spawnPlayer()
+	local px, py = vectorFromAngle(random(0,360),random(2500,3000))
+	player = PlayerSpaceship():setFaction("Human Navy"):setTemplate("Nautilus"):setPosition(px,py)
+	ni = math.random(1,#playerShipNamesForNautilus)
+	player:setCallSign(playerShipNamesForNautilus[ni])
+	table.remove(playerShipNamesForNautilus,ni)
+	player.nameAssigned = true
+	player.shipScore = 12
+	player.maxCargo = 7
+	player.cargo = 7
+	player.maxRepairCrew = player:getRepairCrewCount()
+	player.healthyShield = 1.0
+	player.prevShield = 1.0
+	player.healthyReactor = 1.0
+	player.prevReactor = 1.0
+	player.healthyManeuver = 1.0
+	player.prevManeuver = 1.0
+	player.healthyImpulse = 1.0
+	player.prevImpulse = 1.0
+	player.healthyBeam = 1.0
+	player.prevBeam = 1.0
+	player.healthyMissile = 1.0
+	player.prevMissile = 1.0
+	player.healthyJump = 1.0
+	player.prevJump = 1.0
+	player.healthyWarp = 1.0
+	player.prevWarp = 1.0
+	goods[player] = goodsList
+	player:addReputationPoints(100)
+	player.initialRep = true
+	allowNewPlayerShips(false)
+end
+function buildAsteroids()
+	local lowerDensity = 70
+	local upperDensity = 150
+	local thickness = 2000
+	--Arcs
+	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000,   5,  85, thickness)
+	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000,  95, 175, thickness)
+	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000, 185, 265, thickness)
+	createRandomAlongArc(Asteroid, random(lowerDensity,upperDensity), 0, 0, 20000, 275, 355, thickness)
+	--Bulges
+	local ax, ay = vectorFromAngle(random(20,70),20000)
+	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
+	ax, ay = vectorFromAngle(random(110,160),20000)
+	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
+	ax, ay = vectorFromAngle(random(200,250),20000)
+	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
+	ax, ay = vectorFromAngle(random(290,340),20000)
+	placeRandomAroundPoint(Asteroid,40,1,5000,ax,ay)
 end
 --	Transport ship generation and handling 
 function nearStations(station, compareStationList)
@@ -1385,19 +1387,6 @@ function handleUndockedState()
 			end
 			oMsg = oMsg .. "\n" .. wfv
 			setCommsMessage(oMsg)
-			if #spawnStrings > 0 then
-				addCommsReply("show spawn strings", function()
-					sMsg = "spawn strings:"
-					for i=1,#spawnStrings do
-						sMsg = sMsg .. "\n" .. spawnStrings[i]
-						if i > 20 then 
-							break
-						end
-					end
-					setCommsMessage(sMsg)
-					addCommsReply(_("Back"), commsStation)
-				end)
-			end
 			addCommsReply(_("Back"), commsStation)
 		end)
 	end
@@ -2033,7 +2022,7 @@ function setPlayers()
 					pobj.prevManeuver = 1.0
 					pobj.healthyImpulse = 1.0
 					pobj.prevImpulse = 1.0
-					if psb[pobj:getTypeName()] ~= nil then
+					if pobj:getBeamWeaponRange(0) > 1 then
 						pobj.healthyBeam = 1.0
 						pobj.prevBeam = 1.0
 					end
@@ -2076,7 +2065,7 @@ function healthCheck(delta)
 					p.prevManeuver = p:getSystemHealth("maneuver")
 					fatalityChance = fatalityChance + (p.prevImpulse - p:getSystemHealth("impulse"))
 					p.prevImpulse = p:getSystemHealth("impulse")
-					if psb[p:getTypeName()] ~= nil then
+					if p:getBeamWeaponRange(0) > 1 then
 						if p.healthyBeam == nil then
 							p.healthyBeam = 1.0
 							p.prevBeam = 1.0
@@ -2628,12 +2617,8 @@ function update(delta)
 		return
 	end
 	allowNewPlayerShips(false)    --no more ships once you've unpaused
-	if plotH ~= nil then	--health
-		plotH(delta)
-	end
-	if plotT ~= nil then	--transports
-		plotT(delta)
-	end
+	healthCheck(delta)
+	transportPlot(delta)
 	if playWithTimeLimit then
 		gameTimeLimit = gameTimeLimit - delta
 		if gameTimeLimit < 0 then
