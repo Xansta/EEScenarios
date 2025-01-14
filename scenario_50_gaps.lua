@@ -1,27 +1,43 @@
 -- Name: Close the Gaps
 -- Description: Using Nautilus class mine layer, lay mines across the space lanes expected to be used by invading enemies
 ---
---- Version 1 - Nov2021
+--- Version 2 - Jan2025
 ---
 --- Mission advice: It's better to hit an asteroid than a mine
 -- Type: Mission
--- Setting[Settings]: Configures time/goal/the amount of enemies spawned in the scenario.
--- Settings[Easy]: Easy goals and/or enemies
--- Settings[Normal|Default]: Normal goals and/or enemies.
--- Settings[Hard]: Hard goals and/or enemies
--- Settings[Quixotic]: Practically impossible goals and/or enemies, definitely time consuming
--- Settings[Timed Normal]: Complete the mission in less than 30 minutes
--- Settings[Timed Easy]: Easy goals and/or enemies, Complete the mission in less than 30 minutes
--- Settings[Timed Hard]: Hard goals and/or enemies, Complete the mission in less than 30 minutes
--- Settings[Timed Quixotic]: Practically impossible goals and/or enemies, Complete the mission in less than 30 minutes
+-- Setting[Enemies]: Configures strength and/or number of enemies in this scenario
+-- Enemies[Easy]: Fewer or weaker enemies
+-- Enemies[Normal|Default]: Normal number or strength of enemies
+-- Enemies[Hard]: More or stronger enemies
+-- Enemies[Extreme]: Much stronger, many more enemies
+-- Enemies[Quixotic]: Insanely strong and/or inordinately large numbers of enemies
+-- Setting[Murphy]: Configures the perversity of the universe according to Murphy's law
+-- Murphy[Easy]: Random factors or puzzle difficulties are easier than normal
+-- Murphy[Normal|Default]: Random factors or puzzle difficulties are normal
+-- Murphy[Hard]: Random factors or puzzle difficulties are more challenging than normal
+-- Setting[Timed]: Sets whether or not the scenario has a time limit. Default is no time limit
+-- Timed[None|Default]: No time limit
+-- Timed[30]: Scenario ends in 30 minutes
+-- Timed[40]: Scenario ends in 40 minutes
+-- Timed[45]: Scenario ends in 45 minutes
+-- Timed[50]: Scenario ends in 50 minutes
+-- Timed[55]: Scenario ends in 55 minutes
+-- Timed[60]: Scenario ends in 60 minutes
+-- Timed[70]: Scenario ends in 70 minutes
+-- Timed[80]: Scenario ends in 80 minutes
+-- Timed[90]: Scenario ends in 90 minutes
 
 require("utils.lua")
+require("place_station_scenario_utility.lua")
 
---[[-------------------------------------------------------------------
-	Initialization routines
---]]-------------------------------------------------------------------
 function init()
-	setSettings()
+	scenario_version = "2.0.1"
+	ee_version = "2024.12.08"
+	print(string.format("    ----    Scenario: Close the Gaps    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	if _VERSION ~= nil then
+		print("Lua version:",_VERSION)
+	end
+	setVariations()
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	--Ship Template Name List
 	stnl = {"MT52 Hornet","MU52 Hornet","Adder MK5","Adder MK4","WX-Lindworm","Adder MK6","Phobos T3","Phobos M3","Piranha F8","Piranha F12","Ranus U","Nirvana R5A","Stalker Q7","Stalker R7","Atlantis X23","Starhammer II","Odin","Fighter","Cruiser","Missile Cruiser","Strikeship","Adv. Striker","Dreadnought","Battlestation","Blockade Runner","Ktlitan Fighter","Ktlitan Breaker","Ktlitan Worker","Ktlitan Drone","Ktlitan Feeder","Ktlitan Scout","Ktlitan Destroyer","Storm"}
@@ -281,8 +297,8 @@ function init()
 	westMet = false
 	wfv = "end of init"
 end
--- Diagnostic enable/disable buttons on GM screen
 function turnOnDiagnostic()
+-- Diagnostic enable/disable buttons on GM screen
 	diagnostic = true
 	removeGMFunction(GMDiagnosticOn)
 	GMDiagnosticOff = _("buttonGM", "Turn Off Diagnostic")
@@ -318,32 +334,40 @@ function delayFastToNormal()
 	GMDelayNormalToSlow = _("buttonGM", "Delay normal to slow")
 	addGMFunction(GMDelayNormalToSlow,delayNormalToSlow)
 end
---translate settings into a numeric difficulty value
-function setSettings()
-	missionLength = 1
-	if string.find(getScenarioSetting("Settings"),"Easy") then
-		difficulty = .5
-		gapCheckDelayTimer = 5
-	elseif string.find(getScenarioSetting("Settings"),"Hard") then
-		difficulty = 2
-		gapCheckDelayTimer = 15
-	elseif string.find(getScenarioSetting("Settings"),"Quixotic") then
-		difficulty = 3
-		gapCheckDelayTimer = 30
-		missionLength = 2
-	else
-		difficulty = 1		--default (normal)
-		gapCheckDelayTimer = 10
-	end
+function setVariations()
+	local enemy_config = {
+		["Easy"] =		{number = .5},
+		["Normal"] =	{number = 1},
+		["Hard"] =		{number = 2},
+		["Extreme"] =	{number = 3},
+		["Quixotic"] =	{number = 5},
+	}
+	enemy_power =	enemy_config[getScenarioSetting("Enemies")].number
+	local murphy_config = {
+		["Easy"] =		{number = .5,	gap = 5,	},
+		["Normal"] =	{number = 1,	gap = 10,	},
+		["Hard"] =		{number = 2,	gap = 15,	},
+	}
+	difficulty =			murphy_config[getScenarioSetting("Murphy")].number
+	gapCheckDelayTimer = 	murphy_config[getScenarioSetting("Murphy")].gap
 	gapCheckInterval = gapCheckDelayTimer
-	gameTimeLimit = 0
-	if string.find(getScenarioSetting("Settings"),"Timed") then
-		playWithTimeLimit = true
-		gameTimeLimit = 30*60		
-	else
-		playWithTimeLimit = false
-	end
+	local timed_config = {
+		["None"] =	{limit = 0,	limited = false,	},
+		["30"] =	{limit = 30,limited = true,		},
+		["40"] =	{limit = 40,limited = true,		},
+		["45"] =	{limit = 45,limited = true,		},
+		["50"] =	{limit = 50,limited = true,		},
+		["55"] =	{limit = 55,limited = true,		},
+		["60"] =	{limit = 60,limited = true,		},
+		["70"] =	{limit = 70,limited = true,		},
+		["80"] =	{limit = 80,limited = true,		},
+		["90"] =	{limit = 90,limited = true,		},
+	}
+	playWithTimeLimit =				timed_config[getScenarioSetting("Timed")].limited
+	defaultGameTimeLimitInMinutes =	timed_config[getScenarioSetting("Timed")].limit
+	gameTimeLimit =					defaultGameTimeLimitInMinutes*60
 end
+function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 -- Create amount of objects of type object_type along arc
 -- Center defined by x and y
 -- Radius defined by distance
@@ -351,7 +375,6 @@ end
 -- Use randomize to vary the distance from the center point. Omit to keep distance constant
 -- Example:
 --   createRandomAlongArc(Asteroid, 100, 500, 3000, 65, 120, 450)
-function createRandomAlongArc(object_type, amount, x, y, distance, startArc, endArcClockwise, randomize)
 	if randomize == nil then randomize = 0 end
 	if amount == nil then amount = 1 end
 	arcLen = endArcClockwise - startArc
@@ -2106,7 +2129,7 @@ function transportPlot(delta)
 		transportSpawnDelay = transportSpawnDelay - delta
 	end
 	if transportSpawnDelay < 0 then
-		transportSpawnDelay = delta + random(5,15) + missionLength
+		transportSpawnDelay = delta + random(5,15)
 		transportCount = 0
 		for tidx, obj in ipairs(transportList) do
 			if obj:isValid() then
@@ -2429,8 +2452,8 @@ function handleDockedState()
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids below: %i"),ediv2s4)
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need three in each sensor scan area")
 						else
-							cMsg = string.format(_("minefield-comms", "Count below: %i"),ediv1s1)
-							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount above: %i"),ediv1s2)
+							cMsg = string.format(_("minefield-comms", "Count below: %i"),ediv1s1)	--was 2432: applies to normal difficulty
+							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount above: %i"),ediv1s2)	--was 2433: applies to normal difficulty
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need six in each sensor scan area")
 						end
 						cMsg = cMsg .. string.format(_("minefield-comms", "\nSensors refresh every %i seconds"),gapCheckInterval)
@@ -2449,8 +2472,8 @@ function handleDockedState()
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids below: %i"),wdiv2s4)
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need three in each sensor scan area")
 						else
-							cMsg = string.format(_("minefield-comms", "Count below: %i"),wdiv1s1)
-							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount above: %i"),wdiv1s2)
+							cMsg = string.format(_("minefield-comms", "Count below: %i"),wdiv1s1)	--was 2452: applies to normal difficulty
+							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount above: %i"),wdiv1s2)	--was 2453: applies to normal difficulty
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need six in each sensor scan area")
 						end
 						cMsg = cMsg .. string.format(_("minefield-comms", "\nSensors refresh every %i seconds"),gapCheckInterval)
@@ -2712,7 +2735,7 @@ function setOptionalOrders()
 	optionalOrders = ""
 	optionalOrdersPresent = false
 	if plot2reminder ~= nil then
-		if plot2reminder == _("upgradeOrders-comms", "Get ship maneuver upgrade") then
+		if plot2reminder == _("upgradeOrders-comms", "Get ship maneuver upgrade") then	--not available this scenario
 			if spinReveal == 0 then
 				optionalOrders = _("upgradeOrders-comms", "\nOptional:\n") .. plot2reminder
 			elseif spinReveal == 1 then
@@ -3007,13 +3030,13 @@ function handleUndockedState()
 						if difficulty < 1 then
 							cMsg = string.format(_("minefield-comms", "Count within radius: %i"),northObjCount)
 						elseif difficulty > 1 then
-							cMsg = string.format(_("minefield-comms", "Count near middle on the right: %i"),ndiv2s1)
+							cMsg = string.format(_("minefield-comms", "Count near middle on the right: %i"),ndiv2s1)	--was 3010: bad argument #2 format: number expected, got nil
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near middle on the left: %i"),ndiv2s2)
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids on the left: %i"),ndiv2s3)
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids on the right: %i"),ndiv2s4)
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need three in each sensor scan area")
 						else
-							cMsg = string.format(_("minefield-comms", "Count on the right: %i"),ndiv1s1)
+							cMsg = string.format(_("minefield-comms", "Count on the right: %i"),ndiv1s1)	--was 3016: bad argument format: number expected, got nil
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount on the left: %i"),ndiv1s2)
 							cMsg = cMsg .._("minefield-comms",  "\n\nYou need six in each sensor scan area")
 						end
@@ -3053,8 +3076,8 @@ function handleUndockedState()
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids below: %i"),ediv2s4)
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need three in each sensor scan area")
 						else
-							cMsg = string.format(_("minefield-comms", "Count above: %i"),ediv1s1)
-							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount below: %i"),ediv1s2)
+							cMsg = string.format(_("minefield-comms", "Count above: %i"),ediv1s1)	--was 3056: bad argument #2 to format: number expected, got nil
+							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount below: %i"),ediv1s2)	--was 3057: text "inversion"
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need six in each sensor scan area")
 						end
 						cMsg = cMsg .. string.format(_("minefield-comms", "\nSensors refresh every %i seconds"),gapCheckInterval)
@@ -3067,14 +3090,14 @@ function handleUndockedState()
 						if difficulty < 1 then
 							cMsg = string.format(_("minefield-comms", "Count within radius: %i"),westObjCount)
 						elseif difficulty > 1 then
-							cMsg = string.format(_("minefield-comms", "Count near middle below: %i"),wdiv2s1)
+							cMsg = string.format(_("minefield-comms", "Count near middle below: %i"),wdiv2s1)	--was 3070: bad argument #2 to format: number expected, got nil
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near middle above: %i"),wdiv2s2)
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids above: %i"),wdiv2s3)
 							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount near asteroids below: %i"),wdiv2s4)
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need three in each sensor scan area")
 						else
-							cMsg = string.format(_("minefield-comms", "Count above: %i"),wdiv1s1)
-							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount below: %i"),wdiv1s2)
+							cMsg = string.format(_("minefield-comms", "Count above: %i"),wdiv1s1)	--was 3076: text "inversion"
+							cMsg = cMsg .. string.format(_("minefield-comms", "\nCount below: %i"),wdiv1s2)	--was 3077: text "inversion"
 							cMsg = cMsg .. _("minefield-comms", "\n\nYou need six in each sensor scan area")
 						end
 						cMsg = cMsg .. string.format(_("minefield-comms", "\nSensors refresh every %i seconds"),gapCheckInterval)
@@ -3391,7 +3414,7 @@ function neutralComms(comms_data)
 						repeat
 							local goodsType = goods[comms_target][gi][1]
 							local goodsQuantity = goods[comms_target][gi][2]
-							addCommsReply(string.format(_("trade-comms", "Trade luxury for %s"),goods[comms_target][gi][1]), function()
+							addCommsReply(string.format(_("trade-comms", "Trade luxury for %s"),goods[comms_target][gi][1]), function()	--was 3394: up value of function is not a table
 								if goodsQuantity < 1 then
 									setCommsMessage(_("trade-comms", "Insufficient inventory on freighter for trade"))
 								else
@@ -3440,7 +3463,7 @@ function neutralComms(comms_data)
 			setCommsMessage(_("shipAssist-comms", "What do you want?"))
 			-- Offer to sell destination information
 			destRep = random(1,5)
-			addCommsReply(string.format(_("trade-comms", "Where are you headed? (cost: %f reputation)"),destRep), function()
+			addCommsReply(string.format(_("trade-comms", "Where are you headed? (cost: %f reputation)"),destRep), function()	--was 3443: make reputation integer
 				if not player:takeReputationPoints(destRep) then
 					setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 				else
@@ -3930,7 +3953,7 @@ function checkGaps(delta)
 			end
 		end
 		if southMet and northMet and westMet and eastMet then
-			if missionLength > 1 then
+			if playWithTimeLimit then
 				for pidx=1,8 do
 					p = getPlayerShip(pidx)
 					if p ~= nil and p:isValid() then
@@ -4313,10 +4336,10 @@ function spawnEnemies(xOrigin, yOrigin, danger, enemyFaction)
 	if danger == nil then 
 		danger = 1
 	end
-	if difficulty == nil then 
-		difficulty = 1
+	if enemy_power == nil then 
+		enemy_power = 1
 	end
-	enemyStrength = math.max(danger * difficulty * playerPower(),5)
+	enemyStrength = math.max(danger * enemy_power * playerPower(),5)
 	enemyPosition = 0
 	sp = irandom(300,500)			--random spacing of spawned group
 	deployConfig = random(1,100)	--randomly choose between squarish formation and hexagonish formation
