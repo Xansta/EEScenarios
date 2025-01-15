@@ -31,7 +31,7 @@ require("utils.lua")
 require("place_station_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.5"
+	scenario_version = "2.0.6"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Close the Gaps    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1102,72 +1102,6 @@ function commsWestGap()
 end
 function setOptionalOrders()
 	optionalOrders = ""
-	optionalOrdersPresent = false
-	if plot2reminder ~= nil then
-		if plot2reminder == _("upgradeOrders-comms", "Get ship maneuver upgrade") then	--not available this scenario
-			if spinReveal == 0 then
-				optionalOrders = _("upgradeOrders-comms", "\nOptional:\n") .. plot2reminder
-			elseif spinReveal == 1 then
-				optionalOrders = string.format(_("upgradeOrders-comms", "\nOptional:\nGet ship maneuver upgrade from %s for %s"),spinBase:getCallSign(),spinGood)
-			elseif spinReveal == 2 then
-				optionalOrders = string.format(_("upgradeOrders-comms", "\nOptional:\nGet ship maneuver upgrade from %s in sector %s for %s"),spinBase:getCallSign(),spinBase:getSectorName(),spinGood)
-			elseif spinReveal == 3 then
-				optionalOrders = string.format(_("upgradeOrders-comms", "\nOptional:\nGet ship maneuver upgrade from %s in sector %s for %s.\n    You might find %s at %s"),spinBase:getCallSign(),spinBase:getSectorName(),spinGood,spinGood,spinGoodBase:getCallSign())
-			else
-				optionalOrders = string.format(_("upgradeOrders-comms", "\nOptional:\nGet ship maneuver upgrade from %s in sector %s for %s.\n    You might find %s at %s in sector %s"),spinBase:getCallSign(),spinBase:getSectorName(),spinGood,spinGood,spinGoodBase:getCallSign(),spinGoodBase:getSectorName())
-			end
-		else
-			optionalOrders = _("upgradeOrders-comms", "\nOptional:\n") .. plot2reminder
-		end
-		optionalOrdersPresent = true
-	end
-	if plot4reminder ~= nil then
-		if optionalOrdersPresent then
-			ifs = "\n"
-		else
-			ifs = _("upgradeOrders-comms", "\nOptional:\n")
-			optionalOrdersPresent = true
-		end
-		if plot4reminder == string.format(_("upgradeOrders-comms", "Upgrade %s to rotate"),homeStation:getCallSign()) then
-			if rotateReveal == 0 then
-				optionalOrders = optionalOrders .. ifs .. plot4reminder
-			elseif rotateReveal == 1 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Upgrade %s to auto-rotate by taking %s to %s"),homeStation:getCallSign(),rotateGood,rotateBase:getCallSign())
-			elseif rotateReveal == 2 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Upgrade %s to auto-rotate by taking %s to %s in %s"),homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName()) 
-			elseif rotateReveal == 3 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Upgrade %s to auto-rotate by taking %s to %s in %s.\n    %s may bave %s"),homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName(),rotateGoodBase:getCallSign(),rotateGood)
-			else
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Upgrade %s to auto-rotate by taking %s to %s in %s.\n    %s in %s may bave %s"),homeStation:getCallSign(),rotateGood,rotateBase:getCallSign(),rotateBase:getSectorName(),rotateGoodBase:getCallSign(),rotateGoodBase:getSectorName(),rotateGood)
-			end
-		elseif plot4reminder == _("upgradeOrders-comms", "Get beam cycle time upgrade") then
-			if beamTimeReveal == 0 then
-				optionalOrders = optionalOrders .. ifs .. plot4reminder
-			elseif beamTimeReveal == 1 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get beam cycle time upgrade from %s for %s"),beamTimeBase:getCallSign(),beamTimeGood)
-			elseif beamTimeReveal == 2 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get beam cycle time upgrade from %s in %s for %s"),beamTimeBase:getCallSign(),beamTimeBase:getSectorName(),beamTimeGood)
-			elseif beamTimeReveal == 3 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get beam cycle time upgrade from %s in %s for %s\n    You might find %s at %s"),beamTimeBase:getCallSign(),beamTimeBase:getSectorName(),beamTimeGood,beamTimeGood,beamTimeGoodBase:getCallSign())
-			else
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get beam cycle time upgrade from %s in %s for %s\n    You might find %s at %s in %s"),beamTimeBase:getCallSign(),beamTimeBase:getSectorName(),beamTimeGood,beamTimeGood,beamTimeGoodBase:getCallSign(),beamTimeGoodBase:getSectorName())
-			end
-		elseif plot4reminder == _("upgradeOrders-comms", "Get hull upgrade") then
-			if hullReveal == 0 then
-				optionalOrders = optionalOrders .. ifs .. plot4reminder
-			elseif hullReveal == 1 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get %s to upgrade hull for %s"),hullBase:getCallSign(),hullGood)
-			elseif hullReveal == 2 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get %s in %s to upgrade hull for %s"),hullBase:getCallSign(),hullBase:getSectorName(),hullGood)
-			elseif hullReveal == 3 then
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get %s in %s to upgrade hull for %s\n    %s might have %s"),hullBase:getCallSign(),hullBase:getSectorName(),hullGood,hullGoodBase:getCallSign(),hullGood)
-			else
-				optionalOrders = optionalOrders .. ifs .. string.format(_("upgradeOrders-comms", "Get %s in %s to upgrade hull for %s\n    %s in %s might have %s"),hullBase:getCallSign(),hullBase:getSectorName(),hullGood,hullGoodBase:getCallSign(),hullGoodBase:getSectorName(),hullGood)
-			end
-		else
-			optionalOrders = optionalOrders .. ifs .. plot4reminder
-		end
-	end
 end
 function isAllowedTo(state)
     if state == "friend" and comms_source:isFriendly(comms_target) then
