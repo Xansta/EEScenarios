@@ -31,7 +31,7 @@ require("utils.lua")
 require("place_station_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.6"
+	scenario_version = "2.0.7"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Close the Gaps    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -211,6 +211,10 @@ function setGlobals()
 	wdiv2s4 = 0	--division 2, section 4	
 	wdiv1s1 = 0	--division 1, section 1
 	wdiv1s2 = 0	--division 1, section 2
+	north_gap_graphic = false
+	south_gap_graphic = false
+	east_gap_graphic = false
+	west_gap_graphic = false
 end
 function mainGMButtons()
 	clearGMFunctions()
@@ -1013,6 +1017,7 @@ function commsNorthGap()
 	cMsg = string.format(_("minefield-comms", "%s\nSensors refresh every %i seconds."),cMsg,gapCheckInterval)
 	cMsg = string.format(_("minefield-comms","%s\nNext refresh in approximately %i seconds."),cMsg,math.floor(gapCheckDelayTimer))
 	setCommsMessage(cMsg)
+	north_gap_graphic = true
 	addCommsReply(_("Back"), commsStation)
 end
 function commsSouthGap()
@@ -1038,6 +1043,7 @@ function commsSouthGap()
 	cMsg = string.format(_("minefield-comms", "%s\nSensors refresh every %i seconds"),cMsg,gapCheckInterval)
 	cMsg = string.format(_("minefield-comms","%s\nNext refresh in approximately %i seconds."),cMsg,math.floor(gapCheckDelayTimer))
 	setCommsMessage(cMsg)
+	south_gap_graphic = true
 	addCommsReply(_("Back"), commsStation)
 end
 function commsEastGap()
@@ -1068,6 +1074,7 @@ function commsEastGap()
 	cMsg = string.format(_("minefield-comms", "%s\nSensors refresh every %i seconds"),cMsg,gapCheckInterval)
 	cMsg = string.format(_("minefield-comms","%s\nNext refresh in approximately %i seconds."),cMsg,math.floor(gapCheckDelayTimer))
 	setCommsMessage(cMsg)
+	east_gap_graphic = true
 	addCommsReply(_("Back"), commsStation)
 end
 function commsWestGap()
@@ -1098,6 +1105,7 @@ function commsWestGap()
 	cMsg = string.format(_("minefield-comms", "%s\nSensors refresh every %i seconds"),cMsg,gapCheckInterval)
 	cMsg = string.format(_("minefield-comms","%s\nNext refresh in approximately %i seconds."),cMsg,math.floor(gapCheckDelayTimer))
 	setCommsMessage(cMsg)
+	west_gap_graphic = true
 	addCommsReply(_("Back"), commsStation)
 end
 function setOptionalOrders()
@@ -2447,6 +2455,681 @@ function checkSouthernGap()
 	end
 	return gapClosed
 end
+function gapGraphic()
+	local blue_value = {64,192,96,160,255,128}
+	if north_gap_graphic then
+		if north_gap_phase == nil then
+			north_gap_phase = 1
+			north_gap_angle = random(0,10)
+			north_gap_zones = {}
+			local zone_points = {}
+			for k=1,6 do
+				local zx, zy = vectorFromAngle(north_gap_angle,1500,true)
+				zone_points[k] = {x = zx, y = -20000 + zy}
+				north_gap_angle = (north_gap_angle + 60) % 360
+			end
+			local zone = Zone():setPoints(
+				zone_points[1].x,zone_points[1].y,
+				zone_points[2].x,zone_points[2].y,
+				zone_points[3].x,zone_points[3].y,
+				zone_points[4].x,zone_points[4].y,
+				zone_points[5].x,zone_points[5].y,
+				zone_points[6].x,zone_points[6].y
+			):setColor(0,0,blue_value[north_gap_phase])
+			zone.hex = true
+			table.insert(north_gap_zones,zone)
+			if difficulty == 1 then
+				zone = Zone():setPoints(
+					0,		-21500,
+					0,		-18500,
+					-1500,	-18500,
+					-1500,	-21500
+				):setColor(128,0,0)
+				table.insert(north_gap_zones,zone)
+				zone = Zone():setPoints(
+					1500,	-21500,
+					1500,	-18500,
+					0,		-18500,
+					0,		-21500
+				):setColor(0,128,0)
+				table.insert(north_gap_zones,zone)
+			elseif difficulty > 1 then
+				zone = Zone():setPoints(
+					-750,	-20375,
+					-750,	-19625,
+					-1500,	-19625,
+					-1500,	-20375
+				):setColor(128,0,0)
+				table.insert(north_gap_zones,zone)
+				zone = Zone():setPoints(
+					0,		-20375,
+					0,		-19625,
+					-750,	-19625,
+					-750,	-20375
+				):setColor(0,128,0)
+				table.insert(north_gap_zones,zone)
+				zone = Zone():setPoints(
+					750,	-20375,
+					750,	-19625,
+					0,		-19625,
+					0,		-20375
+				):setColor(128,0,128)
+				table.insert(north_gap_zones,zone)
+				zone = Zone():setPoints(
+					1500,	-20375,
+					1500,	-19625,
+					750,	-19625,
+					750,	-20375
+				):setColor(255,255,0)
+				table.insert(north_gap_zones,zone)
+			end
+			north_gap_time = getScenarioTime() + 1
+		else
+			if getScenarioTime() > north_gap_time then
+				if north_gap_phase ~= 6 then
+					north_gap_angle = north_gap_angle + 10
+					local zone_points = {}
+					for k=1,6 do
+						local zx, zy = vectorFromAngle(north_gap_angle,1500,true)
+						zone_points[k] = {x = zx, y = -20000 + zy}
+						north_gap_angle = (north_gap_angle + 60) % 360
+					end
+					local zone = Zone():setPoints(
+						zone_points[1].x,zone_points[1].y,
+						zone_points[2].x,zone_points[2].y,
+						zone_points[3].x,zone_points[3].y,
+						zone_points[4].x,zone_points[4].y,
+						zone_points[5].x,zone_points[5].y,
+						zone_points[6].x,zone_points[6].y
+					):setColor(0,0,blue_value[north_gap_phase])
+					zone.hex = true
+					local destroy_me = north_gap_zones[1]
+					north_gap_zones[1] = zone
+					destroy_me:destroy()
+				end
+				if north_gap_phase == 1 then
+					if difficulty == 1 then
+						north_gap_zones[2]:setColor(128,0,128)
+						north_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						north_gap_zones[2]:setColor(255,0,255)	--Y R G P--
+						north_gap_zones[3]:setColor(128,0,0)	--P Y R G
+						north_gap_zones[4]:setColor(0,128,0)	--G P Y R
+						north_gap_zones[5]:setColor(128,0,128)	--R P G Y
+					end											--G Y R P
+					north_gap_phase = 2
+					north_gap_time = getScenarioTime() + 1
+				elseif north_gap_phase == 2 then
+					if difficulty == 1 then
+						north_gap_zones[2]:setColor(255,0,255)
+						north_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						north_gap_zones[2]:setColor(128,0,128)	--Y R G P
+						north_gap_zones[3]:setColor(255,0,255)	--P Y R G--
+						north_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						north_gap_zones[5]:setColor(0,128,0)	--R P G Y
+					end											--G Y R P
+					north_gap_phase = 3
+					north_gap_time = getScenarioTime() + 1
+				elseif north_gap_phase == 3 then
+					if difficulty == 1 then
+						north_gap_zones[2]:setColor(128,0,0)
+						north_gap_zones[3]:setColor(255,0,255)						
+					elseif difficulty > 1 then					--R G P Y
+						north_gap_zones[2]:setColor(0,128,0)	--Y R G P
+						north_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						north_gap_zones[4]:setColor(255,0,255)	--G P Y R--
+						north_gap_zones[5]:setColor(128,0,0)	--R P G Y
+					end											--G Y R P
+					north_gap_phase = 4
+					north_gap_time = getScenarioTime() + 1
+				elseif north_gap_phase == 4 then
+					if difficulty == 1 then
+						north_gap_zones[2]:setColor(128,0,128)
+						north_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						north_gap_zones[2]:setColor(128,0,0)	--Y R G P
+						north_gap_zones[3]:setColor(255,0,255)	--P Y R G
+						north_gap_zones[4]:setColor(0,128,0)	--G P Y R
+						north_gap_zones[5]:setColor(128,0,128)	--R Y G P--
+					end											--Y P R G
+					north_gap_phase = 5
+					north_gap_time = getScenarioTime() + 1
+				elseif north_gap_phase == 5 then
+					if difficulty == 1 then
+						north_gap_zones[2]:setColor(0,128,0)
+						north_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						north_gap_zones[2]:setColor(255,0,255)	--Y R G P
+						north_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						north_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						north_gap_zones[5]:setColor(0,128,0)	--R Y G P
+					end											--Y P R G--
+					north_gap_phase = 6
+					north_gap_time = getScenarioTime() + 1
+				elseif north_gap_phase == 6 then
+					north_gap_zones[1]:destroy()
+					if difficulty == 1 then
+						north_gap_zones[2]:destroy()
+						north_gap_zones[3]:destroy()
+					elseif difficulty > 1 then
+						north_gap_zones[2]:destroy()
+						north_gap_zones[3]:destroy()
+						north_gap_zones[4]:destroy()
+						north_gap_zones[5]:destroy()
+					end	
+					north_gap_phase = nil
+					north_gap_time = nil
+					north_gap_graphic = false
+				end
+			end
+		end
+	end
+	if south_gap_graphic then
+		if south_gap_phase == nil then
+			south_gap_phase = 1
+			south_gap_angle = random(0,10)
+			south_gap_zones = {}
+			local zone_points = {}
+			for k=1,6 do
+				local zx, zy = vectorFromAngle(south_gap_angle,1500,true)
+				zone_points[k] = {x = zx, y = 20000 + zy}
+				south_gap_angle = (south_gap_angle + 60) % 360
+			end
+			local zone = Zone():setPoints(
+				zone_points[1].x,zone_points[1].y,
+				zone_points[2].x,zone_points[2].y,
+				zone_points[3].x,zone_points[3].y,
+				zone_points[4].x,zone_points[4].y,
+				zone_points[5].x,zone_points[5].y,
+				zone_points[6].x,zone_points[6].y
+			):setColor(0,0,blue_value[south_gap_phase])
+			zone.hex = true
+			table.insert(south_gap_zones,zone)
+			if difficulty == 1 then
+				zone = Zone():setPoints(
+					0,		18500,
+					0,		21500,
+					-1500,	21500,
+					-1500,	18500
+				):setColor(128,0,0)
+				table.insert(south_gap_zones,zone)
+				zone = Zone():setPoints(
+					1500,	18500,
+					1500,	21500,
+					0,		21500,
+					0,		18500
+				):setColor(0,128,0)
+				table.insert(south_gap_zones,zone)
+			elseif difficulty > 1 then
+				zone = Zone():setPoints(
+					-750,	19625,
+					-750,	20375,
+					-1500,	20375,
+					-1500,	19625
+				):setColor(128,0,0)
+				table.insert(south_gap_zones,zone)
+				zone = Zone():setPoints(
+					0,		19625,
+					0,		20375,
+					-750,	20375,
+					-750,	19625
+				):setColor(0,128,0)
+				table.insert(south_gap_zones,zone)
+				zone = Zone():setPoints(
+					750,	19625,
+					750,	20375,
+					0,		20375,
+					0,		19625
+				):setColor(128,0,128)
+				table.insert(south_gap_zones,zone)
+				zone = Zone():setPoints(
+					1500,	19625,
+					1500,	20375,
+					750,	20375,
+					750,	19625
+				):setColor(255,255,0)
+				table.insert(south_gap_zones,zone)
+			end
+			south_gap_time = getScenarioTime() + 1
+		else
+			if getScenarioTime() > south_gap_time then
+				if south_gap_phase ~= 6 then
+					south_gap_angle = south_gap_angle + 10
+					local zone_points = {}
+					for k=1,6 do
+						local zx, zy = vectorFromAngle(south_gap_angle,1500,true)
+						zone_points[k] = {x = zx, y = 20000 + zy}
+						south_gap_angle = (south_gap_angle + 60) % 360
+					end
+					local zone = Zone():setPoints(
+						zone_points[1].x,zone_points[1].y,
+						zone_points[2].x,zone_points[2].y,
+						zone_points[3].x,zone_points[3].y,
+						zone_points[4].x,zone_points[4].y,
+						zone_points[5].x,zone_points[5].y,
+						zone_points[6].x,zone_points[6].y
+					):setColor(0,0,blue_value[south_gap_phase])
+					zone.hex = true
+					local destroy_me = south_gap_zones[1]
+					south_gap_zones[1] = zone
+					destroy_me:destroy()
+				end
+				if south_gap_phase == 1 then
+					if difficulty == 1 then
+						south_gap_zones[2]:setColor(128,0,128)
+						south_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						south_gap_zones[2]:setColor(255,0,255)	--Y R G P--
+						south_gap_zones[3]:setColor(128,0,0)	--P Y R G
+						south_gap_zones[4]:setColor(0,128,0)	--G P Y R
+						south_gap_zones[5]:setColor(128,0,128)	--R P G Y
+					end											--G Y R P
+					south_gap_phase = 2
+					south_gap_time = getScenarioTime() + 1
+				elseif south_gap_phase == 2 then
+					if difficulty == 1 then
+						south_gap_zones[2]:setColor(255,0,255)
+						south_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						south_gap_zones[2]:setColor(128,0,128)	--Y R G P
+						south_gap_zones[3]:setColor(255,0,255)	--P Y R G--
+						south_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						south_gap_zones[5]:setColor(0,128,0)	--R P G Y
+					end											--G Y R P
+					south_gap_phase = 3
+					south_gap_time = getScenarioTime() + 1
+				elseif south_gap_phase == 3 then
+					if difficulty == 1 then
+						south_gap_zones[2]:setColor(128,0,0)
+						south_gap_zones[3]:setColor(255,0,255)						
+					elseif difficulty > 1 then					--R G P Y
+						south_gap_zones[2]:setColor(0,128,0)	--Y R G P
+						south_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						south_gap_zones[4]:setColor(255,0,255)	--G P Y R--
+						south_gap_zones[5]:setColor(128,0,0)	--R P G Y
+					end											--G Y R P
+					south_gap_phase = 4
+					south_gap_time = getScenarioTime() + 1
+				elseif south_gap_phase == 4 then
+					if difficulty == 1 then
+						south_gap_zones[2]:setColor(128,0,128)
+						south_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						south_gap_zones[2]:setColor(128,0,0)	--Y R G P
+						south_gap_zones[3]:setColor(255,0,255)	--P Y R G
+						south_gap_zones[4]:setColor(0,128,0)	--G P Y R
+						south_gap_zones[5]:setColor(128,0,128)	--R Y G P--
+					end											--Y P R G
+					south_gap_phase = 5
+					south_gap_time = getScenarioTime() + 1
+				elseif south_gap_phase == 5 then
+					if difficulty == 1 then
+						south_gap_zones[2]:setColor(0,128,0)
+						south_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						south_gap_zones[2]:setColor(255,0,255)	--Y R G P
+						south_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						south_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						south_gap_zones[5]:setColor(0,128,0)	--R Y G P
+					end											--Y P R G--
+					south_gap_phase = 6
+					south_gap_time = getScenarioTime() + 1
+				elseif south_gap_phase == 6 then
+					south_gap_zones[1]:destroy()
+					if difficulty == 1 then
+						south_gap_zones[2]:destroy()
+						south_gap_zones[3]:destroy()
+					elseif difficulty > 1 then
+						south_gap_zones[2]:destroy()
+						south_gap_zones[3]:destroy()
+						south_gap_zones[4]:destroy()
+						south_gap_zones[5]:destroy()
+					end	
+					south_gap_phase = nil
+					south_gap_time = nil
+					south_gap_graphic = false
+				end
+			end
+		end
+	end
+	if east_gap_graphic then
+		if east_gap_phase == nil then
+			east_gap_phase = 1
+			east_gap_angle = random(0,10)
+			east_gap_zones = {}
+			local zone_points = {}
+			for k=1,6 do
+				local zx, zy = vectorFromAngle(east_gap_angle,1500,true)
+				zone_points[k] = {x = zx + 20000, y = zy}
+				east_gap_angle = (east_gap_angle + 60) % 360
+			end
+			local zone = Zone():setPoints(
+				zone_points[1].x,zone_points[1].y,
+				zone_points[2].x,zone_points[2].y,
+				zone_points[3].x,zone_points[3].y,
+				zone_points[4].x,zone_points[4].y,
+				zone_points[5].x,zone_points[5].y,
+				zone_points[6].x,zone_points[6].y
+			):setColor(0,0,blue_value[east_gap_phase])
+			zone.hex = true
+			table.insert(east_gap_zones,zone)
+			if difficulty == 1 then
+				zone = Zone():setPoints(
+					21500,	-1500,
+					21500,	0,
+					18500,	0,
+					18500,	-1500
+				):setColor(128,0,0)
+				table.insert(east_gap_zones,zone)
+				zone = Zone():setPoints(
+					21500,	0,
+					21500,	1500,
+					18500,	1500,
+					18500,	0
+				):setColor(0,128,0)
+				table.insert(east_gap_zones,zone)
+			elseif difficulty > 1 then
+				zone = Zone():setPoints(
+					20375,	-1500,
+					20375,	-750,
+					19625,	-750,
+					19625,	-1500
+				):setColor(128,0,0)
+				table.insert(east_gap_zones,zone)
+				zone = Zone():setPoints(
+					20375,	-750,
+					20375,	0,
+					19625,	0,
+					19625,	-750
+				):setColor(0,128,0)
+				table.insert(east_gap_zones,zone)
+				zone = Zone():setPoints(
+					20375,	0,
+					20375,	750,
+					19625,	750,
+					19625,	0
+				):setColor(128,0,128)
+				table.insert(east_gap_zones,zone)
+				zone = Zone():setPoints(
+					20375,	750,
+					20375,	1500,
+					19625,	1500,
+					19625,	750
+				):setColor(255,255,0)
+				table.insert(east_gap_zones,zone)
+			end
+			east_gap_time = getScenarioTime() + 1
+		else
+			if getScenarioTime() > east_gap_time then
+				if east_gap_phase ~= 6 then
+					east_gap_angle = east_gap_angle + 10
+					local zone_points = {}
+					for k=1,6 do
+						local zx, zy = vectorFromAngle(east_gap_angle,1500,true)
+						zone_points[k] = {x = zx + 20000, y = zy}
+						east_gap_angle = (east_gap_angle + 60) % 360
+					end
+					local zone = Zone():setPoints(
+						zone_points[1].x,zone_points[1].y,
+						zone_points[2].x,zone_points[2].y,
+						zone_points[3].x,zone_points[3].y,
+						zone_points[4].x,zone_points[4].y,
+						zone_points[5].x,zone_points[5].y,
+						zone_points[6].x,zone_points[6].y
+					):setColor(0,0,blue_value[east_gap_phase])
+					zone.hex = true
+					local destroy_me = east_gap_zones[1]
+					east_gap_zones[1] = zone
+					destroy_me:destroy()
+				end
+				if east_gap_phase == 1 then
+					if difficulty == 1 then
+						east_gap_zones[2]:setColor(128,0,128)
+						east_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						east_gap_zones[2]:setColor(255,0,255)	--Y R G P--
+						east_gap_zones[3]:setColor(128,0,0)		--P Y R G
+						east_gap_zones[4]:setColor(0,128,0)		--G P Y R
+						east_gap_zones[5]:setColor(128,0,128)	--R P G Y
+					end											--G Y R P
+					east_gap_phase = 2
+					east_gap_time = getScenarioTime() + 1
+				elseif east_gap_phase == 2 then
+					if difficulty == 1 then
+						east_gap_zones[2]:setColor(255,0,255)
+						east_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						east_gap_zones[2]:setColor(128,0,128)	--Y R G P
+						east_gap_zones[3]:setColor(255,0,255)	--P Y R G--
+						east_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						east_gap_zones[5]:setColor(0,128,0)	--R P G Y
+					end											--G Y R P
+					east_gap_phase = 3
+					east_gap_time = getScenarioTime() + 1
+				elseif east_gap_phase == 3 then
+					if difficulty == 1 then
+						east_gap_zones[2]:setColor(128,0,0)
+						east_gap_zones[3]:setColor(255,0,255)						
+					elseif difficulty > 1 then					--R G P Y
+						east_gap_zones[2]:setColor(0,128,0)	--Y R G P
+						east_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						east_gap_zones[4]:setColor(255,0,255)	--G P Y R--
+						east_gap_zones[5]:setColor(128,0,0)	--R P G Y
+					end											--G Y R P
+					east_gap_phase = 4
+					east_gap_time = getScenarioTime() + 1
+				elseif east_gap_phase == 4 then
+					if difficulty == 1 then
+						east_gap_zones[2]:setColor(128,0,128)
+						east_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						east_gap_zones[2]:setColor(128,0,0)	--Y R G P
+						east_gap_zones[3]:setColor(255,0,255)	--P Y R G
+						east_gap_zones[4]:setColor(0,128,0)	--G P Y R
+						east_gap_zones[5]:setColor(128,0,128)	--R Y G P--
+					end											--Y P R G
+					east_gap_phase = 5
+					east_gap_time = getScenarioTime() + 1
+				elseif east_gap_phase == 5 then
+					if difficulty == 1 then
+						east_gap_zones[2]:setColor(0,128,0)
+						east_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						east_gap_zones[2]:setColor(255,0,255)	--Y R G P
+						east_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						east_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						east_gap_zones[5]:setColor(0,128,0)	--R Y G P
+					end											--Y P R G--
+					east_gap_phase = 6
+					east_gap_time = getScenarioTime() + 1
+				elseif east_gap_phase == 6 then
+					east_gap_zones[1]:destroy()
+					if difficulty == 1 then
+						east_gap_zones[2]:destroy()
+						east_gap_zones[3]:destroy()
+					elseif difficulty > 1 then
+						east_gap_zones[2]:destroy()
+						east_gap_zones[3]:destroy()
+						east_gap_zones[4]:destroy()
+						east_gap_zones[5]:destroy()
+					end	
+					east_gap_phase = nil
+					east_gap_time = nil
+					east_gap_graphic = false
+				end
+			end
+		end
+	end
+	if west_gap_graphic then
+		if west_gap_phase == nil then
+			west_gap_phase = 1
+			west_gap_angle = random(0,10)
+			west_gap_zones = {}
+			local zone_points = {}
+			for k=1,6 do
+				local zx, zy = vectorFromAngle(west_gap_angle,1500,true)
+				zone_points[k] = {x = zx + -20000, y = zy}
+				west_gap_angle = (west_gap_angle + 60) % 360
+			end
+			local zone = Zone():setPoints(
+				zone_points[1].x,zone_points[1].y,
+				zone_points[2].x,zone_points[2].y,
+				zone_points[3].x,zone_points[3].y,
+				zone_points[4].x,zone_points[4].y,
+				zone_points[5].x,zone_points[5].y,
+				zone_points[6].x,zone_points[6].y
+			):setColor(0,0,blue_value[west_gap_phase])
+			zone.hex = true
+			table.insert(west_gap_zones,zone)
+			if difficulty == 1 then
+				zone = Zone():setPoints(
+					-18500,	-1500,
+					-18500,	0,
+					-21500,	0,
+					-21500,	-1500
+				):setColor(128,0,0)
+				table.insert(west_gap_zones,zone)
+				zone = Zone():setPoints(
+					-18500,	0,
+					-18500,	1500,
+					-21500,	1500,
+					-21500,	0
+				):setColor(0,128,0)
+				table.insert(west_gap_zones,zone)
+			elseif difficulty > 1 then
+				zone = Zone():setPoints(
+					-19625,	-1500,
+					-19625,	-750,
+					-20375,	-750,
+					-20375,	-1500
+				):setColor(128,0,0)
+				table.insert(west_gap_zones,zone)
+				zone = Zone():setPoints(
+					-19625,	-750,
+					-19625,	0,
+					-20375,	0,
+					-20375,	-750
+				):setColor(0,128,0)
+				table.insert(west_gap_zones,zone)
+				zone = Zone():setPoints(
+					-19625,	0,
+					-19625,	750,
+					-20375,	750,
+					-20375,	0
+				):setColor(128,0,128)
+				table.insert(west_gap_zones,zone)
+				zone = Zone():setPoints(
+					-19625,	750,
+					-19625,	1500,
+					-20375,	1500,
+					-20375,	750
+				):setColor(255,255,0)
+				table.insert(west_gap_zones,zone)
+			end
+			west_gap_time = getScenarioTime() + 1
+		else
+			if getScenarioTime() > west_gap_time then
+				if west_gap_phase ~= 6 then
+					west_gap_angle = west_gap_angle + 10
+					local zone_points = {}
+					for k=1,6 do
+						local zx, zy = vectorFromAngle(west_gap_angle,1500,true)
+						zone_points[k] = {x = zx + -20000, y = zy}
+						west_gap_angle = (west_gap_angle + 60) % 360
+					end
+					local zone = Zone():setPoints(
+						zone_points[1].x,zone_points[1].y,
+						zone_points[2].x,zone_points[2].y,
+						zone_points[3].x,zone_points[3].y,
+						zone_points[4].x,zone_points[4].y,
+						zone_points[5].x,zone_points[5].y,
+						zone_points[6].x,zone_points[6].y
+					):setColor(0,0,blue_value[west_gap_phase])
+					zone.hex = true
+					local destroy_me = west_gap_zones[1]
+					west_gap_zones[1] = zone
+					destroy_me:destroy()
+				end
+				if west_gap_phase == 1 then
+					if difficulty == 1 then
+						west_gap_zones[2]:setColor(128,0,128)
+						west_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						west_gap_zones[2]:setColor(255,0,255)	--Y R G P--
+						west_gap_zones[3]:setColor(128,0,0)		--P Y R G
+						west_gap_zones[4]:setColor(0,128,0)		--G P Y R
+						west_gap_zones[5]:setColor(128,0,128)	--R P G Y
+					end											--G Y R P
+					west_gap_phase = 2
+					west_gap_time = getScenarioTime() + 1
+				elseif west_gap_phase == 2 then
+					if difficulty == 1 then
+						west_gap_zones[2]:setColor(255,0,255)
+						west_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						west_gap_zones[2]:setColor(128,0,128)	--Y R G P
+						west_gap_zones[3]:setColor(255,0,255)	--P Y R G--
+						west_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						west_gap_zones[5]:setColor(0,128,0)	--R P G Y
+					end											--G Y R P
+					west_gap_phase = 3
+					west_gap_time = getScenarioTime() + 1
+				elseif west_gap_phase == 3 then
+					if difficulty == 1 then
+						west_gap_zones[2]:setColor(128,0,0)
+						west_gap_zones[3]:setColor(255,0,255)						
+					elseif difficulty > 1 then					--R G P Y
+						west_gap_zones[2]:setColor(0,128,0)	--Y R G P
+						west_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						west_gap_zones[4]:setColor(255,0,255)	--G P Y R--
+						west_gap_zones[5]:setColor(128,0,0)	--R P G Y
+					end											--G Y R P
+					west_gap_phase = 4
+					west_gap_time = getScenarioTime() + 1
+				elseif west_gap_phase == 4 then
+					if difficulty == 1 then
+						west_gap_zones[2]:setColor(128,0,128)
+						west_gap_zones[3]:setColor(128,0,0)						
+					elseif difficulty > 1 then					--R G P Y
+						west_gap_zones[2]:setColor(128,0,0)	--Y R G P
+						west_gap_zones[3]:setColor(255,0,255)	--P Y R G
+						west_gap_zones[4]:setColor(0,128,0)	--G P Y R
+						west_gap_zones[5]:setColor(128,0,128)	--R Y G P--
+					end											--Y P R G
+					west_gap_phase = 5
+					west_gap_time = getScenarioTime() + 1
+				elseif west_gap_phase == 5 then
+					if difficulty == 1 then
+						west_gap_zones[2]:setColor(0,128,0)
+						west_gap_zones[3]:setColor(128,0,128)						
+					elseif difficulty > 1 then					--R G P Y
+						west_gap_zones[2]:setColor(255,0,255)	--Y R G P
+						west_gap_zones[3]:setColor(128,0,128)	--P Y R G
+						west_gap_zones[4]:setColor(128,0,0)	--G P Y R
+						west_gap_zones[5]:setColor(0,128,0)	--R Y G P
+					end											--Y P R G--
+					west_gap_phase = 6
+					west_gap_time = getScenarioTime() + 1
+				elseif west_gap_phase == 6 then
+					west_gap_zones[1]:destroy()
+					if difficulty == 1 then
+						west_gap_zones[2]:destroy()
+						west_gap_zones[3]:destroy()
+					elseif difficulty > 1 then
+						west_gap_zones[2]:destroy()
+						west_gap_zones[3]:destroy()
+						west_gap_zones[4]:destroy()
+						west_gap_zones[5]:destroy()
+					end	
+					west_gap_phase = nil
+					west_gap_time = nil
+					west_gap_graphic = false
+				end
+			end
+		end
+	end
+end
 --  Quixotic addition
 function destroyEnemyBases(delta)
 	if homeStation:isValid() then
@@ -2586,6 +3269,7 @@ function update(delta)
 		setPlayers()
 		return
 	end
+	gapGraphic()
 	healthCheck(delta)
 	transportPlot(delta)
 	if playWithTimeLimit then
