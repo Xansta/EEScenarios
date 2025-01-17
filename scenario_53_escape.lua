@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.10"
+	scenario_version = "5.0.11"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1845,7 +1845,7 @@ function handleDockedState()
 			end
 			if ctd.buy ~= nil then
 				for good, price in pairs(ctd.buy) do
-					if comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
+					if comms_source.goods ~= nil and comms_source.goods[good] ~= nil and comms_source.goods[good] > 0 then
 						addCommsReply(string.format(_("trade-comms", "Sell one %s for %i reputation"),good,price), function()
 							local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Reputation price: %i"),good,price)
 							comms_source.goods[good] = comms_source.goods[good] - 1
@@ -1908,7 +1908,7 @@ function handleDockedState()
 				for good, goodData in pairs(ctd.goods) do
 					addCommsReply(string.format(_("trade-comms", "Trade luxury for %s"),good), function()
 						local goodTransactionMessage = string.format(_("trade-comms", "Type: %s,  Quantity: %i"),good,goodData["quantity"])
-						if goodData[quantity] < 1 then
+						if goodData["quantity"] < 1 then
 							goodTransactionMessage = goodTransactionMessage .. _("trade-comms", "\nInsufficient station inventory")
 						else
 							goodData["quantity"] = goodData["quantity"] - 1
