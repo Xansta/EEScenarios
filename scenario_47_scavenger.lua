@@ -20,7 +20,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.1.4"
+	scenario_version = "1.1.5"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Scurvy Scavenger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2203,11 +2203,29 @@ function handleDockedState()
 			end
 			if comms_source:getJumpDriveCharge() >= max_charge then
 				addCommsReply(_("stationServices-comms", "Overcharge Jump Drive (10 Rep)"),function()
-					if comms_source:takeReputationPoints(10) then
-						comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
-						setCommsMessage(string.format(_("stationServices-comms", "Your jump drive has been overcharged to %ik"),math.floor(comms_source:getJumpDriveCharge()/1000)))
+					if comms_source:getJumpDriveCharge()/1000 > 300 then
+						setCommsMessage(_("stationServices-comms","Overcharging your jump drive further would exceed the safety protocol established by commisioner Muerte."))
+						addCommsReply(_("stationServices-comms","Overcharge Jump Drive anyway (10 Rep)"),function()
+							if comms_source:takeReputationPoints(10) then
+								comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
+								setCommsMessage(string.format(_("stationServices-comms", "Your jump drive has been overcharged to %ik"),math.floor(comms_source:getJumpDriveCharge()/1000)))
+								comms_source:setSystemHealth("jumpdrive",-1)
+							else
+								setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+							end
+							addCommsReply(_("Back"), commsStation)
+						end)
+						addCommsReply(_("stationServices-comms","What happens if we overcharge past the Muerte limit?"),function()
+							setCommsMessage(_("stationServices-comms","Unknown. A teenager on his staff wrote a cautionary document that Muerte took to heart. From that information, Muerte established the safety protocol."))
+							addCommsReply(_("Back"), commsStation)
+						end)
 					else
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						if comms_source:takeReputationPoints(10) then
+							comms_source:setJumpDriveCharge(comms_source:getJumpDriveCharge() + max_charge)
+							setCommsMessage(string.format(_("stationServices-comms", "Your jump drive has been overcharged to %ik"),math.floor(comms_source:getJumpDriveCharge()/1000)))
+						else
+							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						end
 					end
 					addCommsReply(_("Back"), commsStation)
 				end)
@@ -2306,7 +2324,7 @@ function handleDockedState()
 			addCommsReply(_("contract-comms", "Check long distance contract"),function()
 				createHumanNavySystem()
 				setCommsMessage(string.format(_("contract-comms", "Contract Details:\nTravel to %s system to deliver cargo to supply station %s. Distance to system: %i units. Upon delivery, %s technicians will upgrade your battery efficiency and beam cycle time."),planet_star:getCallSign(),supply_depot_station:getCallSign(),math.floor(distance(comms_target,planet_star)/1000),supply_depot_station:getCallSign()))
-				addCommsReply("Accept",function()
+				addCommsReply(_("contract-comms","Accept"),function()
 					local p = getPlayerShip(-1)
 					addMineTube(p)
 					local acceptance_message = string.format(_("contract-comms", "The Human Navy requires all armed ships be equipped with the ability to drop mines. We have modified %s with a rear facing mining tube. Due to ship size constraints, we were only able to provide you with two mines."),comms_source:getCallSign())
@@ -3224,7 +3242,7 @@ function handleUndockedState()
 				if comms_target.repair_fail_reason == nil then
 					reason_list = {
 						_("stationServices-comms", "We're out of the necessary materials and supplies for hull repair."),
-						_("stationServices-comms", "Hull repair automation unavailable whie it is undergoing maintenance."),
+						_("stationServices-comms", "Hull repair automation unavailable while it is undergoing maintenance."),
 						_("stationServices-comms", "All hull repair technicians quarantined to quarters due to illness."),
 					}
 					comms_target.repair_fail_reason = reason_list[math.random(1,#reason_list)]
