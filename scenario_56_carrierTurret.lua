@@ -70,7 +70,7 @@ require("generate_call_sign_scenario_utility.lua")
 function init()
 	mission_diagnostic = false
 	diagnostic = false
-	fleet_id_diagnostic = true
+	fleet_id_diagnostic = false
 	setConstants()
 	setGlobals()
 	setVariations()
