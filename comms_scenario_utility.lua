@@ -6502,6 +6502,11 @@ end
 --			path in player_ship_upgrade_downgrade_path_scenario_utility.lua
 --		overcharge_jump_drive - set if stations can overcharge player ship's jump drives
 --		overcharge_shields - set if stations can overcharge player ship's shields
+--		add_repair_crew - set true if players can get more repair crew from stations
+--		add_coolant - set true if players can get more coolant from stations
+--	Functions you may want to set up outside of this utility
+--		scenarioShipEnhancements - define any functions specific to the scenario that 
+--		enhance the player ship capabilities
 function enhanceShip()
 	local enhance_type_prompt = {
 		_("station-comms","What kind of enhancements are you interested in?"),
@@ -6522,6 +6527,9 @@ function enhanceShip()
 	minorUpgrades()
 	if overcharge_jump_drive or overcharge_shields then
 		overchargeShipSystems()
+	end
+	if scenarioShipEnhancements ~= nil then
+		scenarioShipEnhancements()
 	end
 	addCommsReply(_("Back"), commsStation)
 end
