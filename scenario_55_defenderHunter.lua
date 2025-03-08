@@ -62,8 +62,9 @@ require("cpu_ship_diversification_scenario_utility.lua")
 -------------------------------
 function init()
 	wfv = "nowhere"		--wolf fence value - used for debugging
-	scenario_version = "11.0.0"
-	print(string.format("    ----    Scenario: Defender Hunter    ----    Version %s    ----    EE version: %s    ----",scenario_version,getEEVersion()))
+	scenario_version = "11.0.1"
+	ee_version = "2024.12.08"
+	print(string.format("   ---   Scenario: Defender Hunter   ---   Version %s   ---   EE version: %s   ---   Tested with EE version %s   ---",scenario_version,getEEVersion(),ee_version))
 	if _VERSION ~= nil then
 		print(_VERSION)
 	end
@@ -6184,7 +6185,7 @@ function endStatistics()
 	gMsg = string.format(_("msgMainscreen", "Stations: %i\t survived: %i\t destroyed: %i"),(startingFriendlyStations + startingNeutralStations),survivedStations,destroyedStations)
 	gMsg = gMsg .. string.format(_("msgMainscreen", "\nFriendly Stations: %i\t survived: %i\t destroyed: %i"),startingFriendlyStations,survivedFriendlyStations,destroyedFriendlyStations)
 	gMsg = gMsg .. string.format(_("msgMainscreen", "\nNeutral Stations: %i\t survived: %i\t destroyed: %i"),startingNeutralStations,survivedNeutralStations,destroyedNeutralStations)
-	gMsg = gMsg .. string.format(_("msgMainscreen", "\n\n\n\nEnemy Stations: %i\t survived: %i\t destroyed: %i"),startingEnemyStations,enemyStationsSurvived,enemyStationsSurvived)
+	gMsg = gMsg .. string.format(_("msgMainscreen", "\n\n\n\nEnemy Stations: %i\t survived: %i\t destroyed: %i"),startingEnemyStations,enemyStationsSurvived,destroyedEnemyStations)
 --	gMsg = gMsg .. string.format(_("msgMainscreen", "\n\n\n\nRequired missions completed: %i"),requiredMissionCount)
 	rankVal = survivedFriendlyStations/startingFriendlyStations*.6 + survivedNeutralStations/startingNeutralStations*.2 + (1-enemyStationsSurvived/startingEnemyStations)*.2
 	if missionVictory then
