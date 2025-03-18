@@ -1,7 +1,7 @@
 -- Name: Cadet Patrol
 -- Description: One player ship, full of cadets freshly graduated from the academy assigned to patrol duty
 ---
---- Beginner's mission. Player can save and restore if they can remember the key. Runs about an hour and a half.
+--- Beginner's mission. Player can save and restore if they can remember the key. Runs 1 - 2 hours.
 ---
 --- Version 1 Feb 2025
 ---
@@ -16,6 +16,16 @@ require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 
 function init()
+	scenario_version = "1.0.0"
+	ee_version = "2024.12.08"
+	print(string.format("    ----    Scenario: Cadet Patrol    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	if _VERSION ~= nil then
+		print("Lua version:",_VERSION)
+	end
+	ECS = false
+	if createEntity then
+		ECS = true
+	end
 	store = getScriptStorage()
 	store_name = "Cadet"
 	store_cadet = unStringStore()
@@ -171,6 +181,16 @@ function init()
 	constructEnvironment()
 end
 function setConstants()
+	voice_clips = {
+		["EnemyVesselsDetected"] =			1.36,
+		["HostileShips"] =					1.5,
+		["IncomingEnemyVessels"] =			1.331,
+		["MakeSureThatFreighterGetsHere"] =	3.159,	
+		["SupplyRun"] =						2.049,	
+		["WarshipsIdentified"] =			3.326,
+		["WarWithTheKraylor"] =				12.728,	
+		["WelcomeToTiberius"] =				23.011,	
+	}
 	center_x = 130000 + random(-15000,15000)
 	center_y = 130000 + random(-15000,15000)
 	player_spawn_x, player_spawn_y = vectorFromAngle(random(0,360),random(2500,4000))
@@ -548,6 +568,9 @@ function setConstants()
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 end
 function setGlobals()
+	server_voices = true
+	voice_queue = {}
+	voice_played = {}
 	clean_up_messages = {}
 	build_defense_platforms = {}
 	sensor_impact = 1	--normal
@@ -659,6 +682,33 @@ function setGlobals()
 			},
 		},
 	}
+end
+function isObjectType(obj,typ)
+	if obj ~= nil and obj:isValid() then
+		if typ ~= nil then
+			if ECS then
+				if typ == "SpaceStation" then
+					return obj.components.docking_bay and obj.components.physics and obj.components.physics.type == "static"
+				elseif typ == "PlayerSpaceship" then
+					return obj.components.player_control
+				elseif typ == "ScanProbe" then
+					return obj.components.allow_radar_link
+				elseif typ == "CpuShip" then
+					return obj.ai_controller
+				elseif typ == "Asteroid" then
+					return obj.components.mesh_render and string.sub(obj.components.mesh_render.mesh, 7) == "Astroid"
+				else
+					return false
+				end
+			else
+				return obj.typeName == typ
+			end
+		else
+			return false
+		end
+	else
+		return false
+	end
 end
 function mainGMButtons()
 	clearGMFunctions()
@@ -909,7 +959,7 @@ function findClearSpot(objects,area_shape,area_point_x,area_point_y,area_distanc
 					local ix, iy = item.obj:getPosition()
 					assert(type(item.dist)=="number",string.format("function findClearSpot expects a distance number as the dist value in the object list table item index %i, but got a %s instead",i,type(item.dist)))
 					local comparison_dist = item.dist
-					if placing_station ~= nil and placing_station and item.obj.typeName == "SpaceStation" then
+					if placing_station ~= nil and placing_station and isObjectType(item.obj,"SpaceStation") then
 						comparison_dist = 12000
 					end
 					if distance(cx,cy,ix,iy) < (comparison_dist + new_buffer) then
@@ -956,7 +1006,7 @@ function findClearSpot(objects,area_shape,area_point_x,area_point_y,area_distanc
 					local ix, iy = item.obj:getPosition()
 					assert(type(item.dist)=="number",string.format("function findClearSpot expects a distance number as the dist value in the object list table item index %i, but got a %s instead",i,type(item.dist)))
 					local comparison_dist = item.dist
-					if placing_station ~= nil and placing_station and item.obj.typeName == "SpaceStation" then
+					if placing_station ~= nil and placing_station and isObjectType(item.obj,"SpaceStation") then
 						comparison_dist = 12000
 					end
 					if distance(cx,cy,ix,iy) < (comparison_dist + new_buffer) then
@@ -987,7 +1037,7 @@ function findClearSpot(objects,area_shape,area_point_x,area_point_y,area_distanc
 					local ix, iy = item.obj:getPosition()
 					assert(type(item.dist)=="number",string.format("function findClearSpot expects a distance number as the dist value in the object list table item index %i, but got a %s instead",i,type(item.dist)))
 					local comparison_dist = item.dist
-					if placing_station ~= nil and placing_station and item.obj.typeName == "SpaceStation" then
+					if placing_station ~= nil and placing_station and isObjectType(item.obj,"SpaceStation") then
 						comparison_dist = 12000
 					end
 					if distance(cx,cy,ix,iy) < (comparison_dist + new_buffer) then
@@ -1022,7 +1072,7 @@ function findClearSpot(objects,area_shape,area_point_x,area_point_y,area_distanc
 					local ix, iy = item.obj:getPosition()
 					assert(type(item.dist)=="number",string.format("function findClearSpot expects a distance number as the dist value in the object list table item index %i, but got a %s instead",i,type(item.dist)))
 					local comparison_dist = item.dist
-					if placing_station ~= nil and placing_station and item.obj.typeName == "SpaceStation" then
+					if placing_station ~= nil and placing_station and isObjectType(item.obj,"SpaceStation") then
 						comparison_dist = 12000
 					end
 					if distance(cx,cy,ix,iy) < (comparison_dist + new_buffer) then
@@ -1057,7 +1107,7 @@ function findClearSpot(objects,area_shape,area_point_x,area_point_y,area_distanc
 					local ix, iy = item.obj:getPosition()
 					assert(type(item.dist)=="number",string.format("function findClearSpot expects a distance number as the dist value in the object list table item index %i, but got a %s instead",i,type(item.dist)))
 					local comparison_dist = item.dist
-					if placing_station ~= nil and placing_station and item.obj.typeName == "SpaceStation" then
+					if placing_station ~= nil and placing_station and isObjectType(item.obj,"SpaceStation") then
 						comparison_dist = 12000
 					end
 					if distance(cx,cy,ix,iy) < (comparison_dist + new_buffer) then
@@ -1163,7 +1213,7 @@ function placeTerrain(placement_area,terrain)
 				local wh = WormHole():setPosition(eo_x, eo_y):setTargetPosition(we_x, we_y)
 				wh:onTeleportation(function(self,transportee)
 					string.format("")
-					if transportee ~= nil and transportee:isValid() and transportee.typeName == "PlayerSpaceship" then
+					if transportee ~= nil and transportee:isValid() and isObjectType(transportee,"PlayerSpaceship") then
 						transportee:setEnergy(transportee:getMaxEnergy()/2)	--reduces if more than half, increases if less than half
 					end
 				end)
@@ -1397,7 +1447,7 @@ function placeTerrain(placement_area,terrain)
 				end
 				for i,object in ipairs(objects) do
 					dist = object_space
-					if object.typeName == "Asteroid" then
+					if isObjectType(object,"Asteroid") then
 						dist = object:getSize()
 						local tether_x, tether_y = object:getPosition()
 						local tether_length = random(dist + 10, 800)
@@ -2290,6 +2340,7 @@ function nonCombatMissions(m)
 					print("no qualifying goods on any neutral stations")
 				end
 				local out = string.format(_("goal-comms","We need you to get %s for us. You can get it from %s in sector %s."),good_desc[mission_cargo],mission_station:getCallSign(),mission_station:getSectorName())
+				playVoice("SupplyRun")
 				home_station:sendCommsMessage(player,out)
 				player.get_cargo_message = "sent"
 				stations_sell_goods = true
@@ -2356,9 +2407,14 @@ function missionAgainstEnemies(enemy_mission)
 			local out = string.format(_("centralcommandGoal-incCall","Our sensors detect one or more ships approaching from bearing %.1f. Please investigate."),enemy_mission.spawn_angle)
 			if player.level == 0 then
 				out = string.format(_("centralcommandGoal-incCall","Welcome to your first patrol mission, cadets.\n%s"),out)
-			end
-			if player.level == 8 then
+			elseif player.level == 8 then
 				out = string.format(_("centralcommandGoal-incCall","%s\nMake sure Arlenian freighter %s arrives safely. They have critical supplies for us."),out,enemy_mission.freighter:getCallSign())
+				playVoice("MakeSureThatFreighterGetsHere")
+			else
+				if incoming_voices == nil or #incoming_voices == 0 then
+					incoming_voices = {"EnemyVesselsDetected","HostileShips","IncomingEnemyVessels","WarshipsIdentified"}
+				end
+				playVoice(tableRemoveRandom(incoming_voices))
 			end
 			home_station:sendCommsMessage(player,out)
 			enemy_mission.message = "sent"
@@ -2639,6 +2695,30 @@ function updatePlayerLongRangeSensors(delta,p)
 	impact_range = math.max(p:getShortRangeRadarRange(),impact_range + probe_scan_boost_impact)
 	p:setLongRangeRadarRange(impact_range)
 end
+function playVoice(clip)
+	if server_voices then
+		if not voice_played[clip] then
+			table.insert(voice_queue,clip)
+			voice_played[clip] = true
+		end
+	end
+end
+function handleVoiceQueue()
+	if #voice_queue > 0 then
+		if voice_play_time == nil then
+			playSoundFile(string.format("audio/scenario/34/sa_34_%s.ogg",voice_queue[1]))
+			if voice_clips[voice_queue[1]] == nil then
+				print("In the voice clips list,",voice_queue[1],"comes up as nil. Setting play gap to 20")
+				voice_play_time = getScenarioTime() + 20
+			else
+				voice_play_time = getScenarioTime() + voice_clips[voice_queue[1]] + 1
+			end
+			table.remove(voice_queue,1)
+		elseif getScenarioTime() > voice_play_time then
+			voice_play_time = nil
+		end
+	end
+end
 function update(delta)
 	if delta == 0 then
 		return
@@ -2647,6 +2727,7 @@ function update(delta)
 	if player.opening_message == nil then
 		if availableForComms(player) then
 			home_station:sendCommsMessage(player,string.format(_("centralcommandGoal-incCall","You have been assigned patrol duty to the region in and around %s. Request permission to dock with %s and then dock with %s to get started. Redock with %s periodically to get your next assignment from the dispatch office."),home_station:getCallSign(),home_station:getCallSign(),home_station:getCallSign(),home_station:getCallSign()))
+			playVoice("WelcomeToTiberius")
 			player.opening_message = "sent"
 		end
 	end
@@ -2655,6 +2736,7 @@ function update(delta)
 			if player.final_mission_message == nil and #build_defense_platforms < 1 then
 				if availableForComms(player) then
 					home_station:sendCommsMessage(player,string.format(_("centralcommandGoal-incCall","The Kraylor finally communicated a formal declaration of war against the Human Navy. Your task is no longer a simple patrol mission. Your task is to destroy their primary military station %s located in sector %s while at the same time protect %s in sector %s. Good luck."),nemesis_station:getCallSign(),nemesis_station:getSectorName(),home_station:getCallSign(),home_station:getSectorName()))
+					playVoice("WarWithTheKraylor")
 					player.final_mission_message = "sent"
 				end
 			end
@@ -2688,4 +2770,5 @@ function update(delta)
 	maintainTransports()
 	buildDefensePlatforms()
 	cleanUpMessages()
+	handleVoiceQueue()
 end
