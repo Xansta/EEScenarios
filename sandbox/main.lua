@@ -77,6 +77,10 @@ function init()
 	if _VERSION ~= nil then
 		print("Lua version",_VERSION)	--Lua version
 	end
+	ECS = false
+	if createEntity then
+		ECS = true
+	end
 	updateDiagnostic = false
 	healthDiagnostic = false
 	specialty_probe_diagnostic = false
@@ -95,6 +99,74 @@ function init()
 	applySettings()
 	runAllTests()
 end
+function isObjectType(obj,typ,qualifier)
+	if obj ~= nil and obj:isValid() then
+		if typ ~= nil then
+			if ECS then
+				if typ == "SpaceStation" then
+					return obj.components.docking_bay and obj.components.physics and obj.components.physics.type == "static"
+				elseif typ == "PlayerSpaceship" then
+					return obj.components.player_control
+				elseif typ == "ScanProbe" then
+					return obj.components.allow_radar_link
+				elseif typ == "CpuShip" then
+					return obj.ai_controller
+				elseif typ == "Asteroid" then
+					return obj.components.mesh_render and string.sub(obj.components.mesh_render.mesh, 7) == "Astroid"
+				elseif typ == "Nebula" then
+					return obj.components.nebula_renderer
+				elseif typ == "Planet" then
+					return obj.components.planet_render
+				elseif typ == "SupplyDrop" then
+					return obj.components.pickup and obj.components.radar_trace.icon == "radar/blip.png" and obj.components.radar_trace.color_by_faction
+				elseif typ == "BlackHole" then
+					return obj.components.gravity and obj.components.billboard_render.texture == "blackHole3d.png"
+				elseif typ == "WarpJammer" then
+					return obj.components.warp_jammer
+				elseif typ == "Mine" then
+					return obj.components.delayed_explode_on_touch and obj.components.constant_particle_emitter
+				elseif typ == "EMPMissile" then
+					return obj.components.radar_trace.icon == "radar/missile.png" and obj.components.explode_on_touch.damage_type == "emp"
+				elseif typ == "Nuke" then
+					return obj.components.radar_trace.icon == "radar/missile.png" and obj.components.explosion_sfx == "sfx/nuke_explosion.wav"
+				elseif typ == "Zone" then
+					return obj.components.zone
+				else
+					if qualifier == "MovingMissile" then
+						if typ == "HomingMissile" or typ == "HVLI" or typ == "Nuke" or typ == "EMPMissile" then
+							return obj.components.radar_trace.icon == "radar/missile.png"
+						else
+							return false
+						end
+					elseif qualifier == "SplashMissile" then
+						if typ == "Nuke" or typ == "EMPMissile" then
+							if obj.components.radar_trace.icon == "radar/missile.png" then
+								if typ == "Nuke" then
+									return obj.components.explosion_sfx == "sfx/nuke_explosion.wav"
+								else	--EMP
+									return obj.components.explode_on_touch.damage_type == "emp"
+								end
+							else
+								return false
+							end
+						else
+							return false
+						end
+					else
+						return false
+					end
+				end
+			else
+				return obj.typeName == typ
+			end
+		else
+			return false
+		end
+	else
+		return false
+	end
+end
+
 function applySettings()
 	if getScenarioSetting("Mirror") == "Yes" then
 		convertToMirror()
@@ -3040,7 +3112,7 @@ function createSkeletonUniverse()
 		    self:setTargetPosition(wep_x + wc_exit_x, wep_y + wc_exit_y)
 		end
 		if teleportee ~= nil then
-		    if teleportee.typeName == "PlayerSpaceship" then
+		    if isObjectType(teleportee,"PlayerSpaceship") then
 		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
 			end
 		end
@@ -3052,7 +3124,7 @@ function createSkeletonUniverse()
 			self:setTargetPosition(wc_x + wep_exit_x, wc_y + wep_exit_y)
 		end
 		if teleportee ~= nil then
-		    if teleportee.typeName == "PlayerSpaceship" then
+		    if isObjectType(teleportee,"PlayerSpaceship") then
 		    	teleportee:setEnergyLevel(teleportee:getEnergyLevel()*.7)
 			end
 		end
@@ -3512,7 +3584,7 @@ function spawnGMShips()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		temp_carrier = object_list[1]
-		if temp_carrier.typeName == "CpuShip" then
+		if isObjectType(temp_carrier,"CpuShip") then
 			addGMFunction("+Spawn Fighter Wing",setFighterWing)
 		end
 	end
@@ -3985,7 +4057,7 @@ function orderFleet()
 		local object_list = getGMSelection()
 		local fleet = {}
 		for _, temp_object in pairs(object_list) do
-			if temp_object.typeName == "CpuShip" then
+			if isObjectType(temp_object,"CpuShip") then
 				if temp_object:getFaction() == "Human Navy" then
 					table.insert(fleet,temp_object)
 				end
@@ -4010,7 +4082,7 @@ function orderFleet()
 		local object_list = getGMSelection()
 		local fleet = {}
 		for _, temp_object in pairs(object_list) do
-			if temp_object.typeName == "CpuShip" then
+			if isObjectType(temp_object,"CpuShip") then
 				table.insert(fleet,temp_object)
 			end
 		end
@@ -4029,7 +4101,7 @@ function orderFleet()
 		local object_list = getGMSelection()
 		local fleet = {}
 		for _, temp_object in pairs(object_list) do
-			if temp_object.typeName == "CpuShip" then
+			if isObjectType(temp_object,"CpuShip") then
 				table.insert(fleet,temp_object)
 			end
 		end
@@ -4064,38 +4136,13 @@ function orderShip()
 	addGMFunction("-Main from order ship",initialGMFunctions)
 	addGMFunction("+Warp/Jump Jammer",warpJumpJammer)
 	addGMFunction("+Specials",setSpecialsOnNPS)
-	--[[
-	addGMFunction("Fix Shield Freq",function()
-		local object_list = getGMSelection()
-		if #object_list ~= 1 then
-			addGMMessage("You need to select a CPU ship. No action taken")
-			return
-		end
-		local tempObject = object_list[1]
-		local tempType = tempObject.typeName
-		if tempType ~= "CpuShip" then
-			addGMMessage("You need to select a CPU ship. No action taken")
-			return
-		end
-		if tempObject.damage_instigator == nil then
-			addGMMessage("No damage-instigating perpetrator found. No action taken")
-			return
-		end
-		if tempObject.damage_instigator:getBeamFrequency() == nil then
-			addGMMessage("Damage instigator has no beam frequency. No action taken")
-			return
-		end
-		tempObject:setShieldsFrequency(tempObject.damage_instigator:getBeamFrequency())
-		addGMMessage(string.format("shields of %s change to frequency %s (%s)",tempObject:getCallSign(),tempObject.damage_instigator:getBeamFrequency(),tempObject.damage_instigator:getBeamFrequency()*20+400))
-	end)
-	--]]
 	addGMFunction("+Attach/Detach",attachDetach)
 	addGMFunction("+Patrol",setPatrolPoints)	--currently broken
 	local button_label = "+AI"
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local obj = object_list[1]
-		if obj.typeName == "CpuShip" then
+		if isObjectType(obj,"CpuShip") then
 			if obj.AI ~= nil then
 				button_label = string.format("+AI %s",obj.AI)
 			end
@@ -4108,7 +4155,7 @@ function orderShip()
 		local object_list = getGMSelection()
 		if #object_list == 1 then
 		local obj = object_list[1]
-			if obj.typeName == "CpuShip" then
+			if isObjectType(obj,"CpuShip") then
 				local docked_with = obj:getDockedWith()
 				if docked_with ~= nil then
 					addGMMessage(string.format("Docked with %s",docked_with:getCallSign()))
@@ -4124,7 +4171,7 @@ function orderShip()
 		local non_enemies_only = true
 		local obj = object_list[1]
 		if #object_list == 1 then
-			if obj.typeName == "CpuShip" then
+			if isObjectType(obj,"CpuShip") then
 				if obj ~= nil and obj:isValid() then
 					if obj.jam_range ~= nil then
 						button_label = string.format("%s On",button_label)
@@ -4145,7 +4192,7 @@ function orderShip()
 			end
 		else
 			for _, obj in ipairs(object_list) do
-				if obj == nil or not obj:isValid() or obj.typeName ~= "CpuShip" then
+				if obj == nil or not obj:isValid() or isObjectType(obj,"CpuShip") then
 					ships_only = false
 					break
 				end
@@ -4161,7 +4208,7 @@ function orderShip()
 						local non_enemies_only = true
 						local action_list = {}
 						for i,obj in ipairs(object_list) do
-							if obj == nil or not obj:isValid() or obj.typeName ~= "CpuShip" then
+							if obj == nil or not obj:isValid() or isObjectType(obj,"CpuShip") then
 								ships_only = false
 							else
 								for i,p in ipairs(getActivePlayerShips()) do
@@ -4242,7 +4289,7 @@ function toggleShipSensorJammer()
 	if #object_list > 0 then
 		local modified_ships_message = ""
 		for _, obj in ipairs(object_list) do
-			if obj ~= nil and obj:isValid() and obj.typeName == "CpuShip" then
+			if obj ~= nil and obj:isValid() and isObjectType(obj,"CpuShip") then
 				if obj.jam_range == nil then
 					obj.jam_range = sensor_jammer_range
 					obj.jam_impact = sensor_jammer_impact
@@ -4291,7 +4338,7 @@ function fiddleWithArtifacts()
 	if object_list == nil or #object_list ~= 1 then
 		addGMFunction("+Select Artifact",fiddleWithArtifacts)
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			addGMFunction("+Select Artifact",fiddleWithArtifacts)
 		else
 			addGMFunction("+Set Model",setArtifactModel)
@@ -4304,7 +4351,7 @@ function fiddleWithArtifacts()
 					fiddleWithArtifacts()
 					return
 				else
-					if object_list[1].typeName ~= "Artifact" then
+					if not isObjectType(object_list[1],"Artifact") then
 						addGMMessage("No artifact selected. no action taken")
 						fiddleWithArtifacts()
 						return
@@ -4320,7 +4367,7 @@ function fiddleWithArtifacts()
 					fiddleWithArtifacts()
 					return
 				else
-					if object_list[1].typeName ~= "Artifact" then
+					if not isObjectType(object_list[1],"Artifact") then
 						addGMMessage("No artifact selected. no action taken")
 						fiddleWithArtifacts()
 						return
@@ -4360,14 +4407,12 @@ function tweakTerrain()
 	local objectList = getGMSelection()
 	if #objectList == 1 then
 		local tempObject = objectList[1]
-		local tempType = tempObject.typeName
-		if tempType == "SpaceStation" or tempType == "CpuShip" then
+		if isObjectType(tempObject,"SpaceStation") or isObjectType(tempObject,"CpuShip") then
 			addGMFunction("Sandbox Comms",function()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local tempObject = objectList[1]
-					local tempType = tempObject.typeName
-					if tempType == "SpaceStation" then
+					if isObjectType(tempObject,"SpaceStation") then
 						tempObject:setCommsScript(""):setCommsFunction(commsStation)
 						tempObject.comms_data = {
 							friendlyness = random(50,100),
@@ -4403,7 +4448,7 @@ function tweakTerrain()
 							public_relations = false
 						}
 						addGMMessage(string.format("Station %s now has sandbox communications",tempObject:getCallSign()))
-					elseif tempType == "CpuShip" then
+					elseif isObjectType(tempObject,"CpuShip") then
 						local type_name = tempObject:getTypeName()
 						if type_name == "Command Base" or type_name == "Military Outpost" then
 							tempObject:setCommsScript(""):setCommsFunction(commsStation)
@@ -4467,7 +4512,7 @@ function tweakTerrain()
 				if #object_list > 0 then
 					local ship_names = ""
 					for _, temp_object in ipairs(object_list) do
-						if temp_object.typeName == "CpuShip" then
+						if isObjectType(temp_object,"CpuShip") then
 							local type_name = temp_object:getTypeName()
 							if type_name == "Command Base" or type_name == "Military Outpost" then
 								temp_object:setCommsScript(""):setCommsFunction(commsStation)
@@ -4617,10 +4662,9 @@ function asteroidsNebulae()
 	local objectList = getGMSelection()
 	if #objectList == 1 then
 		local tempObject = objectList[1]
-		local tempType = tempObject.typeName
-		if tempType == "Asteroid" then
+		if isObjectType(tempObject,"Asteroid") then
 			addGMFunction("Pulse Asteroid",pulseAsteroid)
-		elseif tempType == "Nebula" then
+		elseif isObjectType(tempObject,"Nebula") then
 			local selected_nebula_index = nil
 			for ani, neb in ipairs(anomalous_nebulae) do
 				if tempObject == neb.neb then
@@ -4641,10 +4685,9 @@ function asteroidsNebulae()
 			local asteroids = {}
 			local nebulae = {}
 			for i,obj in ipairs(objectList) do
-				local temp_type = obj.typeName
-				if temp_type == "Asteroid" then
+				if isObjectType(obj,"Asteroid") then
 					table.insert(asteroids,obj)
-				elseif temp_type == "Nebula" then
+				elseif isObjectType(obj,"Nebula") then
 					table.insert(nebulae,obj)
 				end
 			end
@@ -4693,10 +4736,14 @@ function tweakPlanet()
 			addGMMessage("Select a planet. No action taken.")
 			tweakPlanet()
 		else
-			if object_list[1].typeName == "Planet" then
+			if isObjectType(object_list[1],"Planet") then
 				selected_planet = object_list[1]
 			else
-				addGMMessage(string.format("Select a planet, not a %s. No action taken.",object_list[1].typeName))
+				if ECS then
+					addGMMessage("Select a planet. No action taken.")
+				else
+					addGMMessage(string.format("Select a planet, not a %s. No action taken.",object_list[1].typeName))
+				end
 			end
 			tweakPlanet()
 		end
@@ -4733,10 +4780,14 @@ function planetOrbiter()
 			addGMMessage("Select a planet. No action taken.")
 			planetOrbiter()
 		else
-			if object_list[1].typeName == "Planet" then
+			if isObjectType(object_list[1],"Planet") then
 				selected_orbiter = object_list[1]
 			else
-				addGMMessage(string.format("Select a planet, not a %s. No action taken.",object_list[1].typeName))
+				if ECS then
+					addGMMessage("Select a planet. No action taken.")
+				else
+					addGMMessage(string.format("Select a planet, not a %s. No action taken.",object_list[1].typeName))
+				end
 			end
 			planetOrbiter()
 		end
@@ -5812,8 +5863,7 @@ function setSelectedNebula()
 	local objectList = getGMSelection()
 	if #objectList == 1 then
 		local tempObject = objectList[1]
-		local tempType = tempObject.typeName
-		if tempType == "Nebula" then
+		if isObjectType(tempObject,"Nebula") then
 			setSingleNebula(tempObject)
 		else
 			addGMMessage("Select a nebula. No action taken")
@@ -5826,8 +5876,7 @@ function setSelectedNebula()
 		else
 			local nebulae = {}
 			for i,obj in ipairs(objectList) do
-				local temp_type = obj.typeName
-				if temp_type == "Nebula" then
+				if isObjectType(obj,"Nebula") then
 					table.insert(nebulae,obj)
 				end
 			end
@@ -6425,7 +6474,11 @@ function linkBeam()
 					if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
 						beam_link_object_name = object_list[1]:getCallSign()
 					else
-						beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+						if ECS then
+							beam_link_object_name = "something" .. object_list[1]:getSectorName()
+						else
+							beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+						end
 					end
 					beam_link_object = object_list[1]
 				end
@@ -6441,7 +6494,11 @@ function linkBeam()
 				if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
 					beam_link_object_name = object_list[1]:getCallSign()
 				else
-					beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+					if ECS then
+						beam_link_object_name = "something" .. object_list[1]:getSectorName()
+					else
+						beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+					end
 				end
 				beam_link_object = object_list[1]
 				linked_beam = true
@@ -8446,8 +8503,7 @@ function explodeSelectedArtifact()
 		return
 	end
 	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	if tempType ~= "Artifact" then
+	if not isObjectType(tempObject,"Artifact") then
 		addGMMessage("Only select an artifact since only artifacts explode. No action taken.")
 		return
 	end
@@ -8460,8 +8516,7 @@ function pulseAsteroid()
 		return
 	end
 	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	if tempType ~= "Asteroid" then
+	if not isObjectType(tempObject,"Asteroid") then
 		addGMMessage("Only select an asteroid. No action taken.")
 		return
 	end
@@ -8691,7 +8746,7 @@ function coloredSubspaceRift (x,y,destination_x,destination_y)
 			local x,y=obj:getPosition()
 			local objs = getObjectsInRadius(x,y,self.current_radius)
 			for i=#objs,1,-1 do
-				if objs[i].typeName=="PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+				if isObjectType(objs[i],"PlayerSpaceship") or isObjectType(objs[i],"CpuShip") then
 					objs[i]:setPosition(self.destination_x,self.destination_y)
 				end
 			end
@@ -8724,9 +8779,6 @@ function customButtons()
 	addGMFunction("+Snippet",snippetButtons)
 	addGMFunction("+One-Offs",oneOffs)
 	addGMFunction("+Gateway/Rifts",gatewayRifts)
-	addGMFunction("Object Counts",function()
-		addGMMessage(getNumberOfObjectsString())
-	end)
 	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
 		local x,y = obj:getPosition()
 			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
@@ -8777,7 +8829,7 @@ function gatewayRifts()
 				local x,y=obj:getPosition()
 				local objs = getObjectsInRadius(x,y,self.current_radius)
 				for i=#objs,1,-1 do
-					if objs[i].typeName=="PlayerSpaceship" then
+					if isObjectType(objs[i],"PlayerSpaceship") then
 						local player_x,player_y = objs[i]:getPosition()
 						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
 						setCirclePos(objs[i],x,y,-angle,self.current_radius)
@@ -9575,7 +9627,7 @@ function carolStage(stage)
 			end
 			local objs = getObjectsInRadius(x,y,self.current_radius)
 			for i=#objs,1,-1 do
-				if objs[i].typeName=="PlayerSpaceship" then
+				if isObjectType(objs[i],"PlayerSpaceship") then
 					local player_x,player_y = objs[i]:getPosition()
 					local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
 					setCirclePos(objs[i],x,y,-angle,self.current_radius)
@@ -11727,7 +11779,7 @@ function filkRoadSector()
 end
 function singleCPUShipFunction(fn)
 	return singleObjectFunction(function (obj)
-		if obj.typeName ~= "CpuShip" then
+		if not isObjectType(obj,"CpuShip") then
 			addGMMessage("you must select one CPUship")
 			return
 		end
@@ -11947,7 +11999,7 @@ end
 function wormholeTax1(worm_hole,transportee)
 	createRegionUponTeleportation(worm_hole)
 	if transportee ~= nil then
-		if transportee.typeName == "PlayerSpaceship" or transportee.typeName == "CpuShip" then
+		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
 			for i,system in ipairs(system_list) do
 				if transportee:hasSystem(system) then
 					local adjust = random(.7,.95)
@@ -11963,7 +12015,7 @@ end
 function wormholeTax2(worm_hole,transportee)
 	createRegionUponTeleportation(worm_hole)
 	if transportee ~= nil then
-		if transportee.typeName == "PlayerSpaceship" or transportee.typeName == "CpuShip" then
+		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
 			local system_pool = {}
 			for i,system in ipairs(system_list) do
 				if transportee:hasSystem(system) then
@@ -24421,7 +24473,7 @@ function riptideBinarySector()
 			local shipInFrictionArea = false
 			local objs = getObjectsInRadius(centerX, centerY, 30000)
 			for i=1, #objs do
-				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+				if isObjectType(objs[i],"PlayerSpaceship") or isObjectType(objs[i],"CpuShip") then
 					shipInFrictionArea = true
 					break
 				end
@@ -24438,7 +24490,7 @@ function riptideBinarySector()
 			local shipInNebula = false
 			local objs = obj:getObjectsInRange(5000)
 			for i=1, #objs do
-				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+				if isObjectType(objs[i],"PlayerSpaceship") or isObjectType(objs[i],"CpuShip") then
 					shipInNebula = true
 					break
 				end
@@ -24454,7 +24506,7 @@ function riptideBinarySector()
 			local ee = ElectricExplosionEffect():setPosition(nx + irandom(-2000, 2000), ny + irandom(-2000, 2000)):setSize(irandom(100,1000)):setOnRadar(true)
 			local objs = ee:getObjectsInRange(size)
 			for i=1, #objs do
-				if objs[i].typeName == "PlayerSpaceship" or objs[i].typeName == "CpuShip" then
+				if isObjectType(objs[i],"PlayerSpaceship") or isObjectType(objs[i],"CpuShip") then
 					local newShields = {}
 					if objs[i]:getShieldsActive() then
 						for j=1, objs[i]:getShieldCount() do
@@ -29456,7 +29508,7 @@ function gmClickZoneWaypoint(x,y)
 	local selected_list = getGMSelection()
 	local players_selected = {}
 	for _, obj in ipairs(selected_list) do
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			table.insert(players_selected,obj)
 		end
 	end
@@ -29540,7 +29592,7 @@ function playerObservatoryProbes()
 	local selected_list = getGMSelection()
 	local players_selected = {}
 	for _, obj in ipairs(selected_list) do
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			table.insert(players_selected,obj)
 		end
 	end
@@ -29641,7 +29693,7 @@ function playerWarpJammerProbes()
 	local selected_list = getGMSelection()
 	local players_selected = {}
 	for _, obj in ipairs(selected_list) do
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			table.insert(players_selected,obj)
 		end
 	end
@@ -29775,7 +29827,7 @@ function playerSensorBoostProbes()
 	local selected_list = getGMSelection()
 	local players_selected = {}
 	for _, obj in ipairs(selected_list) do
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			table.insert(players_selected,obj)
 		end
 	end
@@ -29909,7 +29961,7 @@ function playerFastProbes()
 	local selected_list = getGMSelection()
 	local players_selected = {}
 	for _, obj in ipairs(selected_list) do
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			table.insert(players_selected,obj)
 		end
 	end
@@ -42627,7 +42679,7 @@ function orderFleetChange()
 	local new_fleet = {}
 	for i=1,#object_list do
 		local current_selected_object = object_list[i]
-		if current_selected_object.typeName == "CpuShip" then
+		if isObjectType(current_selected_object,"CpuShip") then
 			cpu_ship_count = cpu_ship_count + 1
 			local current_faction = current_selected_object:getFaction()
 			if cpu_ship_faction == nil then
@@ -42668,7 +42720,7 @@ function averageImpulse()
 		local selected_matches_npc_ship = true
 		for i=1,#object_list do
 			local current_selected_object = object_list[i]
-			if current_selected_object.typeName ~= "CpuShip" then
+			if not isObjectType(current_selected_object,"CpuShip") then
 				selected_matches_npc_ship = false
 				break
 			end
@@ -42935,7 +42987,7 @@ function dropJammer()
 	local selected_matches_npc_ship = false
 	for i=1,#object_list do
 		local current_selected_object = object_list[i]
-		if current_selected_object.typeName == "CpuShip" then
+		if isObjectType(current_selected_object,"CpuShip") then
 			local csox, csoy = current_selected_object:getPosition()
 			local vx, vy = vectorFromAngle(current_selected_object:getHeading()+90,500)
 			WarpJammer():setRange(jammer_range):setPosition(csox+vx,csoy+vy):setFaction(current_selected_object:getFaction())
@@ -42975,8 +43027,7 @@ function setSpecialsOnNPS()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
+		if isObjectType(tempObject,"CpuShip") then
 			if special_ship_selected then
 				if special_ship ~= temp_object then
 					selection_label = string.format("+Chg %s to %s",special_ship:getCallSign(),temp_object:getCallSign())
@@ -43147,8 +43198,7 @@ function changeSpecialShip()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
+		if isObjectType(temp_object,"CpuShip") then
 			special_ship = temp_object
 		else
 			addGMMessage("Select CPU ship. No action taken")
@@ -43889,8 +43939,7 @@ function setPatrolPoints()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
+		if isObjectType(temp_object,"CpuShip") then
 			if patrol_ship_selected then
 				if patrol_ship ~= temp_object then
 					selection_label = string.format("+Chg %s to %s",patrol_ship:getCallSign(),temp_object:getCallSign())
@@ -43938,8 +43987,7 @@ function changePatrolShip()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
+		if isObjectType(temp_object,"CpuShip") then
 			patrol_ship = temp_object
 		else
 			addGMMessage("Select CPU ship. No action taken")
@@ -43983,7 +44031,7 @@ function setShipAI()
 	end
 	local obj = object_list[1]
 	if obj ~= nil then
-		if obj.typeName ~= "CpuShip" then
+		if not isObjectType(obj,"CpuShip") then
 			addGMMessage("What you have selected is not a CPU ship. No action taken.")
 			return
 		end
@@ -43997,7 +44045,7 @@ function setShipAI()
 	end
 	local cpu_ship_count = 0
 	for _, ship in ipairs(object_list) do
-		if ship.typeName == "CpuShip" then
+		if isObjectType(ship,"CpuShip") then
 			cpu_ship_count = cpu_ship_count + 1
 		end
 	end
@@ -44009,7 +44057,7 @@ function setShipAI()
 	local button_label = "default"
 	if #object_list == 1 then
 		if object_list[1] ~= nil and object_list[1]:isValid() then
-			if object_list[1].typeName == "CpuShip" then
+			if isObjectType(object_list[1],"CpuShip") then
 				if object_list[1].AI == "default" then
 					button_label = button_label .. "*"
 				end
@@ -44024,7 +44072,7 @@ function setShipAI()
 		local ai_list = {}
 		for _, ship in ipairs(object_list) do
 			if ship ~= nil and ship:isValid() then
-				if ship.typeName == "CpuShip" then
+				if isObjectType(ship,"CpuShip") then
 					ship:setAI("default")
 					ship.AI = "default"
 					table.insert(ai_list,ship)
@@ -44047,7 +44095,7 @@ function setShipAI()
 	button_label = "fighter"
 	if #object_list == 1 then
 		if object_list[1] ~= nil and object_list[1]:isValid() then
-			if object_list[1].typeName == "CpuShip" then
+			if isObjectType(object_list[1],"CpuShip") then
 				if object_list[1].AI == "fighter" then
 					button_label = button_label .. "*"
 				end
@@ -44062,7 +44110,7 @@ function setShipAI()
 		local ai_list = {}
 		for _, ship in ipairs(object_list) do
 			if ship ~= nil and ship:isValid() then
-				if ship.typeName == "CpuShip" then
+				if isObjectType(ship,"CpuShip") then
 					ship:setAI("fighter")
 					ship.AI = "fighter"
 					table.insert(ai_list,ship)
@@ -44085,7 +44133,7 @@ function setShipAI()
 	button_label = "missilevolley"
 	if #object_list == 1 then
 		if object_list[1] ~= nil and object_list[1]:isValid() then
-			if object_list[1].typeName == "CpuShip" then
+			if isObjectType(object_list[1],"CpuShip") then
 				if object_list[1].AI == "missilevolley" then
 					button_label = button_label .. "*"
 				end
@@ -44100,7 +44148,7 @@ function setShipAI()
 		local ai_list = {}
 		for _, ship in ipairs(object_list) do
 			if ship ~= nil and ship:isValid() then
-				if ship.typeName == "CpuShip" then
+				if isObjectType(ship,"CpuShip") then
 					ship:setAI("missilevolley")
 					ship.AI = "missilevolley"
 					table.insert(ai_list,ship)
@@ -44123,7 +44171,7 @@ function setShipAI()
 	button_label = "evasion"
 	if #object_list == 1 then
 		if object_list[1] ~= nil and object_list[1]:isValid() then
-			if object_list[1].typeName == "CpuShip" then
+			if isObjectType(object_list[1],"CpuShip") then
 				if object_list[1].AI == "evasion" then
 					button_label = button_label .. "*"
 				end
@@ -44138,7 +44186,7 @@ function setShipAI()
 		local ai_list = {}
 		for _, ship in ipairs(object_list) do
 			if ship ~= nil and ship:isValid() then
-				if ship.typeName == "CpuShip" then
+				if isObjectType(ship,"CpuShip") then
 					ship:setAI("evasion")
 					ship.AI = "evasion"
 					table.insert(ai_list,ship)
@@ -44189,8 +44237,7 @@ function setFormation()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
+		if isObjectType(temp_object,"CpuShip") then
 			if formation_ship_selected then
 				if formation_ship ~= temp_object then
 					select_label = string.format("+Chg %s to %s",formation_ship:getCallSign(),temp_object:getCallSign())
@@ -44464,8 +44511,7 @@ function changeFormationShip()
 	local object_list = getGMSelection()
 	if #object_list == 1 then
 		local temp_object = object_list[1]
-		local temp_type = temp_object.typeName
-		if temp_type == "CpuShip" then
+		if isObjectType(temp_object,"CpuShip") then
 			formation_ship = temp_object
 		else
 			addGMMessage("Select CPU ship. No action taken")
@@ -44549,7 +44595,7 @@ function revertShip()
 	if #object_list ~= 1 then
 		addGMFunction("+Select Ship",revertShip)
 	else
-		if object_list[1].typeName ~= "CpuShip" then
+		if not isObjectType(object_list[1],"CpuShip") then
 			addGMFunction("+Select Ship",revertShip)
 		else
 			addGMFunction(string.format("Revert %s",object_list[1]:getCallSign()),function()
@@ -44712,13 +44758,12 @@ function attachAnythingToNPS()
 		return
 	end
 	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
 	local pod_x, pod_y = current_selected_object:getPosition()
 	local nearby_objects = getObjectsInRadius(pod_x, pod_y, 40000)
 	cpu_ship_list = {}
 	for i=1,#nearby_objects do
 		local temp_object = nearby_objects[i]
-		if temp_object.typeName == "CpuShip" and (not isInGMSelection(temp_object)) then
+		if isObjectType(temp_object,"CpuShip") and (not isInGMSelection(temp_object)) then
 			if distance_diagnostic then
 				print("distance_diagnostic 10 temp_object:",temp_object,"current_selected_object:",current_selected_object)
 			end		
@@ -45194,7 +45239,7 @@ function setArtifactModel()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45223,7 +45268,7 @@ function setArtifactSpin()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45243,7 +45288,7 @@ function setGivenSpin(spin)
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45257,7 +45302,7 @@ function setArtifactSignature()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45275,7 +45320,7 @@ function setArtifactBiologicalSignature()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45318,7 +45363,7 @@ function setArtifactElectricalSignature()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45361,7 +45406,7 @@ function setArtifactGravitationalSignature()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -45502,8 +45547,10 @@ function podAssociatedTo()
 		return
 	end
 	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	local podDistance = associatedTypeDistance[tempType]
+	local podDistance = 5500
+	if not ECS then
+		podDistance = associatedTypeDistance[tempObject.typeName]
+	end
 	if podDistance == nil then
 		addGMMessage(tempType .. ": not type which can be associated")
 		return
@@ -45710,8 +45757,7 @@ function podNearTo()
 	cpuShipList = {}
 	for i=1,#nearbyObjects do
 		local tempObject = nearbyObjects[i]
-		local tempType = tempObject.typeName
-		if tempType == "CpuShip" then
+		if isObjectType(tempObject,"CpuShip") then
 			table.insert(cpuShipList,tempObject)
 		end
 		if #cpuShipList >= 3 then
@@ -45940,7 +45986,7 @@ function artifactToPod()
 		return
 	end
 	local pod=objectList[1]
-	if pod.typeName ~= "Artifact" then
+	if not isObjectType(pod,"Artifact") then
 		addGMMessage("must select an artifact to convert. No action taken")
 		return
 	end
@@ -46140,8 +46186,10 @@ function marineAssociatedTo()
 		return
 	end
 	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	local marineDistance = associatedTypeDistance[tempType]
+	local marineDistance = 5500
+	if not ECS then
+		marineDistance = associatedTypeDistance[tempObject.typeName]
+	end
 	if marineDistance == nil then
 		addGMMessage(tempType .. ": not type which can be associated. No action taken.")
 		--print(tempType .. ": not type which can be associated")
@@ -46394,8 +46442,7 @@ function marineNearTo()
 	cpuShipList = {}
 	for i=1,#nearbyObjects do
 		local tempObject = nearbyObjects[i]
-		local tempType = tempObject.typeName
-		if tempType == "CpuShip" then
+		if isObjectType(tempObject,"CpuShip") then
 			table.insert(cpuShipList,tempObject)
 		end
 		if #cpuShipList >= 3 then
@@ -46510,8 +46557,10 @@ function engineerAssociatedTo()
 		return
 	end
 	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	local engineerDistance = associatedTypeDistance[tempType]
+	local engineerDistance = 5500
+	if not ECS then
+		engineerDistance = associatedTypeDistance[tempObject.typeName]
+	end
 	if engineerDistance == nil then
 		addGMMessage(string.format("The type of the object selected (%s) is not a type that can be associate. No action taken",tempType))
 		--print(tempType .. ": not type which can be associated")
@@ -46764,8 +46813,7 @@ function engineerNearTo()
 	cpuShipList = {}
 	for i=1,#nearbyObjects do
 		local tempObject = nearbyObjects[i]
-		local tempType = tempObject.typeName
-		if tempType == "CpuShip" then
+		if isObjectType(tempObject,"CpuShip") then
 			table.insert(cpuShipList,tempObject)
 		end
 		if #cpuShipList >= 3 then
@@ -46880,8 +46928,10 @@ function medicAssociatedTo()
 		return
 	end
 	local tempObject = objectList[1]
-	local tempType = tempObject.typeName
-	local medicDistance = associatedTypeDistance[tempType]
+	local medicDistance = 5500
+	if not ECS then
+		medicDistance = associatedTypeDistance[tempObject.typeName] 
+	end
 	if medicDistance == nil then
 		addGMMessage(string.format("Type of object selected (%s) cannot be associated. No action taken",tempType))
 		--print(tempType .. ": not type which can be associated")
@@ -47231,8 +47281,7 @@ function medicNearTo()
 	cpuShipList = {}
 	for i=1,#nearbyObjects do
 		local tempObject = nearbyObjects[i]
-		local tempType = tempObject.typeName
-		if tempType == "CpuShip" then
+		if isObjectType(tempObject,"CpuShip") then
 			table.insert(cpuShipList,tempObject)
 		end
 		if #cpuShipList >= 3 then
@@ -48149,11 +48198,10 @@ function attachArtifact()
 		return
 	end
 	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
-	if current_selected_object_type ~= "Artifact" and current_selected_object_type ~= "SupplyDrop" then
+	if not isObjectType(current_selected_object,"Artifact") and not isObjectType(current_selected_object,"SupplyDrop") then
 		addGMFunction("+Select drop point",attachArtifact)
 	else
-		if current_selected_object_type == "Artifact" then
+		if isObjectType(current_selected_object,"Artifact") then
 			if escapePodList[current_selected_object:getCallSign()] == nil then
 				addGMFunction("+Select drop point",attachArtifact)
 				return
@@ -48169,8 +48217,7 @@ function attachArtifact()
 		cpu_ship_list = {}
 		for i=1,#nearby_objects do
 			local temp_object = nearby_objects[i]
-			local temp_type = temp_object.typeName
-			if temp_type == "CpuShip" then
+			if isObjectType(temp_object,"CpuShip") then
 				if distance_diagnostic then
 					print("distance_diagnostic 11 temp_object:",temp_object,"current_selected_object:",current_selected_object)
 				end		
@@ -48233,11 +48280,10 @@ function detachArtifact()
 		return
 	end
 	local current_selected_object = object_list[1]
-	local current_selected_object_type = current_selected_object.typeName
-	if current_selected_object_type ~= "Artifact" and current_selected_object_type ~= "SupplyDrop" then
+	if not isObjectType(current_selected_object,"Artifact") and not isObjectType(current_selected_object,"SupplyDrop") then
 		addGMFunction("+Select drop point",detachArtifact)
 	else
-		if current_selected_object_type == "Artifact" then
+		if isObjectType(current_selected_object,"Artifact") then
 			if escapePodList[current_selected_object:getCallSign()] == nil then
 				addGMFunction("+Select drop point",detachArtifact)
 				return
@@ -48471,7 +48517,7 @@ function normalArtifactModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48494,7 +48540,7 @@ function normalArtifactModels()
 			if object_list == nil or #object_list ~= 1 then
 				fiddleWithArtifacts()
 			else
-				if object_list[1].typeName ~= "Artifact" then
+				if not isObjectType(object_list[1],"Artifact") then
 					fiddleWithArtifacts()
 				end
 			end
@@ -48519,7 +48565,7 @@ function utilityArtifactModels()
 	if object_list == nil or #object_list ~= 1 then
 		fiddleWithArtifacts()
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 		end
 	end
@@ -48538,7 +48584,7 @@ function utilityArtifactModels()
 			if object_list == nil or #object_list ~= 1 then
 				fiddleWithArtifacts()
 			else
-				if object_list[1].typeName ~= "Artifact" then
+				if not isObjectType(object_list[1],"Artifact") then
 					fiddleWithArtifacts()
 				end
 			end
@@ -48562,7 +48608,7 @@ function stationArtifactModels()
 	if object_list == nil or #object_list ~= 1 then
 		fiddleWithArtifacts()
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 		end
 	end
@@ -48580,7 +48626,7 @@ function stationArtifactModels()
 			if #object_list ~= 1 then
 				fiddleWithArtifacts()
 			else
-				if object_list[1].typeName ~= "Artifact" then
+				if not isObjectType(object_list[1],"Artifact") then
 					fiddleWithArtifacts()
 				end
 			end
@@ -48606,7 +48652,7 @@ function shipArtifactModels()
 	if object_list == nil or #object_list ~= 1 then
 		fiddleWithArtifacts()
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 		end
 	end
@@ -48637,7 +48683,7 @@ function miscShipModels()
 	if object_list == nil or #object_list ~= 1 then
 		fiddleWithArtifacts()
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 		end
 	end
@@ -48669,7 +48715,7 @@ function battleshipShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48705,7 +48751,7 @@ function ktlitanShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48740,7 +48786,7 @@ function smallFrigateShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48772,7 +48818,7 @@ function colorGroupShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48821,7 +48867,7 @@ function transportShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48877,7 +48923,7 @@ function corvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48908,7 +48954,7 @@ function adlerShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48942,7 +48988,7 @@ function atlasShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -48976,7 +49022,7 @@ function lindwormShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49005,7 +49051,7 @@ function addShipModelButtons(list)
 				fiddleWithArtifacts()
 				return
 			else
-				if object_list[1].typeName ~= "Artifact" then
+				if not isObjectType(object_list[1],"Artifact") then
 					fiddleWithArtifacts()
 					return
 				end
@@ -49037,7 +49083,7 @@ function wespeShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49074,7 +49120,7 @@ function heavyCorvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49108,7 +49154,7 @@ function laserCorvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49142,7 +49188,7 @@ function lightCorvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49176,7 +49222,7 @@ function mineLayerCorvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49210,7 +49256,7 @@ function missileCorvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49244,7 +49290,7 @@ function multiGunCorvetteShipModels()
 		fiddleWithArtifacts()
 		return
 	else
-		if object_list[1].typeName ~= "Artifact" then
+		if not isObjectType(object_list[1],"Artifact") then
 			fiddleWithArtifacts()
 			return
 		end
@@ -49830,7 +49876,7 @@ function tweakProbes()
 				addGMMessage("Select one thing")
 			else
 				local probe = object_list[1]
-				if probe.typeName ~= "ScanProbe" then
+				if not isObjectType(probe,"ScanProbe") then
 					addGMMessage("Select a probe")
 				else
 					if probe.original_target_x == nil then
@@ -49854,7 +49900,7 @@ function tweakProbes()
 				addGMMessage("Select one thing")
 			else
 				local probe = object_list[1]
-				if probe.typeName ~= "ScanProbe" then
+				if not isObjectType(probe,"ScanProbe") then
 					addGMMessage("Select a probe")
 				else
 					if probe.original_target_x == nil then
@@ -49883,7 +49929,7 @@ function tweakProbes()
 	if object_list ~= nil then
 		if #object_list == 1 then
 			local probe = object_list[1]
-			if probe.typeName == "ScanProbe" then
+			if isObjectType(probe,"ScanProbe") then
 				accelerate_button_label = string.format("%.1f Accelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() + 100)/1000)
 				decelerate_button_label = string.format("%.1f Decelerate -> %.1f",probe:getSpeed()/1000,(probe:getSpeed() - 100)/1000)
 			end
@@ -49894,7 +49940,7 @@ function tweakProbes()
 		if object_list ~= nil then
 			if #object_list == 1 then
 				local probe = object_list[1]
-				if probe.typeName == "ScanProbe" then
+				if isObjectType(probe,"ScanProbe") then
 					if probe:getSpeed() < 5000 then
 						probe:setSpeed(probe:getSpeed() + 100)
 					else
@@ -49916,7 +49962,7 @@ function tweakProbes()
 		if object_list ~= nil then
 			if #object_list == 1 then
 				local probe = object_list[1]
-				if probe.typeName == "ScanProbe" then
+				if isObjectType(probe,"ScanProbe") then
 					if probe:getSpeed() > 100 then
 						probe:setSpeed(probe:getSpeed() - 100)
 					else
@@ -49974,7 +50020,7 @@ function gmClickDivertProbe(x,y)
 			addGMMessage("Select one thing")
 		else
 			local probe = object_list[1]
-			if probe.typeName ~= "ScanProbe" then
+			if not isObjectType(probe,"ScanProbe") then
 				addGMMessage("Select a probe")
 			else
 				if probe.original_target_x == nil then
@@ -50088,8 +50134,7 @@ function stationOperations()
 		addGMFunction("+Select Station",stationOperations)
 	else
 		local first_object = objectList[1]
-		local object_type = first_object.typeName
-		if object_type ~= "SpaceStation" then
+		if not isObjectType(first_object,"SpaceStation") then
 			addGMFunction("+Select Station",stationDefense)
 		else
 			local button_label = "Probes"
@@ -50102,8 +50147,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object:getRestocksScanProbes() then
 							first_object:setRestocksScanProbes(false)
 						else
@@ -50126,8 +50170,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object:getRepairDocked() then
 							first_object:setRepairDocked(false)
 						else
@@ -50150,8 +50193,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object:getSharesEnergyWithDocked() then
 							first_object:setSharesEnergyWithDocked(false)
 						else
@@ -50174,8 +50216,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object.comms_data.probe_launch_repair then
 							first_object.comms_data.probe_launch_repair = false
 						else
@@ -50198,8 +50239,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object.comms_data.hack_repair then
 							first_object.comms_data.hack_repair = false
 						else
@@ -50222,8 +50262,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object.comms_data.scan_repair then
 							first_object.comms_data.scan_repair = false
 						else
@@ -50246,8 +50285,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object.comms_data.combat_maneuver_repair then
 							first_object.comms_data.combat_maneuver_repair = false
 						else
@@ -50270,8 +50308,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object.comms_data.self_destruct_repair then
 							first_object.comms_data.self_destruct_repair = false
 						else
@@ -50294,8 +50331,7 @@ function stationOperations()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						if first_object.comms_data.tube_slow_down_repair then
 							first_object.comms_data.tube_slow_down_repair = false
 						else
@@ -50333,8 +50369,7 @@ function stationDefense()
 		addGMFunction("+Select Station",stationDefense)
 	else
 		local first_object = objectList[1]
-		local object_type = first_object.typeName
-		if object_type ~= "SpaceStation" then
+		if not isObjectType(first_object,"SpaceStation") then
 			addGMFunction("+Select Station",stationDefense)
 		else
 			addGMFunction("+Defensive Fleet",stationDefensiveFleet)
@@ -50358,8 +50393,7 @@ function stationDefense()
 				local objectList = getGMSelection()
 				if #objectList == 1 then
 					local first_object = objectList[1]
-					local object_type = first_object.typeName
-					if object_type == "SpaceStation" then
+					if isObjectType(first_object,"SpaceStation") then
 						local found_rotate_station = false
 						local found_station_index = 0
 						for i=1,#rotate_station do
@@ -50457,8 +50491,7 @@ function spawnDefensiveFleet()
 		return
 	end
 	local station = objectList[1]
-	local temp_type = station.typeName
-	if temp_type ~= "SpaceStation" then
+	if not isObjectType(station,"SpaceStation") then
 		addGMMessage("You need to select a station. No action taken")
 		return		
 	end
@@ -50521,8 +50554,7 @@ function stationDefensiveInnerRing()
 			return
 		end
 		local station = objectList[1]
-		local temp_type = station.typeName
-		if temp_type ~= "SpaceStation" then
+		if not isObjectType(station,"SpaceStation") then
 			addGMMessage("You need to select a station. No action taken")
 			return		
 		end
@@ -50583,8 +50615,7 @@ function stationDefensiveOuterRing()
 				return
 			end
 			local station = objectList[1]
-			local temp_type = station.typeName
-			if temp_type ~= "SpaceStation" then
+			if not isObjectType(station,"SpaceStation") then
 				addGMMessage("You need to select a station. No action taken")
 				return		
 			end
@@ -51357,7 +51388,7 @@ function stationSellComponents()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51425,7 +51456,7 @@ function stationSellMinerals()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51493,7 +51524,7 @@ function stationBuyComponents()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51558,7 +51589,7 @@ function stationBuyMinerals()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51624,7 +51655,7 @@ function stationTradeGoods()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51706,7 +51737,7 @@ function stationOrdnance()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51780,7 +51811,7 @@ function fastStationProbes()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51863,7 +51894,7 @@ function warpJammerStationProbes()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -51951,7 +51982,7 @@ function sensorBoostStationProbes()
 		local station_count = 0
 		local selected_station = nil
 		for _, obj in ipairs(object_list) do
-			if obj.typeName == "SpaceStation" then
+			if isObjectType(obj,"SpaceStation") then
 				selected_station = obj
 				station_count = station_count + 1
 			end
@@ -54259,7 +54290,7 @@ function starryChristmas()
 	addGMFunction("!elf rename",function ()
 		local objs=getGMSelection()
 		for i=1,#objs do
-			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+			if objs[i]:isValid() and isObjectType(objs[i],"CpuShip") then
 				objs[i]:setCallSign("elf "..irandom(1,99))
 			end
 		end
@@ -54274,7 +54305,7 @@ function starryChristmas()
 					table.insert(name_list,full_name_list[j])
 				end
 			end
-			if objs[i]:isValid() and objs[i].typeName == "CpuShip" then
+			if objs[i]:isValid() and isObjectType(objs[i],"CpuShip") then
 				local num=irandom(1,#name_list)
 				objs[i]:setCallSign(name_list[num])
 				table.remove(name_list,num)
@@ -54388,7 +54419,7 @@ function xanstaOneOff()
 	end)
 	addGMFunction("Faction Beams",function()
 		for i,obj in ipairs(getAllObjects()) do
-			if obj.typeName == "CpuShip" or obj.typeName == "PlayerSpaceship" then
+			if isObjectType(obj,"CpuShip") or isObjectType(obj,"PlayerSpaceship") then
 				setBeamColor(obj)
 			end
 		end
@@ -54638,13 +54669,13 @@ function friendlyComms()
 	end)
 	for _, obj in ipairs(comms_target:getObjectsInRange(5000)) do
 		local player_carrier = false
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			local template_name = obj:getTypeName()
 			-- if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Barrow" then
 			-- 	player_carrier = true
 			-- end
 		end
-		if (obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj)) or player_carrier then
+		if (isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj)) or player_carrier then
 			addCommsReply("Dock at " .. obj:getCallSign(), function()
 				setCommsMessage("Docking at " .. obj:getCallSign() .. ".");
 				comms_target:orderDock(obj)
@@ -55331,7 +55362,7 @@ function influenceEnemy(tauntable,amenable,enemy_health,rep)
 					new_y = new_y + ct_y
 					local obj_list = getObjectsInRadius(new_x, new_y, 8000)
 					for _, obj in ipairs(obj_list) do
-						if obj.typeName == "BlackHole" or obj.typeName == "WormHole" then
+						if isObjectType(obj,"BlackHole") or isObjectType(obj,"WormHole") then
 							safe_spot = false
 						end
 					end
@@ -55911,7 +55942,7 @@ function friendlyServiceJonqueComms()
 		addCommsReply("Back", commsServiceJonque)
 	end)
 	for _, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		if isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj) then
 			addCommsReply("Dock at " .. obj:getCallSign(), function()
 				setCommsMessage("Docking at " .. obj:getCallSign() .. ".");
 				comms_target:orderDock(obj)
@@ -64621,7 +64652,7 @@ function jumpCorridor()
 							jump_train = {}
 							if #jt > 0 then
 								for index, ship in ipairs(jt) do
-									if ship:isValid() and ship.typeName == "CpuShip" and ship:isDocked(comms_target) then
+									if ship:isValid() and isObjectType(ship,"CpuShip") and ship:isDocked(comms_target) then
 										ship:orderDefendTarget(getPlayerShip(-1))
 	--									ship:orderFlyFormation(getPlayerShip(-1),fleetPosDelta1x[index+1]*500,fleetPosDelta1y[index+1]*500)
 										ship.jump_corridor_x = playerSpawnX+fleetPosDelta1x[index+1]*500
@@ -64882,10 +64913,10 @@ function addTractorObjectButtons(p,tractor_objects)
 	if p.tractor_target_button == nil then
 		if p:hasPlayerAtPosition("Engineering") then
 			p.tractor_target_button = "tractor_target_button"
-			local label_type = p.tractor_target.typeName
-			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
+			local label_type = ""
+			if isObjectType(p.tractor_target,"CpuShip") or isObjectType(p.tractor_target,"PlayerSpaceship") then
 				label_type = p.tractor_target:getCallSign()
-			elseif label_type == "VisualAsteroid" then
+			elseif isObjectType(p.tractor_target,"VisualAsteroid") then
 				label_type = "Asteroid"
 			end
 			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
@@ -64912,10 +64943,10 @@ function addTractorObjectButtons(p,tractor_objects)
 	if p.tractor_target_button_plus == nil then
 		if p:hasPlayerAtPosition("Engineering+") then
 			p.tractor_target_button_plus = "tractor_target_button_plus"
-			local label_type = p.tractor_target.typeName
-			if label_type == "CpuShip" or label_type == "PlayerSpaceship" then
+			local label_type = ""
+			if isObjectType(p.tractor_target,"CpuShip") or isObjectType(p.tractor_target,"PlayerSpaceship") then
 				label_type = p.tractor_target:getCallSign()
-			elseif label_type == "VisualAsteroid" then
+			elseif isObjectType(p.tractor_target,"VisualAsteroid") then
 				label_type = "Asteroid"
 			end
 			p:addCustomButton("Engineering+",p.tractor_target_button_plus,string.format("Target %s",label_type),function()
@@ -64949,10 +64980,11 @@ function addTractorObjectButtons(p,tractor_objects)
 					if nearby_objects ~= nil and #nearby_objects > 1 then
 						for _, obj in ipairs(nearby_objects) do
 							if p ~= obj then
-								local object_type = obj.typeName
-								if object_type ~= nil then
-									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+								local valid_tractor_types = {"Asteroid","CpuShip","Artifact","PlayerSpaceship","WarpJammer","Mine","ScanProbe","VisualAsteroid"}
+								for i,vtt in ipairs(valid_tractor_types) do
+									if isObjectType(obj,vtt) then
 										table.insert(tractor_objects,obj)
+										break
 									end
 								end
 							end
@@ -65020,10 +65052,11 @@ function addTractorObjectButtons(p,tractor_objects)
 					if nearby_objects ~= nil and #nearby_objects > 1 then
 						for _, obj in ipairs(nearby_objects) do
 							if p ~= obj then
-								local object_type = obj.typeName
-								if object_type ~= nil then
-									if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+								local valid_tractor_types = {"Asteroid","CpuShip","Artifact","PlayerSpaceship","WarpJammer","Mine","ScanProbe","VisualAsteroid"}
+								for i,vtt in ipairs(valid_tractor_types) do
+									if isObjectType(obj,vtt) then
 										table.insert(tractor_objects,obj)
+										break
 									end
 								end
 							end
@@ -65265,11 +65298,8 @@ function addMiningButtons(p,mining_objects)
 					if nearby_objects ~= nil and #nearby_objects > 1 then
 						for _, obj in ipairs(nearby_objects) do
 							if p ~= obj then
-								local object_type = obj.typeName
-								if object_type ~= nil then
-									if object_type == "Asteroid" or object_type == "VisualAsteroid" then
-										table.insert(mining_objects,obj)
-									end
+								if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
+									table.insert(mining_objects,obj)
 								end
 							end
 						end		--end of nearby object list loop
@@ -65336,11 +65366,8 @@ function addMiningButtons(p,mining_objects)
 					if nearby_objects ~= nil and #nearby_objects > 1 then
 						for _, obj in ipairs(nearby_objects) do
 							if p ~= obj then
-								local object_type = obj.typeName
-								if object_type ~= nil then
-									if object_type == "Asteroid" or object_type == "VisualAsteroid" then
-										table.insert(mining_objects,obj)
-									end
+								if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
+									table.insert(mining_objects,obj)
 								end
 							end
 						end		--end of nearby object list loop
@@ -65553,7 +65580,6 @@ end
 --	Testing functions  --
 -------------------------
 function runAllTests()
-	getNumberOfObjectsStringTest()
 	extraMath:runTests()
 	updateSystem:create():_test()
 end
@@ -65796,11 +65822,8 @@ function update(delta)
 						if obj ~= nil and obj:isValid() then
 							if obj:isEnemy(current_station) then
 								local detected_enemy_ship = false
-								local obj_type_name = obj.typeName
-								if obj_type_name ~= nil then
-									if string.find(obj_type_name,"CpuShip") then
-										detected_enemy_ship = true
-									end
+								if isObjectType(obj,"CpuShip") then
+									detected_enemy_ship = true
 								end
 								if detected_enemy_ship then
 									local s_x, s_y = current_station:getPosition()
@@ -65907,11 +65930,8 @@ function update(delta)
 						if obj ~= nil and obj:isValid() then
 							if obj:isEnemy(current_ship) then
 								local detected_enemy_ship = false
-								local obj_type_name = obj.typeName
-								if obj_type_name ~= nil then
-									if string.find(obj_type_name,"CpuShip") then
-										detected_enemy_ship = true
-									end
+								if isObjectType(obj,"CpuShip") then
+									detected_enemy_ship = true
 								end
 								if detected_enemy_ship then
 									warning_ship = current_ship
@@ -66092,11 +66112,11 @@ function update(delta)
 				local player_victims = {}
 				local cpu_ship_victims = {}
 				for i,obj in ipairs(obj_list) do
-					if obj.typeName == "PlayerSpaceship" then
+					if isObjectType(obj,"PlayerSpaceship") then
 						if obj:isEnemy(ship) then
 							table.insert(player_victims,obj)
 						end
-					elseif obj.typeName == "CpuShip" then
+					elseif isObjectType(obj,"CpuShip") then
 						if obj:isEnemy(ship) then
 							table.insert(cpu_ship_victims,obj)
 						end
@@ -66155,8 +66175,7 @@ function update(delta)
 			else
 				local obj_list = ship:getObjectsInRange(base_distance + 500)
 				for _, obj in ipairs(obj_list) do
-					local obj_type = obj.typeName
-					if obj_type == "HomingMissile" or obj_type == "HVLI" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+					if isObjectType(obj,"HomingMissile","MovingMissile") or isObjectType(obj,"HVLI","MovingMissile") or isObjectType(obj,"Nuke","MovingMissile") or isObjectType(obj,"EMPMissile","MovingMissile") then
 						if obj:getOwner() ~= ship then
 							if obj.pdc_cycle == nil then
 								local adjusted_factor = ship.pdc_factor * ship:getSystemHealth("beamweapons")
@@ -66849,7 +66868,7 @@ function updatePlayerSystemHealthRepair(delta,p)
 	if docked_station == nil then
 		local nearby_objects = p:getObjectsInRange(5000)
 		for i,obj in ipairs(nearby_objects) do
-			if obj.typeName == "CpuShip" then
+			if isObjectType(obj,"CpuShip") then
 				if obj:getTypeName() == "Service Jonque" then
 					if obj.comms_data == nil then
 						return
@@ -67609,14 +67628,32 @@ function updatePlayerMissileTriggerButtons(p)
 	local nearby_objects = p:getObjectsInRange(max_range)
 	local px, py = p:getPosition()			--get player ship position coordinates
 	for i,obj in ipairs(nearby_objects) do
-		if find_missiles[obj.typeName] and obj:getOwner() == p then	--object is missile owned by player
---		if find_missiles[obj.typeName] then	--object is missile
+		local is_splash = false
+		if ECS then
+			if isObjectType(obj,"Nuke","SplashMissile") or isObjectType(obj,"EMPMissile","SplashMissile") then
+				is_splash = true
+			end
+		else
+			if find_missiles[obj.typeName] then
+				is_splash = true
+			end
+		end
+		if is_splash and obj:getOwner() == p then	--object is missile owned by player
+--		if is_splash then	--object is missile
 			local mx, my = obj:getPosition()						--get missile position coordinates
 			local m_dist = distance(px, py, mx, my)					--determine missile distance from player
 			for trigger,blob in pairs(p.trigger_missile) do
 				if m_dist < blob.long and m_dist > blob.short then			--in range
-					if obj.typeName == blob.missile then					--proper type
-						table.insert(interesting_missiles[trigger],obj)		--add to proper list
+					if ECS then
+						if isObjectType(obj,"Nuke","SplashMissile") and blob.missile == "Nuke" then
+							table.insert(interesting_missiles[trigger],obj)		--add to proper list
+						elseif isObjectType(obj,"EMPMissile","SplashMissile") and blob.missile == "EMPMissile" then
+							table.insert(interesting_missiles[trigger],obj)		--add to proper list
+						end
+					else
+						if obj.typeName == blob.missile then					--proper type
+							table.insert(interesting_missiles[trigger],obj)		--add to proper list
+						end
 					end
 				end
 			end
@@ -67814,10 +67851,11 @@ function updatePlayerTractor(p,player_velocity,nearby_objects)
 			if nearby_objects ~= nil and #nearby_objects > 1 then
 				for _, obj in ipairs(nearby_objects) do
 					if p ~= obj then
-						local object_type = obj.typeName
-						if object_type ~= nil then
-							if object_type == "Asteroid" or object_type == "CpuShip" or object_type == "Artifact" or object_type == "PlayerSpaceship" or object_type == "WarpJammer" or object_type == "Mine" or object_type == "ScanProbe" or object_type == "VisualAsteroid" then
+						local valid_tractor_types = {"Asteroid","CpuShip","Artifact","PlayerSpaceship","WarpJammer","Mine","ScanProbe","VisualAsteroid"}
+						for i,vtt in ipairs(valid_tractor_types) do
+							if isObjectType(obj,vtt) then
 								table.insert(tractor_objects,obj)
+								break
 							end
 						end
 					end
@@ -68002,11 +68040,8 @@ function updatePlayerMiningCargo(delta,p,player_velocity,nearby_objects)
 			if nearby_objects ~= nil and #nearby_objects > 1 then
 				for _, obj in ipairs(nearby_objects) do
 					if p ~= obj then
-						local object_type = obj.typeName
-						if object_type ~= nil then
-							if object_type == "Asteroid" or object_type == "VisualAsteroid" then
-								table.insert(mining_objects,obj)
-							end
+						if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
+							table.insert(mining_objects,obj)
 						end
 					end
 				end		--end of nearby object list loop
@@ -68214,7 +68249,7 @@ function updatePlayerInNebula(delta,p)
 	local obj_list = p:getObjectsInRange(5100)
 	if #anomalous_nebulae > 0 then 
 		for i,obj in ipairs(obj_list) do
-			if obj.typeName == "Nebula" then
+			if isObjectType(obj,"Nebula") then
 				for j,neb in ipairs(anomalous_nebulae) do
 --					print("check anomalous nebulae. Index:",j,"Nebula:",neb)
 					if neb.name ~= nil and neb == obj then
@@ -68547,7 +68582,7 @@ function updatePlayerPatrolProbes(p)
 		if object_list ~= nil then
 			for _, obj in ipairs(object_list) do
 				if obj ~= p then
-					if obj.typeName == "ScanProbe" then
+					if isObjectType(obj,"ScanProbe") then
 						if obj:getOwner() == p then
 							if p.patrol_probe_count == nil then
 								p.patrol_probe_count = 0
@@ -68590,7 +68625,7 @@ function updatePlayerSpecialtyProbes(p)
 		if object_list ~= nil then
 			for _, obj in ipairs(object_list) do
 				if obj ~= p then
-					if obj.typeName == "ScanProbe" then
+					if isObjectType(obj,"ScanProbe") then
 						if obj:getOwner() == p then
 							if obj.probe_speed == nil then
 								obj.probe_speed = p.probe_type_list[matching_index].speed
@@ -68740,6 +68775,22 @@ function updatePlayerTurboTorpedo(delta,p)
 --								local md = distance(p,obj)
 --								print(type_name,heading,vx,vy,md)
 					for _, ttt in ipairs(p.turbo_torpedo_type) do
+						local missile_matches_turbo_type = false
+						if ECS then
+							if isObjectType(obj,"HomingMissile") then
+								if ttt == "HomingMissile" then
+									missile_matches_turbo_type = true
+								end
+							elseif isObjectType(obj,"EMPMissile") then
+								if ttt == "EMPMissile" then
+									missile_matches_turbo_type = true
+								end
+							end
+						else
+							if obj.typeName == ttt then
+								missile_matches_turbo_type = true
+							end
+						end
 						if type_name == ttt then
 							if obj:getOwner() == p then
 								p.turbo_missile = obj
@@ -68806,7 +68857,7 @@ function updatePlayerProximityScan(p)
 	local obj_list = p:getObjectsInRange(p.prox_scan*1000)
 	if obj_list ~= nil and #obj_list > 0 then
 		for _, obj in ipairs(obj_list) do
-			if obj:isValid() and obj.typeName == "CpuShip" and not obj:isFullyScannedBy(p) then
+			if obj:isValid() and isObjectType(obj,"CpuShip") and not obj:isFullyScannedBy(p) then
 				obj:setScanState("simplescan")
 			end
 		end
@@ -68824,7 +68875,7 @@ function updateMagnasolCollision(delta)
 				print("distance_diagnostic 25 obj:",obj,"planet_colburn:",planet_colburn)
 			end		
 			obj_dist = distance(obj,planet_colburn)
-			if obj.typeName == "CpuShip" then
+			if isObjectType(obj,"CpuShip") then
 				obj_type_name = obj:getTypeName()
 				if obj_type_name ~= nil then
 					ship_distance = shipTemplateDistance[obj:getTypeName()]
@@ -68839,7 +68890,7 @@ function updateMagnasolCollision(delta)
 					obj:takeDamage(100,"kinetic",planet_x,planet_y)
 				end
 			end
-			if obj.typeName == "PlayerSpaceship" then
+			if isObjectType(obj,"PlayerSpaceship") then
 				obj_type_name = obj:getTypeName()
 				if obj_type_name ~= nil then
 					ship_distance = playerShipStats[obj:getTypeName()].distance
@@ -68864,7 +68915,7 @@ function updateMagnasolCollision(delta)
 				print("distance_diagnostic 26 obj:",obj,"planet_morningstar_moon:",planet_morningstar_moon)
 			end		
 			obj_dist = distance(obj,planet_morningstar_moon)
-			if obj.typeName == "CpuShip" then
+			if isObjectType(obj,"CpuShip") then
 				obj_type_name = obj:getTypeName()
 				if obj_type_name ~= nil then
 					ship_distance = shipTemplateDistance[obj:getTypeName()]
@@ -68879,7 +68930,7 @@ function updateMagnasolCollision(delta)
 					obj:takeDamage(100,"kinetic",planet_x,planet_y)
 				end
 			end
-			if obj.typeName == "PlayerSpaceship" then
+			if isObjectType(obj,"PlayerSpaceship") then
 				obj_type_name = obj:getTypeName()
 				if obj_type_name ~= nil then
 					ship_distance = playerShipStats[obj:getTypeName()].distance
@@ -69003,7 +69054,7 @@ function updateWaypointSharingButtons(p)
 end
 function updateStaunchPhenomenon(delta)
 	for i,sp in ipairs(staunch_phenomenon) do
-		if sp:isValid() and sp.typeName ~= "Zone" then
+		if sp:isValid() and not isObjectType(sp,"Zone") then
 			local sp_x, sp_y = sp:getPosition()
 			if sp.up then
 				sp_y = sp_y - sp.speed * delta
@@ -69156,7 +69207,7 @@ function updateStaunchDefenders(delta)
 						local obj_list = getObjectsInRadius(sx,sy,8000)
 						for j,obj in ipairs(obj_list) do
 							if obj ~= station then
-								if obj.typeName == "PlayerSpaceship" or obj.typeName == "CpuShip" then
+								if isObjectType(obj,"PlayerSpaceship") or isObjectType(obj,"CpuShip") then
 									if obj:isEnemy(station) then
 										station.defenders = {}
 										local fleet = spawnNPCs(sx,sy,nil,station:getFaction(),"Idle","Random",nil,"unmodified","none",nil,nil,nil,nil,0)
@@ -69467,7 +69518,7 @@ function updateCarrierDeployedFighter(delta)
 				local carriers = {}
 				local fighter_type = fighter:getTypeName()
 				for i,obj in ipairs(nearby_objects) do
-					if obj.typeName == "PlayerSpaceship" then
+					if isObjectType(obj,"PlayerSpaceship") then
 --						print("Fighter",string.format("%s's",fighter_name),"carrier destroyed. Found player ship",obj:getCallSign(),"nearby")
 						if obj.carrier ~= nil and obj.carrier then
 --							print("Player ship is a carrier")
@@ -69675,8 +69726,7 @@ function updatePlayerLockBanners(p)
 		local missile_count = 0
 		for i,obj in ipairs(sensor_object_list) do
 			if obj ~= p then
-				local obj_type = obj.typeName
-				if obj_type == "CpuShip" or obj_type == "PlayerSpaceship" or obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+				if isObjectType(obj,"CpuShip") or isObjectType(obj,"PlayerSpaceship") or isObjectType(obj,"HomingMissile") or isObjectType(obj,"Nuke") or isObjectType(obj,"EMPMissile") then
 					if obj:getTarget() == p then
 						local dist = distance(p,obj)
 						local ox, oy = obj:getPosition()
@@ -69684,7 +69734,7 @@ function updatePlayerLockBanners(p)
 						if dist > range then
 							long_count = long_count + 1
 						else
-							if obj_type == "HomingMissile" or obj_type == "Nuke" or obj_type == "EMPMissile" then
+							if isObjectType(obj,"HomingMissile","MovingMissile") or isObjectType(obj,"Nuke","MovingMissile") or isObjectType(obj,"EMPMissile","MovingMissile") then
 								missile_count = missile_count + 1
 							else
 								short_count = short_count + 1

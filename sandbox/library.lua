@@ -3,49 +3,6 @@
 -- this is probably not yet the case especially with the update system 
 
 -- todo fix webcall
-----------------------
--- debug assistance --
-----------------------
-function getNumberOfObjectsString(all_objects)
-	-- get a multi-line string for the number of objects at the current time
-	-- intended to be used via addGMMessage or print, but there may be other uses
-	-- it may be worth considering adding a function which would return an array rather than a string
-	-- all_objects is passed in (as an optional argument) mostly to assist testing
-	assert(all_objects==nil or type(all_objects)=="table")
-	if all_objects == nil then
-		all_objects=getAllObjects()
-	end
-	local object_counts={}
-	--first up we accumulate the number of each type of object
-	for i=1,#all_objects do
-		local object_type=all_objects[i].typeName
-		local current_count=object_counts[object_type]
-		if current_count==nil then
-			current_count=0
-		end
-		object_counts[object_type]=current_count+1
-	end
-	-- we want the ordering to be stable so we build a key list
-	local sorted_counts={}
-	for type in pairs(object_counts) do
-		table.insert(sorted_counts, type)
-	end
-	table.sort(sorted_counts)
-	--lastly we build the output
-	local output=""
-	for _,object_type in ipairs(sorted_counts) do
-		output=output..string.format("%s: %i\n",object_type,object_counts[object_type])
-	end
-	return output..string.format("\nTotal: %i",#all_objects)
-end
-function getNumberOfObjectsStringTest()
-	-- ideally we would have something to ensure the tables we pass in are close to getAllObjects tables
-	assert(getNumberOfObjectsString({})=="\nTotal: 0")
-	assert(getNumberOfObjectsString({{typeName ="test"}})=="test: 1\n\nTotal: 1")
-	assert(getNumberOfObjectsString({{typeName ="test"},{typeName ="test"}})=="test: 2\n\nTotal: 2")
-	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"}})=="testA: 1\ntestB: 1\n\nTotal: 2")
-	assert(getNumberOfObjectsString({{typeName ="testA"},{typeName ="testB"},{typeName ="testB"}})=="testA: 1\ntestB: 2\n\nTotal: 3")
-end
 ------------------
 -- web gm tools --
 ------------------
@@ -1333,7 +1290,7 @@ function updateSystem:_addGenericOverclocker(obj, period, updateName, addUpdate,
 		local objs=getObjectsInRadius(x,y,updateRange)
 		-- filter to spaceShips that are our faction
 		for index=#objs,1,-1 do
-			if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
+			if isObjectType(objs[index],"CpuShip") and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
 				if filterFun == nil or filterFun(objs[index]) then
 					local art=Artifact():setPosition(x,y):setDescription("encrypted data")
 					if playerApply ~= nil then
@@ -1440,7 +1397,7 @@ function updateSystem:addOverclockOptimizer(obj, period)
 		assert(type(obj)=="table")
 		local objs = getAllObjects()
 		for index = #objs,1,-1 do
-			if objs[index].typeName == "CpuShip" and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
+			if isObjectType(objs[index],"CpuShip") and objs[index]:getFaction() == obj:getFaction() and obj ~= objs[index] then
 				-- this is mostly wrong, we really want to check if an overclocker
 				-- callback was in the update function, however this is not exposed
 				-- currently it is almost always correct to say if there is a periodic callback
