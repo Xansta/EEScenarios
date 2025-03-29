@@ -68,10 +68,9 @@ require("utils_customElements.lua")
 require("sandbox/extraMath.lua")
 require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
-
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.4.2"
+	scenario_version = "7.4.3"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1844,7 +1843,7 @@ function setConstants()
 	makePlayerShipActive("Wiggy")			--J
 	makePlayerShipActive("Raptor")			--J
 	makePlayerShipActive("Magnum") 			--J 
-	makePlayerShipActive("Crux")			--W
+	makePlayerShipActive("Claw")			--W
 	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Thelonius") 		--W 
 	carrier_class_launch_time = {
