@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.4.4"
+	scenario_version = "7.4.6"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1845,7 +1845,7 @@ function setConstants()
 	makePlayerShipActive("Dominant") 		--J 
 	makePlayerShipActive("Flipper")			--W
 	makePlayerShipActive("Florentine")		--W
-	makePlayerShipActive("Thelonius") 		--W 
+	makePlayerShipActive("Anvil") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -12336,13 +12336,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 and not mirrorUniverse then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
+--		if i == 2 and not mirrorUniverse then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 1 and not mirrorUniverse then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 --			dp1Zone:setColor(0,128,0):setLabel("1")
-		else		
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -12351,7 +12351,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -14008,10 +14008,10 @@ function createIcarusStations()
 		stationPurple:destroy()
 	end
 	--Relay-13
-	local relay13Zone = squareZone(77918, 23876, "Relay-13 G G8")
+	local relay13Zone = squareZone(77918, 23876, "Relay-13 H G8")
 	relay13Zone:setColor(0,255,0):setLabel("R")
 	--[[
-    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 G"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
+    stationRelay13 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Relay-13 H"):setPosition(77918, 23876):setDescription("Communications Relay"):setCommsScript(""):setCommsFunction(commsStation)
     stationRelay13:setShortRangeRadarRange(12000)
 	if mirrorUniverse then
 		stationRelay13:setFaction("Holy Terra")
@@ -33667,8 +33667,8 @@ function createPlayerShipThelonius()
 	setBeamColor(playerThelonius)
 	playerThelonius:setTypeName("Crab")
 	playerThelonius:setWarpSpeed(450)						--slower (vs 750)
-	playerThelonius:setShieldsMax(300,300)					--stronger (vs 160,160) Lingling effect
-	playerThelonius:setShields(300,300)
+	playerThelonius:setShieldsMax(280,280)					--stronger (vs 160,160) Lingling effect
+	playerThelonius:setShields(280,280)
 --                 				 	Arc, Dir,  Range, CycleTime, Damage
 	playerThelonius:setBeamWeapon(0, 10, 165,	1000, 		6.0, 	6.0)	--turreted, stronger (vs fixed, 5 Dmg)
 	playerThelonius:setBeamWeapon(1, 10, 195,	1000, 		6.0,	6.0)	--rear facing
