@@ -1291,7 +1291,7 @@ function stellarCartographyBrochure()
 				local sx, sy = comms_target:getPosition()
 				local nearby_objects = getObjectsInRadius(sx,sy,30000)
 				for i, obj in ipairs(nearby_objects) do
-					if obj.typeName == "SpaceStation" then
+					if isObjectType(obj,"SpaceStation") then
 						if not obj:isEnemy(comms_source) then
 							if brochure_stations == "" then
 								brochure_stations = string.format(_("cartographyOffice-comms","%s %s %s"),obj:getSectorName(),obj:getFaction(),obj:getCallSign())
@@ -1344,7 +1344,7 @@ function stellarCartographyBrochure()
 					local sx, sy = comms_target:getPosition()
 					local nearby_objects = getObjectsInRadius(sx,sy,30000)
 					for i, obj in ipairs(nearby_objects) do
-						if obj.typeName == "SpaceStation" then
+						if isObjectType(obj,"SpaceStation") then
 							if not obj:isEnemy(comms_target) then
 								if obj.comms_data.goods ~= nil then
 									for good, good_data in pairs(obj.comms_data.goods) do
@@ -3588,7 +3588,7 @@ function commercialOptions()
 						if improvement_mission_stations == nil then
 							improvement_mission_stations = {}
 							for i,object in ipairs(getAllObjects()) do
-								if object:isValid() and object.typeName == "SpaceStation" then
+								if object:isValid() and isObjectType(object,"SpaceStation") then
 									table.insert(improvement_mission_stations,object)
 								end
 							end
@@ -4157,7 +4157,7 @@ function stellarCartography()
 						local nearby_objects = getObjectsInRadius(sx,sy,50000)
 						local stations_known = 0
 						for i, obj in ipairs(nearby_objects) do
-							if obj.typeName == "SpaceStation" then
+							if isObjectType(obj,"SpaceStation") then
 								if not obj:isEnemy(comms_source) then
 									stations_known = stations_known + 1
 									addCommsReply(obj:getCallSign(),function()
@@ -4216,7 +4216,7 @@ function stellarCartography()
 						local button_count = 0
 						local by_goods = {}
 						for i, obj in ipairs(nearby_objects) do
-							if obj.typeName == "SpaceStation" then
+							if isObjectType(obj,"SpaceStation") then
 								if not obj:isEnemy(comms_target) then
 									if obj.comms_data.goods ~= nil then
 										for good, good_data in pairs(obj.comms_data.goods) do
@@ -4338,7 +4338,7 @@ function masterCartographer()
 			local nearby_objects = getAllObjects()
 			local stations_known = 0
 			for i, obj in ipairs(nearby_objects) do
-				if obj.typeName == "SpaceStation" then
+				if isObjectType(obj,"SpaceStation") then
 					if not obj:isEnemy(comms_source) then
 						local station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
@@ -4404,7 +4404,7 @@ function masterCartographer()
 			local nearby_objects = getAllObjects()
 			local by_goods = {}
 			for i, obj in ipairs(nearby_objects) do
-				if obj.typeName == "SpaceStation" then
+				if isObjectType(obj,"SpaceStation") then
 					if not obj:isEnemy(comms_target) then
 						local station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
@@ -5214,16 +5214,16 @@ function transportAndCargoMissions()
 				}
 				addCommsReply(tableSelectRandom(decline_cargo_mission),function()
 					local cargo_refusal_responses = {
-						string.format(_("station-comms","You tell %s that you cannot take on any cargo missions at this time."),comms_target.transport_mission.character.name),
-						string.format(_("station-comms","You inform %s that you are unable to get any cargo for %s at this time."),comms_target.transport_mission.character.name,comms_target.transport_mission.character.object_pronoun),
-						string.format(_("station-comms","'Sorry, %s. We can't retrieve your cargo at this time.'"),comms_target.transport_mission.character.name),
-						string.format(_("station-comms","'%s can't get cargo for you you right now, %s. Sorry about that. Good luck.'"),comms_source:getCallSign(),comms_target.transport_mission.character.name),
+						string.format(_("station-comms","You tell %s that you cannot take on any cargo missions at this time."),comms_target.cargo_mission.character.name),
+						string.format(_("station-comms","You inform %s that you are unable to get any cargo for %s at this time."),comms_target.cargo_mission.character.name,comms_target.cargo_mission.character.object_pronoun),
+						string.format(_("station-comms","'Sorry, %s. We can't retrieve your cargo at this time.'"),comms_target.cargo_mission.character.name),
+						string.format(_("station-comms","'%s can't get cargo for you you right now, %s. Sorry about that. Good luck.'"),comms_source:getCallSign(),comms_target.cargo_mission.character.name),
 					}
 					local cargo_mission_gone = {
 						_("station-comms","The offer disappears from the message board."),
 						_("station-comms","The cargo mission offer no longer appears on the message board."),
-						string.format(_("station-comms","%s removes %s cargo retrieval mission offer from the message board."),comms_target.transport_mission.character.name,comms_target.transport_mission.character.possessive_adjective),
-						string.format(_("station-comms","%s gestures and %s cargo mission offer disappears from the message board."),comms_target.transport_mission.character.name,comms_target.transport_mission.character.possessive_adjective),
+						string.format(_("station-comms","%s removes %s cargo retrieval mission offer from the message board."),comms_target.cargo_mission.character.name,comms_target.cargo_mission.character.possessive_adjective),
+						string.format(_("station-comms","%s gestures and %s cargo mission offer disappears from the message board."),comms_target.cargo_mission.character.name,comms_target.cargo_mission.character.possessive_adjective),
 					}
 					if random(1,5) <= 1 then
 						setCommsMessage(string.format("%s %s",tableSelectRandom(cargo_refusal_responses),tableSelectRandom(cargo_mission_gone)))
@@ -5399,7 +5399,7 @@ function improveStationService(improvements)
 		if improvement_mission_stations == nil then
 			improvement_mission_stations = {}
 			for i,object in ipairs(getAllObjects()) do
-				if object:isValid() and object.typeName == "SpaceStation" then
+				if object:isValid() and isObjectType(object,"SpaceStation") then
 					table.insert(improvement_mission_stations,object)
 				end
 			end
@@ -5654,7 +5654,7 @@ function restockOrdnance()
 		local missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 		for i, missile_type in ipairs(missile_types) do
 			if comms_source:getWeaponStorageMax(missile_type) > 0 and comms_target.comms_data.weapon_available[missile_type] then
-				addCommsReply(string.format(_("ammo-comms","%s (%d rep each)"),prompts[missile_type][math.random(1,#prompts[missile_type])],getWeaponCost(missile_type)), function()
+				addCommsReply(string.format(_("ammo-comms","%s (%i rep each)"),prompts[missile_type][math.random(1,#prompts[missile_type])],getWeaponCost(missile_type)), function()
 					string.format("")
 					handleWeaponRestock(missile_type)
 				end)
@@ -5720,8 +5720,9 @@ function handleWeaponRestock(weapon)
         end
         addCommsReply(_("Back"), commsStation)
     else
-		if comms_source:getReputationPoints() > points_per_item * item_amount then
-			if comms_source:takeReputationPoints(points_per_item * item_amount) then
+    	local max_refill_cost = points_per_item * item_amount
+		if comms_source:getReputationPoints() > max_refill_cost then
+			if comms_source:takeReputationPoints(max_refill_cost) then
 				comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + item_amount)
 				if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
 					local restocked_on_ordnance = {
@@ -5769,9 +5770,9 @@ function handleWeaponRestock(weapon)
 				setCommsMessage(tableSelectRandom(complete_refill_unavailable))
 				local max_affordable = math.floor(comms_source:getReputationPoints()/points_per_item)
 				for i=1,max_affordable do
-					addCommsReply(string.format(_("ammo-comms","Get %i (%i x %i = %i reputation)"),i,i,item_amount,i*item_amount),function()
+					addCommsReply(string.format(_("ammo-comms","Get %i (%i x %i = %i reputation)"),i,i,points_per_item,i*points_per_item),function()
 						string.format("")
-						if comms_source:takeReputationPoints(i*item_amount) then
+						if comms_source:takeReputationPoints(i*points_per_item) then
 							comms_source:setWeaponStorage(weapon, comms_source:getWeaponStorage(weapon) + i)
 							if comms_source:getWeaponStorage(weapon) == comms_source:getWeaponStorageMax(weapon) then
 								local restocked_on_selected_ordnance = {
@@ -8771,7 +8772,7 @@ function friendlyShipComms()
 		addCommsReply(_("Back"), commsShip)
 	end)
 	for index, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		if isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj) then
 			local dock_at_station_prompts = {
 				string.format(_("shipAssist-comms", "Dock at %s"), obj:getCallSign()),
 				string.format(_("shipAssist-comms", "Dock at station %s"), obj:getCallSign()),
@@ -9930,7 +9931,7 @@ function friendlyServiceJonqueComms(comms_data)
 			addCommsReply(_("Back"), commsServiceJonque)
 	end)
 	for index, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		if isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj) then
 			local dock_at_station_prompts = {
 				string.format(_("shipAssist-comms", "Dock at %s"), obj:getCallSign()),
 				string.format(_("shipAssist-comms", "Dock at station %s"), obj:getCallSign()),
@@ -10067,7 +10068,7 @@ function neutralServiceJonqueComms(comms_data)
 		addCommsReply(_("Back"), commsServiceJonque)
 	end)
 	for index, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		if isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj) then
 			local dock_at_station_prompts = {
 				string.format(_("shipAssist-comms", "Dock at %s"), obj:getCallSign()),
 				string.format(_("shipAssist-comms", "Dock at station %s"), obj:getCallSign()),
@@ -11203,7 +11204,7 @@ function updatePlayerProximityScanUtility(p)
 		if obj_list ~= nil and #obj_list > 0 then
 			for i, obj in ipairs(obj_list) do
 				if obj ~= p then
-					if obj:isValid() and (obj.typeName == "CpuShip" or obj.typeName == "PlayerSpaceship") and not obj:isFullyScannedBy(p) then
+					if obj:isValid() and (isObjectType(obj,"CpuShip") or isObjectType(obj,"PlayerSpaceship")) and not obj:isFullyScannedBy(p) then
 						obj:setScanState("simplescan")
 					end
 				end
