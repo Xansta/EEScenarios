@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.4.6"
+	scenario_version = "7.4.7"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1841,11 +1841,11 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Beowulf")			--J
-	makePlayerShipActive("Darkstar")		--J
+	makePlayerShipActive("Wiggy")			--J
 	makePlayerShipActive("Dominant") 		--J 
 	makePlayerShipActive("Flipper")			--W
-	makePlayerShipActive("Florentine")		--W
-	makePlayerShipActive("Anvil") 			--W 
+	makePlayerShipActive("Falcon")			--W
+	makePlayerShipActive("Crux") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -6171,6 +6171,7 @@ function setSingleNebula(tempObject)
 		end
 	end
 	addGMFunction(button_label,function()
+		string.format("")
 		if selected_nebula.scannable then
 			selected_nebula.scannable = false
 			selected_nebula:setScanningParameters(0,0)
@@ -12336,13 +12337,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 2 and not mirrorUniverse then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
+		if i == 2 and not mirrorUniverse then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
 --		elseif i == 1 and not mirrorUniverse then
 --			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 --			dp1Zone:setColor(0,128,0):setLabel("1")
---		else		
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -12351,7 +12352,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -20502,22 +20503,22 @@ function tereshSector()
 	local start_angle = 34
 	for i=1,5 do
 		local dpx, dpy = vectorFromAngle(start_angle,8000)
-		if i == 5 then
-			tdp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
-			tdp5Zone:setColor(0,128,0):setLabel("5")
-		elseif i == 3 then
-			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
-			tdp3Zone:setColor(0,128,0):setLabel("3")
-		elseif i == 4 then
-			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
-			tdp4Zone:setColor(0,128,0):setLabel("4")
-		else		
+--		if i == 5 then
+--			tdp5Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp5")
+--			tdp5Zone:setColor(0,128,0):setLabel("5")
+--		elseif i == 3 then
+--			tdp3Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp3")
+--			tdp3Zone:setColor(0,128,0):setLabel("3")
+--		elseif i == 4 then
+--			tdp4Zone = squareZone(t_x+dpx,t_y+dpy,"Tdp4")
+--			tdp4Zone:setColor(0,128,0):setLabel("4")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(t_x+dpx,t_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("TDP%i",i)):setDescription(string.format("Teresh defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			dp:setLongRangeRadarRange(20000)
 			table.insert(teresh_defense_platforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(start_angle+17+j*6,8000)
 			local dm = Mine():setPosition(t_x+dpx,t_y+dpy)
@@ -21032,9 +21033,8 @@ function createTereshStations()
 	station_names[stationDelectobev:getCallSign()] = {stationDelectobev:getSectorName(), stationDelectobev}
 	table.insert(stations,stationDelectobev)
 	--	Dristan
-	local dristanZone = squareZone(723186, 65027, "Dristan 2 I41")
-	dristanZone:setColor(51,153,255):setLabel("D")
-	--[[
+--	local dristanZone = squareZone(723186, 65027, "Dristan 2 I41")
+--	dristanZone:setColor(51,153,255):setLabel("D")
     stationDristan = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Dristan 2"):setPosition(723186, 65027):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationDristan.comms_data = {
     	friendlyness = 57,
@@ -21087,12 +21087,11 @@ function createTereshStations()
 	if random(1,100) <= 12 then stationDristan:setSharesEnergyWithDocked(false) end
 	station_names[stationDristan:getCallSign()] = {stationDristan:getSectorName(), stationDristan}
 	table.insert(stations,stationDristan)
-	--]]
 	--	Fractured Shaft
-	local fracturedShaftZone = squareZone(888612, -1885, "Fractured Shaft II E49")
+	local fracturedShaftZone = squareZone(888612, -1885, "Fractured Shaft III E49")
 	fracturedShaftZone:setColor(0,128,0):setLabel("F")
 	--[[
-	stationFracturedShaft = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Fractured Shaft II"):setPosition(888612, -1885):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationFracturedShaft = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Fractured Shaft III"):setPosition(888612, -1885):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationFracturedShaft.comms_data = {
     	friendlyness = 57,
         weapons = 			{Homing = "neutral",		HVLI = "neutral", 			Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
@@ -21410,10 +21409,10 @@ function createTereshStations()
 	station_names[stationJaxteb:getCallSign()] = {stationJaxteb:getSectorName(), stationJaxteb}
 	table.insert(stations,stationJaxteb)
 	--	Limeya
-	local limeyaZone = squareZone(880811, -3551, "Limeya 2 E49")
+	local limeyaZone = squareZone(880811, -3551, "Limeya 3 E49")
 	limeyaZone:setColor(51,153,255):setLabel("L")
 	--[[
-	stationLimeya = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Limeya 2"):setPosition(880811, -3551):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationLimeya = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Limeya 3"):setPosition(880811, -3551):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationLimeya.comms_data = {
     	friendlyness = 78,
         weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
@@ -21561,11 +21560,11 @@ function createTereshStations()
     	history = "The station was originally a conglomeration of equipment used as a convenient waypoint on the way to scout for enemies. Now it's become a permanent facility and has added mining to it operational mandate.",
 	}
 	if random(1,100) <= 14 then stationRecon101:setRestocksScanProbes(false) end
-	local rdpZone = squareZone(836906, 38719, "RDP G46")
-	rdpZone:setColor(0,128,0):setLabel("R")	
---	ship = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("RDP"):setPosition(836906, 38719):orderStandGround()
---	setBeamColor(ship)
---	table.insert(teresh_defense_platforms,ship)
+--	local rdpZone = squareZone(836906, 38719, "RDP G46")
+--	rdpZone:setColor(0,128,0):setLabel("R")	
+	ship = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("RDP"):setPosition(836906, 38719):orderStandGround()
+	setBeamColor(ship)
+	table.insert(teresh_defense_platforms,ship)
 	station_names[stationRecon101:getCallSign()] = {stationRecon101:getSectorName(), stationRecon101}
 	table.insert(stations,stationRecon101)
 	--	Solder	
