@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.4.7"
+	scenario_version = "7.4.8"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1841,9 +1841,9 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Beowulf")			--J
-	makePlayerShipActive("Wiggy")			--J
+	makePlayerShipActive("Magnum")			--J
 	makePlayerShipActive("Dominant") 		--J 
-	makePlayerShipActive("Flipper")			--W
+	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Falcon")			--W
 	makePlayerShipActive("Crux") 			--W 
 	carrier_class_launch_time = {
@@ -12340,9 +12340,9 @@ function createIcarusColor()
 		if i == 2 and not mirrorUniverse then
 			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
 			dp2Zone:setColor(0,128,0):setLabel("2")
---		elseif i == 1 and not mirrorUniverse then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 1 and not mirrorUniverse then
+			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+			dp1Zone:setColor(0,128,0):setLabel("1")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
@@ -13624,9 +13624,11 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
-	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
-	    setBeamColor(mdp1)
-	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
+		local mermaidDPZone = squareZone(31664, -5237, "MDP1 E6")
+		mermaidDPZone:setColor(51,153,255):setLabel("M1")
+--	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+--	    setBeamColor(mdp1)
+--	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
 --	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
