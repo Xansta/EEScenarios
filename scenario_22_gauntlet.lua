@@ -1,7 +1,7 @@
 -- Name: The Exuari Gauntlet
 -- Description: The Exuari have laid down the gauntlet. Will you take up the challenge?
 ---
---- Designed for 1 or more player ships
+--- Designed for 1 or more player ships. Hacking skills essential to mission success
 ---
 --- Version 1
 ---
@@ -35,7 +35,7 @@ require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: The Exuari Gauntlet    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1010,11 +1010,11 @@ function setVariations()
 	player_respawns = respawn_config[getScenarioSetting("Respawn")].respawn
 	player_respawn_max = respawn_config[getScenarioSetting("Respawn")].max
 	local murphy_config = {
-		["Easy"] =		{number = .5,	rep = 90,	bump = 20,	sys_count = 1,	impact = .0001,	gsp_lo_c = 1,	gsp_hi_c = 2,	gsp_lo_d = 1,	gsp_hi_d = 2,	},
-		["Normal"] =	{number = 1,	rep = 50,	bump = 10,	sys_count = 3,	impact = .001,	gsp_lo_c = 1,	gsp_hi_c = 2,	gsp_lo_d = 1,	gsp_hi_d = 3,	},
-		["Hard"] =		{number = 2,	rep = 30,	bump = 5,	sys_count = 5,	impact = .005,	gsp_lo_c = 1,	gsp_hi_c = 3,	gsp_lo_d = 1,	gsp_hi_d = 3,	},
-		["Extreme"] =	{number = 3,	rep = 20,	bump = 3,	sys_count = 6,	impact = .01,	gsp_lo_c = 2,	gsp_hi_c = 3,	gsp_lo_d = 1,	gsp_hi_d = 3,	},
-		["Quixotic"] =	{number = 5,	rep = 10,	bump = 1,	sys_count = 7,	impact = .03,	gsp_lo_c = 2,	gsp_hi_c = 3,	gsp_lo_d = 2,	gsp_hi_d = 4,	},
+		["Easy"] =		{number = .5,	rep = 90,	bump = 20,	sys_count = 1,	impact = .0001,	gsp_lo_c = 1,	gsp_hi_c = 2,	gsp_lo_d = 1,	gsp_hi_d = 2,	cbc = 5,	dvh = 16},
+		["Normal"] =	{number = 1,	rep = 50,	bump = 10,	sys_count = 2,	impact = .001,	gsp_lo_c = 1,	gsp_hi_c = 2,	gsp_lo_d = 1,	gsp_hi_d = 3,	cbc = 10,	dvh = 23},
+		["Hard"] =		{number = 2,	rep = 30,	bump = 5,	sys_count = 3,	impact = .005,	gsp_lo_c = 1,	gsp_hi_c = 3,	gsp_lo_d = 1,	gsp_hi_d = 3,	cbc = 15,	dvh = 28},
+		["Extreme"] =	{number = 3,	rep = 20,	bump = 3,	sys_count = 4,	impact = .01,	gsp_lo_c = 2,	gsp_hi_c = 3,	gsp_lo_d = 1,	gsp_hi_d = 3,	cbc = 20,	dvh = 35},
+		["Quixotic"] =	{number = 5,	rep = 10,	bump = 1,	sys_count = 5,	impact = .03,	gsp_lo_c = 2,	gsp_hi_c = 3,	gsp_lo_d = 2,	gsp_hi_d = 4,	cbc = 25,	dvh = 43},
 	}
 	difficulty =				murphy_config[getScenarioSetting("Murphy")].number
 	reputation_start_amount =	murphy_config[getScenarioSetting("Murphy")].rep
@@ -1025,6 +1025,8 @@ function setVariations()
 	gsp_hi_complexity =			murphy_config[getScenarioSetting("Murphy")].gsp_hi_c	--gauntlet artifact scanning parameter high range for complexity
 	gsp_lo_depth =				murphy_config[getScenarioSetting("Murphy")].gsp_lo_d	--gauntlet artifact scanning parameter low range for depth
 	gsp_hi_depth =				murphy_config[getScenarioSetting("Murphy")].gsp_hi_c	--gauntlet artifact scanning parameter high range for depth
+	code_bearer_count =			murphy_config[getScenarioSetting("Murphy")].cbc
+	damage_vs_heat =			murphy_config[getScenarioSetting("Murphy")].dvh
 	local enemy_config = {
 		["Easy"] =		{number = .5},
 		["Normal"] =	{number = 1},
@@ -1253,6 +1255,13 @@ function constructEnvironment()
 				end
 				table.insert(impact_systems,"hull")
 				table.insert(impact_systems,"power")
+				table.insert(impact_systems,"beamweapons")
+				table.insert(impact_systems,"beamweapons")
+				table.insert(impact_systems,"missilesystem")
+				table.insert(impact_systems,"missilesystem")
+				table.insert(impact_systems,"frontshield")
+				table.insert(impact_systems,"rearshield")
+				table.insert(impact_systems,"reactor")
 			end
 			table.insert(ga.impact_systems,tableRemoveRandom(impact_systems))
 		end
@@ -3171,7 +3180,7 @@ function continuousAttack()
 			if getScenarioTime() < 30 then
 				attack_delay = getScenarioTime() + 5
 			end
-		elseif #code_bearers < 20 then
+		elseif #code_bearers < code_bearer_count then
 			fleet = spawnRandomArmed(gauntlet_station_x,gauntlet_station_y)
 			for i,ship in ipairs(fleet) do
 				ship:orderFlyTowards(center_x,center_y)
@@ -3261,7 +3270,11 @@ function checkGauntletZones(p)
 							p:setEnergy(p:getEnergy() - power_points)
 						else
 							if p:hasSystem(sys) then
-								p:setSystemHealth(sys,p:getSystemHealth(sys) - system_impact)
+								if random(1,100) < damage_vs_heat then
+									p:setSystemHealth(sys,p:getSystemHealth(sys) - system_impact)
+								else
+									p:setSystemHeat(sys,p:getSystemHeat(sys) + system_impact)
+								end
 							end
 						end
 					end
@@ -3288,6 +3301,14 @@ function checkHackingCodeGathering()
 							p.codes = 0
 						end
 						p.codes = p.codes + 1
+						if p.show_code_count_eng ~= nil then
+							p.show_code_count_eng = "show_code_count_eng"
+							p:addCustomInfo("Engineering",p.show_code_count_eng,string.format(_("tabEngineer","Cyber Codes: %s"),p.codes),8)
+						end
+						if p.show_code_count_epl ~= nil then
+							p.show_code_count_epl = "show_code_count_epl"
+							p:addCustomInfo("Engineering+",p.show_code_count_epl,string.format(_("tabEngineer+","Cyber Codes: %s"),p.codes),8)
+						end
 						ship.codes[sys] = true
 						break
 					end
@@ -3299,7 +3320,7 @@ end
 function cyberMissileLaunchButton(p)
 	if p.codes ~= nil and p.codes > 0 then
 		if cleanList(gauntlet_artifacts) then
-			selected_ga = nil
+			p.selected_ga = nil
 			for i,ga in ipairs(gauntlet_artifacts) do
 				if not isObjectType(ga,"WarpJammer") then
 					local dist = distance(p,ga)
@@ -3307,38 +3328,68 @@ function cyberMissileLaunchButton(p)
 					if dist < 10000 then
 						explain_cyber_missile = true
 						if dist < closest then
-							selected_ga = ga
+							p.selected_ga = ga
 							closest = dist
 						end
 					end
 				end
 			end
-			if selected_ga == nil or p:getScanProbeCount() < 1 then
-				p:removeCustom("launch_cyber_missile_wea")
-				p:removeCustom("launch_cyber_missile_tac")
+			if p.selected_ga == nil or p:getScanProbeCount() < 1 then
+				if p.launch_cyber_missile_wea ~= nil then
+					p:removeCustom(p.launch_cyber_missile_wea)
+					p:removeCustom(p.launch_cyber_missile_tac)
+					p.launch_cyber_missile_wea = nil
+					p.launch_cyber_missile_tac = nil
+				end
 			else
 				explain_cyber_missile = true
-				p:addCustomButton("Weapons","launch_cyber_missile_wea","Launch Cyber Missile",function()
-					string.format("")
-					launchCyberMissile(p,selected_ga)
-				end,9)
-				p:addCustomButton("Tactical","launch_cyber_missile_tac","Launch Cyber Missile",function()
-					string.format("")
-					launchCyberMissile(p,selected_ga)
-				end,9)
+				if p.launch_cyber_missile_wea == nil then
+					p.launch_cyber_missile_wea = "launch_cyber_missile_wea"
+					p:addCustomButton("Weapons",p.launch_cyber_missile_wea,_("buttonWeapons","Launch Cyber Missile"),function()
+						string.format("")
+						launchCyberMissile(p)
+					end,9)
+				end
+				if p.launch_cyber_missile_tac == nil then
+					p.launch_cyber_missile_tac = "launch_cyber_missile_tac"
+					p:addCustomButton("Tactical",p.launch_cyber_missile_tac,_("buttonTactical","Launch Cyber Missile"),function()
+						string.format("")
+						launchCyberMissile(p)
+					end,9)
+				end
 			end
+		end
+	else
+		if p.launch_cyber_missile_wea ~= nil then
+			p:removeCustom(p.launch_cyber_missile_wea)
+			p:removeCustom(p.launch_cyber_missile_tac)
+			p.launch_cyber_missile_wea = nil
+			p.launch_cyber_missile_tac = nil
 		end
 	end
 end
-function launchCyberMissile(p,ga)
+function launchCyberMissile(p)
 	string.format("")
-	p.codes = p.codes - 1
-	p:setScanProbeCount(p:getScanProbeCount() - 1)
-	local px, py = p:getPosition()
-	local gx, gy = ga:getPosition()
-	local cm = ScanProbe():setPosition(px,py):setTarget(gx,gy):setOwner(p):onArrival(detonateCyberMissile)
-	cm.ga = ga
-	table.insert(cyber_missiles,cm)
+	if p.selected_ga ~= nil and p.selected_ga:isValid() then
+		p.codes = p.codes - 1
+		if p.codes < 1 then
+			p:removeCustom(p.show_code_count_eng)
+			p:removeCustom(p.show_code_count_epl)
+			p.show_code_count_eng = nil
+			p.show_code_count_epl = nil
+		else
+			p:addCustomInfo("Engineering",p.show_code_count_eng,string.format(_("tabEngineer","Cyber Codes: %s"),p.codes),8)
+			p:addCustomInfo("Engineering+",p.show_code_count_epl,string.format(_("tabEngineer+","Cyber Codes: %s"),p.codes),8)
+		end
+		p:setScanProbeCount(p:getScanProbeCount() - 1)
+		local px, py = p:getPosition()
+		local gx, gy = p.selected_ga:getPosition()
+		local cm = ScanProbe():setPosition(px,py):setTarget(gx,gy):setOwner(p):onArrival(detonateCyberMissile)
+		cm.ga = p.selected_ga
+		table.insert(cyber_missiles,cm)
+	else
+		print("selected gauntlet artifact was nil or invalid in launchCyberMissile")
+	end
 end
 function steerCyberMissile()
 	if cleanList(cyber_missiles) then
@@ -3353,15 +3404,30 @@ end
 function detonateCyberMissile(self,x,y)
 	string.format("")
 	if self.ga:isValid() then
+		local former_systems = ""
+		local former_system_count = #self.ga.impact_systems
+		for i,sys in ipairs(self.ga.impact_systems) do
+			former_systems = string.format("%s %s",former_systems,sys)
+		end
 		local removed_system = tableRemoveRandom(self.ga.impact_systems)
 		local p = self:getOwner()
-		if removed_system ~= nil then
-			p:addCustomMessage("Relay","detonation_results_message_rel",string.format("The cyber missile successfully removed %s from the list of systems the field generator impacts.",removed_system))
-			p:addCustomMessage("Operations","detonation_results_message_ops",string.format("The cyber missile successfully removed %s from the list of systems the field generator impacts.",removed_system))
-		else
-			p:addCustomMessage("Relay","detonation_results_message_rel","The field generator had no system to remove. Its fangs had already been pulled.")
-			p:addCustomMessage("Operations","detonation_results_message_ops","The field generator had no system to remove. Its fangs had already been pulled.")
+		if result_msg_count == nil then
+			result_msg_count = 0
 		end
+		result_msg_count = result_msg_count + 1
+		local removal_message = _("msgRelayOperations","The field generator had no system to remove. Its fangs had already been pulled.")
+		if former_system_count > 0 then
+			removal_message = string.format(_("msgRelayOperations","The field generator used to impact these systems:%s. The cyber missile successfully removed %s from the field generators's impact ability."),former_systems,removed_system)
+			if former_system_count == 1 then
+				if difficulty < 1 then
+					removal_message = string.format(_("msgRelayOperations","The cyber missile has removed %s from the field generator's impact ability, the only impact system of the field generator. Without a purpose programmed, the AI may produce a self destruct action."),removed_system)
+				else
+					removal_message = string.format(_("msgRelayOperations","The cyber missile has removed %s from the field generator's impact ability, the last remaining impact system of the field generator. Without a purpose programmed, the AI may produce a self destruct action."),removed_system)
+				end
+			end
+		end
+		p:addCustomMessage("Relay",string.format("detonation_results_message_rel%i",result_msg_count),removal_message)
+		p:addCustomMessage("Operations",string.format("detonation_results_message_ops%i",result_msg_count),removal_message)
 		local impacted_systems_list = ""
 		for j,sys in ipairs(self.ga.impact_systems) do
 			impacted_systems_list = string.format("%s %s",impacted_systems_list,pretty_system[sys])
@@ -3385,11 +3451,21 @@ end
 function codeCounts(p)
 	if p.codes ~= nil and p.codes > 0  then
 		explain_cyber_missile = true
-		p:addCustomInfo("Engineering","show_code_count_eng",string.format("Cyber Codes: %s",p.codes),8)
-		p:addCustomInfo("Engineering+","show_code_count_epl",string.format("Cyber Codes: %s",p.codes),8)
+		if p.show_code_count_eng == nil then
+			p.show_code_count_eng = "show_code_count_eng"
+			p:addCustomInfo("Engineering",p.show_code_count_eng,string.format(_("tabEngineer","Cyber Codes: %s"),p.codes),8)
+		end
+		if p.show_code_count_epl == nil then
+			p.show_code_count_epl = "show_code_count_epl"
+			p:addCustomInfo("Engineering+",p.show_code_count_epl,string.format(_("tabEngineer+","Cyber Codes: %s"),p.codes),8)
+		end
 	else
-		p:removeCustom("show_code_count_eng")
-		p:removeCustom("show_code_count_epl")
+		if p.show_code_count_eng ~= nil then
+			p:removeCustom(p.show_code_count_eng)
+			p:removeCustom(p.show_code_count_epl)
+			p.show_code_count_eng = nil
+			p.show_code_count_epl = nil
+		end
 	end
 end
 function updateGauntletZones(delta)
@@ -3399,11 +3475,10 @@ function updateGauntletZones(delta)
 				local gw = obj
 				gw:setRange(gw:getRange() + gw.range_delta)
 				if gw:getRange() < gw.range_min then
-					gw.range_delta = random(1,20)
+					gw.range_delta = random(.5,20)
 				elseif gw:getRange() > gw.range_max then
-					gw.range_delta = random(1,20) * -1
+					gw.range_delta = random(.5,20) * -1
 				end
-				--obj:setRange(gauntlet_range + random(-2000,2000))
 			else
 				local ga = obj
 				local ga_x, ga_y = ga:getPosition()
