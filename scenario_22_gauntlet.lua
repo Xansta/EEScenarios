@@ -35,7 +35,7 @@ require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.1"
+	scenario_version = "1.0.2"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: The Exuari Gauntlet    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2583,50 +2583,102 @@ end
 function cyberExplainComms()
 	addCommsReply(_("cyberCodesMissiles-comms","Explain Cyber Codes and Cyber Missiles"),function()
 		setCommsMessage(string.format(_("cyberCodesMissiles-comms","After studying your telemetry and database, the scientists on station %s suggested a system on your ship to defeat the Exuari field generators at least in part. Your engineers, scientists, and probe technicians worked together to implement the suggestions."),home_station:getCallSign()))
+		if implement_suggestions == nil then
+			playSoundFile("audio/scenario/22/sa_22_ImplementSuggestions.ogg")
+			implement_suggestions = "played"
+		end
 		addCommsReply(_("cyberCodesMissiles-comms","My officers are asking about Cyber Codes"),function()
 			setCommsMessage(_("cyberCodesMissiles-comms","Cyber Codes are added to a specialized database in engineering when an Exuari ship system is 100% hacked."))
+			if cyber_codes == nil then
+				playSoundFile("audio/scenario/22/sa_22_CyberCodes.ogg")
+				cyber_codes = "played"
+			end
 			addCommsReply(_("cyberCodesMissiles-comms","What are they used for?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","They are used to program a Cyber Missile to inject a virus into an Exuari field generator to disable its ability to damage a ship system. (see Cyber Missile explanation)"))
+				if code_purpose == nil then
+					playSoundFile("audio/scenario/22/sa_22_CodePurpose.ogg")
+					code_purpose = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","Can they be reused?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","No. One code per missile."))
+				if one_code == nil then
+					playSoundFile("audio/scenario/22/sa_22_OneCode.ogg")
+					one_code = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","Can more than one officer hack an enemy ship simultaneously?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","Yes. If an officer's primary responsibility is not Relay, we recommend they use the Strategic Map console to hack an enemy to avoid conflict with Relay."))
+				if dual_hack == nil then
+					playSoundFile("audio/scenario/22/sa_22_DualHack.ogg")
+					dual_hack = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","Can we get more than one code from an enemy ship?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","There should be a code in each of the enemy systems you are able to hack."))
+				if code_per_sys == nil then
+					playSoundFile("audio/scenario/22/sa_22_CodePerSys.ogg")
+					code_per_sys = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("Back"), commsStation)
 		end)
 		addCommsReply(_("cyberCodesMissiles-comms","What are Cyber Missiles?"),function()
 			setCommsMessage(_("cyberCodesMissiles-comms","Cyber Missiles are scan probes reprogrammed to go to an Exuari field generator and inject a Cyber Code virus to disable the field's ability to damage a ship system."))
+			if cyber_missiles_explained == nil then
+				playSoundFile("audio/scenario/22/sa_22_CyberMissilesExplained.ogg")
+				cyber_missiles_explained = "played"
+			end
 			addCommsReply(_("cyberCodesMissiles-comms","How do I pick the field generator to target?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","The probe serving as the Cyber Missile is programmed to travel to the nearest field generator at the time it's launched."))
+				if missile_target == nil then
+					playSoundFile("audio/scenario/22/sa_22_MissileTarget.ogg")
+					missile_target = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","Which officer launches the Cyber Missile/probe?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","The weapons or tactical officer launches the Cyber Missile."))
+				if launcher == nil then
+					playSoundFile("audio/scenario/22/sa_22_Launcher.ogg")
+					launcher = "played"
+				end
 				addCommsReply(_("cyberCodesMissiles-comms","And how do they do that?"),function()
 					setCommsMessage(_("cyberCodesMissiles-comms","When the conditions are right (have at least one Cyber Code, have at least one probe, are within ten units of an Exuari field generator), a button will appear on the weapons console or the tactical console. They click it to launch."))
+					if how_to_launch == nil then
+						playSoundFile("audio/scenario/22/sa_22_HowToLaunch.ogg")
+						how_to_launch = "played"
+					end
 					addCommsReply(_("Back"), commsStation)
 				end)
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","How close does the ship have to be to launch a Cyber Missile?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","The ship needs to be within ten units of a field generator in order to launch a Cyber Missile."))
+				if ten_units == nil then
+					playSoundFile("audio/scenario/22/sa_22_10Units.ogg")
+					ten_units = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","What if we run out of probes?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","The button will not be presented to weapons or tactical if the ship does not have any probes in stock."))
+				if no_probes == nil then
+					playSoundFile("audio/scenario/22/sa_22_NoProbes.ogg")
+					no_probes = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("cyberCodesMissiles-comms","Can a Cyber Missile be launched while we're in warp?"),function()
 				setCommsMessage(_("cyberCodesMissiles-comms","Yes, if the launch button is present."))
+				if warp_launch == nil then
+					playSoundFile("audio/scenario/22/sa_22_WarpLaunch.ogg")
+					warp_launch = "played"
+				end
 				addCommsReply(_("Back"), commsStation)
 			end)
 			addCommsReply(_("Back"), commsStation)
@@ -3537,6 +3589,7 @@ function update(delta)
 	--	initial mission message
 	if initial_mission_message == nil then
 		local player_message = _("goal-incCall","Find and destroy the Exuari station that keeps sending out ships to attack us. They have some kind of new technology that is empowering them with a sense of impunity.")
+		playSoundFile("audio/scenario/22/sa_22_FindAndDestroy.ogg")
 		table.insert(messages,{msg=player_message,list={}})
 		local messages_index = #messages
 		for i,p in ipairs(getActivePlayerShips()) do
@@ -3546,10 +3599,12 @@ function update(delta)
 		initial_mission_message = "sent"
 	end
 	if gauntlet_station == nil or not gauntlet_station:isValid() then
+		playSoundFile("audio/scenario/22/sa_22_DestroyedExuariStation.ogg")
 		globalMessage(string.format(_("msgMainscreen","You have destroyed that pesky Exuari station!\n%s"),finalStats()))
 		victory(player_faction)
 	end
 	if home_station == nil or not home_station:isValid() then
+		playSoundFile("audio/scenario/22/sa_22_HomeDestroyed.ogg")
 		globalMessage(string.format(_("msgMainscreen","Your home station has been destroyed.\n%s"),finalStats()))
 		victory("Exuari")
 	end
