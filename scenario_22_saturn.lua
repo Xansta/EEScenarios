@@ -41,7 +41,7 @@ require("comms_scenario_utility.lua")
 
 --	Initialization
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Saturn Frogger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -571,7 +571,7 @@ function constructEnvironment()
     	:setCallSign("Epimetheus")
     local es_x, es_y = vectorFromAngle(moon_angle + 90,2000,true)
     epimetheus_station = placeStation(moon_x + es_x, moon_y + es_y,"RandomHumanNeutral","Human Navy")
-    epimetheus_sation:setShortRangeRadarRange(10000 + random(0,5000))
+    epimetheus_station:setShortRangeRadarRange(10000 + random(0,5000))
     epimetheus_station_name = epimetheus_station:getCallSign()
     table.insert(stations,epimetheus_station)
     moon_x, moon_y = vectorFromAngle(random(0,360),108000,true)
@@ -900,7 +900,7 @@ function froggerOut()
 		victory("Kraylor")
 	end
 	for i,p in ipairs(getActivePlayerShips()) do
-		if p:isDocked(epimetheus_station) then
+		if p:isDocked(epimetheus_station) and not p.docked_to_epimetheus_in_frogger_out_mission then
 			local player_message = string.format(_("goal-incCall","%s has been decontaminated."),p:getCallSign())
 			table.insert(messages,{msg=player_message,list={p}})
 			p:removeCustom(p.decontamination_banner_timer_hlm)
