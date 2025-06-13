@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.4.8"
+	scenario_version = "7.4.9"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2996,7 +2996,7 @@ function createSkeletonUniverse()
     BlackHole():setPosition(87747, -3384)
     BlackHole():setPosition(80429, -10486)
     BlackHole():setPosition(75695, 2427)
-    wormholeIcarus = WormHole():setPosition(-46716, 17958):setTargetPosition(19080, -19780)
+    wormholeIcarus = WormHole():setPosition(-46716, 17958):setTargetPosition(19080, -19780):setCallSign("Domina Gunilda")
     wormholeIcarus.exit = "Macassa"
     wormholeIcarus.exits = {
     	{name = "Astron",		x = 460500,		y = 320500,		tax = wormholeTax1,	region_name = "Astron",		},
@@ -3008,7 +3008,7 @@ function createSkeletonUniverse()
     	{name = "Staunch",		x = 153668,		y = 775877,		tax = wormholeTax1,	region_name = "Staunch",	},
     	{name = "Teresh",		x = 800001,		y = 120001,		tax = wormholeTax1,	region_name = "Teresh",		},
     }
-	stationWormholeWrangler = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wormhole Wrangler"):setPosition(-41977, 17955):setDescription("Wormhole control and trading post"):setCommsScript(""):setCommsFunction(commsStation)
+	stationWormholeWrangler = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wormhole Wrangler"):setPosition(-41977, 18955):setDescription("Wormhole control and trading post"):setCommsScript(""):setCommsFunction(commsStation)
     stationWormholeWrangler.wormhole = wormholeIcarus
     stationWormholeWrangler.comms_data = {
     	friendlyness = 85,
@@ -59667,11 +59667,15 @@ function wormholeWranglerOptions(calling_function)
 		"Adjust the wormhole's destination",
 	}
 	addCommsReply(tableSelectRandom(wormhole_destination_change_prompt),function()
+		local wormhole_name = "The wormhole"
+		if wormholeIcarus:getCallSign() ~= nil then
+			wormhole_name = wormholeIcarus:getCallSign()
+		end
 		local wormhole_destination_current_possible = {
-			string.format("The wormhole spits you out near %s. Would you like for us to change that?",comms_target.wormhole.exit),
-			string.format("The wormhole exit is near %s. Do you need that changed?",comms_target.wormhole.exit),
-			string.format("The wormhole transports you to %s. Need to go somewhere else?",comms_target.wormhole.exit),
-			string.format("The wormhole currently goes to %s. Do you want an alternative destination?",comms_target.wormhole.exit),
+			string.format("%s spits you out near %s. Would you like for us to change that?",wormhole_name,comms_target.wormhole.exit),
+			string.format("%s exit is near %s. Do you need that changed?",wormhole_name,comms_target.wormhole.exit),
+			string.format("%s transports you to %s. Need to go somewhere else?",wormhole_name,comms_target.wormhole.exit),
+			string.format("%s currently goes to %s. Do you want an alternative destination?",wormhole_name,comms_target.wormhole.exit),
 		}
 		setCommsMessage(tableSelectRandom(wormhole_destination_current_possible))
 		for i,w_exit in ipairs(comms_target.wormhole.exits) do
