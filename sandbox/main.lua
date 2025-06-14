@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.1"
+	scenario_version = "7.5.2"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1840,9 +1840,9 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Beowulf")			--J
-	makePlayerShipActive("Magnum")			--J
-	makePlayerShipActive("Dominant") 		--J 
+	makePlayerShipActive("Raptor")			--J
+	makePlayerShipActive("Claw")			--J
+	makePlayerShipActive("Darkstar") 		--J 
 	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Falcon")			--W
 	makePlayerShipActive("Crux") 			--W 
@@ -20712,17 +20712,18 @@ function createTereshAsteroids()
     table.insert(asteroid_list,Asteroid():setPosition(843887, 140417):setSize(20))
     table.insert(asteroid_list,Asteroid():setPosition(832545, 141551):setSize(182))
     table.insert(asteroid_list,Asteroid():setPosition(873755, 138148):setSize(23))
-    table.insert(asteroid_list,Mine():setPosition(903722, 133420))
-    table.insert(asteroid_list,Mine():setPosition(902383, 133141))
-    table.insert(asteroid_list,Mine():setPosition(901178, 133789))
-    table.insert(asteroid_list,Mine():setPosition(900671, 135059))
-    table.insert(asteroid_list,Mine():setPosition(901099, 136358))
-    table.insert(asteroid_list,Mine():setPosition(902263, 137078))
-    table.insert(asteroid_list,Mine():setPosition(903617, 136882))
-    table.insert(asteroid_list,Mine():setPosition(904528, 135861))
-    table.insert(asteroid_list,Mine():setPosition(904569, 134494))
-    table.insert(asteroid_list,WarpJammer():setFaction("Human Navy"):setPosition(902678, 135124):setRange(25000):setCallSign("BDWJ"))
+--	table.insert(asteroid_list,Mine():setPosition(903722, 133420))
+--	table.insert(asteroid_list,Mine():setPosition(902383, 133141))
+--	table.insert(asteroid_list,Mine():setPosition(901178, 133789))
+--	table.insert(asteroid_list,Mine():setPosition(900671, 135059))
+--	table.insert(asteroid_list,Mine():setPosition(901099, 136358))
+--	table.insert(asteroid_list,Mine():setPosition(902263, 137078))
+--	table.insert(asteroid_list,Mine():setPosition(903617, 136882))
+--	table.insert(asteroid_list,Mine():setPosition(904528, 135861))
+--	table.insert(asteroid_list,Mine():setPosition(904569, 134494))
+--	table.insert(asteroid_list,WarpJammer():setFaction("Human Navy"):setPosition(902678, 135124):setRange(25000):setCallSign("BDWJ"))
     table.insert(asteroid_list,BlackHole():setPosition(917143, 136163))
+	table.insert(asteroid_list,BlackHole():setPosition(848929, 120250))
     --north north
     table.insert(asteroid_list,Asteroid():setPosition(891278, 15517):setSize(114))
     table.insert(asteroid_list,Asteroid():setPosition(889069, 16718):setSize(122))
@@ -20820,7 +20821,6 @@ function createTereshNebulae()
     table.insert(nebula_list,Nebula():setPosition(884719, 126617))
     table.insert(nebula_list,Nebula():setPosition(852583, 146655))
     table.insert(nebula_list,Nebula():setPosition(824228, 139472))
-    table.insert(nebula_list,Nebula():setPosition(871108, 136258))
     table.insert(nebula_list,Nebula():setPosition(845400, 140984))
     --north north
     table.insert(nebula_list,Nebula():setPosition(888661, 17001))
@@ -20850,9 +20850,10 @@ function createTereshStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--	Bastion
-	--local bastionZone = squareZone(891524, 130398, "Bastion 2 L49")
-	--bastionZone:setColor(0,128,0):setLabel("Bastion")
-	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion 2"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local bastionZone = squareZone(891524, 130398, "Bastion 3 L49")
+	bastionZone:setColor(0,128,0):setLabel("B")
+	--[[
+	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion 3"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBastion:setShortRangeRadarRange(15000)
     stationBastion.comms_data = {
     	friendlyness = 64,
@@ -20910,6 +20911,7 @@ function createTereshStations()
 	if random(1,100) <= 12 then stationBastion:setSharesEnergyWithDocked(false) end
 	station_names[stationBastion:getCallSign()] = {stationBastion:getSectorName(), stationBastion}
 	table.insert(stations,stationBastion)
+	--]]
 	--	Breadboard
 	stationBreadboard = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Breadboard"):setPosition(864105, -24962):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBreadboard.comms_data = {
