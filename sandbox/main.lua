@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.4.9"
+	scenario_version = "7.5.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -11915,6 +11915,51 @@ function setDynamicTerrain()
 			setDynamicTerrain()
 		end)
 	end
+	if gm_click_mode == "base01" then
+		addGMFunction(">Base01<",base01)
+	else
+		addGMFunction("Base01",base01)
+	end
+end
+function base01()
+	if gm_click_mode == "base01" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "base01"
+		onGMClick(base01OnClick)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   Base 01\nGM click mode.",prev_mode))
+		end
+	end
+	setDynamicTerrain()
+end
+function base01OnClick(x,y)
+	local cx=x
+	local cy=y
+	local inner_ring_speed=180
+	local i_rad=5200
+	local i_1=15000
+	local i_2=math.sqrt(2)*i_1/2
+	local increment = 10
+	mineRingShim{dist=20000	,x=cx		,y=cy		,gap=3	,gap_size=20,speed=1800					,segments=6	,increment=increment}
+	mineRingShim{dist=7000	,x=cx		,y=cy		,gap=12	,gap_size=30,speed=120 					,segments=8	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+	createObjectCircle{radius=5000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
+	createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
+	leech(fleetSpawnFaction):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
+	leech(fleetSpawnFaction):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
+	leech(fleetSpawnFaction):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
+	leech(fleetSpawnFaction):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
+	Artifact():setPosition(cx+0,cy+0):setCallSign("Rift Scanner")
 end
 function movableTerrainOne()
 	if gm_click_mode == "moveable terrain" then
@@ -50135,8 +50180,10 @@ function stationOperations()
 	else
 		local first_object = objectList[1]
 		if not isObjectType(first_object,"SpaceStation") then
-			addGMFunction("+Select Station",stationDefense)
+			addGMFunction("+Select Station",stationOperations)
 		else
+			addGMFunction("+Major Repair",stationOpsMajorRepair)
+			--[[	now in tweak menu
 			local button_label = "Probes"
 			if first_object:getRestocksScanProbes() then
 				button_label = string.format("%s On->Off",button_label)
@@ -50207,6 +50254,7 @@ function stationOperations()
 					addGMMessage("Select only one object. No action taken")
 				end
 			end)
+			--]]
 			if first_object.comms_data.probe_launch_repair then
 				button_label = "Fix Probes On->Off"
 			else
@@ -50345,6 +50393,42 @@ function stationOperations()
 					addGMMessage("Select only one object. No action taken")
 				end
 			end)
+		end
+	end
+end
+function stationOpsMajorRepair()
+	clearGMFunctions()
+	addGMFunction("-Station Manipulation",stationManipulation)
+	addGMFunction("-Station Operations",stationOperations)
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMFunction("+Select Station",stationOpsMajorRepair)
+	else
+		local first_object = objectList[1]
+		if not isObjectType(first_object,"SpaceStation") then
+			addGMFunction("+Select Station",stationOpsMajorRepair)
+		else
+			--list major systems 
+			for sys,blob in pairs(first_object.comms_data.system_repair) do
+				local button_label = sys
+				if blob.avail then
+					button_label = button_label .. "*"
+				end
+				addGMFunction(button_label,function()
+					if blob.avail then
+						blob.avail = false
+					else
+						blob.avail = true
+						if blob.cost == nil then
+							blob.cost = math.random(1,9)
+						end
+						if blob.max == nil then
+							blob.max = random(.8, .99)
+						end
+					end
+					stationOpsMajorRepair()
+				end)
+			end
 		end
 	end
 end
@@ -54552,6 +54636,7 @@ function mineRingShim(args)
 	local speed=args.speed -- if not set it will remain nil - this is because nil means no orbit to createOrbitingObject
 	local x=args.x or 0
 	local y=args.y or 0
+	local increment=args.increment or 1
 	local min_dist=args.dist or 1000
 	local num_rows=args.num_rows or 1
 	local row_gap=args.row_gap or 500
