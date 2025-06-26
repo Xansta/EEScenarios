@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.2"
+	scenario_version = "7.5.3"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1845,7 +1845,7 @@ function setConstants()
 	makePlayerShipActive("Darkstar") 		--J 
 	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Falcon")			--W
-	makePlayerShipActive("Crux") 			--W 
+	makePlayerShipActive("Anvil") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -11942,17 +11942,17 @@ function base01OnClick(x,y)
 	local i_rad=5200
 	local i_1=15000
 	local i_2=math.sqrt(2)*i_1/2
-	local increment = 10
-	mineRingShim{dist=20000	,x=cx		,y=cy		,gap=3	,gap_size=20,speed=1800					,segments=6	,increment=increment}
-	mineRingShim{dist=7000	,x=cx		,y=cy		,gap=12	,gap_size=30,speed=120 					,segments=8	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
-	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	local increment = 10
+--	mineRingShim{dist=20000	,x=cx		,y=cy		,gap=3	,gap_size=20,speed=1800					,segments=6	,increment=increment}
+--	mineRingShim{dist=7000	,x=cx		,y=cy		,gap=12	,gap_size=30,speed=120 					,segments=8	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
 	createObjectCircle{radius=5000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
 	createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
 	leech(fleetSpawnFaction):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
@@ -16296,9 +16296,10 @@ function createKentarStations()
 	table.insert(stations,stationKeyhole23)
 	update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Kolar
-	--local kolarZone = squareZone(165481, 272311, "Kolar S13")
-	--kolarZone:setColor(51,153,255)
-    stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	local kolarZone = squareZone(165481, 272311, "Kolar S13")
+	kolarZone:setColor(51,153,255)
+	--[[
+    stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar 3"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
     if random(1,100) <= 50 then mineAvail = true else mineAvail = false end
@@ -16365,6 +16366,7 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationKolar:setSharesEnergyWithDocked(false) end
 	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
 	table.insert(stations,stationKolar)
+	--]]
 	--Locarno
 	--local locarnoZone = squareZone(246819, 331779, "Locarno V17")
 	--locarnoZone:setColor(51,153,255)
@@ -31069,11 +31071,11 @@ function createPlayerShipAnvil()
 	setBeamColor(playerAnvil)
 	playerAnvil:setTypeName("Deimos")
 	playerAnvil:setWarpDrive(true)						--warp drive (vs none)
-	playerAnvil:setWarpSpeed(400)
+	playerAnvil:setWarpSpeed(450)
 	playerAnvil:setShieldsMax(150, 80)					--asymmetric shields (vs 100, 100)
 	playerAnvil:setShields(150, 80)
-	playerAnvil:setHullMax(160)							--weaker hull (vs 200)
-	playerAnvil:setHull(160)
+	playerAnvil:setHullMax(180)							--weaker hull (vs 200)
+	playerAnvil:setHull(180)
 	playerAnvil:setRotationMaxSpeed(15)					--faster spin (vs 10)
 	playerAnvil:setAcceleration(30,25)					--faster (vs 20/20)
 	playerAnvil:setImpulseMaxSpeed(80,72)				--slower reverse impulse (vs 80)
@@ -54646,7 +54648,7 @@ function mineRingShim(args)
 	local half_gap_size=args.gap_size or 20
 	half_gap_size=half_gap_size/2
 	local gap=args.gap or 3
-	local create_fn = args.create_fn or Mine
+--	local create_fn = args.create_fn or Mine
 	if segments == 0 then
 		segments=1
 		half_gap_size=0
@@ -54655,7 +54657,7 @@ function mineRingShim(args)
 		for j=angle+half_gap_size,angle+increment-half_gap_size,gap do
 			for row=0,num_rows-1 do
 				local dist=min_dist+row_gap*row
-				createOrbitingObject(create_fn(),j,speed,x,y,dist)
+				createOrbitingObject(Mine(),j,speed,x,y,dist)
 			end
 		end
 		angle=angle+increment
