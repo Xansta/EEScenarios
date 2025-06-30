@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.3"
+	scenario_version = "7.5.4"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1841,7 +1841,7 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Raptor")			--J
-	makePlayerShipActive("Claw")			--J
+	makePlayerShipActive("Halberd")			--J
 	makePlayerShipActive("Darkstar") 		--J 
 	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Falcon")			--W
@@ -12382,13 +12382,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 and not mirrorUniverse then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
-		elseif i == 1 and not mirrorUniverse then
-			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
-			dp1Zone:setColor(0,128,0):setLabel("1")
-		else		
+--		if i == 2 and not mirrorUniverse then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
+--		elseif i == 1 and not mirrorUniverse then
+--			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
+--			dp1Zone:setColor(0,128,0):setLabel("1")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -12397,7 +12397,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -32060,8 +32060,6 @@ function createPlayerShipHalberd()
 	playerHalberd:setJumpDriveCharge(playerHalberd.max_jump_range)
 	playerHalberd:setHullMax(230)						--weaker hull (vs 250)
 	playerHalberd:setHull(230)							
-	playerHalberd:setShieldsMax(170,170)				--weaker shields (vs 200)
-	playerHalberd:setShields(170,170)
 --                 				 Arc, Dir, Range, CycleTime, Dmg
 	playerHalberd:setBeamWeapon(0, 5, -10,  1500,       6.0, 8)		--narrower turreted beams
 	playerHalberd:setBeamWeapon(1, 5,  10,  1500,       6.0, 8)		--vs arc:100, dir:-20
