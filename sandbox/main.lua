@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.4"
+	scenario_version = "7.5.5"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -21988,6 +21988,7 @@ function createBaskNebulae()
 	return nebula_list
 end
 function createBaskStations()
+	bask_defense_platforms = {}
 	local stations = {}
 	local fast_probe_list = {
 		{name = "Mark 3",	cost_lo = 3, cost_hi = 8,	quantity_lo = 1, quantity_hi = 5, speed = 2000},
@@ -23547,6 +23548,16 @@ function createBaskStations()
 	table.insert(stations,stationPegortamex)
 	stationFetundotak = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Fetundotak"):setPosition(1047774, 222642):setCommsScript(""):setCommsFunction(commsStation)
 	table.insert(stations,stationFetundotak)
+	local sx, sy = stationFetundotak:getPosition()
+	local dp_angle = 40
+	local fdp_names = {"Spankitomax","Lorpomux","Tifordutox"}
+	for i=1,3 do
+		local dpx, dpy = vectorFromAngle(dp_angle,2000,true)
+		local fdp = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign(fdp_names[i]):setPosition(sx+dpx,sy+dpy):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+		setBeamColor(fdp)
+		table.insert(bask_defense_platforms,fdp)
+		dp_angle = dp_angle + 120
+	end
     return stations
 end
 function createBaskPatrols()
@@ -23652,7 +23663,7 @@ function createBaskPatrol(patrol_name)
 			formation_shape = "X",
 			formation_spacing = 900,
 			patrol_points = {
-				{x = 1046504,	y = 223196},
+				{x = 1043995,	y = 222961},
 				{x = 1057308,	y = 228469},
 				{x = 1046246,	y = 216889},
 				{x = 1059221,	y = 219319},
@@ -24065,6 +24076,13 @@ function removeBaskColor()
 		end
 	end
 	bask_stations = nil
+	--	defense platforms
+	if bask_defense_platforms ~= nil then
+		for _, bd in pairs(bask_defense_platforms) do
+			bd:destroy()
+		end
+	end
+	bask_defense_platforms = nil
 	--	patrols
 	if bask_patrols ~= nil then
 		for _, bp in pairs(bask_patrols) do
