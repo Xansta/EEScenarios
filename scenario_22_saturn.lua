@@ -41,7 +41,7 @@ require("comms_scenario_utility.lua")
 
 --	Initialization
 function init()
-	scenario_version = "1.0.1"
+	scenario_version = "1.0.2"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Saturn Frogger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -346,43 +346,43 @@ function setGlobals()
 	deployed_player_count = 0
 	deployed_players = {}
 	player_ship_stats = {	
-		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, probes = 8,	tractor = false,	mining = false	},
-		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = true	},
-		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = false	},
-		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = true	},
-		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = false	},
-		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, probes = 8,	tractor = false,	mining = false	},
-		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = true	},
-		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = true	},
-		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = false	},
-		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, probes = 8,	tractor = false,	mining = false	},
-		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = false	},
-		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, probes = 8,	tractor = true,		mining = false	},
-		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, probes = 8,	tractor = false,	mining = false	},
-		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = true	},
-		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, probes = 8,	tractor = false,	mining = true	},
-		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, probes = 8,	tractor = false,	mining = true	},
-		["Saipan"]				= { strength = 30,	cargo = 4,	distance = 200,	long_range_radar = 25000, short_range_radar = 4500, probes = 10,tractor = false,	mining = false	},
-		["Stricken"]			= { strength = 40,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, probes = 8,	tractor = false,	mining = false	},
-		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = false	},
-		["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, probes = 8,	tractor = false,	mining = false	},
-		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, probes = 8,	tractor = true,		mining = false	},
-		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = true	},
-		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = true	},
-		["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = false	},
-		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = false	},
-		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = false	},
-		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, probes = 8,	tractor = false,	mining = false	},
-		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, probes = 8,	tractor = true,		mining = false	},
-		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = true	},
-		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, probes = 8,	tractor = false,	mining = false	},
-		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 8,	tractor = true,		mining = true	},
+		["MP52 Hornet"] 		= { strength = 7, 	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 4000, probes = 18,	tractor = false,	mining = false	},
+		["Piranha"]				= { strength = 16,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Flavia P.Falcon"]		= { strength = 13,	cargo = 15,	distance = 200,	long_range_radar = 40000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = true	},
+		["Phobos M3P"]			= { strength = 19,	cargo = 10,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = false	},
+		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = true	},
+		["Player Cruiser"]		= { strength = 40,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = false	},
+		["Player Missile Cr."]	= { strength = 45,	cargo = 8,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Player Fighter"]		= { strength = 7,	cargo = 3,	distance = 100,	long_range_radar = 15000, short_range_radar = 4500, probes = 18,	tractor = false,	mining = false	},
+		["Benedict"]			= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = true	},
+		["Kiriya"]				= { strength = 10,	cargo = 9,	distance = 400,	long_range_radar = 35000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = true	},
+		["Striker"]				= { strength = 8,	cargo = 4,	distance = 200,	long_range_radar = 35000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = false	},
+		["ZX-Lindworm"]			= { strength = 8,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 5500, probes = 18,	tractor = false,	mining = false	},
+		["Repulse"]				= { strength = 14,	cargo = 12,	distance = 200,	long_range_radar = 38000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = false	},
+		["Ender"]				= { strength = 100,	cargo = 20,	distance = 2000,long_range_radar = 45000, short_range_radar = 7000, probes = 18,	tractor = true,		mining = false	},
+		["Nautilus"]			= { strength = 12,	cargo = 7,	distance = 200,	long_range_radar = 22000, short_range_radar = 4000, probes = 18,	tractor = false,	mining = false	},
+		["Hathcock"]			= { strength = 30,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = true	},
+		["Maverick"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, probes = 18,	tractor = false,	mining = true	},
+		["Crucible"]			= { strength = 45,	cargo = 5,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Proto-Atlantis"]		= { strength = 40,	cargo = 4,	distance = 400,	long_range_radar = 30000, short_range_radar = 4500, probes = 18,	tractor = false,	mining = true	},
+		["Saipan"]				= { strength = 30,	cargo = 4,	distance = 200,	long_range_radar = 25000, short_range_radar = 4500, probes = 20,	tractor = false,	mining = false	},
+		["Stricken"]			= { strength = 40,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, probes = 18,	tractor = false,	mining = false	},
+		["Surkov"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Redhook"]				= { strength = 11,	cargo = 8,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Pacu"]				= { strength = 18,	cargo = 7,	distance = 200,	long_range_radar = 20000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Phobos T2"]			= { strength = 19,	cargo = 9,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = false	},
+		["Wombat"]				= { strength = 13,	cargo = 3,	distance = 100,	long_range_radar = 18000, short_range_radar = 6000, probes = 18,	tractor = false,	mining = false	},
+		["Holmes"]				= { strength = 35,	cargo = 6,	distance = 200,	long_range_radar = 35000, short_range_radar = 4000, probes = 18,	tractor = true,		mining = false	},
+		["Focus"]				= { strength = 35,	cargo = 4,	distance = 200,	long_range_radar = 32000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = true	},
+		["Flavia 2C"]			= { strength = 25,	cargo = 12,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = true	},
+		["Destroyer IV"]		= { strength = 25,	cargo = 5,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = false	},
+		["Destroyer III"]		= { strength = 25,	cargo = 7,	distance = 200,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = false	},
+		["MX-Lindworm"]			= { strength = 10,	cargo = 3,	distance = 100,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = false	},
+		["Striker LX"]			= { strength = 16,	cargo = 4,	distance = 200,	long_range_radar = 20000, short_range_radar = 4000, probes = 18,	tractor = false,	mining = false	},
+		["Maverick XP"]			= { strength = 23,	cargo = 5,	distance = 200,	long_range_radar = 25000, short_range_radar = 7000, probes = 18,	tractor = true,		mining = false	},
+		["Era"]					= { strength = 14,	cargo = 14,	distance = 200,	long_range_radar = 50000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = true	},
+		["Squid"]				= { strength = 14,	cargo = 8,	distance = 200,	long_range_radar = 25000, short_range_radar = 5000, probes = 18,	tractor = false,	mining = false	},
+		["Atlantis II"]			= { strength = 60,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, probes = 18,	tractor = true,		mining = true	},
 	}
 	player_ship_names_for = {
 		["Atlantis"] =			{"Excaliber","Thrasher","Punisher","Vorpal","Protang","Drummond","Parchim","Coronado"},
@@ -503,6 +503,20 @@ function constructEnvironment()
 --	set up rings of asteroids
     orbiting_asteroids = {}
     local belt_density = 100
+	local ring_colors = {
+		{r = 55,	g = 55,	b = 55},
+		{r = 255,	g = 69,	b = 0},
+		{r = 255,	g = 127,b = 80},
+		{r = 95,	g = 158,b = 160},
+		{r = 65,	g = 105,b = 225},
+		{r = 138,	g = 43,	b = 226},
+		{r = 186,	g = 85,	b = 211},
+		{r = 160,	g = 82,	b = 45},
+		{r = 178,	g = 150,b = 80},
+		{r = 85,	g = 107,b = 47},
+		{r = 34,	g = 139,b = 34},
+		{r = 178,	g = 34,	b = 34},
+	}
 	for i=1,10 do
 		ring_boundary = {
 			{lo = 30000, hi = 35000},
@@ -521,6 +535,29 @@ function constructEnvironment()
 		local lo = ring_boundary[i].lo
 		local hi = ring_boundary[i].hi
 		local dist = (lo + hi)/2
+		local color_pool = {}
+		local zone_inc = 360/48
+		local half_inc = zone_inc/2
+		for j=1,48 do
+			local zone_angle = j*zone_inc
+			local p1x, p1y = vectorFromAngle(zone_angle,			lo, true)
+			local p2x, p2y = vectorFromAngle(zone_angle,			hi, true)
+			local p3x, p3y = vectorFromAngle(zone_angle + half_inc,	hi, true)
+			local p4x, p4y = vectorFromAngle(zone_angle + half_inc,	lo,	true)
+			local rz = Zone():setPoints(
+				p1x + center_x,	p1y + center_y,
+				p2x + center_x,	p2y + center_y,
+				p3x + center_x,	p3y + center_y,
+				p4x + center_x,	p4y + center_y
+			)
+			if #color_pool == 0 then
+				for k,ring_color in ipairs(ring_colors) do
+					table.insert(color_pool,ring_color)
+				end
+			end
+			rc = tableRemoveRandom(color_pool)
+			rz:setColor(rc.r,rc.g,rc.b)
+		end
 		local wx, wy = vectorFromAngle(angle,dist,true)
 		local wj = WarpJammer()
 		wj.x = wx + center_x
@@ -856,6 +893,9 @@ function froggerIn()
 				end
 				p:removeCustom(p.injured_banner_timer_hlm)
 				p:removeCustom(p.injured_banner_timer_tac)
+				p:removeCustom(p.injured_banner_timer_wea)
+				p:removeCustom(p.injured_banner_timer_rel)
+				p:removeCustom(p.injured_banner_timer_ops)
 			else
 				if getScenarioTime() > p.frogger_in_time then
 					local final_message = string.format(_("msgMainscreen","The injured on %s did not get to %s before dying.\nThe Human Navy is disgraced."),p:getCallSign(),hq_station:getCallSign())
@@ -865,8 +905,14 @@ function froggerIn()
 				else
 					p.injured_banner_timer_hlm = "injured_banner_timer_hlm"
 					p.injured_banner_timer_tac = "injured_banner_timer_tac"
+					p.injured_banner_timer_wea = "injured_banner_timer_wea"
+					p.injured_banner_timer_rel = "injured_banner_timer_rel"
+					p.injured_banner_timer_ops = "injured_banner_timer_ops"
 					p:addCustomInfo("Helms",p.injured_banner_timer_hlm,string.format(_("tabHelm","Fatality: %s"),formatTime(p.frogger_in_time - getScenarioTime())),11)
 					p:addCustomInfo("Tactical",p.injured_banner_timer_tac,string.format(_("tabTactical","Fatality: %s"),formatTime(p.frogger_in_time - getScenarioTime())),11)
+					p:addCustomInfo("Weapons",p.injured_banner_timer_wea,string.format(_("tabWeapons","Fatality: %s"),formatTime(p.frogger_in_time - getScenarioTime())),11)
+					p:addCustomInfo("Relay",p.injured_banner_timer_rel,string.format(_("tabRelay","Fatality: %s"),formatTime(p.frogger_in_time - getScenarioTime())),11)
+					p:addCustomInfo("Operations",p.injured_banner_timer_ops,string.format(_("tabOperations","Fatality: %s"),formatTime(p.frogger_in_time - getScenarioTime())),11)
 				end
 			end
 		end
@@ -875,6 +921,7 @@ function froggerIn()
 		end
 	end
 	if waiting_counter == #getActivePlayerShips() then
+		missionMaintenance = froggerOut
 		local player_message = string.format(_("goal-incCall","You picked up some highly dangerous pathogens from the injured personnel that you just delivered. Dock with %s to decontaminate your ship. %s is currently in sector %s."),epimetheus_station:getCallSign(),epimetheus_station:getCallSign(),epimetheus_station:getSectorName())
 		table.insert(messages,{msg=player_message,list={}})
 		local messages_index = #messages
@@ -883,7 +930,6 @@ function froggerIn()
 		end
 		primary_orders = string.format(_("orders-comms","Dock with station %s."),epimetheus_station:getCallSign())
 		frogger_out_time = getScenarioTime() + frogger_out_timer
-		missionMaintenance = froggerOut
 	end
 end
 function froggerOut()
@@ -905,12 +951,21 @@ function froggerOut()
 			table.insert(messages,{msg=player_message,list={p}})
 			p:removeCustom(p.decontamination_banner_timer_hlm)
 			p:removeCustom(p.decontamination_banner_timer_tac)
+			p:removeCustom(p.decontamination_banner_timer_wea)
+			p:removeCustom(p.decontamination_banner_timer_rel)
+			p:removeCustom(p.decontamination_banner_timer_ops)
 			p.docked_to_epimetheus_in_frogger_out_mission = true
 		else
 			p.decontamination_banner_timer_hlm = "decontamination_banner_timer_hlm"
 			p.decontamination_banner_timer_tac = "decontamination_banner_timer_tac"
+			p.decontamination_banner_timer_wea = "decontamination_banner_timer_wea"
+			p.decontamination_banner_timer_rel = "decontamination_banner_timer_rel"
+			p.decontamination_banner_timer_ops = "decontamination_banner_timer_ops"
 			p:addCustomInfo("Helms",p.decontamination_banner_timer_hlm,string.format(_("tabHelm","Contamination: %s"),formatTime(frogger_out_time - getScenarioTime())),11)
 			p:addCustomInfo("Tactical",p.decontamination_banner_timer_tac,string.format(_("tabTactical","Contamination: %s"),formatTime(frogger_out_time - getScenarioTime())),11)
+			p:addCustomInfo("Weapons",p.decontamination_banner_timer_wea,string.format(_("tabWeapons","Contamination: %s"),formatTime(frogger_out_time - getScenarioTime())),11)
+			p:addCustomInfo("Relay",p.decontamination_banner_timer_rel,string.format(_("tabRelay","Contamination: %s"),formatTime(frogger_out_time - getScenarioTime())),11)
+			p:addCustomInfo("Operations",p.decontamination_banner_timer_ops,string.format(_("tabOperations","Contamination: %s"),formatTime(frogger_out_time - getScenarioTime())),11)
 			remaining_decontamination_drop_time = frogger_out_time - getScenarioTime()
 		end
 		if p.docked_to_epimetheus_in_frogger_out_mission then
