@@ -36,8 +36,8 @@ require("generate_call_sign_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "0.1.0"
-	ee_version = "2023.06.17"
+	scenario_version = "0.1.1"
+	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Infiltrate    ----    Version %s    ----    Tested wuth EE version %s    ----",scenario_version,ee_version))
 	print(_VERSION)
 	setVariations()	--numeric difficulty, Kraylor fortress size
@@ -1084,6 +1084,7 @@ function primaryNirvanaCheck(delta)
 	if primary_check_timer < 0 then
 		if #primary_nirvana_defense < 1 then
 			if cuf_station ~= nil and cuf_station:isValid() then
+				local cuf_station_x, cuf_station_y = cuf_station:getPosition()
 				local iff_choice = random(1,100)
 				if iff_choice < (80 - difficulty * 20) then
 					primary_nirvana_defense = setPrimaryNirvanaDefense(cuf_station_x,cuf_station_y,"Human Navy")
