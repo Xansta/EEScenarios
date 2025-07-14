@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.5"
+	scenario_version = "7.5.6"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1840,12 +1840,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Raptor")			--J
-	makePlayerShipActive("Halberd")			--J
-	makePlayerShipActive("Darkstar") 		--J 
+	makePlayerShipActive("Wiggy")			--J
+	makePlayerShipActive("Endeavor")		--J
+	makePlayerShipActive("Guinevere") 		--J 
 	makePlayerShipActive("Grad")			--W
-	makePlayerShipActive("Falcon")			--W
-	makePlayerShipActive("Anvil") 			--W 
+	makePlayerShipActive("Thelonius")		--W
+	makePlayerShipActive("Swoop") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -13367,8 +13367,8 @@ function createIcarusStations()
         			dilithium = {quantity = math.random(2,11),	cost = math.random(55,85)}	},
         trade = {	food = random(1,100)<=12, medicine = false, luxury = random(1,100)<=32 },
         public_relations = true,
-        general_information = "Station location facilitates mining the nearby asteroids. This is the 8th time the staion has been rebuilt",
-    	history = "The station was named in the hopes that the asteroids will be as productive as the Macassa mine was on Earth in the mid to late 1900s"
+        general_information = "Station location facilitates mining the nearby asteroids. Rebuilt a couple of times due to neighborly conflict",
+    	history = "Name: Obscure reference to a mineral deity in the Ktlitan language."
 	}
 	if random(1,100) <= 16 then stationKiptik:setRestocksScanProbes(false) end
 	if random(1,100) <= 12 then stationKiptik:setRepairDocked(false) end
@@ -13426,9 +13426,9 @@ function createIcarusStations()
 	station_names[stationLoowine:getCallSign()] = {stationLoowine:getSectorName(), stationLoowine}
 	table.insert(stations,stationLoowine)
 	--Macassa
---	local macassaZone = squareZone(16335, -18034, "Macassa 12 E5")
+--	local macassaZone = squareZone(16335, -18034, "Macassa 13 E5")
 --	macassaZone:setColor(0,128,0):setLabel("M")
-    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 12"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+    stationMacassa = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(16335, -18034):setCallSign("Macassa 13"):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMacassa:setShortRangeRadarRange(8000)
 	if mirrorUniverse then
 		stationMacassa:setFaction("Holy Terra")
