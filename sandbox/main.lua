@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.6"
+	scenario_version = "7.5.7"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1845,7 +1845,7 @@ function setConstants()
 	makePlayerShipActive("Guinevere") 		--J 
 	makePlayerShipActive("Grad")			--W
 	makePlayerShipActive("Thelonius")		--W
-	makePlayerShipActive("Swoop") 			--W 
+	makePlayerShipActive("Florentine") 		--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -15720,15 +15720,15 @@ function createKentarColor()
 	local kentar_zone = nil
 	for i=1,3 do
 		local dpx, dpy = vectorFromAngle(start_angle,3500)
---		if i == 1 then
---			kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
---			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
---		else
+		if i == 2 then
+			kentar_zone = squareZone(kentar_x+dpx,kentar_y+dpy,string.format("Kentar DP%i",i))
+			kentar_zone:setColor(0,128,0):setLabel(string.format("%i",i))
+		else
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(kentar_x+dpx,kentar_y+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("KDP%i",i)):setDescription(string.format("Kentar defense platform %i",i)):orderRoaming():setCommsScript(""):setCommsFunction(commsStation)
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
 			table.insert(kentar_defense_platforms,dp)
---		end
+		end
 		start_angle = (start_angle + 120) % 360
 	end
 end
@@ -16090,9 +16090,9 @@ function createKentarStations()
 	table.insert(gateway_objects,ship)
 	local x = gateway_x + math.sin(((95  )/360)*math.pi*2)*19000
 	local y =gateway_y - math.cos(((95  )/360)*math.pi*2)*19000
-	local agst2Zone = squareZone(x, y, "AGST2 X8")
-	agst2Zone:setColor(0,128,0):setLabel("A")
---	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
+--	local agst2Zone = squareZone(x, y, "AGST2 X8")
+--	agst2Zone:setColor(0,128,0):setLabel("A")
+	table.insert(gateway_objects,sniperTower("Human Navy"):setCallSign("AGST2"):setPosition(x, y):orderRoaming())
 
 	local orbit_time = 15
 	local red_artifact = Artifact()
@@ -16296,9 +16296,8 @@ function createKentarStations()
 	table.insert(stations,stationKeyhole23)
 	update_system:addOrbitUpdate(stationKeyhole23,210000,290000,3600,15*2*math.pi)
 	--Kolar
-	local kolarZone = squareZone(165481, 272311, "Kolar S13")
-	kolarZone:setColor(51,153,255)
-	--[[
+--	local kolarZone = squareZone(165481, 272311, "Kolar 3 S13")
+--	kolarZone:setColor(51,153,255)
     stationKolar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Kolar 3"):setPosition(165481, 272311):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
     if random(1,100) <= 40 then empAvail = true else empAvail = false end
@@ -16366,7 +16365,6 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationKolar:setSharesEnergyWithDocked(false) end
 	station_names[stationKolar:getCallSign()] = {stationKolar:getSectorName(), stationKolar}
 	table.insert(stations,stationKolar)
-	--]]
 	--Locarno
 	--local locarnoZone = squareZone(246819, 331779, "Locarno V17")
 	--locarnoZone:setColor(51,153,255)
@@ -16501,9 +16499,8 @@ function createKentarStations()
 	station_names[stationMonocle:getCallSign()] = {stationMonocle:getSectorName(), stationMonocle}
 	table.insert(stations,stationMonocle)
 	--Nereus
-	local NereusZone = squareZone(174288, 321668, "Nereus D V13")
-	NereusZone:setColor(0,128,0):setLabel("N")
-	--[[
+--	local NereusZone = squareZone(174288, 321668, "Nereus D V13")
+--	NereusZone:setColor(0,128,0):setLabel("N")
     stationNereus = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Nereus D"):setPosition(174288, 321668):setDescription("Mining, observation and lifter manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
     stationNereus:setShortRangeRadarRange(8500)
     if random(1,100) <= 30 then nukeAvail = true else nukeAvail = false end
@@ -16566,7 +16563,6 @@ function createKentarStations()
 	if random(1,100) <= 35 then stationNereus:setSharesEnergyWithDocked(false) end
 	station_names[stationNereus:getCallSign()] = {stationNereus:getSectorName(), stationNereus}
 	table.insert(stations,stationNereus)
-	--]]
 	--Pastern (Orbiting Ergot which orbits Rigil in N25. Look in the square bounded by Q22, K22, K28 and Q28)
 	local ergot_x, ergot_y = planet_ergot:getPosition()
     stationPastern = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Pastern"):setPosition(ergot_x+1500, ergot_y):setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
@@ -31874,13 +31870,16 @@ function createPlayerShipFlorentine()
 	playerSafari = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Florentine")
 	setBeamColor(playerSafari)
 	playerSafari:setTypeName("Safari")
-	playerSafari:setShieldsMax(110, 80)					--stronger front, weaker rear (vs 70, 70)
-	playerSafari:setShields(110, 80)
+	playerSafari:setShieldsMax(150, 90)					--stronger front, weaker rear (vs 70, 70)
+	playerSafari:setShields(150, 90)
 --                 			      Arc, Dir, Range, CycleTime, Damage
-	playerSafari:setBeamWeapon(0,  10,   0,	1200, 		6.0, 	6.0)	--1 forward, 1 turret (vs 2 rear)
-	playerSafari:setBeamWeapon(1,  40,   0,	 600, 		8.0,   12.0)	--shorter (vs 1200), more damage (vs 6), slower (vs 6)
+	playerSafari:setBeamWeapon(0,  10,   0,	1200, 		5.0, 	7.0)	--1 forward, 1 turret (vs 2 rear)
+	playerSafari:setBeamWeapon(1,  60,   0,	1000, 		6.0,    6.0)	--shorter (vs 1200)
+	playerSafari:setBeamWeapon(2,  40,   0,	 800, 		8.0,   12.0)	--extra beam
 --										Arc,  Dir, Rotate speed
 	playerSafari:setBeamWeaponTurret(0,	 80,    0,			 .4)		--slow turret
+	playerSafari:setBeamWeaponDamageType(0,"emp")
+	playerSafari:setBeamWeaponDamageType(1,"kinetic")
 	playerSafari:setWeaponTubeCount(3)									--more (vs 1)
 	playerSafari:setWeaponTubeDirection(0, -90)							--left (vs rear)
 	playerSafari:setWeaponTubeDirection(1,  90)							--right (vs none)
