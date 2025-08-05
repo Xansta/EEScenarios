@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.8"
+	scenario_version = "7.5.9"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -3397,335 +3397,72 @@ function createSkeletonUniverse()
 	--	Glikton
 	glikton_x = 407073
 	glikton_y = -502604
+    stationGlikton = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Glikton"):setPosition(408073, -502604)
+	stationGlikton:setShortRangeRadarRange(13000)
+    stationGlikton.comms_data = {
+    	friendlyness = 77,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = math.random(12,18),	EMP = math.random(9,11) },
+        weapon_available = 	{Homing = true,		HVLI = true,			Mine = true,			Nuke = true,				EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,110), 
+        	reinforcements = math.random(120,160),
+   			hornet_reinforcements =	math.random(65,125),
+			phobos_reinforcements =	math.random(155,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<80},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<90},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+        mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "Resource gathering hub for the area. We generally get along with our neighbors as long as they don't attack.",
+    	history = "We heard about the resources here and joined the flock of factions wanting in on the feeding trough.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5",
+			DF7 = "Adder MK8",
+			DF8 = "Elara P2",
+    	},
+	}
+	station_names[stationGlikton:getCallSign()] = {stationGlikton:getSectorName(), stationGlikton}
+	stationGlikton.skeleton_station = true
 ------------------------------------	
 --	Glikton stuff from GM screen  --
 ------------------------------------
-    star_glikton = Planet():setPosition(377860, -572943):setPlanetRadius(5000):setPlanetCloudRadius(5200.00)
-    planet_glikton = Planet():setPosition(476646, -490235):setPlanetRadius(5000):setPlanetCloudRadius(5200.00):setOrbit(star_glikton, 10.00)
-    WormHole():setPosition(358317, -598777):setTargetPosition(431755, -538361)
-    WormHole():setPosition(288526, -552423):setTargetPosition(408838, -607371)
-    WormHole():setPosition(417432, -520913):setTargetPosition(288265, -585496)
-    BlackHole():setPosition(335921, -606850)
-    BlackHole():setPosition(303647, -586931)
-    BlackHole():setPosition(402447, -620880)
-    BlackHole():setPosition(375103, -598744)
-    BlackHole():setPosition(394895, -597963)
-    BlackHole():setPosition(276564, -564536)
-    BlackHole():setPosition(402447, -581296)
-    BlackHole():setPosition(318231, -560890)
-    Asteroid():setPosition(341864, -602744):setSize(127)
-    Asteroid():setPosition(339622, -598882):setSize(125)
-    Asteroid():setPosition(341491, -610964):setSize(124)
-    Asteroid():setPosition(343608, -608224):setSize(130)
-    Asteroid():setPosition(339124, -600875):setSize(124)
-    Asteroid():setPosition(340992, -610217):setSize(122)
-    Asteroid():setPosition(342612, -607726):setSize(127)
-    Asteroid():setPosition(343733, -606356):setSize(125)
-    Asteroid():setPosition(341989, -609345):setSize(115)
-    Asteroid():setPosition(340245, -611587):setSize(125)
-    Asteroid():setPosition(340619, -602245):setSize(120)
-    Asteroid():setPosition(339498, -599879):setSize(117)
-    Asteroid():setPosition(341740, -605110):setSize(128)
-    Asteroid():setPosition(341740, -603989):setSize(130)
-    Nebula():setPosition(341651, -609194)
-    Nebula():setPosition(339307, -601902)
-    Asteroid():setPosition(338750, -601622):setSize(129)
-    Asteroid():setPosition(337380, -601498):setSize(123)
-    Asteroid():setPosition(334889, -614701):setSize(122)
-    Asteroid():setPosition(335761, -614078):setSize(112)
-    Asteroid():setPosition(333021, -616196):setSize(123)
-    Asteroid():setPosition(337380, -613206):setSize(112)
-    SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("DS7012"):setPosition(332276, -613882)
-    SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS7013"):setPosition(337484, -600079)
-    Asteroid():setPosition(341117, -612584):setSize(113)
-    Asteroid():setPosition(339373, -613206):setSize(123)
-    Asteroid():setPosition(338377, -612708):setSize(118)
-    Asteroid():setPosition(402887, -590073):setSize(125)
-    Asteroid():setPosition(338128, -613829):setSize(117)
-    Nebula():setPosition(335401, -613621)
-    Asteroid():setPosition(333768, -612957):setSize(130)
-    SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS6982"):setPosition(408958, -623223)
-    Asteroid():setPosition(409917, -583341):setSize(111)
-    Asteroid():setPosition(407832, -585247):setSize(111)
-    Asteroid():setPosition(399670, -589894):setSize(127)
-    Asteroid():setPosition(401160, -590848):setSize(126)
-    Asteroid():setPosition(411049, -584175):setSize(128)
-    Asteroid():setPosition(410632, -585188):setSize(112)
-    Asteroid():setPosition(411109, -586141):setSize(112)
-    Asteroid():setPosition(410572, -587333):setSize(124)
-    Asteroid():setPosition(409143, -586022):setSize(122)
-    Asteroid():setPosition(408666, -584711):setSize(123)
-    Asteroid():setPosition(407832, -586737):setSize(119)
-    Asteroid():setPosition(408070, -587630):setSize(123)
-    Asteroid():setPosition(406164, -586320):setSize(124)
-    Asteroid():setPosition(401100, -586856):setSize(123)
-    SpaceStation():setTemplate("Large Station"):setFaction("Arlenians"):setCallSign("DS6981"):setPosition(393072, -604473)
-    SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS7014"):setPosition(269515, -566746)
-    SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("DS6962"):setPosition(282553, -562452)
-    Asteroid():setPosition(311431, -559725):setSize(116)
-    SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS6963"):setPosition(302866, -580681)
-    Asteroid():setPosition(313698, -557848):setSize(118)
-    Nebula():setPosition(313425, -555972)
-    Asteroid():setPosition(313285, -554915):setSize(128)
-    Asteroid():setPosition(404079, -588107):setSize(111)
-    Nebula():setPosition(403183, -588431)
-    Asteroid():setPosition(404555, -586737):setSize(117)
-    Asteroid():setPosition(403364, -587690):setSize(117)
-    Asteroid():setPosition(399849, -587511):setSize(111)
-    SpaceStation():setTemplate("Huge Station"):setFaction("USN"):setCallSign("DS6983"):setPosition(406093, -588588)
-    Asteroid():setPosition(401815, -588047):setSize(120)
-    Asteroid():setPosition(402947, -588941):setSize(119)
-    Asteroid():setPosition(400564, -588882):setSize(125)
-    Asteroid():setPosition(401279, -589596):setSize(121)
-    Asteroid():setPosition(317060, -554800):setSize(122)
-    Asteroid():setPosition(316004, -554331):setSize(116)
-    Asteroid():setPosition(314206, -554174):setSize(129)
-    Asteroid():setPosition(315535, -555464):setSize(116)
-    Asteroid():setPosition(314558, -555230):setSize(116)
-    Asteroid():setPosition(314167, -556207):setSize(119)
-    Asteroid():setPosition(312565, -559295):setSize(122)
-    SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS6964"):setPosition(312501, -556984)
-    Mine():setPosition(405656, -485844)
-    Mine():setPosition(406055, -483318)
-    Mine():setPosition(408580, -485711)
-    Mine():setPosition(404327, -486508)
-    Mine():setPosition(382354, -505027)
-    Mine():setPosition(381424, -502648)
-    Mine():setPosition(382561, -501097)
-    Mine():setPosition(379045, -509163)
-    Mine():setPosition(380700, -506578)
-    Nebula():setPosition(376819, -498724)
-    Mine():setPosition(396107, -517332)
-    Nebula():setPosition(388277, -515911)
-    Nebula():setPosition(384110, -513047)
-    Mine():setPosition(380733, -536190)
-    Mine():setPosition(382722, -534035)
-    Asteroid():setPosition(381602, -534332):setSize(113)
-    Mine():setPosition(373770, -536853)
-    Asteroid():setPosition(376695, -536922):setSize(111)
-    Mine():setPosition(376754, -538014)
-    Nebula():setPosition(366402, -543516)
-    Asteroid():setPosition(378876, -536786):setSize(129)
-    Asteroid():setPosition(373424, -534877):setSize(128)
-    Asteroid():setPosition(371243, -535014):setSize(125)
-    Nebula():setPosition(379944, -507838)
-    Nebula():setPosition(376298, -504974)
-    SpaceStation():setTemplate("Medium Station"):setFaction("TSN"):setCallSign("DS6725"):setPosition(377865, -503125)
-    Mine():setPosition(402105, -521055)
-    Asteroid():setPosition(400985, -522019):setSize(126)
-    Asteroid():setPosition(403995, -521068):setSize(113)
-    Mine():setPosition(399520, -520434)
-    Mine():setPosition(397762, -519090)
-    Asteroid():setPosition(396549, -514889):setSize(124)
-    Mine():setPosition(404276, -520538)
-    Asteroid():setPosition(405263, -520434):setSize(116)
-    Asteroid():setPosition(406847, -541822):setSize(119)
-    Asteroid():setPosition(406372, -543248):setSize(121)
-    Asteroid():setPosition(407481, -537545):setSize(121)
-    Mine():setPosition(407921, -539506)
-    Asteroid():setPosition(407164, -539604):setSize(126)
-    Asteroid():setPosition(408114, -540396):setSize(118)
-    Asteroid():setPosition(396866, -519959):setSize(112)
-    Asteroid():setPosition(397024, -518375):setSize(120)
-    Asteroid():setPosition(396549, -516474):setSize(117)
-    Asteroid():setPosition(398450, -517107):setSize(119)
-    Asteroid():setPosition(399718, -516791):setSize(119)
-    Asteroid():setPosition(398609, -515048):setSize(122)
-    Asteroid():setPosition(398609, -518850):setSize(123)
-    Asteroid():setPosition(401144, -520593):setSize(126)
-    Asteroid():setPosition(400193, -519959):setSize(115)
-    Asteroid():setPosition(398767, -520276):setSize(114)
-    Asteroid():setPosition(402252, -520118):setSize(122)
-    Asteroid():setPosition(395282, -518058):setSize(113)
-    Asteroid():setPosition(392113, -517900):setSize(119)
-    Asteroid():setPosition(397183, -522019):setSize(116)
-    Asteroid():setPosition(394331, -518850):setSize(127)
-    Asteroid():setPosition(395123, -520751):setSize(113)
-    Asteroid():setPosition(400193, -521543):setSize(111)
-    Asteroid():setPosition(399718, -522494):setSize(121)
-    Asteroid():setPosition(398609, -525504):setSize(128)
-    Asteroid():setPosition(400985, -523445):setSize(111)
-    Asteroid():setPosition(403362, -522494):setSize(128)
-    Asteroid():setPosition(406530, -519801):setSize(115)
-    Asteroid():setPosition(410649, -536436):setSize(115)
-    Asteroid():setPosition(410174, -537703):setSize(112)
-    Asteroid():setPosition(409857, -538495):setSize(124)
-    Mine():setPosition(411770, -503918)
-    Mine():setPosition(411504, -500197)
-    Asteroid():setPosition(404154, -519167):setSize(111)
-    SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("DS6719"):setPosition(408073, -502604)
-    Asteroid():setPosition(412709, -535168):setSize(126)
-    SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS6724"):setPosition(413021, -539323)
-    Mine():setPosition(410685, -537455)
-    Asteroid():setPosition(408748, -539287):setSize(126)
-    Asteroid():setPosition(373969, -537603):setSize(111)
-    Asteroid():setPosition(376422, -538830):setSize(124)
-    Asteroid():setPosition(377104, -536240):setSize(127)
-    Asteroid():setPosition(374787, -536377):setSize(130)
-    Asteroid():setPosition(378739, -537194):setSize(115)
-    Asteroid():setPosition(373151, -535968):setSize(126)
-    Asteroid():setPosition(383919, -534605):setSize(115)
-    Asteroid():setPosition(385691, -532696):setSize(116)
-    Asteroid():setPosition(383374, -532696):setSize(111)
-    Asteroid():setPosition(376013, -536922):setSize(123)
-    Asteroid():setPosition(378194, -538285):setSize(120)
-    Asteroid():setPosition(384737, -531606):setSize(128)
-    Mine():setPosition(447119, -541233)
-    Asteroid():setPosition(448513, -542614):setSize(120)
-    Asteroid():setPosition(444711, -542773):setSize(119)
-    Asteroid():setPosition(450731, -540872):setSize(112)
-    Asteroid():setPosition(452791, -541980):setSize(120)
-    Asteroid():setPosition(447880, -539763):setSize(114)
-    Asteroid():setPosition(448513, -540872):setSize(115)
-    Asteroid():setPosition(443602, -542456):setSize(127)
-    Asteroid():setPosition(443127, -541822):setSize(125)
-    Asteroid():setPosition(446137, -541347):setSize(121)
-    Asteroid():setPosition(442018, -542456):setSize(128)
-    Mine():setPosition(440912, -544337)
-    Asteroid():setPosition(440750, -544991):setSize(117)
-    Mine():setPosition(442666, -542717)
-    SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("DS6727"):setPosition(445573, -546094)
-    Asteroid():setPosition(444553, -540713):setSize(125)
-    SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS6720"):setPosition(434115, -515365)
-    Asteroid():setPosition(440275, -542931):setSize(114)
-    Asteroid():setPosition(440275, -545149):setSize(120)
-    Asteroid():setPosition(443760, -543248):setSize(122)
-    Asteroid():setPosition(441859, -544515):setSize(117)
-    Asteroid():setPosition(441226, -547684):setSize(124)
-    Asteroid():setPosition(440117, -548793):setSize(111)
-    Mine():setPosition(439967, -546226)
-    Asteroid():setPosition(438849, -546100):setSize(121)
-    Asteroid():setPosition(438057, -544040):setSize(120)
-    Asteroid():setPosition(415244, -533425):setSize(122)
-    Asteroid():setPosition(413501, -534376):setSize(129)
-    Asteroid():setPosition(413818, -535802):setSize(122)
-    Asteroid():setPosition(416986, -537069):setSize(126)
-    Asteroid():setPosition(417145, -537545):setSize(111)
-    Mine():setPosition(417298, -535970)
-    Asteroid():setPosition(418412, -534534):setSize(129)
-    Asteroid():setPosition(418095, -536594):setSize(116)
-    Mine():setPosition(416211, -535030)
-    Asteroid():setPosition(412233, -535327):setSize(119)
-    Mine():setPosition(412729, -536190)
-    Asteroid():setPosition(412075, -536594):setSize(129)
-    Nebula():setPosition(411715, -547161)
-    Nebula():setPosition(404683, -545859)
-    Asteroid():setPosition(411283, -534059):setSize(122)
-    Asteroid():setPosition(411441, -537545):setSize(123)
-    Asteroid():setPosition(416511, -535960):setSize(128)
-    Asteroid():setPosition(415085, -535168):setSize(129)
-    Asteroid():setPosition(414451, -537228):setSize(124)
-    Mine():setPosition(427553, -515999)
-    Asteroid():setPosition(425902, -514212):setSize(114)
-    Nebula():setPosition(433069, -523463)
-    Asteroid():setPosition(411997, -502710):setSize(123)
-    Asteroid():setPosition(410983, -501286):setSize(111)
-    Mine():setPosition(412966, -501393)
-    Asteroid():setPosition(413702, -501612):setSize(129)
-    Asteroid():setPosition(412614, -503679):setSize(113)
-    Mine():setPosition(434362, -496475)
-    Asteroid():setPosition(433533, -496985):setSize(123)
-    Asteroid():setPosition(434477, -495195):setSize(129)
-    Asteroid():setPosition(436259, -498348):setSize(111)
-    Asteroid():setPosition(435347, -496609):setSize(128)
-    Asteroid():setPosition(433397, -495486):setSize(117)
-    Asteroid():setPosition(432302, -495739):setSize(124)
-    Mine():setPosition(429172, -514380)
-    Asteroid():setPosition(428626, -513614):setSize(127)
-    Asteroid():setPosition(427789, -514877):setSize(128)
-    Nebula():setPosition(435673, -511745)
-    Mine():setPosition(430656, -513031)
-    Nebula():setPosition(430725, -518516)
-    Asteroid():setPosition(460871, -509028):setSize(125)
-    Asteroid():setPosition(460395, -508236):setSize(117)
-    Asteroid():setPosition(460237, -509820):setSize(114)
-    Asteroid():setPosition(463247, -512988):setSize(127)
-    Mine():setPosition(461962, -511142)
-    Asteroid():setPosition(462455, -511721):setSize(124)
-    Asteroid():setPosition(430469, -515625):setSize(115)
-    SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS6718"):setPosition(401823, -517708)
-    Mine():setPosition(461423, -508443)
-    Asteroid():setPosition(461663, -506810):setSize(111)
-    Asteroid():setPosition(462930, -507443):setSize(129)
-    Asteroid():setPosition(460712, -507760):setSize(112)
-    Asteroid():setPosition(460395, -506493):setSize(127)
-    Asteroid():setPosition(462930, -508711):setSize(119)
-    SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS6726"):setPosition(466406, -507812)
-    Mine():setPosition(462232, -505069)
-    Asteroid():setPosition(462772, -503958):setSize(126)
-    Asteroid():setPosition(461346, -504592):setSize(113)
-    Asteroid():setPosition(463722, -503800):setSize(129)
-    Mine():setPosition(464931, -503450)
-    Asteroid():setPosition(464831, -504275):setSize(118)
-    Asteroid():setPosition(466257, -502215):setSize(128)
-    Asteroid():setPosition(463089, -505384):setSize(125)
-    Mine():setPosition(433565, -494748)
-    Asteroid():setPosition(432737, -494216):setSize(121)
-    Asteroid():setPosition(433281, -492040):setSize(113)
-    Asteroid():setPosition(411309, -498784):setSize(122)
-    Asteroid():setPosition(412723, -499872):setSize(123)
-    Mine():setPosition(431438, -492488)
-    Asteroid():setPosition(431758, -491605):setSize(122)
-    Asteroid():setPosition(434368, -493346):setSize(116)
-    Asteroid():setPosition(412505, -501939):setSize(118)
-    Asteroid():setPosition(411091, -502591):setSize(128)
-    Asteroid():setPosition(410874, -504332):setSize(122)
-    Mine():setPosition(431970, -491027)
-    Asteroid():setPosition(432410, -489756):setSize(129)
-    SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS6722"):setPosition(434375, -486979)
-    SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS6721"):setPosition(402865, -483333)
-    Asteroid():setPosition(381465, -533514):setSize(128)
-    Asteroid():setPosition(381874, -535150):setSize(111)
-    SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign("DS6723"):setPosition(377083, -531250)
-    Asteroid():setPosition(379557, -535968):setSize(110)
-    Asteroid():setPosition(380784, -537467):setSize(120)
-    Asteroid():setPosition(463089, -510612):setSize(115)
-    Asteroid():setPosition(464198, -512196):setSize(130)
-    Asteroid():setPosition(464356, -503007):setSize(113)
-    Asteroid():setPosition(461504, -511879):setSize(110)
-    Asteroid():setPosition(427865, -512500):setSize(118)
-    Asteroid():setPosition(428646, -510156):setSize(127)
-    Asteroid():setPosition(426562, -510938):setSize(119)
-    Asteroid():setPosition(431510, -512240):setSize(114)
-    Asteroid():setPosition(382283, -505709):setSize(127)
-    Asteroid():setPosition(381602, -505027):setSize(126)
-    Asteroid():setPosition(380920, -503528):setSize(129)
-    Asteroid():setPosition(382147, -501483):setSize(123)
-    Asteroid():setPosition(383919, -501211):setSize(120)
-    Asteroid():setPosition(382692, -508026):setSize(111)
-    Asteroid():setPosition(378876, -508026):setSize(118)
-    Asteroid():setPosition(377785, -508980):setSize(117)
-    Asteroid():setPosition(380375, -509525):setSize(117)
-    Asteroid():setPosition(427345, -516986):setSize(113)
-    Asteroid():setPosition(428385, -519271):setSize(127)
-    Asteroid():setPosition(382420, -500120):setSize(122)
-    Asteroid():setPosition(381193, -497258):setSize(117)
-    Asteroid():setPosition(431105, -490626):setSize(121)
-    Asteroid():setPosition(430779, -493128):setSize(116)
-    Asteroid():setPosition(467683, -501106):setSize(121)
-    Asteroid():setPosition(409271, -484854):setSize(118)
-    Asteroid():setPosition(408590, -488126):setSize(117)
-    Asteroid():setPosition(405046, -489080):setSize(111)
-    Asteroid():setPosition(403955, -485400):setSize(123)
-    Asteroid():setPosition(408453, -486217):setSize(119)
-    Asteroid():setPosition(429787, -513213):setSize(123)
-    Asteroid():setPosition(405727, -487172):setSize(122)
-    Asteroid():setPosition(405864, -484718):setSize(114)
-    Asteroid():setPosition(406681, -485808):setSize(125)
-    Asteroid():setPosition(404909, -484991):setSize(118)
-    Asteroid():setPosition(405864, -482401):setSize(124)
-    Asteroid():setPosition(406000, -481174):setSize(119)
-    Asteroid():setPosition(403819, -487308):setSize(119)
-    Asteroid():setPosition(407090, -483764):setSize(111)
-    Asteroid():setPosition(405591, -483900):setSize(116)
-    Asteroid():setPosition(381738, -503119):setSize(129)
-    Asteroid():setPosition(380784, -502301):setSize(110)
-    Asteroid():setPosition(381738, -506254):setSize(117)
-    Asteroid():setPosition(383101, -505027):setSize(114)
-    Asteroid():setPosition(380648, -504073):setSize(117)
-    Asteroid():setPosition(379966, -506254):setSize(119)
     
-    SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("DS6980"):setPosition(381353, -601348)
 
 	
 	
@@ -14519,9 +14256,11 @@ function createIcarusStations()
 	--Sovinec
 --	local sovinecZone = squareZone(134167, 104690, "Sovinec Four K11")
 --	sovinecZone:setColor(51,153,255)
-	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(sdp1)
-	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
+--	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+--	setBeamColor(sdp1)
+--	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
+	local sdpZone = squareZone(136055, 105132, "SDP K11")
+	sdpZone:setColor(51,153,255):setLabel("DP")
 	if mirrorUniverse then
 		sdp1:setFaction("Spacer")
 	end
@@ -26840,6 +26579,465 @@ function removeStaunchColor()
 		end
 	end
 	staunch_defense_platforms = nil
+end
+--	Glikton region
+function gliktonSector()
+	glikton_color = true
+	glikton_planets = createGliktonPlanets()
+	glikton_asteroids = createGliktonAsteroids()
+	glikton_holes = createGliktonHoles()
+	glikton_nebulae = createGliktonNebulae()
+	glikton_mines = createGliktonMines()
+	glikton_stations = createGliktonStations()
+	regionStations = glikton_stations
+	return {destroy=removeGliktonColor}
+end
+function removeGliktonColor()
+	glikton_color = false
+	if glikton_planets ~= nil then
+		for i,p in ipairs(glikton_planets) do
+			p:destroy()
+		end
+	end
+	glikton_planets = nil
+	if glikton_asteroids ~= nil then
+		for i,a in ipairs(glikton_asteroids) do
+			a:destroy()
+		end
+	end
+	glikton_asteroids = nil
+	if glikton_holes ~= nil then
+		for i,h in ipairs(glikton_holes) do
+			h:destroy()
+		end
+	end
+	glikton_holes = nil
+	if glikton_nebulae ~= nil then
+		for i,n in ipairs(glikton_nebulae) do
+			n:destroy()
+		end
+	end
+	glikton_nebulae = nil
+	if glikton_mines ~= nil then
+		for i,m in ipairs(glikton_mines) do
+			m:destroy()
+		end
+	end
+	glikton_mines = nil
+	if glikton_stations ~= nil then
+		for i,s in ipairs(glikton_stations) do
+			s:destroy()
+		end
+	end
+	glikton_stations = nil
+end
+function createGliktonStations()
+	stationFremen = SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("Fremen"):setPosition(332276, -613882)
+	stationFremen:setDescription("Mining. Part of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationFremen:setShortRangeRadarRange(5000)
+	stationFremen.comms_data = {
+    	friendlyness = 64,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	warp =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 52 },
+        public_relations = true,
+        general_information = "We gather minerals from the asteroids",
+    	history = "We just came for the minerals. Pickings are pretty good, so we've been growing our station capacity.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "Phobos T3",
+			DF4 = "Nirvana R5A",
+    	},
+	}
+	stationFremen:setRestocksScanProbes(random(1,100) > 14)
+	stationFremen:setRepairDocked(random(1,100) > 11)
+	stationFremen:setSharesEnergyWithDocked(random(1,100) > 12)
+--	if random(1,100) <= 14 then stationFremen:setRestocksScanProbes(false) end
+--	if random(1,100) <= 11 then stationFremen:setRepairDocked(false) end
+--	if random(1,100) <= 12 then stationFremen:setSharesEnergyWithDocked(false) end
+	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS7013"):setPosition(337484, -600079)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS6982"):setPosition(408958, -623223)
+	stationBlah = SpaceStation():setTemplate("Large Station"):setFaction("Arlenians"):setCallSign("DS6981"):setPosition(393072, -604473)
+	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS7014"):setPosition(269515, -566746)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("DS6962"):setPosition(282553, -562452)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS6963"):setPosition(302866, -580681)
+	stationBlah = SpaceStation():setTemplate("Huge Station"):setFaction("USN"):setCallSign("DS6983"):setPosition(406093, -588588)
+	stationBlah = SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS6964"):setPosition(312501, -556984)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("TSN"):setCallSign("DS6725"):setPosition(377865, -503125)
+	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS6724"):setPosition(413021, -539323)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("DS6727"):setPosition(445573, -546094)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS6720"):setPosition(434115, -515365)
+	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS6718"):setPosition(401823, -517708)
+	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS6726"):setPosition(466406, -507812)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS6722"):setPosition(434375, -486979)
+	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS6721"):setPosition(402865, -483333)
+	stationBlah = SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign("DS6723"):setPosition(377083, -531250)
+	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("DS6980"):setPosition(381353, -601348)
+end
+function createGliktonPlanets()
+	local planets = {}
+    local star_glikton = Planet()
+    	:setPosition(377860, -572943)
+    	:setPlanetRadius(1000)
+		:setDistanceFromMovementPlane(-2000)
+		:setPlanetSurfaceTexture("planets/star-1.png")
+		:setPlanetAtmosphereColor(1.0,.9,.9)
+    local planet_glikton = Planet():setPosition(476646, -490235):setPlanetRadius(5000):setPlanetCloudRadius(5200.00):setOrbit(star_glikton, 10.00)
+    table.insert(planets,star_glikton)
+    table.insert(planets,planet_glikton)
+    return planets
+end
+function createGliktonMines()
+	local mines = {}
+	table.insert(mines,Mine():setPosition(405656, -485844))
+	table.insert(mines,Mine():setPosition(406055, -483318))
+	table.insert(mines,Mine():setPosition(408580, -485711))
+	table.insert(mines,Mine():setPosition(404327, -486508))
+	table.insert(mines,Mine():setPosition(382354, -505027))
+	table.insert(mines,Mine():setPosition(381424, -502648))
+	table.insert(mines,Mine():setPosition(382561, -501097))
+	table.insert(mines,Mine():setPosition(379045, -509163))
+	table.insert(mines,Mine():setPosition(380700, -506578))
+	table.insert(mines,Mine():setPosition(396107, -517332))
+	table.insert(mines,Mine():setPosition(380733, -536190))
+	table.insert(mines,Mine():setPosition(382722, -534035))
+	table.insert(mines,Mine():setPosition(373770, -536853))
+	table.insert(mines,Mine():setPosition(376754, -538014))
+	table.insert(mines,Mine():setPosition(402105, -521055))
+	table.insert(mines,Mine():setPosition(399520, -520434))
+	table.insert(mines,Mine():setPosition(397762, -519090))
+	table.insert(mines,Mine():setPosition(404276, -520538))
+	table.insert(mines,Mine():setPosition(407921, -539506))
+	table.insert(mines,Mine():setPosition(411770, -503918))
+	table.insert(mines,Mine():setPosition(411504, -500197))
+	table.insert(mines,Mine():setPosition(410685, -537455))
+	table.insert(mines,Mine():setPosition(447119, -541233))
+	table.insert(mines,Mine():setPosition(440912, -544337))
+	table.insert(mines,Mine():setPosition(442666, -542717))
+	table.insert(mines,Mine():setPosition(439967, -546226))
+	table.insert(mines,Mine():setPosition(417298, -535970))
+	table.insert(mines,Mine():setPosition(416211, -535030))
+	table.insert(mines,Mine():setPosition(412729, -536190))
+	table.insert(mines,Mine():setPosition(427553, -515999))
+	table.insert(mines,Mine():setPosition(412966, -501393))
+	table.insert(mines,Mine():setPosition(434362, -496475))
+	table.insert(mines,Mine():setPosition(429172, -514380))
+	table.insert(mines,Mine():setPosition(430656, -513031))
+	table.insert(mines,Mine():setPosition(461962, -511142))
+	table.insert(mines,Mine():setPosition(461423, -508443))
+	table.insert(mines,Mine():setPosition(462232, -505069))
+	table.insert(mines,Mine():setPosition(464931, -503450))
+	table.insert(mines,Mine():setPosition(433565, -494748))
+	table.insert(mines,Mine():setPosition(431438, -492488))
+	table.insert(mines,Mine():setPosition(431970, -491027))
+	return mines
+end
+function createGliktonNebulae()
+	local nebulae = {}
+	table.insert(nebulae,Nebula():setPosition(341651, -609194))
+	table.insert(nebulae,Nebula():setPosition(339307, -601902))
+	table.insert(nebulae,Nebula():setPosition(335401, -613621))
+	table.insert(nebulae,Nebula():setPosition(313425, -555972))
+	table.insert(nebulae,Nebula():setPosition(403183, -588431))
+	table.insert(nebulae,Nebula():setPosition(376819, -498724))
+	table.insert(nebulae,Nebula():setPosition(388277, -515911))
+	table.insert(nebulae,Nebula():setPosition(384110, -513047))
+	table.insert(nebulae,Nebula():setPosition(366402, -543516))
+	table.insert(nebulae,Nebula():setPosition(379944, -507838))
+	table.insert(nebulae,Nebula():setPosition(376298, -504974))
+	table.insert(nebulae,Nebula():setPosition(411715, -547161))
+	table.insert(nebulae,Nebula():setPosition(404683, -545859))
+	table.insert(nebulae,Nebula():setPosition(433069, -523463))
+	table.insert(nebulae,Nebula():setPosition(435673, -511745))
+	table.insert(nebulae,Nebula():setPosition(430725, -518516))
+	return nebulae
+end
+function createGliktonHoles()
+	local holes = {}
+	table.insert(holes,WormHole():setPosition(358317, -598777):setTargetPosition(431755, -538361))
+	table.insert(holes,WormHole():setPosition(288526, -552423):setTargetPosition(408838, -607371))
+	table.insert(holes,WormHole():setPosition(417432, -520913):setTargetPosition(288265, -585496))
+	table.insert(holes,BlackHole():setPosition(335921, -606850))
+	table.insert(holes,BlackHole():setPosition(303647, -586931))
+	table.insert(holes,BlackHole():setPosition(402447, -620880))
+	table.insert(holes,BlackHole():setPosition(375103, -598744))
+	table.insert(holes,BlackHole():setPosition(394895, -597963))
+	table.insert(holes,BlackHole():setPosition(276564, -564536))
+	table.insert(holes,BlackHole():setPosition(402447, -581296))
+	table.insert(holes,BlackHole():setPosition(318231, -560890))
+	return holes
+end
+function createGliktonAsteroids()
+	local asteroids = {}
+	table.insert(asteroids,Asteroid():setPosition(341864, -602744):setSize(507))
+	table.insert(asteroids,Asteroid():setPosition(339622, -598882):setSize(774))
+	table.insert(asteroids,Asteroid():setPosition(341491, -610964):setSize(580))
+	table.insert(asteroids,Asteroid():setPosition(343608, -608224):setSize(754))
+	table.insert(asteroids,Asteroid():setPosition(339124, -600875):setSize(654))
+	table.insert(asteroids,Asteroid():setPosition(340992, -610217):setSize(563))
+	table.insert(asteroids,Asteroid():setPosition(342612, -607726):setSize(229))
+	table.insert(asteroids,Asteroid():setPosition(343733, -606356):setSize(283))
+	table.insert(asteroids,Asteroid():setPosition(341989, -609345):setSize(331))
+	table.insert(asteroids,Asteroid():setPosition(340245, -611587):setSize(719))
+	table.insert(asteroids,Asteroid():setPosition(340619, -602245):setSize(370))
+	table.insert(asteroids,Asteroid():setPosition(339498, -599879):setSize(369))
+	table.insert(asteroids,Asteroid():setPosition(341740, -605110):setSize(500))
+	table.insert(asteroids,Asteroid():setPosition(341740, -603989):setSize(809))
+	table.insert(asteroids,Asteroid():setPosition(338750, -601622):setSize(358))
+	table.insert(asteroids,Asteroid():setPosition(337380, -601498):setSize(320))
+	table.insert(asteroids,Asteroid():setPosition(334889, -614701):setSize(623))
+	table.insert(asteroids,Asteroid():setPosition(335761, -614078):setSize(796))
+	table.insert(asteroids,Asteroid():setPosition(333021, -616196):setSize(811))
+	table.insert(asteroids,Asteroid():setPosition(337380, -613206):setSize(184))
+	table.insert(asteroids,Asteroid():setPosition(341117, -612584):setSize(327))
+	table.insert(asteroids,Asteroid():setPosition(339373, -613206):setSize(313))
+	table.insert(asteroids,Asteroid():setPosition(338377, -612708):setSize(500))
+	table.insert(asteroids,Asteroid():setPosition(402887, -590073):setSize(408))
+	table.insert(asteroids,Asteroid():setPosition(338128, -613829):setSize(564))
+	table.insert(asteroids,Asteroid():setPosition(333768, -612957):setSize(768))
+	table.insert(asteroids,Asteroid():setPosition(409917, -583341):setSize(238))
+	table.insert(asteroids,Asteroid():setPosition(407832, -585247):setSize(144))
+	table.insert(asteroids,Asteroid():setPosition(399670, -589894):setSize(282))
+	table.insert(asteroids,Asteroid():setPosition(401160, -590848):setSize(312))
+	table.insert(asteroids,Asteroid():setPosition(411049, -584175):setSize(772))
+	table.insert(asteroids,Asteroid():setPosition(410632, -585188):setSize(680))
+	table.insert(asteroids,Asteroid():setPosition(411109, -586141):setSize(377))
+	table.insert(asteroids,Asteroid():setPosition(410572, -587333):setSize(714))
+	table.insert(asteroids,Asteroid():setPosition(409143, -586022):setSize(596))
+	table.insert(asteroids,Asteroid():setPosition(408666, -584711):setSize(744))
+	table.insert(asteroids,Asteroid():setPosition(407832, -586737):setSize(282))
+	table.insert(asteroids,Asteroid():setPosition(408070, -587630):setSize(516))
+	table.insert(asteroids,Asteroid():setPosition(406164, -586320):setSize(190))
+	table.insert(asteroids,Asteroid():setPosition(401100, -586856):setSize(482))
+	table.insert(asteroids,Asteroid():setPosition(311431, -559725):setSize(392))
+	table.insert(asteroids,Asteroid():setPosition(313698, -557848):setSize(567))
+	table.insert(asteroids,Asteroid():setPosition(313285, -554915):setSize(394))
+	table.insert(asteroids,Asteroid():setPosition(404079, -588107):setSize(236))
+	table.insert(asteroids,Asteroid():setPosition(404555, -586737):setSize(559))
+	table.insert(asteroids,Asteroid():setPosition(403364, -587690):setSize(348))
+	table.insert(asteroids,Asteroid():setPosition(399849, -587511):setSize(564))
+	table.insert(asteroids,Asteroid():setPosition(401815, -588047):setSize(72))
+	table.insert(asteroids,Asteroid():setPosition(402947, -588941):setSize(292))
+	table.insert(asteroids,Asteroid():setPosition(400564, -588882):setSize(763))
+	table.insert(asteroids,Asteroid():setPosition(401279, -589596):setSize(357))
+	table.insert(asteroids,Asteroid():setPosition(317060, -554800):setSize(179))
+	table.insert(asteroids,Asteroid():setPosition(316004, -554331):setSize(529))
+	table.insert(asteroids,Asteroid():setPosition(314206, -554174):setSize(447))
+	table.insert(asteroids,Asteroid():setPosition(315535, -555464):setSize(725))
+	table.insert(asteroids,Asteroid():setPosition(314558, -555230):setSize(686))
+	table.insert(asteroids,Asteroid():setPosition(314167, -556207):setSize(822))
+	table.insert(asteroids,Asteroid():setPosition(312565, -559295):setSize(740))
+	table.insert(asteroids,Asteroid():setPosition(381602, -534332):setSize(250))
+	table.insert(asteroids,Asteroid():setPosition(376695, -536922):setSize(499))
+	table.insert(asteroids,Asteroid():setPosition(378876, -536786):setSize(818))
+	table.insert(asteroids,Asteroid():setPosition(373424, -534877):setSize(521))
+	table.insert(asteroids,Asteroid():setPosition(371243, -535014):setSize(696))
+	table.insert(asteroids,Asteroid():setPosition(400985, -522019):setSize(800))
+	table.insert(asteroids,Asteroid():setPosition(403995, -521068):setSize(526))
+	table.insert(asteroids,Asteroid():setPosition(396549, -514889):setSize(134))
+	table.insert(asteroids,Asteroid():setPosition(405263, -520434):setSize(615))
+	table.insert(asteroids,Asteroid():setPosition(406847, -541822):setSize(807))
+	table.insert(asteroids,Asteroid():setPosition(406372, -543248):setSize(69))
+	table.insert(asteroids,Asteroid():setPosition(407481, -537545):setSize(537))
+	table.insert(asteroids,Asteroid():setPosition(407164, -539604):setSize(742))
+	table.insert(asteroids,Asteroid():setPosition(408114, -540396):setSize(659))
+	table.insert(asteroids,Asteroid():setPosition(396866, -519959):setSize(601))
+	table.insert(asteroids,Asteroid():setPosition(397024, -518375):setSize(25))
+	table.insert(asteroids,Asteroid():setPosition(396549, -516474):setSize(99))
+	table.insert(asteroids,Asteroid():setPosition(398450, -517107):setSize(44))
+	table.insert(asteroids,Asteroid():setPosition(399718, -516791):setSize(751))
+	table.insert(asteroids,Asteroid():setPosition(398609, -515048):setSize(518))
+	table.insert(asteroids,Asteroid():setPosition(398609, -518850):setSize(211))
+	table.insert(asteroids,Asteroid():setPosition(401144, -520593):setSize(844))
+	table.insert(asteroids,Asteroid():setPosition(400193, -519959):setSize(129))
+	table.insert(asteroids,Asteroid():setPosition(398767, -520276):setSize(167))
+	table.insert(asteroids,Asteroid():setPosition(402252, -520118):setSize(869))
+	table.insert(asteroids,Asteroid():setPosition(395282, -518058):setSize(336))
+	table.insert(asteroids,Asteroid():setPosition(392113, -517900):setSize(302))
+	table.insert(asteroids,Asteroid():setPosition(397183, -522019):setSize(499))
+	table.insert(asteroids,Asteroid():setPosition(394331, -518850):setSize(768))
+	table.insert(asteroids,Asteroid():setPosition(395123, -520751):setSize(306))
+	table.insert(asteroids,Asteroid():setPosition(400193, -521543):setSize(772))
+	table.insert(asteroids,Asteroid():setPosition(399718, -522494):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(398609, -525504):setSize(752))
+	table.insert(asteroids,Asteroid():setPosition(400985, -523445):setSize(762))
+	table.insert(asteroids,Asteroid():setPosition(403362, -522494):setSize(557))
+	table.insert(asteroids,Asteroid():setPosition(406530, -519801):setSize(244))
+	table.insert(asteroids,Asteroid():setPosition(410649, -536436):setSize(228))
+	table.insert(asteroids,Asteroid():setPosition(410174, -537703):setSize(67))
+	table.insert(asteroids,Asteroid():setPosition(409857, -538495):setSize(608))
+	table.insert(asteroids,Asteroid():setPosition(404154, -519167):setSize(603))
+	table.insert(asteroids,Asteroid():setPosition(412709, -535168):setSize(435))
+	table.insert(asteroids,Asteroid():setPosition(408748, -539287):setSize(266))
+	table.insert(asteroids,Asteroid():setPosition(373969, -537603):setSize(334))
+	table.insert(asteroids,Asteroid():setPosition(376422, -538830):setSize(836))
+	table.insert(asteroids,Asteroid():setPosition(377104, -536240):setSize(663))
+	table.insert(asteroids,Asteroid():setPosition(374787, -536377):setSize(347))
+	table.insert(asteroids,Asteroid():setPosition(378739, -537194):setSize(265))
+	table.insert(asteroids,Asteroid():setPosition(373151, -535968):setSize(135))
+	table.insert(asteroids,Asteroid():setPosition(383919, -534605):setSize(214))
+	table.insert(asteroids,Asteroid():setPosition(385691, -532696):setSize(612))
+	table.insert(asteroids,Asteroid():setPosition(383374, -532696):setSize(800))
+	table.insert(asteroids,Asteroid():setPosition(376013, -536922):setSize(773))
+	table.insert(asteroids,Asteroid():setPosition(378194, -538285):setSize(45))
+	table.insert(asteroids,Asteroid():setPosition(384737, -531606):setSize(747))
+	table.insert(asteroids,Asteroid():setPosition(448513, -542614):setSize(778))
+	table.insert(asteroids,Asteroid():setPosition(444711, -542773):setSize(812))
+	table.insert(asteroids,Asteroid():setPosition(450731, -540872):setSize(770))
+	table.insert(asteroids,Asteroid():setPosition(452791, -541980):setSize(682))
+	table.insert(asteroids,Asteroid():setPosition(447880, -539763):setSize(276))
+	table.insert(asteroids,Asteroid():setPosition(448513, -540872):setSize(531))
+	table.insert(asteroids,Asteroid():setPosition(443602, -542456):setSize(399))
+	table.insert(asteroids,Asteroid():setPosition(443127, -541822):setSize(574))
+	table.insert(asteroids,Asteroid():setPosition(446137, -541347):setSize(204))
+	table.insert(asteroids,Asteroid():setPosition(442018, -542456):setSize(282))
+	table.insert(asteroids,Asteroid():setPosition(440750, -544991):setSize(365))
+	table.insert(asteroids,Asteroid():setPosition(444553, -540713):setSize(104))
+	table.insert(asteroids,Asteroid():setPosition(440275, -542931):setSize(282))
+	table.insert(asteroids,Asteroid():setPosition(440275, -545149):setSize(545))
+	table.insert(asteroids,Asteroid():setPosition(443760, -543248):setSize(481))
+	table.insert(asteroids,Asteroid():setPosition(441859, -544515):setSize(268))
+	table.insert(asteroids,Asteroid():setPosition(441226, -547684):setSize(41))
+	table.insert(asteroids,Asteroid():setPosition(440117, -548793):setSize(744))
+	table.insert(asteroids,Asteroid():setPosition(438849, -546100):setSize(681))
+	table.insert(asteroids,Asteroid():setPosition(438057, -544040):setSize(215))
+	table.insert(asteroids,Asteroid():setPosition(415244, -533425):setSize(358))
+	table.insert(asteroids,Asteroid():setPosition(413501, -534376):setSize(641))
+	table.insert(asteroids,Asteroid():setPosition(413818, -535802):setSize(403))
+	table.insert(asteroids,Asteroid():setPosition(416986, -537069):setSize(235))
+	table.insert(asteroids,Asteroid():setPosition(417145, -537545):setSize(686))
+	table.insert(asteroids,Asteroid():setPosition(418412, -534534):setSize(534))
+	table.insert(asteroids,Asteroid():setPosition(418095, -536594):setSize(259))
+	table.insert(asteroids,Asteroid():setPosition(412233, -535327):setSize(357))
+	table.insert(asteroids,Asteroid():setPosition(412075, -536594):setSize(57))
+	table.insert(asteroids,Asteroid():setPosition(411283, -534059):setSize(614))
+	table.insert(asteroids,Asteroid():setPosition(411441, -537545):setSize(750))
+	table.insert(asteroids,Asteroid():setPosition(416511, -535960):setSize(588))
+	table.insert(asteroids,Asteroid():setPosition(415085, -535168):setSize(327))
+	table.insert(asteroids,Asteroid():setPosition(414451, -537228):setSize(761))
+	table.insert(asteroids,Asteroid():setPosition(425902, -514212):setSize(159))
+	table.insert(asteroids,Asteroid():setPosition(411997, -502710):setSize(365))
+	table.insert(asteroids,Asteroid():setPosition(410983, -501286):setSize(614))
+	table.insert(asteroids,Asteroid():setPosition(413702, -501612):setSize(494))
+	table.insert(asteroids,Asteroid():setPosition(412614, -503679):setSize(427))
+	table.insert(asteroids,Asteroid():setPosition(433533, -496985):setSize(274))
+	table.insert(asteroids,Asteroid():setPosition(434477, -495195):setSize(449))
+	table.insert(asteroids,Asteroid():setPosition(436259, -498348):setSize(727))
+	table.insert(asteroids,Asteroid():setPosition(435347, -496609):setSize(629))
+	table.insert(asteroids,Asteroid():setPosition(433397, -495486):setSize(660))
+	table.insert(asteroids,Asteroid():setPosition(432302, -495739):setSize(725))
+	table.insert(asteroids,Asteroid():setPosition(428626, -513614):setSize(410))
+	table.insert(asteroids,Asteroid():setPosition(427789, -514877):setSize(106))
+	table.insert(asteroids,Asteroid():setPosition(460871, -509028):setSize(751))
+	table.insert(asteroids,Asteroid():setPosition(460395, -508236):setSize(84))
+	table.insert(asteroids,Asteroid():setPosition(460237, -509820):setSize(99))
+	table.insert(asteroids,Asteroid():setPosition(463247, -512988):setSize(582))
+	table.insert(asteroids,Asteroid():setPosition(462455, -511721):setSize(797))
+	table.insert(asteroids,Asteroid():setPosition(430469, -515625):setSize(594))
+	table.insert(asteroids,Asteroid():setPosition(461663, -506810):setSize(419))
+	table.insert(asteroids,Asteroid():setPosition(462930, -507443):setSize(423))
+	table.insert(asteroids,Asteroid():setPosition(460712, -507760):setSize(722))
+	table.insert(asteroids,Asteroid():setPosition(460395, -506493):setSize(277))
+	table.insert(asteroids,Asteroid():setPosition(462930, -508711):setSize(583))
+	table.insert(asteroids,Asteroid():setPosition(462772, -503958):setSize(708))
+	table.insert(asteroids,Asteroid():setPosition(461346, -504592):setSize(172))
+	table.insert(asteroids,Asteroid():setPosition(463722, -503800):setSize(181))
+	table.insert(asteroids,Asteroid():setPosition(464831, -504275):setSize(309))
+	table.insert(asteroids,Asteroid():setPosition(466257, -502215):setSize(228))
+	table.insert(asteroids,Asteroid():setPosition(463089, -505384):setSize(397))
+	table.insert(asteroids,Asteroid():setPosition(432737, -494216):setSize(731))
+	table.insert(asteroids,Asteroid():setPosition(433281, -492040):setSize(445))
+	table.insert(asteroids,Asteroid():setPosition(411309, -498784):setSize(440))
+	table.insert(asteroids,Asteroid():setPosition(412723, -499872):setSize(853))
+	table.insert(asteroids,Asteroid():setPosition(431758, -491605):setSize(713))
+	table.insert(asteroids,Asteroid():setPosition(434368, -493346):setSize(667))
+	table.insert(asteroids,Asteroid():setPosition(412505, -501939):setSize(435))
+	table.insert(asteroids,Asteroid():setPosition(411091, -502591):setSize(822))
+	table.insert(asteroids,Asteroid():setPosition(410874, -504332):setSize(640))
+	table.insert(asteroids,Asteroid():setPosition(432410, -489756):setSize(76))
+	table.insert(asteroids,Asteroid():setPosition(381465, -533514):setSize(318))
+	table.insert(asteroids,Asteroid():setPosition(381874, -535150):setSize(688))
+	table.insert(asteroids,Asteroid():setPosition(379557, -535968):setSize(815))
+	table.insert(asteroids,Asteroid():setPosition(380784, -537467):setSize(298))
+	table.insert(asteroids,Asteroid():setPosition(463089, -510612):setSize(75))
+	table.insert(asteroids,Asteroid():setPosition(464198, -512196):setSize(398))
+	table.insert(asteroids,Asteroid():setPosition(464356, -503007):setSize(46))
+	table.insert(asteroids,Asteroid():setPosition(461504, -511879):setSize(102))
+	table.insert(asteroids,Asteroid():setPosition(427865, -512500):setSize(839))
+	table.insert(asteroids,Asteroid():setPosition(428646, -510156):setSize(617))
+	table.insert(asteroids,Asteroid():setPosition(426562, -510938):setSize(313))
+	table.insert(asteroids,Asteroid():setPosition(431510, -512240):setSize(406))
+	table.insert(asteroids,Asteroid():setPosition(382283, -505709):setSize(266))
+	table.insert(asteroids,Asteroid():setPosition(381602, -505027):setSize(859))
+	table.insert(asteroids,Asteroid():setPosition(380920, -503528):setSize(291))
+	table.insert(asteroids,Asteroid():setPosition(382147, -501483):setSize(292))
+	table.insert(asteroids,Asteroid():setPosition(383919, -501211):setSize(22))
+	table.insert(asteroids,Asteroid():setPosition(382692, -508026):setSize(804))
+	table.insert(asteroids,Asteroid():setPosition(378876, -508026):setSize(769))
+	table.insert(asteroids,Asteroid():setPosition(377785, -508980):setSize(267))
+	table.insert(asteroids,Asteroid():setPosition(380375, -509525):setSize(693))
+	table.insert(asteroids,Asteroid():setPosition(427345, -516986):setSize(88))
+	table.insert(asteroids,Asteroid():setPosition(428385, -519271):setSize(297))
+	table.insert(asteroids,Asteroid():setPosition(382420, -500120):setSize(402))
+	table.insert(asteroids,Asteroid():setPosition(381193, -497258):setSize(695))
+	table.insert(asteroids,Asteroid():setPosition(431105, -490626):setSize(185))
+	table.insert(asteroids,Asteroid():setPosition(430779, -493128):setSize(645))
+	table.insert(asteroids,Asteroid():setPosition(467683, -501106):setSize(96))
+	table.insert(asteroids,Asteroid():setPosition(409271, -484854):setSize(826))
+	table.insert(asteroids,Asteroid():setPosition(408590, -488126):setSize(419))
+	table.insert(asteroids,Asteroid():setPosition(405046, -489080):setSize(450))
+	table.insert(asteroids,Asteroid():setPosition(403955, -485400):setSize(651))
+	table.insert(asteroids,Asteroid():setPosition(408453, -486217):setSize(631))
+	table.insert(asteroids,Asteroid():setPosition(429787, -513213):setSize(274))
+	table.insert(asteroids,Asteroid():setPosition(405727, -487172):setSize(564))
+	table.insert(asteroids,Asteroid():setPosition(405864, -484718):setSize(431))
+	table.insert(asteroids,Asteroid():setPosition(406681, -485808):setSize(599))
+	table.insert(asteroids,Asteroid():setPosition(404909, -484991):setSize(623))
+	table.insert(asteroids,Asteroid():setPosition(405864, -482401):setSize(445))
+	table.insert(asteroids,Asteroid():setPosition(406000, -481174):setSize(176))
+	table.insert(asteroids,Asteroid():setPosition(403819, -487308):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(407090, -483764):setSize(694))
+	table.insert(asteroids,Asteroid():setPosition(405591, -483900):setSize(266))
+	table.insert(asteroids,Asteroid():setPosition(381738, -503119):setSize(396))
+	table.insert(asteroids,Asteroid():setPosition(380784, -502301):setSize(158))
+	table.insert(asteroids,Asteroid():setPosition(381738, -506254):setSize(599))
+	table.insert(asteroids,Asteroid():setPosition(383101, -505027):setSize(519))
+	table.insert(asteroids,Asteroid():setPosition(380648, -504073):setSize(734))
+	table.insert(asteroids,Asteroid():setPosition(379966, -506254):setSize(679))
+	return asteroids
 end
 --	Other
 function placeTknolgBase()
@@ -56863,7 +57061,24 @@ function commsStation()
 		addStationToDatabase(comms_target)
 	end
     if comms_source:isEnemy(comms_target) then
-        return false
+    	if string.find(comms_target:getDescription(),"Glikton Consortium") == nil then
+	        return false
+	    else
+	    	if not comms_source:isDocked(comms_target) then
+	    		if distance(comms_source,comms_target) < 5000 then
+	    			setCommsMessage("I'll only talk to you about buying, selling or trading per Glikton Consortium rules.")
+	    			addCommsReply(string.format("Buy goods from %s",comms_target:getCallSign()),function()
+	    				setCommsMessage("Not implemented yet")
+	    			end)
+	    			addCommsReply(string.format("Sell goods to %s",comms_target:getCallSign()),function()
+	    				setCommsMessage("Not implemented yet")
+	    			end)
+	    			addCommsReply(string.format("Trade goods with %s",comms_target:getCallSign()),function()
+	    				setCommsMessage("Not implemented yet")
+	    			end)
+	    		end
+	    	end
+	    end
     end
     local range_divisor = {
 		["Small Station"]	= 2,
