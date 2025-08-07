@@ -9,7 +9,7 @@
 -- ideas:	Fighter launching defense platform, enemy death blossom, tactical hop should factor in engine health level
 --			Try not to update custom widgets every frame
 
--- addCustomButton indices
+-- addCustomButton indexes
 -- Relay, Operations			Probes: standard		10
 -- Relay, Operations			Patrol Probe Off		10
 -- Helm, Tactical				Waypoint distance 		15
@@ -46,7 +46,7 @@
 -- All							Notify security			35
 -- All							Activate Defenses		36
 
--- addCustomInfo indices
+-- addCustomInfo indexes
 -- Relay, Operations			Launch timer			1
 -- Relay, Operations			Fast Dock Expired		2
 -- Relay, Operations			Expedite timer			2
@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "7.5.9"
+	scenario_version = "8.1.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -218,6 +218,7 @@ function setConstants()
 	universe:addAvailableRegion("Teresh (K44)",tereshSector,800001,120001)
 	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
 	universe:addAvailableRegion("Staunch (AR12)",staunchSector,153668,775877)
+	universe:addAvailableRegion("Glikton (zf25)",gliktonSector,407073,-502604)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	universe:addAvailableRegion("FilkRoad (zj-12).", filkRoadSector, -323500, -431000)
 	initialSandboxDatabaseUpdate()
@@ -3459,13 +3460,6 @@ function createSkeletonUniverse()
 	}
 	station_names[stationGlikton:getCallSign()] = {stationGlikton:getSectorName(), stationGlikton}
 	stationGlikton.skeleton_station = true
-------------------------------------	
---	Glikton stuff from GM screen  --
-------------------------------------
-    
-
-	
-	
 	--	Staunch
 	staunch_x = 142731
 	staunch_y = 775509
@@ -6791,6 +6785,7 @@ function freighterCommerce()
 		{name = "Lafrina",	status = lafrina_commerce,	color = lafrina_color,	func = lafrinaFreighterCommerce},
 		{name = "Bask",		status = bask_commerce,		color = bask_color,		func = baskFreighterCommerce},
 		{name = "Staunch",	status = staunch_commerce,	color = staunch_color,	func = staunchFreighterCommerce},
+		{name = "Glikton",	status = glikton_commerce,	color = glikton_color,	func = gliktonFreighterCommerce},
 	}
 	for i,commerce in ipairs(commerce_regions) do
 		local button_label = commerce.name
@@ -6808,6 +6803,101 @@ function freighterCommerce()
 		end
 	end
 end
+function setCommerceFreighterStartPosition(ship)
+	local origin_x, origin_y = ship.commerce_origin:getPosition()
+	local destination_x, destination_y = ship.commerce_target:getPosition()
+	local start_x = (origin_x + destination_x) / 2
+	local start_y = (origin_y + destination_y) / 2
+	local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+	ship:setPosition(start_x + ds_x, start_y + ds_y)
+	ship:orderDock(ship.commerce_target)
+end
+function gliktonFreighterCommerce()
+	if glikton_color ~= nil and glikton_color then
+		if glikton_commerce then
+			removeGliktonCommerce()
+		else
+			local freighters_message = "Glikton Commerce Assets:"
+			local region_identifying_station = stationGlikton
+			--Courier
+			local ship = courier()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Space Sedan
+			ship = spaceSedan()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Omnibus
+			ship = omnibus()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Garbage Freighter 2
+			ship = CpuShip():setTemplate("Garbage Freighter 2")
+			ship:setCommsScript(""):setCommsFunction(commsShip)
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			addGMMessage(freighters_message)
+			glikton_commerce = true
+		end
+	else
+		addGMMessage("Don't try to turn on Glikton commerce without the Glikton region")
+	end
+	freighterCommerce()
+end
 function staunchFreighterCommerce()
 	if staunch_commerce then
 		removeStaunchCommerce()
@@ -6817,26 +6907,14 @@ function staunchFreighterCommerce()
 		local ship = courier()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
 		local escort_ship = nil
@@ -6865,13 +6943,7 @@ function staunchFreighterCommerce()
 		ship = spaceSedan()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
 		escort_count = 0
@@ -6899,13 +6971,7 @@ function staunchFreighterCommerce()
 		ship = omnibus()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
 		escort_count = 0
@@ -6934,26 +7000,14 @@ function staunchFreighterCommerce()
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
 		--Laden Lorry
 		ship = ladenLorry()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
 		escort_count = 0
@@ -6991,26 +7045,14 @@ function baskFreighterCommerce()
 		local ship = courier()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		local escort_ship = nil
@@ -7039,13 +7081,7 @@ function baskFreighterCommerce()
 		ship = spaceSedan()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		escort_count = 0
@@ -7073,13 +7109,7 @@ function baskFreighterCommerce()
 		ship = omnibus()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		escort_count = 0
@@ -7108,13 +7138,7 @@ function baskFreighterCommerce()
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		escort_count = 0
@@ -7142,26 +7166,14 @@ function baskFreighterCommerce()
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		--Service Jonque
 		ship = serviceJonque()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
 		escort_count = 0
@@ -7199,26 +7211,14 @@ function tereshFreighterCommerce()
 		local ship = courier()
 		identifyFreighter(ship,stationTeresh)
 		regionCommerceDestination(ship,stationTeresh)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(teresh_commerce_assets,ship)
 		--Laden Lorry
 		ship = ladenLorry()
 		identifyFreighter(ship,stationTeresh)
 		regionCommerceDestination(ship,stationTeresh)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(teresh_commerce_assets,ship)
 		escort_count = 0
@@ -7256,26 +7256,14 @@ function lafrinaFreighterCommerce()
 		local ship = courier()
 		identifyFreighter(ship,stationLafrina)
 		regionCommerceDestination(ship,stationLafrina)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(lafrina_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
 		identifyFreighter(ship,stationLafrina)
 		regionCommerceDestination(ship,stationLafrina)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(lafrina_commerce_assets,ship)
 		local escort_ship = nil
@@ -7314,26 +7302,14 @@ function kentarFreighterCommerce()
 		local ship = courier()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		local escort_ship = nil
@@ -7362,13 +7338,7 @@ function kentarFreighterCommerce()
 		ship = spaceSedan()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
@@ -7396,13 +7366,7 @@ function kentarFreighterCommerce()
 		ship = omnibus()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
@@ -7431,13 +7395,7 @@ function kentarFreighterCommerce()
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
 		escort_count = 0
@@ -7475,39 +7433,21 @@ function icarusFreighterCommerce()
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		--Courier
 		ship = courier()
 		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		--Work Wagon
 		ship = workWagon()
 		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		local escort_ship = nil
@@ -7536,13 +7476,7 @@ function icarusFreighterCommerce()
 		ship = ladenLorry()
 		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
 		escort_count = 0
@@ -7570,6 +7504,13 @@ function icarusFreighterCommerce()
 		icarus_commerce = true
 	end
 	freighterCommerce()
+end
+function removeGliktonCommerce()
+	for index,ship in ipairs(glikton_commerce_assets) do
+		ship:destroy()
+	end
+	glikton_commerce_assets = {}
+	glikton_commerce = false
 end
 function removeStaunchCommerce()
 	for index,ship in ipairs(staunch_commerce_assets) do
@@ -7626,13 +7567,7 @@ function skeletalFreighterCommerce()
 		local ship = spaceSedan()
 		identifyFreighter(ship)
 		skeletalDestination(ship)
-		local origin_x, origin_y = ship.commerce_origin:getPosition()
-		local destination_x, destination_y = ship.commerce_target:getPosition()
-		local start_x = (origin_x + destination_x) / 2
-		local start_y = (origin_y + destination_y) / 2
-		local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
 		local escort_ship = nil
@@ -7661,13 +7596,7 @@ function skeletalFreighterCommerce()
 		ship = omnibus()
 		identifyFreighter(ship)
 		skeletalDestination(ship)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
 		escort_count = 0
@@ -7695,13 +7624,7 @@ function skeletalFreighterCommerce()
 		ship = serviceJonque()
 		identifyFreighter(ship)
 		skeletalDestination(ship)
-		origin_x, origin_y = ship.commerce_origin:getPosition()
-		destination_x, destination_y = ship.commerce_target:getPosition()
-		start_x = (origin_x + destination_x) / 2
-		start_y = (origin_y + destination_y) / 2
-		ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-		ship:setPosition(start_x + ds_x, start_y + ds_y)
-		ship:orderDock(ship.commerce_target)
+		setCommerceFreighterStartPosition(ship)
 		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
 		escort_count = 0
@@ -7930,7 +7853,7 @@ function skeletalDestination(ship)
 			print("skeletal stations is empty")
 		end
 	end
-	ship.commerce_target = tableRemoveRandom(station_pool)
+	ship.commerce_target = tableSelectRandom(station_pool)
 	if ship.commerce_target == nil then
 		if commerce_diagnostic then
 			print("got nothing from station pool, assigning Icarus")
@@ -7939,7 +7862,7 @@ function skeletalDestination(ship)
 		ship:setFaction(stationIcarus:getFaction())
 	end
 	if ship.commerce_origin == nil then
-		ship.commerce_origin = tableRemoveRandom(station_pool)
+		ship.commerce_origin = tableSelectRandom(station_pool)
 		if commerce_diagnostic then
 			if ship.commerce_origin == nil then
 				print("ship commerce origin is nil")
@@ -7996,6 +7919,11 @@ function getRegionStations(region_station)
 		region_stations = staunch_stations
 		if stationStaunch ~= nil and stationStaunch:isValid() then
 			primary_station = stationStaunch
+		end
+	elseif region_station == stationGlikton then
+		region_stations = glikton_stations
+		if stationGlikton ~= nil and stationGlikton:isValid() then
+			primary_station = stationGlikton
 		end
 	end
 	return region_stations, primary_station
@@ -12275,7 +12203,7 @@ function setDefaultPlayerSpawnPointsInOtherRegions()
 	addGMFunction("-Start Region",setStartRegion)
 	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
 	local region_group_2 = {
-		"Eris", "Santa", "Riptide", "Staunch"
+		"Eris", "Santa", "Riptide", "Staunch", "Glikton"
 	}
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
@@ -15609,13 +15537,49 @@ function createFinneganFeatures()
 end
 function wormholeTour()
 	local feature_list = {}
+	local zone_sign = Zone()
+	local base_x, base_y = vectorFromAngle(40,5000,true)
+	base_x = base_x + 220000
+	base_y = base_y - 380000
+	local base_left_corner_x, base_left_corner_y = vectorFromAngle(40 + 270,1000,true)
+	base_left_corner_x = base_left_corner_x + base_x
+	base_left_corner_y = base_left_corner_y + base_y
+	local left_inner_arrow_x, left_inner_arrow_y = vectorFromAngle(40,10000,true)
+	left_inner_arrow_x = left_inner_arrow_x + base_left_corner_x
+	left_inner_arrow_y = left_inner_arrow_y + base_left_corner_y
+	local left_outer_arrow_x, left_outer_arrow_y = vectorFromAngle(40 + 270,1000,true)
+	left_outer_arrow_x = left_outer_arrow_x + left_inner_arrow_x
+	left_outer_arrow_y = left_outer_arrow_y + left_inner_arrow_y
+	local arrow_tip_x, arrow_tip_y = vectorFromAngle(40,13000,true)
+	arrow_tip_x = arrow_tip_x + base_x
+	arrow_tip_y = arrow_tip_y + base_y
+	local base_right_corner_x, base_right_corner_y = vectorFromAngle(40 + 90,1000,true)
+	base_right_corner_x = base_right_corner_x + base_x
+	base_right_corner_y = base_right_corner_y + base_y
+	local right_inner_arrow_x, right_inner_arrow_y = vectorFromAngle(40,10000,true)
+	right_inner_arrow_x = right_inner_arrow_x + base_right_corner_x
+	right_inner_arrow_y = right_inner_arrow_y + base_right_corner_y
+	local right_outer_arrow_x, right_outer_arrow_y = vectorFromAngle(40 + 90,1000,true)
+	right_outer_arrow_x = right_outer_arrow_x + right_inner_arrow_x
+	right_outer_arrow_y = right_outer_arrow_y + right_inner_arrow_y
+	zone_sign:setPoints(
+		base_left_corner_x, 	base_left_corner_y,
+		left_inner_arrow_x, 	left_inner_arrow_y,
+		left_outer_arrow_x, 	left_outer_arrow_y,
+		arrow_tip_x,			arrow_tip_y,
+		right_outer_arrow_x,	right_outer_arrow_y,
+		right_inner_arrow_x,	right_inner_arrow_y,
+		base_right_corner_x,	base_right_corner_y
+	)
+	zone_sign:setLabel("Wormhole Tour ~50U"):setColor(40,40,150)
+	table.insert(feature_list,zone_sign)
 --	I90 north of Lafrina, west of Icarus
 	table.insert(feature_list,WormHole():setPosition(-280955, 79017):setTargetPosition(-320252, 653528))
 	table.insert(feature_list,BlackHole():setPosition(-290344, 73094))
 --	F88 south of Lafrina
 	table.insert(
 		feature_list,
-		WormHole():setPosition(-323252, 653528):setTargetPosition(319531, 616181):onTeleportation(function(self, teleportee)
+		WormHole():setPosition(-323252, 653528):setTargetPosition(419531, 616181):onTeleportation(function(self, teleportee)
 			local wep_x = 319531
 			local wep_y = 617181
 			local vx, vy = vectorFromAngle(random(0,360),random(50,500))
@@ -15690,58 +15654,58 @@ function wormholeTour()
 		{-326126, 649973, 239},
 		{-325943, 650796, 225},
 		{-325349, 649242, 257},
-		--E20
-    	{321053, 628901, 278},
-    	{320642, 628474, 176},
-    	{318054, 629098, 330},
-    	{318404, 629281, 294},
- --   	{319592, 624578, 347},
-    	{318770, 629753, 258},
-    	{320505, 628794, 181},
-    	{319820, 629372, 249},
-    	{320231, 629418, 177},
-    	{320718, 629281, 200},
-    	{319548, 622373, 178},
-    	{318905, 621872, 209},
-    	{318968, 629357, 236},
-    	{318359, 628657, 248},
-    	{318831, 628018, 206},
-    	{318815, 628809, 299},
-    	{320248, 621948, 182},
-    	{319397, 622827, 244},
- --   	{319019, 622439, 235},
- --   	{319444, 621910, 286},
-    	{319784, 622175, 296},
-    	{319510, 623290, 228},
- --   	{319406, 623706, 237},
- --   	{319945, 622808, 211},
-    	{319652, 623517, 163},
- --   	{319567, 625681, 226},
- --   	{319633, 626163, 310},
- --   	{319662, 624122, 315},
- --   	{319576, 625029, 192},
-    	{320040, 627515, 207},
-    	{320219, 627997, 241},
- --   	{319482, 626626, 255},
-    	{319718, 626882, 268},
-    	{319113, 627638, 257},
-    	{318877, 628422, 285},
-    	{319690, 627468, 347},
-    	{319387, 627175, 242},
-    	{319454, 629027, 198},
-    	{319992, 628318, 125},
-    	{320021, 628942,  37},
-    	{319340, 628583, 127},
-    	{319633, 627846, 262},
-    	{319321, 628148, 123},
-    	{320307, 629890, 235},
-    	{319455, 629890, 189},
+		--AJ25
+    	{421053, 628901, 278},
+    	{420642, 628474, 176},
+    	{418054, 629098, 330},
+    	{418404, 629281, 294},
+ --   	{419592, 624578, 347},
+    	{418770, 629753, 258},
+    	{420505, 628794, 181},
+    	{419820, 629372, 249},
+    	{420231, 629418, 177},
+    	{420718, 629281, 200},
+    	{419548, 622373, 178},
+    	{418905, 621872, 209},
+    	{418968, 629357, 236},
+    	{418359, 628657, 248},
+    	{418831, 628018, 206},
+    	{418815, 628809, 299},
+    	{420248, 621948, 182},
+    	{419397, 622827, 244},
+ --   	{419019, 622439, 235},
+ --   	{419444, 621910, 286},
+    	{419784, 622175, 296},
+    	{419510, 623290, 228},
+ --   	{419406, 623706, 237},
+ --   	{419945, 622808, 211},
+    	{419652, 623517, 163},
+ --   	{419567, 625681, 226},
+ --   	{419633, 626163, 310},
+ --   	{419662, 624122, 315},
+ --   	{419576, 625029, 192},
+    	{420040, 627515, 207},
+    	{420219, 627997, 241},
+ --   	{419482, 626626, 255},
+    	{419718, 626882, 268},
+    	{419113, 627638, 257},
+    	{418877, 628422, 285},
+    	{419690, 627468, 347},
+    	{419387, 627175, 242},
+    	{419454, 629027, 198},
+    	{419992, 628318, 125},
+    	{420021, 628942,  37},
+    	{419340, 628583, 127},
+    	{419633, 627846, 262},
+    	{419321, 628148, 123},
+    	{420307, 629890, 235},
+    	{419455, 629890, 189},
     }
---	E20 southeast of Kentar
-	table.insert(feature_list,BlackHole():setPosition(314508, 624940))
+--	AJ25 southeast of Kentar
+	table.insert(feature_list,BlackHole():setPosition(414508, 624940))
 	table.insert(
 		feature_list,
-		WormHole():setPosition(319531, 619181):setTargetPosition(258703, -420658):onTeleportation(function(self, teleportee)
+		WormHole():setPosition(419531, 619181):setTargetPosition(258703, -420658):onTeleportation(function(self, teleportee)
 			local wep_x = 258703
 			local wep_y = -420658
 			local vx, vy = vectorFromAngle(random(0,360),random(50,200))
@@ -15750,8 +15714,8 @@ function wormholeTour()
 			end
 		end)
 	)
-	table.insert(feature_list,WarpJammer():setFaction("Independent"):setPosition(319664, 628392):setRange(80000))
-	table.insert(feature_list,BlackHole():setPosition(324682, 624964))
+	table.insert(feature_list,WarpJammer():setFaction("Independent"):setPosition(419664, 628392):setRange(80000))
+	table.insert(feature_list,BlackHole():setPosition(424682, 624964))
 --	ZJ17 Near north end of linked Cindy's folly wormhole pair
 	table.insert(feature_list,Nebula():setPosition(261439, -423676))
 	table.insert(feature_list,Nebula():setPosition(255314, -422770))
@@ -24724,7 +24688,7 @@ function riptideBinarySector()
 	}
 	return ret
 end
---	New region (Staunch?)
+--	Staunch region
 function staunchSector()
 	staunch_color = true
 	staunch_planets = createStaunchPlanets()
@@ -25496,7 +25460,6 @@ function createStaunchStations()
  	table.insert(staunch_defender_stations,stationWortast)
     return stations
 end
-
 function createStaunchPlanets()
 	gizen_x = 50292
 	gizen_y = 789498
@@ -26632,6 +26595,337 @@ function removeGliktonColor()
 	glikton_stations = nil
 end
 function createGliktonStations()
+	local stations = {}
+	--	Atacama
+	stationAtacama = SpaceStation():setTemplate("Huge Station"):setFaction("USN"):setCallSign("Atacama"):setPosition(406093, -588588)
+	stationAtacama:setDescription("Mining and manufacturing. Early member of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationAtacama:setShortRangeRadarRange(10000)
+	stationAtacama.comms_data = {
+    	friendlyness = 31,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	filament =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "There are a variety of mineral deposits among these asteroids. We are here to make use of these resources.",
+    	history = "We were among the first to survey these asteroids. We quickly set up a mining facility. Once other factions started arriving, we realized that in order to keep the minerals flowing, we needed to set up some kind of agreement among everyone here. We worked with the Human Navy and the CUF to set up the Glikton compact.",
+	}
+	station_names[stationAtacama:getCallSign()] = {stationAtacama:getSectorName(), stationAtacama}
+	table.insert(stations,stationAtacama)
+	--	Babylon
+	stationBabylon = SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("Babylon"):setPosition(445573, -546094)
+	stationBabylon:setDescription("Mining. Participant in Glikton Consortium compact"):setCommsScript(""):setCommsFunction(commsStation)
+	stationBabylon:setShortRangeRadarRange(8000)
+	stationBabylon.comms_data = {
+    	friendlyness = 78,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = true,				Mine = true,				Nuke = true,				EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	gold =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We gather minerals from the asteroids around here.",
+    	history = "We were glad to help set up the Glikton Consortium considering the potential for strife without it.",
+	}
+	station_names[stationBabylon:getCallSign()] = {stationBabylon:getSectorName(), stationBabylon}
+	table.insert(stations,stationBabylon)
+	--	Bowers
+	stationBowers = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Bowers"):setPosition(381353, -601348)
+	stationBowers:setDescription("Mining and manufacturing. Glikton Consortium pact particpant"):setCommsScript(""):setCommsFunction(commsStation)
+	stationBowers:setShortRangeRadarRange(9000)
+	stationBowers.comms_data = {
+    	friendlyness = 83,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = true,				Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	sensor =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We gather minerals from the asteroids. We also make things from these minerals.",
+    	history = "We named our station after Eilley Bowers who made a fortune in silver mining on Earth in the late 19th century.",
+	}
+	station_names[stationBowers:getCallSign()] = {stationBowers:getSectorName(), stationBowers}
+	table.insert(stations,stationBowers)
+	--	Browstin
+	stationBrowstin = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Browstin"):setPosition(401823, -517708)
+	stationBrowstin:setDescription("Mining. Glikton Consortium participant"):setCommsScript(""):setCommsFunction(commsStation)
+	stationBrowstin:setShortRangeRadarRange(5000)
+	stationBrowstin.comms_data = {
+    	friendlyness = 58,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = true,				Mine = true,				Nuke = true,				EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	nickel =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine the nearby asteroids",
+    	history = "We moved here to take advantage of the plentiful resources",
+	}
+	station_names[stationBrowstin:getCallSign()] = {stationBrowstin:getSectorName(), stationBrowstin}
+	table.insert(stations,stationBrowstin)
+	--	Catalyst
+	stationCatalyst = SpaceStation():setTemplate("Medium Station"):setFaction("TSN"):setCallSign("Catalyst"):setPosition(377865, -503125)
+	stationCatalyst:setDescription("Mining. Part of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationCatalyst:setShortRangeRadarRange(6000)
+	stationCatalyst.comms_data = {
+    	friendlyness = 88,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 1.3", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	dilithium =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We are here to stock up on mineral supplies.",
+    	history = "The Glikton Consortium is great! It's bailed us out of several sticky situations",
+	}
+	station_names[stationCatalyst:getCallSign()] = {stationCatalyst:getSectorName(), stationCatalyst}
+	table.insert(stations,stationCatalyst)
+	--	Chodexitab
+	stationChodexitab = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("Chodexitab"):setPosition(434375, -486979)
+	stationChodexitab:setDescription("Mining. Member of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationChodexitab:setShortRangeRadarRange(5000)
+	stationChodexitab.comms_data = {
+    	friendlyness = 23,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = true,				Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	robotic =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine the asteroids around here",
+    	history = "The resources here help us blow up enemy assets in a humorous way",
+	}
+	station_names[stationChodexitab:getCallSign()] = {stationChodexitab:getSectorName(), stationChodexitab}
+	table.insert(stations,stationChodexitab)
+	--	Colorado
+	stationColorado = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Colorado"):setPosition(269515, -566746)
+	stationColorado:setDescription("Mining. Part of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationColorado:setShortRangeRadarRange(5000)
+	stationColorado.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = true,				Nuke = true,				EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	cobalt =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "Thar's gold in them thar asteroids (or cobalt, or dilithium)!",
+    	history = "We heard about the resources here and we could not let such easy pickings slide by. The Glikton agreement means we don't have to invest as much in defenses.",
+	}
+	station_names[stationColorado:getCallSign()] = {stationColorado:getSectorName(), stationColorado}
+	table.insert(stations,stationColorado)
+	--	Fremen
 	stationFremen = SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("Fremen"):setPosition(332276, -613882)
 	stationFremen:setDescription("Mining. Part of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
 	stationFremen:setShortRangeRadarRange(5000)
@@ -26675,37 +26969,530 @@ function createGliktonStations()
         public_relations = true,
         general_information = "We gather minerals from the asteroids",
     	history = "We just came for the minerals. Pickings are pretty good, so we've been growing our station capacity.",
-    	idle_defense_fleet = {
-			DF1 = "MT52 Hornet",
-			DF2 = "MU52 Hornet",
-			DF3 = "Phobos T3",
-			DF4 = "Nirvana R5A",
-    	},
 	}
 	stationFremen:setRestocksScanProbes(random(1,100) > 14)
 	stationFremen:setRepairDocked(random(1,100) > 11)
 	stationFremen:setSharesEnergyWithDocked(random(1,100) > 12)
---	if random(1,100) <= 14 then stationFremen:setRestocksScanProbes(false) end
---	if random(1,100) <= 11 then stationFremen:setRepairDocked(false) end
---	if random(1,100) <= 12 then stationFremen:setSharesEnergyWithDocked(false) end
-	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS7013"):setPosition(337484, -600079)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS6982"):setPosition(408958, -623223)
-	stationBlah = SpaceStation():setTemplate("Large Station"):setFaction("Arlenians"):setCallSign("DS6981"):setPosition(393072, -604473)
-	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("DS7014"):setPosition(269515, -566746)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("DS6962"):setPosition(282553, -562452)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS6963"):setPosition(302866, -580681)
-	stationBlah = SpaceStation():setTemplate("Huge Station"):setFaction("USN"):setCallSign("DS6983"):setPosition(406093, -588588)
-	stationBlah = SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("DS6964"):setPosition(312501, -556984)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("TSN"):setCallSign("DS6725"):setPosition(377865, -503125)
-	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("DS6724"):setPosition(413021, -539323)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("CUF"):setCallSign("DS6727"):setPosition(445573, -546094)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("DS6720"):setPosition(434115, -515365)
-	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("DS6718"):setPosition(401823, -517708)
-	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("DS6726"):setPosition(466406, -507812)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("DS6722"):setPosition(434375, -486979)
-	stationBlah = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("DS6721"):setPosition(402865, -483333)
-	stationBlah = SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign("DS6723"):setPosition(377083, -531250)
-	stationBlah = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("DS6980"):setPosition(381353, -601348)
+	station_names[stationFremen:getCallSign()] = {stationFremen:getSectorName(), stationFremen}
+	table.insert(stations,stationFremen)
+	--	Harkonex
+	stationHarkonex = SpaceStation():setTemplate("Medium Station"):setFaction("Exuari"):setCallSign("Harkonex"):setPosition(408958, -623223)
+	stationHarkonex:setDescription("Mining. Glikton Consortium Associate"):setCommsScript(""):setCommsFunction(commsStation)
+	stationHarkonex:setShortRangeRadarRange(5000)
+	stationHarkonex.comms_data = {
+    	friendlyness = 41,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	impulse =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 32, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We mine minerals from the asteroids. We look for humorous opportunities.",
+    	history = "The minerals seemed amusing, especially with all the factions around providing potential avanues for humor. Alas, our humor was not appreciated and we agreed to the Glikton accord.",
+	}
+	station_names[stationHarkonex:getCallSign()] = {stationHarkonex:getSectorName(), stationHarkonex}
+	table.insert(stations,stationHarkonex)
+	--	Kivork
+	stationKivork = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Kivork"):setPosition(302866, -580681)
+	stationKivork:setDescription("Mining and monitoring. Probationary Glikton Consortium member"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKivork:setShortRangeRadarRange(5000)
+	stationKivork.comms_data = {
+    	friendlyness = 31,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	lifter =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "The asteroids give us minerals that we need",
+    	history = "We came to keep watch on the various factions flocking to the region. We joined in the mining after we completed our survey. We briefly but unsuccessfully tried to force the other factions to leave the area. We recently signed the Glikton pact",
+	}
+	station_names[stationKivork:getCallSign()] = {stationKivork:getSectorName(), stationKivork}
+	table.insert(stations,stationKivork)
+	--	Kloptak
+	stationKloptak = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Kloptak"):setPosition(337484, -600079)
+	stationKloptak:setDescription("Mining station. Member of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKloptak:setShortRangeRadarRange(5000)
+	stationKloptak.comms_data = {
+    	friendlyness = 34,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "friend",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	jump =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine minerals from the asteroids.",
+    	history = "We want the minerals. We're not so sure about the other factions.",
+	}
+	station_names[stationKloptak:getCallSign()] = {stationKloptak:getSectorName(), stationKloptak}
+	table.insert(stations,stationKloptak)
+	--	Kraglurt
+	stationKraglurt = SpaceStation():setTemplate("Medium Station"):setFaction("Kraylor"):setCallSign("Kraglurt"):setPosition(434115, -515365)
+	stationKraglurt:setDescription("Mining and manufacturing. Glikton Consortium associate"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKraglurt:setShortRangeRadarRange(7000)
+	stationKraglurt.comms_data = {
+    	friendlyness = 28,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = true,					HVLI = true,				Mine = true,				Nuke = true,				EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 3.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	shield =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine asteroids",
+    	history = "We came to prevent others from taking all of these resources",
+	}
+	station_names[stationKraglurt:getCallSign()] = {stationKraglurt:getSectorName(), stationKraglurt}
+	table.insert(stations,stationKraglurt)
+	--	Laviscounts
+	stationLaviscounts = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Laviscounts"):setPosition(466406, -507812)
+	stationLaviscounts:setDescription("Mining. Glikton Consortium member"):setCommsScript(""):setCommsFunction(commsStation)
+	stationLaviscounts:setShortRangeRadarRange(7000)
+	stationLaviscounts.comms_data = {
+    	friendlyness = 83,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = true,				Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine the asteroids",
+    	history = "The resources gathered here are vital to the USN",
+	}
+	station_names[stationLaviscounts:getCallSign()] = {stationLaviscounts:getSectorName(), stationLaviscounts}
+	table.insert(stations,stationLaviscounts)
+	--	Lumandine
+	stationLumandine = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Lumandine"):setPosition(402865, -483333)
+	stationLumandine:setDescription("Research and mining. Member of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationLumandine:setShortRangeRadarRange(5000)
+	stationLumandine.comms_data = {
+    	friendlyness = 73,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = true,				Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	gold =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We examine the asteroids and other stellar phenomenon in the region. We also gather minerals.",
+    	history = "We seek the origins of this unusual confluence of resources. The resources themselves facilitate this research.",
+	}
+	station_names[stationLumandine:getCallSign()] = {stationLumandine:getSectorName(), stationLumandine}
+	table.insert(stations,stationLumandine)
+	--	Packardell
+	stationPackardell = SpaceStation():setTemplate("Large Station"):setFaction("Ghosts"):setCallSign("Packardell"):setPosition(377083, -531250)
+	stationPackardell:setDescription("Manufacturing and mining. Signatory of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationPackardell:setShortRangeRadarRange(5000)
+	stationPackardell.comms_data = {
+    	friendlyness = 63,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = true,				Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	transporter =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine minerals from the asteroids and produce goods from them",
+    	history = "We saw the resource paradigm shift and aligned with others to get these resources.",
+	}
+	station_names[stationPackardell:getCallSign()] = {stationPackardell:getSectorName(), stationPackardell}
+	table.insert(stations,stationPackardell)
+	--	Photovoltaic
+	stationPhotovoltaic = SpaceStation():setTemplate("Medium Station"):setFaction("Ghosts"):setCallSign("Photovoltaic"):setPosition(282553, -562452)
+	stationPhotovoltaic:setDescription("Mining and manufacturing. Glikton Consortium Participant"):setCommsScript(""):setCommsFunction(commsStation)
+	stationPhotovoltaic:setShortRangeRadarRange(5000)
+	stationPhotovoltaic.comms_data = {
+    	friendlyness = 71,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	optic =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "The minerals in the asteroids serve our purposes well.",
+    	history = "We came to this region as soon as we heard about the resources. The Glikton accord simplifies station management and maintenance.",
+	}
+	station_names[stationPhotovoltaic:getCallSign()] = {stationPhotovoltaic:getSectorName(), stationPhotovoltaic}
+	table.insert(stations,stationPhotovoltaic)
+	--	Pichtak
+	stationPichtak = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Pichtak"):setPosition(413021, -539323)
+	stationPichtak:setDescription("Mining. Member of Glikton Consortium"):setCommsScript(""):setCommsFunction(commsStation)
+	stationPichtak:setShortRangeRadarRange(5000)
+	stationPichtak.comms_data = {
+    	friendlyness = 38,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 1.3", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	tritanium =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 12, medicine = random(1,100) < 22, luxury = random(1,100) < 32 },
+        public_relations = true,
+        general_information = "We mine asteroids in the region.",
+    	history = "After some encounters with enemy factions, we decided to join the Glikton Consortium to keep the riffraff away",
+	}
+	station_names[stationPichtak:getCallSign()] = {stationPichtak:getSectorName(), stationPichtak}
+	table.insert(stations,stationPichtak)
+	--	Virginia
+	stationVirginia = SpaceStation():setTemplate("Large Station"):setFaction("Independent"):setCallSign("Virginia"):setPosition(312501, -556984)
+	stationVirginia:setDescription("Manufacturing and mining. Early adopter of Glikton Consortium rules"):setCommsScript(""):setCommsFunction(commsStation)
+	stationVirginia:setShortRangeRadarRange(8000)
+	stationVirginia.comms_data = {
+    	friendlyness = 68,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "neutral"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	autodoc =	{quantity = math.random(4,11),	cost = math.random(55,120)}, 
+        			repulsor =	{quantity = math.random(4,11),	cost = math.random(55,120)},
+        			tractor =	{quantity = math.random(4,11),	cost = math.random(55,120)},	},
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We make stuff out of the minerals we pull from these asteroids",
+    	history = "Once we established regular mineral supplies, we turned our attention to making goods from those minerals. The Glikton accord afforded us much needed protection from marauding neighbors",
+	}
+	station_names[stationVirginia:getCallSign()] = {stationVirginia:getSectorName(), stationVirginia}
+	table.insert(stations,stationVirginia)
+	--	Willesteria
+	stationWillesteria = SpaceStation():setTemplate("Large Station"):setFaction("Arlenians"):setCallSign("Willesteria"):setPosition(393072, -604473)
+	stationWillesteria:setDescription("Mining, manufacturing and research. Glikton Consortium Signatory"):setCommsScript(""):setCommsFunction(commsStation)
+	stationWillesteria:setShortRangeRadarRange(5000)
+	stationWillesteria.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+        mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	circuit =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "The minerals in the asteroids are crucial resources for us.",
+    	history = "We were here for quite a while before other factions discovered these resources and moved in. We were worried about potential hostilities. We're glad the Glikton agreement is in place.",
+	}
+	station_names[stationWillesteria:getCallSign()] = {stationWillesteria:getSectorName(), stationWillesteria}
+	table.insert(stations,stationWillesteria)
+    return stations
 end
 function createGliktonPlanets()
 	local planets = {}
@@ -26715,9 +27502,53 @@ function createGliktonPlanets()
 		:setDistanceFromMovementPlane(-2000)
 		:setPlanetSurfaceTexture("planets/star-1.png")
 		:setPlanetAtmosphereColor(1.0,.9,.9)
-    local planet_glikton = Planet():setPosition(476646, -490235):setPlanetRadius(5000):setPlanetCloudRadius(5200.00):setOrbit(star_glikton, 10.00)
+    local planet_glikton = Planet()
+    	:setPosition(476646, -490235)
+    	:setPlanetRadius(5000)
+		:setDistanceFromMovementPlane(-2000)
+		:setPlanetSurfaceTexture("planets/planet-2.png")
+		:setPlanetAtmosphereColor(.75,.85,.23)
+    	:setPlanetCloudRadius(5300)
+		:setPlanetCloudTexture("./skybox/bottom.png")
+    	:setOrbit(star_glikton, 1000)
     table.insert(planets,star_glikton)
     table.insert(planets,planet_glikton)
+	local zone_sign = Zone()
+	local base_x, base_y = vectorFromAngle(56,10000,true)
+	base_x = base_x + 220000
+	base_y = base_y - 380000
+	local base_left_corner_x, base_left_corner_y = vectorFromAngle(56 + 270,1000,true)
+	base_left_corner_x = base_left_corner_x + base_x
+	base_left_corner_y = base_left_corner_y + base_y
+	local left_inner_arrow_x, left_inner_arrow_y = vectorFromAngle(56,10000,true)
+	left_inner_arrow_x = left_inner_arrow_x + base_left_corner_x
+	left_inner_arrow_y = left_inner_arrow_y + base_left_corner_y
+	local left_outer_arrow_x, left_outer_arrow_y = vectorFromAngle(56 + 270,1000,true)
+	left_outer_arrow_x = left_outer_arrow_x + left_inner_arrow_x
+	left_outer_arrow_y = left_outer_arrow_y + left_inner_arrow_y
+	local arrow_tip_x, arrow_tip_y = vectorFromAngle(56,13000,true)
+	arrow_tip_x = arrow_tip_x + base_x
+	arrow_tip_y = arrow_tip_y + base_y
+	local base_right_corner_x, base_right_corner_y = vectorFromAngle(56 + 90,1000,true)
+	base_right_corner_x = base_right_corner_x + base_x
+	base_right_corner_y = base_right_corner_y + base_y
+	local right_inner_arrow_x, right_inner_arrow_y = vectorFromAngle(56,10000,true)
+	right_inner_arrow_x = right_inner_arrow_x + base_right_corner_x
+	right_inner_arrow_y = right_inner_arrow_y + base_right_corner_y
+	local right_outer_arrow_x, right_outer_arrow_y = vectorFromAngle(56 + 90,1000,true)
+	right_outer_arrow_x = right_outer_arrow_x + right_inner_arrow_x
+	right_outer_arrow_y = right_outer_arrow_y + right_inner_arrow_y
+	zone_sign:setPoints(
+		base_left_corner_x, 	base_left_corner_y,
+		left_inner_arrow_x, 	left_inner_arrow_y,
+		left_outer_arrow_x, 	left_outer_arrow_y,
+		arrow_tip_x,			arrow_tip_y,
+		right_outer_arrow_x,	right_outer_arrow_y,
+		right_inner_arrow_x,	right_inner_arrow_y,
+		base_right_corner_x,	base_right_corner_y
+	)
+	zone_sign:setLabel("Glikton ~200U"):setColor(150,150,40)
+	table.insert(planets,zone_sign)
     return planets
 end
 function createGliktonMines()
@@ -57064,20 +57895,7 @@ function commsStation()
     	if string.find(comms_target:getDescription(),"Glikton Consortium") == nil then
 	        return false
 	    else
-	    	if not comms_source:isDocked(comms_target) then
-	    		if distance(comms_source,comms_target) < 5000 then
-	    			setCommsMessage("I'll only talk to you about buying, selling or trading per Glikton Consortium rules.")
-	    			addCommsReply(string.format("Buy goods from %s",comms_target:getCallSign()),function()
-	    				setCommsMessage("Not implemented yet")
-	    			end)
-	    			addCommsReply(string.format("Sell goods to %s",comms_target:getCallSign()),function()
-	    				setCommsMessage("Not implemented yet")
-	    			end)
-	    			addCommsReply(string.format("Trade goods with %s",comms_target:getCallSign()),function()
-	    				setCommsMessage("Not implemented yet")
-	    			end)
-	    		end
-	    	end
+	    	gliktonExchange()
 	    end
     end
     local range_divisor = {
@@ -57124,6 +57942,241 @@ function commsStation()
 	    end
     end
     return true
+end
+function gliktonExchange()
+	if not comms_source:isDocked(comms_target) then
+		if distance(comms_source,comms_target) < 5000 then
+			distributeGliktonBuySell()
+			setCommsMessage("I'll only talk to you about buying, selling or trading per Glikton Consortium rules.")
+			addCommsReply(string.format("Buy goods from %s",comms_target:getCallSign()),function()
+				if comms_target.comms_data.goods ~= nil then
+					setCommsMessage("What would you like to buy?")
+					local good_count = 0
+					for good,details in pairs(comms_target.comms_data.goods) do
+						if details.quantity > 0 then
+							good_count = good_count + 1
+							addCommsReply(string.format("%s (%s reputation)",good,details.cost),function()
+								if comms_source.cargo > 0 then
+									if details.quantity > 0 then
+										if comms_source:takeReputationPoints(details.cost) then
+											comms_source.cargo = comms_source.cargo - 1
+											if comms_source.goods == nil then
+												comms_source.goods = {}
+											end
+											if comms_source.goods[good] == nil then
+												comms_source.goods[good] = 0
+											end
+											comms_source.goods[good] = comms_source.goods[good] + 1
+											comms_target.comms_data.goods[good].quantity = comms_target.comms_data.goods[good].quantity - 1
+											setCommsMessage(string.format("One %s purchased for %s reputation",good,details.cost))
+										else
+											setCommsMessage("Insufficient reputation")
+										end
+									else
+										setCommsMessage("Insufficient inventory on station to complete the transaction.")
+									end
+								else
+									setCommsMessage("Insufficient space in your cargo hold")
+								end
+								addCommsReply(_("Back to station communication"), commsStation)
+							end)
+						end
+					end
+					if good_count == 0 then
+						setCommsMessage("Station has no goods to sell")
+					end
+				else
+					setCommsMessage("Station has no goods to sell")
+				end
+				addCommsReply(_("Back to station communication"), commsStation)
+			end)
+			addCommsReply(string.format("Sell goods to %s",comms_target:getCallSign()),function()
+				if comms_target.comms_data.buy ~= nil then
+					setCommsMessage("What would you like to sell?")
+					for good,price in pairs(comms_target.comms_data.buy) do
+						addCommsReply(string.format("%s (%s reputation)",good,price),function()
+							if comms_source.goods ~= nil then
+								if comms_source.goods[good] ~= nil then
+									if comms_source.goods[good] > 0 then
+										comms_source.cargo = comms_source.cargo + 1
+										comms_source.goods[good] = comms_source.goods[good] - 1
+										comms_source:addReputationPoints(price)
+										setCommsMessage(string.format("One %s sold for %s reputation.",good,price))
+									else
+										setCommsMessage(string.format("You no longer have any %s",good))
+									end
+								else
+									setCommsMessage(string.format("You don't have any %s",good))
+								end
+							else
+								setCommsMessage("You don't have any cargo to sell")
+							end
+							addCommsReply(_("Back to station communication"), commsStation)
+						end)
+					end
+				else
+					setCommsMessage("Station is not interested in buying anything.")
+				end
+				addCommsReply(_("Back to station communication"), commsStation)
+			end)
+			addCommsReply(string.format("Trade goods with %s",comms_target:getCallSign()),function()
+				setCommsMessage("What would you like to trade?")
+				local trade_options_presented = 0
+				if comms_target.comms_data.trade ~= nil then
+					if comms_target.comms_data.trade.food then
+						if comms_target.comms_data ~= nil and comms_target.comms_data.goods ~= nil then
+							for good,details in pairs(comms_target.comms_data.goods) do
+								if details.quantity > 0 then
+									trade_options_presented = trade_options_presented + 1
+									addCommsReply(string.format("Trade food for %s",good),function()
+										if comms_source.goods ~= nil then
+											if comms_source.goods["food"] ~= nil then
+												if comms_source.goods["food"] > 0 then
+													comms_source.goods["food"] = comms_source.goods["food"] - 1
+													if comms_source.goods[good] == nil then
+														comms_source.goods[good] = 0
+													end
+													comms_source.goods[good] = comms_source.goods[good] + 1
+													setCommsMessage(string.format("You traded one food for a %s",good))
+												else
+													setCommsMessage("You no longer have any food")
+												end
+											else
+												setCommsMessage("You do not have any food")
+											end
+										else
+											setCommsMessage("You do not have any cargo to trade")
+										end
+										addCommsReply(_("Back to station communication"), commsStation)
+									end)
+								end
+							end
+						end
+					end
+					if comms_target.comms_data.trade.medicine then
+						if comms_target.comms_data ~= nil and comms_target.comms_data.goods ~= nil then
+							for good,details in pairs(comms_target.comms_data.goods) do
+								if details.quantity > 0 then
+									trade_options_presented = trade_options_presented + 1
+									addCommsReply(string.format("Trade medicine for %s",good),function()
+										if comms_source.goods ~= nil then
+											if comms_source.goods["medicine"] ~= nil then
+												if comms_source.goods["medicine"] > 0 then
+													comms_source.goods["medicine"] = comms_source.goods["medicine"] - 1
+													if comms_source.goods[good] == nil then
+														comms_source.goods[good] = 0
+													end
+													comms_source.goods[good] = comms_source.goods[good] + 1
+													setCommsMessage(string.format("You traded one medicine for a %s",good))
+												else
+													setCommsMessage("You no longer have any medicine")
+												end
+											else
+												setCommsMessage("You do not have any medicine")
+											end
+										else
+											setCommsMessage("You do not have any cargo to trade")
+										end
+										addCommsReply(_("Back to station communication"), commsStation)
+									end)
+								end
+							end
+						end
+					end
+					if comms_target.comms_data.trade.luxury then
+						if comms_target.comms_data ~= nil and comms_target.comms_data.goods ~= nil then
+							for good,details in pairs(comms_target.comms_data.goods) do
+								if details.quantity > 0 then
+									trade_options_presented = trade_options_presented + 1
+									addCommsReply(string.format("Trade luxury for %s",good),function()
+										if comms_source.goods ~= nil then
+											if comms_source.goods["luxury"] ~= nil then
+												if comms_source.goods["luxury"] > 0 then
+													comms_source.goods["luxury"] = comms_source.goods["luxury"] - 1
+													if comms_source.goods[good] == nil then
+														comms_source.goods[good] = 0
+													end
+													comms_source.goods[good] = comms_source.goods[good] + 1
+													setCommsMessage(string.format("You traded one luxury for a %s",good))
+												else
+													setCommsMessage("You no longer have any luxury")
+												end
+											else
+												setCommsMessage("You do not have any luxury")
+											end
+										else
+											setCommsMessage("You do not have any cargo to trade")
+										end
+										addCommsReply(_("Back to station communication"), commsStation)
+									end)
+								end
+							end
+						end
+					end
+					if trade_options_presented == 0 then
+						setCommsMessage("Station is not interested in trading at this time")
+					end
+				else
+					setCommsMessage("Station is not interested in trading")
+				end
+				addCommsReply(_("Back to station communication"), commsStation)
+			end)
+		end
+	end
+end
+function distributeGliktonBuySell()
+	if glikton_color then
+		if glikton_distributed == nil then
+			glikton_distributed = true
+			local sell_pool = {}
+			local buy_pool = {}
+			for i,good in ipairs(commonGoods) do
+				if good ~= "food" and good ~= "medicine" and good ~= "luxury" then
+					table.insert(sell_pool,good)
+				end
+			end
+			for i,station in ipairs(glikton_stations) do
+				local sell_good = tableRemoveRandom(sell_pool)
+				if station.comms_data ~= nil and station.comms_data.goods ~= nil then
+					table.insert(buy_pool,sell_good)
+					if station.comms_data.goods[sell_good] == nil then
+						station.comms_data.goods[sell_good] = {quantity = math.random(5,9), cost = math.random(60,100)}
+					end
+				else
+					if station.comms_data == nil then
+						station.comms_data = {}
+					end
+					station.comms_data.goods = {}
+					station.comms_data.goods[sell_good] = {quantity = math.random(5,9), cost = math.random(60,100)}
+					table.insert(buy_pool,sell_good)
+				end
+			end
+			for i,station in ipairs(glikton_stations) do
+				local buy_good = tableRemoveRandom(buy_pool)
+				if buy_good == nil then
+					for j,good in ipairs(commonGoods) do
+						if good ~= "food" and good ~= "medicine" and good ~= "luxury" then
+							table.insert(buy_pool,good)
+						end
+					end
+					buy_good = tableRemoveRandom(buy_pool)
+				end
+				if station.comms_data ~= nil and station.comms_data.buy ~= nil then
+					if station.comms_data.buy[buy_good] == nil and station.comms_data.goods[buy_good] == nil then
+						station.comms_data.buy[buy_good] = math.random(80,150)
+					end
+				else
+					if station.comms_data == nil then
+						station.comms_data = {}
+					end
+					if station.comms_data.goods[buy_good] == nil then
+						station.comms_data.buy = {}
+						station.comms_data.buy[buy_good] = math.random(80,150)
+					end
+				end
+			end
+		end
+	end
 end
 --	docked and undocked communication functions
 function addStationToDatabase(station)
