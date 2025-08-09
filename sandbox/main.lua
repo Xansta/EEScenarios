@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.1.1"
+	scenario_version = "8.2.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -15226,6 +15226,9 @@ function createH0toK2asteroids()
     	local staticAsteroid = Asteroid():setPosition(asteroidCoordinates[i][1],asteroidCoordinates[i][2]):setSize(asteroidCoordinates[i][3])
     	table.insert(asteroidList,staticAsteroid)
     end
+	local zone_sign = zoneSign(-280000,80000,99,5000)
+	zone_sign:setLabel("Transylvania\n99° ~190U"):setColor(40,40,200)
+	table.insert(asteroidList,zone_sign)
     return asteroidList
 end
 function createH1toI2mines()
@@ -15535,31 +15538,30 @@ function createFinneganFeatures()
     table.insert(feature_list,planet_pillory)
     return feature_list
 end
-function wormholeTour()
-	local feature_list = {}
+function zoneSign(x,y,bearing,distance_to_base)
 	local zone_sign = Zone()
-	local base_x, base_y = vectorFromAngle(40,5000,true)
-	base_x = base_x + 220000
-	base_y = base_y - 380000
-	local base_left_corner_x, base_left_corner_y = vectorFromAngle(40 + 270,1000,true)
+	local base_x, base_y = vectorFromAngle(bearing,distance_to_base,true)
+	base_x = base_x + x
+	base_y = base_y + y
+	local base_left_corner_x, base_left_corner_y = vectorFromAngle(bearing + 270,1000,true)
 	base_left_corner_x = base_left_corner_x + base_x
 	base_left_corner_y = base_left_corner_y + base_y
-	local left_inner_arrow_x, left_inner_arrow_y = vectorFromAngle(40,10000,true)
+	local left_inner_arrow_x, left_inner_arrow_y = vectorFromAngle(bearing,10000,true)
 	left_inner_arrow_x = left_inner_arrow_x + base_left_corner_x
 	left_inner_arrow_y = left_inner_arrow_y + base_left_corner_y
-	local left_outer_arrow_x, left_outer_arrow_y = vectorFromAngle(40 + 270,1000,true)
+	local left_outer_arrow_x, left_outer_arrow_y = vectorFromAngle(bearing + 270,1000,true)
 	left_outer_arrow_x = left_outer_arrow_x + left_inner_arrow_x
 	left_outer_arrow_y = left_outer_arrow_y + left_inner_arrow_y
-	local arrow_tip_x, arrow_tip_y = vectorFromAngle(40,13000,true)
+	local arrow_tip_x, arrow_tip_y = vectorFromAngle(bearing,13000,true)
 	arrow_tip_x = arrow_tip_x + base_x
 	arrow_tip_y = arrow_tip_y + base_y
-	local base_right_corner_x, base_right_corner_y = vectorFromAngle(40 + 90,1000,true)
+	local base_right_corner_x, base_right_corner_y = vectorFromAngle(bearing + 90,1000,true)
 	base_right_corner_x = base_right_corner_x + base_x
 	base_right_corner_y = base_right_corner_y + base_y
-	local right_inner_arrow_x, right_inner_arrow_y = vectorFromAngle(40,10000,true)
+	local right_inner_arrow_x, right_inner_arrow_y = vectorFromAngle(bearing,10000,true)
 	right_inner_arrow_x = right_inner_arrow_x + base_right_corner_x
 	right_inner_arrow_y = right_inner_arrow_y + base_right_corner_y
-	local right_outer_arrow_x, right_outer_arrow_y = vectorFromAngle(40 + 90,1000,true)
+	local right_outer_arrow_x, right_outer_arrow_y = vectorFromAngle(bearing + 90,1000,true)
 	right_outer_arrow_x = right_outer_arrow_x + right_inner_arrow_x
 	right_outer_arrow_y = right_outer_arrow_y + right_inner_arrow_y
 	zone_sign:setPoints(
@@ -15571,7 +15573,12 @@ function wormholeTour()
 		right_inner_arrow_x,	right_inner_arrow_y,
 		base_right_corner_x,	base_right_corner_y
 	)
-	zone_sign:setLabel("Wormhole Tour ~50U"):setColor(40,40,150)
+	return zone_sign
+end
+function wormholeTour()
+	local feature_list = {}
+	local zone_sign = zoneSign(220000,-380000,40,5000)
+	zone_sign:setLabel("Wormholes\n40° ~50U"):setColor(40,40,150)
 	table.insert(feature_list,zone_sign)
 --	I90 north of Lafrina, west of Icarus
 	table.insert(feature_list,WormHole():setPosition(-280955, 79017):setTargetPosition(-320252, 653528))
@@ -19741,6 +19748,9 @@ function ghostNebulaSector()
 	--station_names[stationBrillo:getCallSign()] = {stationBrillo:getSectorName(), stationBrillo}
 	--table.insert(stations,stationBrillo)
 	table.insert(wip.all_objects,stationBrillo)
+	local zone_sign = zoneSign(420000,620000,8,5000)
+	zone_sign:setLabel("Astron\n8° ~300U"):setColor(240,128,20)
+	table.insert(wip.all_objects,zone_sign)
 	astron_color = true
 	astron_terrain = wip.all_objects
 	return wip
@@ -20301,6 +20311,9 @@ function createLafrinaStations()
 end
 function createLafrinaPlanets()
 	local planet_list = {}
+	local zone_sign = zoneSign(-280000,80000,172,5000)
+	zone_sign:setLabel("Lafrina\n172° ~200U"):setColor(200,160,20)
+	table.insert(planet_list,zone_sign)
 	balinor_x = -343904
 	balinor_y = 295274
     planet_balinor = Planet():setPosition(balinor_x,balinor_y):setPlanetRadius(1200):setDistanceFromMovementPlane(-2400):setPlanetAtmosphereTexture("planets/star-1.png"):setPlanetAtmosphereColor(0.8,1.0,0.8):setCallSign("Balinor")
@@ -25461,34 +25474,42 @@ function createStaunchStations()
     return stations
 end
 function createStaunchPlanets()
+	local planets = {}
+	local zone_sign = zoneSign(420000,620000,240,10000)
+	zone_sign:setLabel("Staunch\n240° ~320U"):setColor(40,200,40)
+	table.insert(planets,zone_sign)
 	gizen_x = 50292
 	gizen_y = 789498
-	planet_gizen = Planet():setPosition(gizen_x, gizen_y):setPlanetRadius(1000):setDistanceFromMovementPlane(-2000.00):setPlanetSurfaceTexture("planets/star-1.png"):setPlanetCloudRadius(1050.00):setPlanetAtmosphereColor(1.0,.9,.9)
+	local planet_gizen = Planet():setPosition(gizen_x, gizen_y):setPlanetRadius(1000):setDistanceFromMovementPlane(-2000.00):setPlanetSurfaceTexture("planets/star-1.png"):setPlanetCloudRadius(1050.00):setPlanetAtmosphereColor(1.0,.9,.9)
 	planet_gizen:setCallSign("Gizen")
+	table.insert(planets,planet_gizen)
 	local px, py = vectorFromAngle(random(0,360),56409)
 	px = px + gizen_x
 	py = py + gizen_y
 	--	original position x,y: 92074, 751601
-	planet_merc = Planet():setPosition(px, py):setPlanetRadius(6000):setDistanceFromMovementPlane(-1000.00):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(6300.00)
+	local planet_merc = Planet():setPosition(px, py):setPlanetRadius(6000):setDistanceFromMovementPlane(-1000.00):setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetCloudRadius(6300.00)
 	planet_merc:setCallSign("Mercenary")
 	planet_merc:setOrbit(planet_gizen, 600)	--final: 600, test: 10
 	px, py = vectorFromAngle(random(0,360),165884)
 	px = px + gizen_x
 	py = py + gizen_y
+	table.insert(planets,planet_merc)
 	--	original position x,y: 173959, 678936
-	planet_medusa = Planet():setPosition(px, py):setPlanetRadius(21000):setDistanceFromMovementPlane(-6000.00):setPlanetSurfaceTexture("planets/gas-1.png"):setPlanetCloudRadius(22050.00)
+	local planet_medusa = Planet():setPosition(px, py):setPlanetRadius(21000):setDistanceFromMovementPlane(-6000.00):setPlanetSurfaceTexture("planets/gas-1.png"):setPlanetCloudRadius(22050.00)
 	planet_medusa:setCallSign("Medusa")
 	planet_medusa:setOrbit(planet_gizen, 3400)	--final: 3400, test: 30
 	local ox, oy = vectorFromAngle(random(0,360),33021)
 	ox = ox + px
 	oy = oy + py
+	table.insert(planets,planet_medusa)
 	--	original position x,y: 146932, 697907
-	planet_phantom = Planet():setPosition(ox, oy):setPlanetRadius(2000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-1.png"):setPlanetCloudRadius(2100.00)
+	local planet_phantom = Planet():setPosition(ox, oy):setPlanetRadius(2000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-1.png"):setPlanetCloudRadius(2100.00)
 	planet_phantom:setCallSign("Phantom")
 	planet_phantom:setOrbit(planet_medusa, 890)	--final: 890, test: 2
 	ox, oy = vectorFromAngle(random(0,360),55376)
 	ox = ox + px
 	oy = oy + py
+	table.insert(planets,planet_phantom)
 	--	original position x,y: 132685, 715854
 	planet_gorgon = Planet():setPosition(ox, oy):setPlanetRadius(3000):setDistanceFromMovementPlane(-3000.00):setPlanetSurfaceTexture("planets/moon-3.png"):setPlanetCloudRadius(3150.00)
 	planet_gorgon:setOrbit(planet_medusa, 1790)	--final: 1790, test: 3
@@ -27513,41 +27534,8 @@ function createGliktonPlanets()
     	:setOrbit(star_glikton, 1000)
     table.insert(planets,star_glikton)
     table.insert(planets,planet_glikton)
-	local zone_sign = Zone()
-	local base_x, base_y = vectorFromAngle(56,10000,true)
-	base_x = base_x + 220000
-	base_y = base_y - 380000
-	local base_left_corner_x, base_left_corner_y = vectorFromAngle(56 + 270,1000,true)
-	base_left_corner_x = base_left_corner_x + base_x
-	base_left_corner_y = base_left_corner_y + base_y
-	local left_inner_arrow_x, left_inner_arrow_y = vectorFromAngle(56,10000,true)
-	left_inner_arrow_x = left_inner_arrow_x + base_left_corner_x
-	left_inner_arrow_y = left_inner_arrow_y + base_left_corner_y
-	local left_outer_arrow_x, left_outer_arrow_y = vectorFromAngle(56 + 270,1000,true)
-	left_outer_arrow_x = left_outer_arrow_x + left_inner_arrow_x
-	left_outer_arrow_y = left_outer_arrow_y + left_inner_arrow_y
-	local arrow_tip_x, arrow_tip_y = vectorFromAngle(56,13000,true)
-	arrow_tip_x = arrow_tip_x + base_x
-	arrow_tip_y = arrow_tip_y + base_y
-	local base_right_corner_x, base_right_corner_y = vectorFromAngle(56 + 90,1000,true)
-	base_right_corner_x = base_right_corner_x + base_x
-	base_right_corner_y = base_right_corner_y + base_y
-	local right_inner_arrow_x, right_inner_arrow_y = vectorFromAngle(56,10000,true)
-	right_inner_arrow_x = right_inner_arrow_x + base_right_corner_x
-	right_inner_arrow_y = right_inner_arrow_y + base_right_corner_y
-	local right_outer_arrow_x, right_outer_arrow_y = vectorFromAngle(56 + 90,1000,true)
-	right_outer_arrow_x = right_outer_arrow_x + right_inner_arrow_x
-	right_outer_arrow_y = right_outer_arrow_y + right_inner_arrow_y
-	zone_sign:setPoints(
-		base_left_corner_x, 	base_left_corner_y,
-		left_inner_arrow_x, 	left_inner_arrow_y,
-		left_outer_arrow_x, 	left_outer_arrow_y,
-		arrow_tip_x,			arrow_tip_y,
-		right_outer_arrow_x,	right_outer_arrow_y,
-		right_inner_arrow_x,	right_inner_arrow_y,
-		base_right_corner_x,	base_right_corner_y
-	)
-	zone_sign:setLabel("Glikton ~200U"):setColor(150,150,40)
+	local zone_sign = zoneSign(220000,-380000,56,10000)
+	zone_sign:setLabel("Glikton\n56° ~200U"):setColor(150,150,40)
 	table.insert(planets,zone_sign)
     return planets
 end
