@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.2.1"
+	scenario_version = "8.3.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1840,12 +1840,12 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Wiggy")			--J
+	makePlayerShipActive("Beowulf")			--J
 	makePlayerShipActive("Endeavor")		--J
 	makePlayerShipActive("Guinevere") 		--J 
 	makePlayerShipActive("Flipper")			--W
 	makePlayerShipActive("Thelonius")		--W
-	makePlayerShipActive("Osprey") 			--W 
+	makePlayerShipActive("Crux") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -2162,8 +2162,10 @@ function setConstants()
 		["Broom"] =							100,
 		["Brush"] =							100,
 		["Buster"] =						100,
+		["Caretaker"] =						200,
 		["Command Base"] =					800,		
 		["Courier"] =						600,
+		["Crab"] =							200,
 		["Cruiser"] =						200,
 		["Cucaracha"] =						200,
 		["Dagger"] =						100,
@@ -2198,6 +2200,7 @@ function setConstants()
 		["Touchy"] =						100,
 		["Flash"] =							100,
 		["Flavia"] =						200,
+		["Flavia 2C"] =						200,
 		["Flavia Falcon"] =					200,
 		["Fortress"] =						2000,
 		["Foul Feeder"] =					300,
@@ -11619,11 +11622,11 @@ function filkRoadSector()
 	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E1.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-329691, -442387):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
 	setBeamColor(ship)
 	table.insert(objects,ship)
---	wdpe2Zone = squareZone(-334164, -441729,"wdpe2")
---	wdpe2Zone:setColor(0,128,0):setLabel("2")
-	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
-	setBeamColor(ship)
-	table.insert(objects,ship)
+	wdpe2Zone = squareZone(-334164, -441729,"wdpe2")
+	wdpe2Zone:setColor(0,128,0):setLabel("2")
+--	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2.3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+--	setBeamColor(ship)
+--	table.insert(objects,ship)
 	wdpe3Zone = squareZone(-331854, -445867,"wdpe3")
 	wdpe3Zone:setColor(0,128,0):setLabel("3")
 --	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
@@ -47427,13 +47430,15 @@ function podPrepButton(p,console,podCallSign,label,msg)
 		local other_players = getActivePlayerShips()
 		for other_pidx, other_p in ipairs(other_players) do
 			if other_p:isValid() then
-				for pod_name, pb_item in pairs(other_p.podButton) do
-					if pb_item.active and pod_name == podCallSign then
-						other_p:removeCustom(string.format("%s%s",pod_name,"Engineering"))
-						other_p:removeCustom(string.format("%s%s",pod_name,"Engineering+"))
-						other_p:addCustomMessage(console,"pb_gone",string.format(msg,p:getCallSign(),pod_name))
-						other_p.podButton[pod_name].active = false
-						other_p.podButton[pod_name].preparer = p
+				if other_p.podButton ~= nil then
+					for pod_name, pb_item in pairs(other_p.podButton) do
+						if pb_item.active and pod_name == podCallSign then
+							other_p:removeCustom(string.format("%s%s",pod_name,"Engineering"))
+							other_p:removeCustom(string.format("%s%s",pod_name,"Engineering+"))
+							other_p:addCustomMessage(console,"pb_gone",string.format(msg,p:getCallSign(),pod_name))
+							other_p.podButton[pod_name].active = false
+							other_p.podButton[pod_name].preparer = p
+						end
 					end
 				end
 			end
@@ -54504,37 +54509,87 @@ end
 -- TSN VICTORY			F	inline
 -- USN VICTORY			F	inline
 -- CUF VICTORY			F	inline
+function setEndSessionMessage()
+	clearGMFunctions()
+	addGMFunction("-Victory",endMission)
+	addGMFunction("-End Session",endSession)
+	changeMessageObjectCaller = setEndSessionMessage
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+		addGMFunction("Show end message",function()
+			addGMMessage(string.format("Ending message:\n%s",message_object:getDescription()))
+		end)
+		addGMFunction("Remove end message",function()
+			message_object = nil
+			addGMMessage("End message removed (message_object set to nil)")
+			setEndSessionMessage()
+		end)
+	end
+end
 function endMission()
 	clearGMFunctions()
 	addGMFunction("-from Victory",endSession)
+	addGMFunction("+Main Screen Msg",setEndSessionMessage)
 	addGMFunction("Human Victory",function()
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Human Navy")
 	end)
 	addGMFunction("Kraylor Victory",function()
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Kraylor")
 	end)
 	addGMFunction("Exuari Victory",function() 
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Exuari")
 	end)
 	addGMFunction("Ghost Victory",function() 
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Ghosts")
 	end)
 	addGMFunction("Arlenian Victory",function() 
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Arlenians")	
 	end)
 	addGMFunction("Independent Victory",function() 
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Independent")
 	end)
 	addGMFunction("Ktlitan Victory",function() 
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("Ktlitans")
 	end)
 	addGMFunction("TSN Victory",function()
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("TSN")
 	end)
 	addGMFunction("USN Victory",function()
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("USN")
 	end)
 	addGMFunction("CUF Victory",function()
+		if message_object ~= nil then
+			globalMessage(message_object:getDescription())
+		end
 		victory("CUF")
 	end)
 end
@@ -57893,11 +57948,16 @@ function commsStation()
 		["Huge Station"]	= 5,
 		["Military Outpost"] = 2,
 		["Sniper Tower"]	= 2,
+		["Defense platform"] = 2,
     }
     local temp_type = comms_target:getTypeName()
     panic_range = 5000
     if temp_type == nil or range_divisor[temp_type] == nil then
-    	print("template name nil for:",comms_target:getCallSign(),"defaulting panic range to 5000")
+    	if temp_type == nil then
+	    	print("template name nil for:",comms_target:getCallSign(),"defaulting panic range to 5000")
+	    else
+	    	print("range divisor for template name nil for:",comms_target:getCallSign(),"defaulting panic range to 5000")
+	    end
     else
 	    panic_range = comms_target:getShortRangeRadarRange()/range_divisor[temp_type]	
     end
@@ -66560,21 +66620,25 @@ function addTractorObjectButtons(p,tractor_objects)
 			p.tractor_lock_button = "tractor_lock_button"
 			p:addCustomButton("Engineering",p.tractor_lock_button,"Lock on Tractor",function()
 				local cpx, cpy = p:getPosition()
-				local tpx, tpy = p.tractor_target:getPosition()
-				if distance_diagnostic then
-					print("distance_diagnostic 15 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
-				end		
-				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
-				if tractor_object_distance < 1000 then
-					p.tractor_target_lock = true
-					p.tractor_vector_x = tpx - cpx
-					p.tractor_vector_y = tpy - cpy
-					local locked_message = "locked_message"
-					p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
+				local tpx, tpy = p.tractor_target:getPosition()	--sometimes nil
+				if tpx == nil then
+					print("tpx is nil for p.tractor_target getPosition x")
 				else
-					local lock_fail_message = "lock_fail_message"
-					p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
-					p.tractor_target = nil
+					if distance_diagnostic then
+						print("distance_diagnostic 15 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+					end		
+					local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
+					if tractor_object_distance < 1000 then
+						p.tractor_target_lock = true
+						p.tractor_vector_x = tpx - cpx
+						p.tractor_vector_y = tpy - cpy
+						local locked_message = "locked_message"
+						p:addCustomMessage("Engineering",locked_message,"Tractor locked on target")
+					else
+						local lock_fail_message = "lock_fail_message"
+						p:addCustomMessage("Engineering",lock_fail_message,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
+						p.tractor_target = nil
+					end
 				end
 				removeTractorObjectButtons(p)
 			end,13)
@@ -66586,20 +66650,24 @@ function addTractorObjectButtons(p,tractor_objects)
 			p:addCustomButton("Engineering+",p.tractor_lock_button_plus,"Lock on Tractor",function()
 				local cpx, cpy = p:getPosition()
 				local tpx, tpy = p.tractor_target:getPosition()
-				if distance_diagnostic then
-					print("distance_diagnostic 16 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
-				end		
-				local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
-				if tractor_object_distance < 1000 then
-					p.tractor_target_lock = true
-					p.tractor_vector_x = tpx - cpx
-					p.tractor_vector_y = tpy - cpy
-					local locked_message_plus = "locked_message_plus"
-					p:addCustomMessage("Engineering+",locked_message_plus,"Tractor locked on target")
+				if tpx == nil then
+					print("tpx is nil for p.tractor_target getPosition x")
 				else
-					local lock_fail_message_plus = "lock_fail_message_plus"
-					p:addCustomMessage("Engineering+",lock_fail_message_plus,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
-					p.tractor_target = nil
+					if distance_diagnostic then
+						print("distance_diagnostic 16 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+					end		
+					local tractor_object_distance = distance(cpx,cpy,tpx,tpy)
+					if tractor_object_distance < 1000 then
+						p.tractor_target_lock = true
+						p.tractor_vector_x = tpx - cpx
+						p.tractor_vector_y = tpy - cpy
+						local locked_message_plus = "locked_message_plus"
+						p:addCustomMessage("Engineering+",locked_message_plus,"Tractor locked on target")
+					else
+						local lock_fail_message_plus = "lock_fail_message_plus"
+						p:addCustomMessage("Engineering+",lock_fail_message_plus,string.format("Tractor lock failed\nObject distance is %.4fU\nMaximum range of tractor is 1U",tractor_object_distance/1000))
+						p.tractor_target = nil
+					end
 				end
 				removeTractorObjectButtons(p)
 			end,13)
@@ -66616,22 +66684,28 @@ function addTractorObjectButtons(p,tractor_objects)
 			end
 			p:addCustomButton("Engineering",p.tractor_target_button,string.format("Target %s",label_type),function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
-				tpx, tpy = p.tractor_target:getPosition()
-				if distance_diagnostic then
-					print("distance_diagnostic 17 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
-				end		
-				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
-				local theta = math.atan(tpy - cpy,tpx - cpx)
-				if theta < 0 then
-					theta = theta + 6.2831853071795865
+				tpx, tpy = p.tractor_target:getPosition()	--this is sometimes nil
+				if tpx == nil then
+					print("tpx is nil so distance cannot be calculated for p.tractor_target getPosition x. Show 'Tractor targeting error' to Engineering")
+					local target_description = "target_description"
+					p:addCustomMessage("Engineering",target_description,"Tractor targeting error")
+				else
+					if distance_diagnostic then
+						print("distance_diagnostic 17 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+					end		
+					local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+					local theta = math.atan(tpy - cpy,tpx - cpx)
+					if theta < 0 then
+						theta = theta + 6.2831853071795865
+					end
+					local angle = theta * 57.2957795130823209
+					angle = angle + 90
+					if angle > 360 then
+						angle = angle - 360
+					end
+					local target_description = "target_description"
+					p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
 				end
-				local angle = theta * 57.2957795130823209
-				angle = angle + 90
-				if angle > 360 then
-					angle = angle - 360
-				end
-				local target_description = "target_description"
-				p:addCustomMessage("Engineering",target_description,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
 			end,14)
 		end
 	end
@@ -66647,21 +66721,27 @@ function addTractorObjectButtons(p,tractor_objects)
 			p:addCustomButton("Engineering+",p.tractor_target_button_plus,string.format("Target %s",label_type),function()
 				string.format("")	--necessary to have global reference for Serious Proton engine
 				tpx, tpy = p.tractor_target:getPosition()
-				if distance_diagnostic then
-					print("distance_diagnostic 17 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
-				end		
-				local target_distance = distance(cpx, cpy, tpx, tpy)/1000
-				local theta = math.atan(tpy - cpy,tpx - cpx)
-				if theta < 0 then
-					theta = theta + 6.2831853071795865
+				if tpx == nil then
+					print("tpx is nil so distance cannot be calculated for p.tractor_target getPosition x. Show 'Tractor targeting error' to Engineering+")
+					local target_description = "target_description"
+					p:addCustomMessage("Engineering+",target_description,"Tractor targeting error")
+				else
+					if distance_diagnostic then
+						print("distance_diagnostic 17 cpx:",cpx,"cpy:",cpy,"tpx:",tpx,"tpy:",tpx)
+					end		
+					local target_distance = distance(cpx, cpy, tpx, tpy)/1000
+					local theta = math.atan(tpy - cpy,tpx - cpx)
+					if theta < 0 then
+						theta = theta + 6.2831853071795865
+					end
+					local angle = theta * 57.2957795130823209
+					angle = angle + 90
+					if angle > 360 then
+						angle = angle - 360
+					end
+					local target_description_plus = "target_description_plus"
+					p:addCustomMessage("Engineering+",target_description_plus,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
 				end
-				local angle = theta * 57.2957795130823209
-				angle = angle + 90
-				if angle > 360 then
-					angle = angle - 360
-				end
-				local target_description_plus = "target_description_plus"
-				p:addCustomMessage("Engineering+",target_description_plus,string.format("Distance: %.1fU\nBearing: %.1f",target_distance,angle))
 			end,14)
 		end
 	end
