@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.3.1"
+	scenario_version = "8.3.2"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1844,7 +1844,7 @@ function setConstants()
 	makePlayerShipActive("Endeavor")		--J
 	makePlayerShipActive("Guinevere") 		--J 
 	makePlayerShipActive("Flipper")			--W
-	makePlayerShipActive("Thelonius")		--W
+	makePlayerShipActive("Jeeves")			--W
 	makePlayerShipActive("Crux") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -30298,7 +30298,7 @@ function changeMessageObject()
 	if object_list ~= nil then
 		if #object_list == 1 then
 			message_object = object_list[1]
-			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nplace message in unscanned description field",message_object:getSectorName()))
+			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nPlace message in unscanned description field.\nIf you are writing a message to be delivered as part of the victory or defeat main screen message, put up to four lines in the fields 'Unscanned description:,' 'Friend or Foe Description:,' 'Simple Scan Description:,' and/or 'Full Scan Description:.'",message_object:getSectorName()))
 			changeMessageObjectCaller()
 		else
 			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
@@ -35251,16 +35251,22 @@ function createPlayerShipWiggy()
 	playerWiggy:setBeamWeaponTurret(0,	300,    0,			 .5)		--slow turret
 	playerWiggy:setWarpDrive(false)						--no warp drive (vs warp)
 	playerWiggy:setJumpDrive(true)						--jump drive (vs warp)
-	playerWiggy.max_jump_range = 30000					--shorter than typical (vs 50)
-	playerWiggy.min_jump_range = 3000					--shorter than typical (vs 5)
+	playerWiggy.max_jump_range = 35000					--shorter than typical (vs 50)
+	playerWiggy.min_jump_range = 3500					--shorter than typical (vs 5)
 	playerWiggy:setJumpDriveRange(playerWiggy.min_jump_range,playerWiggy.max_jump_range)
 	playerWiggy:setJumpDriveCharge(playerWiggy.max_jump_range)
 	playerWiggy:setHullMax(120)							--stronger hull (vs 100)
 	playerWiggy:setHull(120)
 	playerWiggy:setShieldsMax(70, 120)					--stronger rear shields (vs 70, 70)
 	playerWiggy:setShields(70, 120)
+	playerWiggy:setMaxEnergy(900)						--less maximum energy (vs 1000)
+	playerWiggy:setEnergy(900)
 	playerWiggy:setLongRangeRadarRange(40000)			--longer long range sensors (vs 30000)
 	playerWiggy.normal_long_range_radar = 40000
+	playerWiggy:setWeaponStorageMax("Mine",2)
+	playerWiggy:setWeaponStorage("Mine", 2)
+	playerWiggy:setWeaponStorageMax("Nuke",2)
+	playerWiggy:setWeaponStorage("Nuke", 2)
 	playerWiggy:onTakingDamage(playerShipDamage)
 	playerWiggy:addReputationPoints(50)
 	return playerWiggy
@@ -54519,7 +54525,7 @@ function setEndSessionMessage()
 	else
 		addGMFunction("+Change Msg Obj",changeMessageObject)
 		addGMFunction("Show end message",function()
-			addGMMessage(string.format("Ending message:\n%s",message_object:getDescription()))
+			addGMMessage(string.format("Ending message:\n%s",setFinalMainScreenMessage()))
 		end)
 		addGMFunction("Remove end message",function()
 			message_object = nil
@@ -54528,67 +54534,77 @@ function setEndSessionMessage()
 		end)
 	end
 end
+function setFinalMainScreenMessage()
+	local msg = string.format(
+		"%s\n%s\n%s\n%s",
+		message_object:getDescription("notscanned"),
+		message_object:getDescription("friendorfoeidentified"),
+		message_object:getDescription("simplescan"),
+		message_object:getDescription("fullscan")
+	)
+	return msg	
+end
 function endMission()
 	clearGMFunctions()
 	addGMFunction("-from Victory",endSession)
 	addGMFunction("+Main Screen Msg",setEndSessionMessage)
 	addGMFunction("Human Victory",function()
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Human Navy")
 	end)
 	addGMFunction("Kraylor Victory",function()
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Kraylor")
 	end)
 	addGMFunction("Exuari Victory",function() 
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Exuari")
 	end)
 	addGMFunction("Ghost Victory",function() 
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Ghosts")
 	end)
 	addGMFunction("Arlenian Victory",function() 
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Arlenians")	
 	end)
 	addGMFunction("Independent Victory",function() 
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Independent")
 	end)
 	addGMFunction("Ktlitan Victory",function() 
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("Ktlitans")
 	end)
 	addGMFunction("TSN Victory",function()
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("TSN")
 	end)
 	addGMFunction("USN Victory",function()
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("USN")
 	end)
 	addGMFunction("CUF Victory",function()
 		if message_object ~= nil then
-			globalMessage(message_object:getDescription())
+			globalMessage(setFinalMainScreenMessage())
 		end
 		victory("CUF")
 	end)
