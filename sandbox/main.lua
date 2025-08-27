@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.3.2"
+	scenario_version = "8.4.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -6806,6 +6806,27 @@ function freighterCommerce()
 		end
 	end
 end
+function addCommerceFreighterEscorts(ship,escort_type,protectee_x,protectee_y,assets)
+	local escort_ship = nil
+	local escort_count = 0
+	ship.escorts = {}
+	for i=1,#escort_type do
+		if random(1,100) < escort_type[i].chance then
+			escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+			setBeamColor(escort_ship)
+			escort_ship:setJumpDrive(true)
+			escort_ship:setFaction(ship:getFaction())
+			escort_count = escort_count + 1
+			escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+			local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+			escort_ship:setPosition(protectee_x + cs_x, protectee_y, cs_y)
+			escort_ship:orderDefendTarget(ship)
+			escort_ship.commerce_escort = true
+			table.insert(ship.escorts,escort_ship)
+			table.insert(assets,escort_ship)
+		end
+	end
+end
 function setCommerceFreighterStartPosition(ship)
 	local origin_x, origin_y = ship.commerce_origin:getPosition()
 	local destination_x, destination_y = ship.commerce_target:getPosition()
@@ -6814,6 +6835,8 @@ function setCommerceFreighterStartPosition(ship)
 	local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
 	ship:setPosition(start_x + ds_x, start_y + ds_y)
 	ship:orderDock(ship.commerce_target)
+	local protectee_x, protectee_y = ship:getPosition()
+	return protectee_x, protectee_y
 end
 function gliktonFreighterCommerce()
 	if glikton_color ~= nil and glikton_color then
@@ -6917,87 +6940,50 @@ function staunchFreighterCommerce()
 		ship = workWagon()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
-		local escort_ship = nil
-		local escort_count = 0
-		local escort_type = {
-			{chance = 36, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 23, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(staunch_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
 		--Space Sedan
 		ship = spaceSedan()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 63, type = "MT52 Hornet"},
-			{chance = 38, type = "MU52 Hornet"},
-			{chance = 21, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(staunch_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
 		--Omnibus
 		ship = omnibus()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 47, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 16, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(staunch_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
 		--Garbage Freighter 2
 		local ship = CpuShip():setTemplate("Garbage Freighter 2")
 		ship:setCommsScript(""):setCommsFunction(commsShip)
@@ -7010,30 +6996,18 @@ function staunchFreighterCommerce()
 		ship = ladenLorry()
 		identifyFreighter(ship,stationStaunch)
 		regionCommerceDestination(ship,stationStaunch)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(staunch_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 75, type = "MT52 Hornet"},
-			{chance = 55, type = "MU52 Hornet"},
-			{chance = 34, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(staunch_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 75, type = "MT52 Hornet"},
+				{chance = 55, type = "MU52 Hornet"},
+				{chance = 34, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
 		addGMMessage(staunch_freighters_message)
 		staunch_commerce = true
 	end
@@ -7055,115 +7029,67 @@ function baskFreighterCommerce()
 		ship = workWagon()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
-		local escort_ship = nil
-		local escort_count = 0
-		local escort_type = {
-			{chance = 36, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 23, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(bask_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
 		--Space Sedan
 		ship = spaceSedan()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 63, type = "MT52 Hornet"},
-			{chance = 38, type = "MU52 Hornet"},
-			{chance = 21, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(bask_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
 		--Omnibus
 		ship = omnibus()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 47, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 16, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(bask_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
 		--Fuel Freighter 5
 		ship = CpuShip():setTemplate("Fuel Freighter 5")
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 37, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 16, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(bask_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 37, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
 		--Garbage Freighter 2
 		local ship = CpuShip():setTemplate("Garbage Freighter 2")
 		ship:setCommsScript(""):setCommsFunction(commsShip)
@@ -7176,30 +7102,18 @@ function baskFreighterCommerce()
 		ship = serviceJonque()
 		identifyFreighter(ship,stationBask)
 		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(bask_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 38, type = "MT52 Hornet"},
-			{chance = 21, type = "MU52 Hornet"},
-			{chance = 12, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(bask_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 38, type = "MT52 Hornet"},
+				{chance = 21, type = "MU52 Hornet"},
+				{chance = 12, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
 		addGMMessage(bask_freighters_message)
 		bask_commerce = true
 	end
@@ -7221,30 +7135,18 @@ function tereshFreighterCommerce()
 		ship = ladenLorry()
 		identifyFreighter(ship,stationTeresh)
 		regionCommerceDestination(ship,stationTeresh)
-		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(teresh_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 75, type = "MT52 Hornet"},
-			{chance = 55, type = "MU52 Hornet"},
-			{chance = 34, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(teresh_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 75, type = "MT52 Hornet"},
+				{chance = 55, type = "MU52 Hornet"},
+				{chance = 34, type = "Fighter"},
+			},
+			protectee_x, protectee_y, teresh_commerce_assets
+		)
 		addGMMessage(teresh_freighters_message)
 		teresh_commerce = true
 	end
@@ -7266,31 +7168,18 @@ function lafrinaFreighterCommerce()
 		ship = workWagon()
 		identifyFreighter(ship,stationLafrina)
 		regionCommerceDestination(ship,stationLafrina)
-		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(lafrina_commerce_assets,ship)
-		local escort_ship = nil
-		local escort_count = 0
-		local escort_type = {
-			{chance = 36, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 23, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(lafrina_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, lafrina_commerce_assets
+		)
 		addGMMessage(lafrina_freighters_message)
 		lafrina_commerce = true
 	end
@@ -7312,115 +7201,67 @@ function kentarFreighterCommerce()
 		ship = workWagon()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
-		local escort_ship = nil
-		local escort_count = 0
-		local escort_type = {
-			{chance = 36, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 23, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(kentar_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
 		--Space Sedan
 		ship = spaceSedan()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 63, type = "MT52 Hornet"},
-			{chance = 38, type = "MU52 Hornet"},
-			{chance = 21, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(kentar_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
 		--Omnibus
 		ship = omnibus()
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 47, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 16, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(kentar_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
 		--Fuel Freighter 5
 		ship = CpuShip():setTemplate("Fuel Freighter 5")
 		ship:setCommsScript(""):setCommsFunction(commsShip)
 		identifyFreighter(ship,stationKentar)
 		regionCommerceDestination(ship,stationKentar)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(kentar_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 37, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 16, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(kentar_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 37, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
 		addGMMessage(kentar_freighters_message)
 		kentar_commerce = true
 	end
@@ -7450,59 +7291,34 @@ function icarusFreighterCommerce()
 		ship = workWagon()
 		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
-		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
-		local escort_ship = nil
-		local escort_count = 0
-		local escort_type = {
-			{chance = 36, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 23, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(icarus_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, icarus_commerce_assets
+		)
 		--Laden Lorry
 		ship = ladenLorry()
 		identifyFreighter(ship,stationIcarus)
 		regionCommerceDestination(ship,stationIcarus)
-		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
 		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(icarus_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 75, type = "MT52 Hornet"},
-			{chance = 55, type = "MU52 Hornet"},
-			{chance = 34, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(icarus_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 75, type = "MT52 Hornet"},
+				{chance = 55, type = "MU52 Hornet"},
+				{chance = 34, type = "Fighter"},
+			},
+			protectee_x, protectee_y, icarus_commerce_assets
+		)
 		addGMMessage(icarus_freighters_message)
 		icarus_commerce = true
 	end
@@ -7571,86 +7387,52 @@ function skeletalFreighterCommerce()
 		identifyFreighter(ship)
 		skeletalDestination(ship)
 		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = ship:getPosition()
 		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
-		local escort_ship = nil
-		local escort_count = 0
-		local escort_type = {
-			{chance = 63, type = "MT52 Hornet"},
-			{chance = 38, type = "MU52 Hornet"},
-			{chance = 21, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(skeletal_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, skeletal_commerce_assets
+		)
 		--Omnibus
 		ship = omnibus()
 		identifyFreighter(ship)
 		skeletalDestination(ship)
 		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = ship:getPosition()
 		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 47, type = "MT52 Hornet"},
-			{chance = 28, type = "MU52 Hornet"},
-			{chance = 16, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(skeletal_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, skeletal_commerce_assets
+		)
 		--Service Jonque
 		ship = serviceJonque()
 		identifyFreighter(ship)
 		skeletalDestination(ship)
 		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = ship:getPosition()
 		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
 		table.insert(skeletal_commerce_assets,ship)
-		escort_count = 0
-		escort_type = {
-			{chance = 38, type = "MT52 Hornet"},
-			{chance = 21, type = "MU52 Hornet"},
-			{chance = 12, type = "Fighter"},
-		}
-		for i=1,#escort_type do
-			if random(1,100) < escort_type[i].chance then
-				escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-				setBeamColor(escort_ship)
-				escort_ship:setJumpDrive(true)
-				escort_ship:setFaction(ship:getFaction())
-				escort_count = escort_count + 1
-				escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-				local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-				escort_ship:setPosition(start_x + ds_x + cs_x, start_y + ds_y + cs_y)
-				escort_ship:orderDefendTarget(ship)
-				escort_ship.commerce_escort = true
-				table.insert(skeletal_commerce_assets,escort_ship)
-			end
-		end
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 38, type = "MT52 Hornet"},
+				{chance = 21, type = "MU52 Hornet"},
+				{chance = 12, type = "Fighter"},
+			},
+			protectee_x, protectee_y, skeletal_commerce_assets
+		)
 		addGMMessage(skeletal_freighters_message)
 		skeletal_commerce = true
 	end
@@ -7863,6 +7645,14 @@ function skeletalDestination(ship)
 		end
 		ship.commerce_target = stationIcarus
 		ship:setFaction(stationIcarus:getFaction())
+		if ship.escorts ~= nil then
+			for i,escort_ship in ipairs(ship.escorts) do
+				if escort_ship ~= nil and escort_ship:isValid() then
+					escort_ship:setFaction(stationIcarus:getFaction())
+					setBeamColor(escort_ship)
+				end
+			end
+		end
 	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableSelectRandom(station_pool)
@@ -8006,6 +7796,14 @@ function regionCommerceDestination(ship,region_station)
 		end
 		ship.commerce_target = primary_station
 		ship:setFaction(primary_station:getFaction())
+		if ship.escorts ~= nil then
+			for i,escort_ship in ipairs(ship.escorts) do
+				if escort_ship ~= nil and escort_ship:isValid() then
+					escort_ship:setFaction(primary_station:getFaction())
+					setBeamColor(escort_ship)
+				end
+			end
+		end
 	end
 	if ship.commerce_origin == nil then
 		ship.commerce_origin = tableRemoveRandom(station_pool)
