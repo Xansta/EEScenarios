@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.5.1"
+	scenario_version = "8.6.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -63943,6 +63943,9 @@ function presentProximityScanner()
 			if comms_source:takeReputationPoints(comms_target.proximity_scanner_range * price_per_range_unit) then
 				local temp_prox_scan = comms_source.prox_scan
 				comms_source.prox_scan = comms_target.proximity_scanner_range
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Proximity Scan"] = {ord = 11}
+				end
 				if temp_prox_scan ~= nil and temp_prox_scan > 0 then
 					comms_target.proximity_scanner_range = temp_prox_scan
 				else
@@ -64233,6 +64236,9 @@ function offerMissileTrigger(flavor)
 		if flavor == "E3" then
 			if comms_source.trigger_missile["E3"] == nil then
 				comms_source.trigger_missile["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Trigger Missile"] = {ord = 16}
+				end
 			else
 				installed_or_notify_presence = "You already have this"
 				comms_source:addReputationPoints(20)
@@ -64240,6 +64246,9 @@ function offerMissileTrigger(flavor)
 		elseif flavor == "E4" then
 			if comms_source.trigger_missile["E4"] == nil then
 				comms_source.trigger_missile["E4"] = {missile = "EMPMissile",	short = 4000, long = 5000,	button_label = "Trigger EMP 4-5u",	order = 2,	}
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Trigger Missile"] = {ord = 16}
+				end
 			else
 				installed_or_notify_presence = "You already have this"
 				comms_source:addReputationPoints(20)
@@ -64247,6 +64256,9 @@ function offerMissileTrigger(flavor)
 		elseif flavor == "N3" then
 			if comms_source.trigger_missile["N3"] == nil then
 				comms_source.trigger_missile["N3"] = {missile = "Nuke",		short = 3000, long = 4000,	button_label = "Trigger Nuke 3-4u",	order = 3,	}
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Trigger Missile"] = {ord = 16}
+				end
 			else
 				installed_or_notify_presence = "You already have this"
 				comms_source:addReputationPoints(20)
@@ -64254,6 +64266,9 @@ function offerMissileTrigger(flavor)
 		elseif flavor == "N4" then
 			if comms_source.trigger_missile["N4"] == nil then
 				comms_source.trigger_missile["N4"] = {missile = "Nuke",		short = 4000, long = 5000,	button_label = "Trigger Nuke 4-5u",	order = 4,	}
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Trigger Missile"] = {ord = 16}
+				end
 			else
 				installed_or_notify_presence = "You already have this"
 				comms_source:addReputationPoints(20)
@@ -64496,6 +64511,9 @@ function presentWaypointDistanceCalculator()
 		addCommsReply(tableSelectRandom(install_waypoint_distance_calc_confirmation_prompt),function()
 			if comms_source:takeReputationPoints(5) then
 				comms_source.way_dist = true
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Waypoint Calc"] = {ord = 15}
+				end
 				comms_target.way_dist = false
 				local waypoint_distance_calc_installed_confirmation = {
 					"Installed",
@@ -64560,6 +64578,9 @@ function presentBoostSensorRangeWithPower()
 			addCommsReply(string.format("Range interval:%sU Reputation:%s",sensor_booster.interval,sensor_booster.cost),function()
 				if comms_source:takeReputationPoints(sensor_booster.cost) then
 					comms_source.power_sensor_interval = sensor_booster.interval
+					if comms_source.ship_reference ~= nil then
+						comms_source.ship_reference["Powered Sensors"] = {ord = 13}
+					end
 					comms_target.installable_sensor_boost_ranges[i] = comms_target.installable_sensor_boost_ranges[#comms_target.installable_sensor_boost_ranges]
 					comms_target.installable_sensor_boost_ranges[#comms_target.installable_sensor_boost_ranges] = nil
 					if #comms_target.installable_sensor_boost_ranges == 0 then
@@ -64730,6 +64751,9 @@ function presentReturnWaypointDistanceCalculator()
 		addCommsReply(tableSelectRandom(confirm_waypoint_dist_donation_prompt),function()
 			comms_source:addReputationPoints(5)
 			comms_source.way_dist = false
+			if comms_source.ship_reference ~= nil then
+				comms_source.ship_reference["Waypoint Calc"] = nil
+			end
 			comms_target.way_dist = true
 			comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(3,9))
 			if comms_source.way_distance_button_hlm ~= nil then
