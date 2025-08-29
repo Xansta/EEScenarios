@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.4.1"
+	scenario_version = "8.5.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -32176,6 +32176,136 @@ end
 --		Adder				AdlerLongRangeScout
 --			3 beams (centered, pos, neg
 --			1 tube (centered, positive z)
+function addShipReference(ship)
+	ship:addCustomButton("Helms","open ship reference helm","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Helms")
+	end,500)
+	ship:addCustomButton("Weapons","open ship reference weapons","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Weapons")
+	end,500)
+	ship:addCustomButton("Engineering","open ship reference engineering","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Engineering")
+	end,500)
+	ship:addCustomButton("Science","open ship reference science","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Science")
+	end,500)
+	ship:addCustomButton("Relay","open ship reference relay","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Relay")
+	end,500)
+	ship:addCustomButton("Tactical","open ship reference tactical","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Tactical")
+	end,500)
+	ship:addCustomButton("Operations","open ship reference operations","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Operations")
+	end,500)
+	ship:addCustomButton("Engineering+","open ship reference engineering+","Open Ship Ref",function()
+		string.format("")
+		openShipReference(ship,"Engineering+")
+	end,500)
+end
+function openShipReference(ship,console)
+	string.format("")
+	local open_references = {
+		["Helms"] = "open ship reference helm",
+		["Weapons"] = "open ship reference weapons",
+		["Engineering"] = "open ship reference engineering",
+		["Science"] = "open ship reference science",
+		["Relay"] = "open ship reference relay",
+		["Tactical"] = "open ship reference tactical",
+		["Operations"] = "open ship reference operations",
+		["Engineering+"] = "open ship reference engineering+",
+	}
+	ship:removeCustom(open_references[console])
+	local ship_references = {
+		["Helms"] = {"Misc","Diff Sum","Engines","Tractor","Mining","Turbo Torp","Proximity Scan","Waypoint Calc"},
+		["Weapons"] = {"Misc","Diff Sum","Defense","Beams","Tubes","Mining","Turbo Torp","EPJAM","Trigger Missile"},
+		["Engineering"] = {"Misc","Diff Sum","Engines","Beams","Tubes","Tractor","Mining","Powered Sensors"},
+		["Science"] = {"Misc","Diff Sum","Mining","Proximity Scan","Powered Sensors"},
+		["Relay"] = {"Misc","Diff Sum","Engines","Waypoint Calc"},
+		["Tactical"] = {"Misc","Diff Sum","Engines","Defense","Beams","Tubes","Tractor","Mining","Turbo Torp","Proximity Scan","EPJAM","Waypoint Calc","Trigger Missile"},
+		["Operations"] = {"Misc","Diff Sum","Engines","Mining","Proximity Scan","Powered Sensors","Waypoint Calc"},
+		["Engineering+"] = {"Misc","Diff Sum","Engines","Beams","Tubes","Tractor","Mining","Powered Sensors"},
+	}
+	local generic_reference_messages = {
+		["Tractor"] = "Your ship has a tractor beam. The control buttons appear on the Engineering console. The object to be tractored must be within one unit of your ship. Your ship must be traveling slower than 1 unit per minute. Use the 'Lock on Tractor' button to enable the tractor beam. Use the button that starts with 'Target' to get distance and bearing on the current tractor beam target. Use the 'Other tractor target' button to change to another valid tractor beam target if more than one are available. Use the 'Disengage Tractor' button to turn off the tractor beam once it is on. The tractor beam will disengage if the ship speed exceeds 1 unit per minute. The engineer should monitor energy usage while the tractor beam is engaged.",
+		["Mining"] = "Your ship can mine asteroids for minerals. The Weapons or Tactical officer should click the 'Start Mining' button to activate the mining beam. Before the beam can be activated, the Science or Operations officer needs to click the 'Lock for Mining' button for an asteroid within 1U of your ship. Science or Operations should click the 'Target Asteroid' button to get distance, bearing and mineral trace information on the mining target asteroid. Click the 'Other mining target' button to change to a different asteroid that may also be within 1U of your ship. Science or Operations may have to click the 'Scanning' widget to see other buttons. Engineering should monitor the beam system during mining.",
+		["Turbo Torp"] = "Your ship can increase the speed of torpedoes of type %s. The Weapons or Tactical officer should click the 'Turbo Torpedo' button to have the next torpedo launched get a speed boost. It takes %s seconds to recharge the turbo torp system.\n\nTurning speed is not increased, so it works better the straighter the missile can fly towards the target.",
+		["Proximity Scan"] = "Your ship has automated sensors that will conduct a simple scan on ships within %sU",
+		["EPJAM"] = "Your ship can generate an EMP blast of radius %sU. The Weapons or Tactical officer should click the 'Trigger %s EPJAM' button to trigger the blast. Be aware that this action takes down the shields and puts them in a calibration mode, so be careful when you use it. Why would you ever want to do this? If a nuke or other missile is getting too close, within the blast radius, they will get destroyed before hitting your ship, just like a normal EMP missile blast.",
+		["Powered Sensors"] = "Your ship long range sensors, used by Science and Operations, can reach further with the application of ship's battery power. Engineering should click the 'Boost Sensors' button to change from a disabled powered sensor boost state to a configure state. To enable the powered sensor boost, Engineering should click one of the three powered sensor level buttons 'Sensor Boost X' where X is 1, 2, or 3. Higher = greater range and greater power drain. Engineering should click 'Stop Sensor Boost' to switch from an enabled powered sensor boost state to a disabled state. The powered sensor boost will be disabled at low battery energy. Engineering should monitor power levels while boosted sensors are enabled.",
+		["Waypoint Calc"] = "Your ship has a waypoint distance calculator. This device calculates the distance from the ship to each waypoint that has been placed by the Relay officer. It also calculates the distance from each waypoint in sequence. The Helm or Tactical officer should see a 'Waypoint Distance' button they can click to exercise this function if one or more waypoints have been placed.",
+		["Trigger Missile"] = "Your ship can trigger splash missiles remotely: %s. The Weapons or Tactical officer should click the 'Trigger EMP 3-4u', 'Trigger EMP 4-5u', 'Trigger Nuke 3-4u', or 'Trigger Nuke 4-5u' as applicable to remote detonate the missile type in range in flight. The button(s) only appear when the missile(s) in flight meet the type and range criteria.",
+	}
+	ship:addCustomButton(console,string.format("close ship reference %s",console),"Close Ship Ref",function()
+		string.format("")
+		ship:removeCustom(string.format("close ship reference %s",console))
+		for i,ref in ipairs(ship_references[console]) do
+			ship:removeCustom(string.format("ship reference %s %s",console,ref))
+		end
+		ship:addCustomButton(console,open_references[console],"Open Ship Ref",function()
+			string.format("")
+			openShipReference(ship,console)
+		end,500)
+	end,500)
+	for i,ref in ipairs(ship_references[console]) do
+		if ship.ship_reference[ref] ~= nil then
+			ship:addCustomButton(console,string.format("ship reference %s %s",console,ref),ref,function()
+				string.format("")
+				local ref_msg = ship.ship_reference[ref].desc
+				if ref_msg == nil then
+					if ref == "EPJAM" then
+						local epjam_radius = {".5","1","2"}
+						local epjam_size = {"S","M","L"}
+						ref_msg = string.format(generic_reference_messages[ref],epjam_radius[ship.epjam],epjam_size[ship.epjam])
+					elseif ref == "Turbo Torp" then
+						local missile_decode = {
+							["EMPMissile"] = "EMP",
+							["HomingMissile"] = "Homing",
+							["Nuke"] = "Nuke",
+						}
+						local torp_types = ""
+						for j,torp in ipairs(ship.turbo_torpedo_type) do
+							if torp_types == "" then
+								torp_types = missile_decode[torp]
+							else
+								torp_types = string.format("%s, %s",torp_types,missile_decode[torp])
+							end
+						end
+						ref_msg = string.format(generic_reference_messages[ref],torp_types,ship.turbo_torp_charge_interval)
+					elseif ref == "Proximity Scan" then
+						ref_msg = string.format(generic_reference_messages[ref],ship.prox_scan)
+					elseif ref == "Trigger Missile" then
+						local range_type_decode = {
+							["E3"] = "EMP@3-4u",
+							["E4"] = "EMP@4-5u",
+							["N3"] = "Nuke@3-4u",
+							["N4"] = "Nuke@4-5u",
+						}
+						local ranges_types = ""
+						for range_type,details in pairs(ship.trigger_missile) do
+							if ranges_types == "" then
+								ranges_types = range_type_decode[range_type]
+							else
+								ranges_types = string.format("%s, %s",ranges_types,range_type_decode[range_type])
+							end
+						end
+						ref_msg = string.format(generic_reference_messages[ref],ranges_types)
+					else
+						ref_msg = generic_reference_messages[ref]
+					end
+				end
+				ship:addCustomMessage(console,string.format("ship reference message %s %s",console,ref),ref_msg)
+			end,500 + ship.ship_reference[ref].ord)
+		end
+	end
+end
 function createPlayerShipAmbition()
 	--first version destroyed 1Feb2020, version 2 reduced hull strength
 	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
@@ -32225,6 +32355,17 @@ function createPlayerShipAmbition()
 	playerAmbition:setSystemPowerRate("impulse",		0.25)	--less (vs 0.30)
 	playerAmbition:setSystemPowerRate("frontshield",	0.225)	--less (vs 0.30)
 	playerAmbition:setSystemPowerRate("rearshield",		0.325)	--more (vs 0.30)
+	playerAmbition.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:19   Radar:Long:25,Short:5   Escape pod capacity:3\nCargo space:9   Probes:5   Repair crew:5   Energy capacity:1000"},
+		["Diff Sum"] = {ord = 2, desc = "Phobos T2 is based on Phobos M3P\nDifferences: more repair crew, weaker hull (vs 200), jump drive (vs none), uncrossed and turreted beams (vs crossed/fix mount), additional tube: 3 forward tubes, 1 rear (vs 3 tubes: 2 angled forward, 1 rear), 2 small forward tubes (vs medium tubes), fewer homing missiles (6 vs 10), varying speeds of coolant and power deployment per system (vs fixed)."},
+		["Engines"] = {ord = 3, desc = "Jump:Long:25,Short:2\nImpulse:Forward:80,Back:80\nAccelerate:Forward:20,Back:20\nTurn:10\nCombat maneuver:Boost:400,Strafe:250"},
+		["Defense"] = {ord = 4, desc = "Hull:150\nShields:Front:100,Rear:100"},
+		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:15   Arc:10   Range:1.2   Cycle:8   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.2\nDirection:-15   Arc:10   Range:1.2   Cycle:8   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.2"},
+		["Tubes"] = {ord = 6, desc = "Tubes:4\nDirection:0   Speed:10   Size:Small   Ordnance:HVLI\nDirection:0   Speed:10   Size:Small   Ordnance:HVLI\nDirection:0   Speed:15   Size:Medium   Ordnance:all but Mine\nDirection:180   Speed:20   Size:Medium   Ordnance:only Mine\nMagazine:   Homing:6   Nuke:2   Mine:4   EMP:2   HVLI:20"},
+		["Tractor"] = {ord = 7},
+		["Waypoint Calc"] = {ord = 15},
+	}
+	addShipReference(playerAmbition)
 	playerAmbition:onTakingDamage(playerShipDamage)
 	playerAmbition:addReputationPoints(50)
 	return playerAmbition
@@ -32659,6 +32800,19 @@ function createPlayerShipCrux()
 	playerMantis:setSystemPowerRate("missilesystem",0.35)	--more (vs 0.30)
 	playerMantis:setSystemPowerRate("frontshield",	0.225)	--less (vs 0.30)
 	playerMantis:setSystemPowerRate("rearshield",	0.225)	--less (vs 0.30)
+	playerMantis.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:30   Radar:Long:25,Short:6   Escape pod capacity:2\nCargo space:8   Probes:9   Repair crew:3   Energy capacity:1000"},
+		["Diff Sum"] = {ord = 2, desc = "Mantis is based on Player Missile Cruiser\nDifferences: Beams (vs none), fewer tubes (5 vs 7), 2 small, fast forward facing HVLI only tubes, single broadside pair for medium Homing, Nuke and HVLI, rear tube for Mine, factor 3 turbo torpedo system for EMP, different missiles (vs Homing:30   Nuke:8   Mine:12   EMP:10   HVLI:0), varying speeds of coolant and power deployment per system (vs fixed)."},
+		["Engines"] = {ord = 3, desc = "Warp:Speed:800\nImpulse:Forward:60,Back:60\nAccelerate:Forward:15,Back:15\nTurn:8\nCombat maneuver:Boost:450,Strafe:150"},
+		["Defense"] = {ord = 4, desc = "Hull:200\nShields:Front:110,Rear:70"},
+		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-15   Arc:60   Range:1   Cycle:6   Damage:4   Damage type:Energy\nDirection:15   Arc:60   Range:1   Cycle:6   Damage:4   Damage type:Energy"},
+		["Tubes"] = {ord = 6, desc = "Tubes:5\nDirection:0   Speed:5   Size:Small   Ordnance:HVLI\nDirection:0   Speed:5   Size:Small   Ordnance:HVLI\nDirection:-90   Speed:8   Size:Medium   Ordnance:Homing,Nuke,EMP\nDirection:90   Speed:8   Size:Medium   Ordnance:Homing,Nuke,EMP\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine\nMagazine:   Homing:8   Nuke:3   Mine:3   EMP:6   HVLI:12"},
+		["Turbo Torp"] = {ord = 9},
+		["Proximity Scan"] = {ord = 11},
+		["Waypoint Calc"] = {ord = 15},
+		["Trigger Missile"] = {ord = 16},
+	}
+	addShipReference(playerMantis)
 	playerMantis:onTakingDamage(playerShipDamage)
 	playerMantis:addReputationPoints(50)
 	return playerMantis
@@ -32785,6 +32939,17 @@ function createPlayerShipEndeavor()
 	playerEndeavor:setWeaponTubeDirection(1,  90)
 	playerEndeavor:setWeaponTubeDirection(2, 180)
 	playerEndeavor:setWeaponTubeExclusiveFor(2,"Mine")
+	playerEndeavor.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:30   Radar:Long:30,Short:4.5   Escape pod capacity:2\nCargo space:4   Probes:14   Repair crew:5   Energy capacity:800"},
+		["Diff Sum"] = {ord = 2, desc = "Bermuda is based on Atlantis\nDifferences: slower impulse (vs 90), faster acceleration (vs 20), less battery capacity (vs 1000), weaker hull (vs 250), weaker shields (vs 200), shorter jump (vs 50), beams eat more power and generate more heat, fewer tubes (vs 5)"},
+		["Engines"] = {ord = 3, desc = "Jump:Long:35,Short:3.5\nImpulse:Forward:70,Back:90\nAccelerate:Forward:30,Back:20\nTurn:10\nCombat maneuver:Boost:400,Strafe:250"},
+		["Defense"] = {ord = 4, desc = "Hull:150\nShields:Front:150,Rear:150"},
+		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-20   Arc:100   Range:1.5   Cycle:6   Damage:8   Damage type:Energy\nDirection:20   Arc:100   Range:1.5   Cycle:6   Damage:8   Damage type:Energy"},
+		["Tubes"] = {ord = 6, desc = "Tubes:3\nDirection:-90   Speed:8   Size:Medium   Ordnance:all but Mine\nDirection:90   Speed:8   Size:Medium   Ordnance:all but Mine\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine only\nMagazine:   Homing:12   Nuke:4   Mine:8   EMP:6   HVLI:20"},
+		["Tractor"] = {ord = 7},
+		["Trigger Missile"] = {ord = 16},
+	}
+	addShipReference(playerEndeavor)
 	playerEndeavor:onTakingDamage(playerShipDamage)
 	playerEndeavor:addReputationPoints(50)
 	return playerEndeavor
@@ -32974,7 +33139,7 @@ function createPlayerShipFlipper()
 	setBeamColor(playerFlipper)
 	playerFlipper:setTypeName("Midian")
 	playerFlipper:setRadarTrace("cruiser.png")	--different radar trace
-	playerFlipper:setWarpSpeed(320)
+	playerFlipper:setWarpSpeed(320)				--slower (vs 800)
 --                  				Arc, Dir, Range, CycleTime, Dmg
 	playerFlipper:setBeamWeapon(0,   50, -20,  1000, 	     6, 4)	--beams (vs none)
 	playerFlipper:setBeamWeapon(1,   50,  20,  1000, 	     6, 4)
@@ -33011,6 +33176,17 @@ function createPlayerShipFlipper()
 	playerFlipper:setWeaponStorageMax("HVLI",  16)		--more (vs 0)
 	playerFlipper:setWeaponStorage("HVLI",     16)
 	playerFlipper.smallHomingOnly = true
+	playerFlipper.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:30   Radar:Long:25,Short:5.5   Escape pod capacity:3\nCargo space:9   Probes:9   Repair crew:3   Energy capacity:1000"},
+		["Diff Sum"] = {ord = 2, desc = "Midian is based on Player Missile Cruiser\nDifferences: uses the cruiser radar trace, slower warp speed (vs 800), 3 beams (vs none), fewer tubes (vs 7) with varying sizes, angles and load times, different set of ordnance (vs Homing:30   Nuke:8   Mine:12   EMP:10   HVLI:0), waypoint distance calculator, trigger splash missiles remotely"},
+		["Engines"] = {ord = 3, desc = "Jump:Long:35,Short:3.5\nImpulse:Forward:70,Back:90\nAccelerate:Forward:30,Back:20\nTurn:10\nCombat maneuver:Boost:400,Strafe:250"},
+		["Defense"] = {ord = 4, desc = "Hull:200\nShields:Front:110,Rear:70"},
+		["Beams"] = {ord = 5, desc = "Beams:3\nDirection:-20   Arc:50   Range:1   Cycle:6   Damage:4   Damage type:Energy\nDirection:20   Arc:50   Range:1   Cycle:6   Damage:4   Damage type:Energy\nDirection:180   Arc:10   Range:1   Cycle:6   Damage:2   Damage type:Energy   Turret arc:220   Turret speed:.3"},
+		["Tubes"] = {ord = 6, desc = "Tubes:5\nDirection:-2   Speed:8   Size:Small   Ordnance:Homing\nDirection:2   Speed:8   Size:Small   Ordnance:Homing\nDirection:-90   Speed:12   Size:Medium   Ordnance:Nuke,EMP,HVLI\nDirection:90   Speed:12   Size:Medium   Ordnance:Nuke,EMP,HVLI\nDirection:180   Speed:15   Size:Medium   Ordnance:Mine\nMagazine:   Homing:16   Nuke:2   Mine:8   EMP:5   HVLI:16"},
+		["Waypoint Calc"] = {ord = 15},
+		["Trigger Missile"] = {ord = 16},
+	}
+	addShipReference(playerFlipper)
 	playerFlipper:onTakingDamage(playerShipDamage)
 	playerFlipper:addReputationPoints(50)
 	return playerFlipper
@@ -33208,6 +33384,16 @@ function createPlayerShipGuinevere()
 	playerGuinevere:setWeaponStorage("Nuke", 2)				
 	playerGuinevere:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
 	playerGuinevere:setWeaponStorage("Mine", 3)				
+	playerGuinevere.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:23   Radar:Long:35,Short:5   Escape pod capacity:2\nCargo space:6   Probes:9   Repair crew:4   Energy capacity:1000"},
+		["Diff Sum"] = {ord = 2, desc = "Caretaker is based on Crucible\nDifferences: Jump (vs Warp), weaker shields (vs 160), broadside beams (vs forwards), faster beam cycle time (vs 6), fewer tubes (vs 6), no broadside tubes, different missile types for front tubes, different missiles (vs Homing:8   Nuke:4   Mine:6   EMP:6)"},
+		["Engines"] = {ord = 3, desc = "Jump:Long:40,Short:4\nImpulse:Forward:80,Back:80\nAccelerate:Forward:40,Back:40\nTurn:15\nCombat maneuver:Boost:400,Strafe:250"},
+		["Defense"] = {ord = 4, desc = "Hull:160\nShields:Front:160,Rear:160"},
+		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-90   Arc:80   Range:.9   Cycle:5   Damage:6   Damage type:Energy\nDirection:90   Arc:80   Range:.9   Cycle:5   Damage:6   Damage type:Energy"},
+		["Tubes"] = {ord = 6, desc = "Tubes:4\nDirection:0   Speed:8   Size:Small   Ordnance:HVLI\nDirection:0   Speed:8   Size:Medium   Ordnance:Nuke,EMP\nDirection:0   Speed:8   Size:Large   Ordnance:Homing\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine\nMagazine:   Homing:6   Nuke:2   Mine:3   EMP:3   HVLI:24"},
+		["Tractor"] = {ord = 7},
+	}
+	addShipReference(playerGuinevere)
 	playerGuinevere:onTakingDamage(playerShipDamage)
 	playerGuinevere:addReputationPoints(50)
 	return playerGuinevere
@@ -33381,6 +33567,19 @@ function createPlayerShipHrothgar()
 	playerNusret:setSystemPowerRate("frontshield",		0.3)	--same (vs 0.30)
 	playerNusret:setSystemPowerRate("rearshield",		0.3)	--same (vs 0.30)	
 	playerNusret:setSystemPowerRate("missilesystem",	0.375)	--more (vs 0.30)	
+	playerNusret.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:16   Radar:Long:25,Short:4   Escape pod capacity:1\nCargo space:7   Probes:10   Repair crew:6   Energy capacity:1000"},
+		["Diff Sum"] = {ord = 2, desc = "Nusret is based on Nautilus\nDifferences: more repair crew, stronger hull (vs 100), shorter jump drive range (vs 50), stronger shields (vs 60/60), turreted beams (vs fix mount), additional short, strong beam, realign 1st two tubes from rear to 60/-60 and speed up their load times and let them shoot homing missiles, decrease mines and increase homing missiles, varying speeds of coolant and power deployment per system (vs fixed)."},
+		["Engines"] = {ord = 3, desc = "Jump:Long:25,Short:2.5\nImpulse:Forward:100,Back:100\nAccelerate:Forward:15,Back:15\nTurn:10\nCombat maneuver:Boost:250,Strafe:150"},
+		["Defense"] = {ord = 4, desc = "Hull:150\nShields:Front:100,Rear:100"},
+		["Beams"] = {ord = 5, desc = "Beams:3\nDirection:-35   Arc:10   Range:1   Cycle:6   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.4\nDirection:35   Arc:10   Range:1   Cycle:6   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.4\nDirection:0   Arc:40   Range:0.5   Cycle:8   Damage:9   Damage type:Energy"},
+		["Tubes"] = {ord = 6, desc = "Tubes:3\nDirection:-60   Speed:8   Size:Medium   Ordnance:Homing\nDirection:60   Speed:8   Size:Medium   Ordnance:Homing\nDirection:180   Speed:10   Size:Medium   Ordnance:Mine\nMagazine:   Homing:8   Mine:8"},
+		["Mining"] = {ord = 8},
+		["EPJAM"] = {ord = 12},
+		["Powered Sensors"] = {ord = 13},
+		["Waypoint Calc"] = {ord = 15},
+	}
+	addShipReference(playerNusret)
 	playerNusret:onTakingDamage(playerShipDamage)
 	playerNusret:addReputationPoints(50)
 	return playerNusret
@@ -33546,7 +33745,17 @@ function createPlayerShipJeeves()
 	playerJeeves:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
 	playerJeeves:setWeaponStorage("Nuke", 2)				
 	playerJeeves:setWeaponStorageMax("Mine",3)				--fewer (vs 6)
-	playerJeeves:setWeaponStorage("Mine", 3)				
+	playerJeeves:setWeaponStorage("Mine", 3)		
+	playerJeeves.ship_reference = {
+		["Misc"] = {ord = 1, desc = "Relative strength:20   Radar:Long:30,Short:5.5   Escape pod capacity:2\nCargo space:6   Probes:8   Repair crew:4   Energy capacity:1000"},
+		["Diff Sum"] = {ord = 2, desc = "Butler is based on Crucible\nDifferences: Slower warp speed (vs 750), weaker hull (vs 160), weaker shields (vs 160), broadside beams (vs forward), fewer tubes (vs 6), no broadside tubes, different missile types for forward facing tubes, different missiles (vs Homing:8   Nuke:4   Mine:6   EMP:6), tractor beam."},
+		["Engines"] = {ord = 3, desc = "Jump:Long:40,Short:4\nImpulse:Forward:80,Back:80\nAccelerate:Forward:40,Back:40\nTurn:15\nCombat maneuver:Boost:400,Strafe:250"},
+		["Defense"] = {ord = 4, desc = "Hull:100\nShields:Front:100,Rear:100"},
+		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-90   Arc:80   Range:.9   Cycle:6   Damage:6   Damage type:Energy\nDirection:90   Arc:80   Range:.9   Cycle:6   Damage:6   Damage type:Energy"},
+		["Tubes"] = {ord = 6, desc = "Tubes:4\nDirection:0   Speed:8   Size:Small   Ordnance:HVLI\nDirection:0   Speed:8   Size:Medium   Ordnance:Nuke,EMP\nDirection:0   Speed:8   Size:Large   Ordnance:Homing\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine\nMagazine:   Homing:6   Nuke:2   Mine:3   EMP:3   HVLI:24"},
+		["Tractor"] = {ord = 7},
+	}
+	addShipReference(playerJeeves)
 	playerJeeves:onTakingDamage(playerShipDamage)
 	playerJeeves:addReputationPoints(50)
 	return playerJeeves
