@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.6.1"
+	scenario_version = "8.7.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1658,6 +1658,86 @@ function setConstants()
 		["Jump"]	= {letter = "J", exclude = false},
 		["Unusual"]	= {letter = "U", exclude = true},
 	}
+	stock_combat_maneuver = {
+		["Atlantis"] =			{boost = 400, strafe = 250},
+		["Benedict"] =			{boost = 400, strafe = 250},
+		["Crucible"] =			{boost = 400, strafe = 250},
+		["Ender"] =				{boost = 800, strafe = 500},
+		["Flavia P.Falcon"] =	{boost = 250, strafe = 150},
+		["Hathcock"] =			{boost = 200, strafe = 150},
+		["Kiriya"] =			{boost = 400, strafe = 250},
+		["Maverick"] =			{boost = 400, strafe = 250},
+		["MP52 Hornet"] =		{boost = 600, strafe = 0},
+		["Nautilus"] =			{boost = 250, strafe = 150},
+		["Phobos M3P"] =		{boost = 400, strafe = 250},
+		["Piranha"] =			{boost = 200, strafe = 150},
+		["Player Cruiser"] =	{boost = 400, strafe = 250},
+		["Player Missile Cr."] ={boost = 450, strafe = 150},
+		["Player Fighter"] =	{boost = 600, strafe = 0},
+		["Repulse"] =			{boost = 250, strafe = 150},
+		["Striker"] =			{boost = 250, strafe = 150},
+		["ZX-Lindworm"] =		{boost = 250, strafe = 150},
+	}
+	stock_tube_ordnance = {
+		["Atlantis"] =			{"all but Mine","all but Mine","all but Mine","all but Mine","Mine"},
+		["Benedict"] =			{},
+		["Crucible"] =			{"HVLI","HVLI","HVLI","all but Mine","all but Mine","Mine"},
+		["Ender"] =				{"Homing","Mine"},
+		["Flavia P.Falcon"] =	{"all but EMP"},
+		["Hathcock"] =			{"all but Mine","all but Mine"},
+		["Kiriya"] =			{},
+		["Maverick"] =			{"all but Mine","all but Mine","Mine"},
+		["MP52 Hornet"] =		{},
+		["Nautilus"] =			{"Mine","Mine","Mine"},
+		["Phobos M3P"] =		{"all but Mine","all but Mine","Mine"},
+		["Piranha"] =			{"Homing, HVLI","all","Homing, HVLI","Homing, HVLI","all","Homing, HVLI","Mine","Mine"},
+		["Player Cruiser"] =	{"all but Mine","all but Mine","Mine"},
+		["Player Missile Cr."] ={"all but Mine","all but Mine","Homing","Homing","Homing","Homing","Mine"},
+		["Player Fighter"] =	{"HVLI"},
+		["Repulse"] =			{"Homing, HVLI","Homing, HVLI"},
+		["Striker"] =			{},
+		["ZX-Lindworm"] =		{"Homing, HVLI","HVLI","HVLI"},
+	}
+	stock_tube_direction = {
+		["Atlantis"] =			{-90,-90,90,90,180},
+		["Benedict"] =			{},
+		["Crucible"] =			{0,0,0,-90,90,180},
+		["Ender"] =				{0,180},
+		["Flavia P.Falcon"] =	{180},
+		["Hathcock"] =			{-90,90},
+		["Kiriya"] =			{},
+		["Maverick"] =			{-90,90,180},
+		["MP52 Hornet"] =		{},
+		["Nautilus"] =			{180,180,180},
+		["Phobos M3P"] =		{-1,1,180},
+		["Piranha"] =			{-90,-90,-90,90,90,90,170,190},
+		["Player Cruiser"] =	{-5,5,180},
+		["Player Missile Cr."] ={0,0,90,90,-90,-90,180},
+		["Player Fighter"] =	{0},
+		["Repulse"] =			{0,180},
+		["Striker"] =			{},
+		["ZX-Lindworm"] =		{0,1,-1},
+	}
+	stock_beam_damage_type = {
+		["Atlantis"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Benedict"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Crucible"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Ender"] =				{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Flavia P.Falcon"] =	{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Hathcock"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Kiriya"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Maverick"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["MP52 Hornet"] =		{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Nautilus"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Phobos M3P"] =		{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Piranha"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Player Cruiser"] =	{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Player Missile Cr."] ={"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Player Fighter"] =	{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Repulse"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["Striker"] =			{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+		["ZX-Lindworm"] =		{"energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy","energy"},
+	}
 --	patrol_probe value should be between 0 and 5 not inclusive (0 = no patrol probes). The higher the value, the faster the patrol probe and the fewer patrol probes available 
 	playerShipStats = {	
 		["Atlantis"]			= { strength = 52,	cargo = 6,	distance = 400,	long_range_radar = 30000, short_range_radar = 5000, tractor = true,		mining = true,	probes = 10,	pods = 2,	turbo_torp = false,	patrol_probe = 0,	prox_scan = 0,	epjam = 0,	power_sensor_interval = 0,	beam_damage_switch = false,	way_dist = false,	trigger_missile = nil,						balance_shield = false,	},
@@ -1843,8 +1923,8 @@ function setConstants()
 	makePlayerShipActive("Beowulf")			--J
 	makePlayerShipActive("Endeavor")		--J
 	makePlayerShipActive("Guinevere") 		--J 
-	makePlayerShipActive("Flipper")			--W
-	makePlayerShipActive("Jeeves")			--W
+	makePlayerShipActive("Claw")			--W
+	makePlayerShipActive("Blaire")			--W
 	makePlayerShipActive("Crux") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -11420,16 +11500,16 @@ function filkRoadSector()
 	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E1.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-329691, -442387):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
 	setBeamColor(ship)
 	table.insert(objects,ship)
-	wdpe2Zone = squareZone(-334164, -441729,"wdpe2")
-	wdpe2Zone:setColor(0,128,0):setLabel("2")
---	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2.3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
---	setBeamColor(ship)
---	table.insert(objects,ship)
-	wdpe3Zone = squareZone(-331854, -445867,"wdpe3")
-	wdpe3Zone:setColor(0,128,0):setLabel("3")
---	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
---	setBeamColor(ship)
---	table.insert(objects,ship)
+--	wdpe2Zone = squareZone(-334164, -441729,"wdpe2")
+--	wdpe2Zone:setColor(0,128,0):setLabel("2")
+	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E2.3"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-334164, -441729):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+	setBeamColor(ship)
+	table.insert(objects,ship)
+--	wdpe3Zone = squareZone(-331854, -445867,"wdpe3")
+--	wdpe3Zone:setColor(0,128,0):setLabel("3")
+	ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setCallSign("Worm-WP E3.2"):setDescription("Weapons platform protecting the trade route between Icarus station and Micro Solutions Inc. planet. Deployed by Icarus Patrol on 01July2023."):setPosition(-331854, -445867):setScannedByFaction("Human Navy", true):setCommsScript(""):setCommsFunction(wormWPCommsFunc):orderRoaming()
+	setBeamColor(ship)
+	table.insert(objects,ship)
 
 	westPoint = militaryOutpost("Human Navy")
 	westPoint:setCallSign("West Point"):setPosition(-392998, -419877):setDescription("Ex-Exuari Military Outpost. Surrendered to Icarus Patrol on 01July2023.")
@@ -13284,9 +13364,10 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
---	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 9 E4")
---	maximilianZone:setColor(51,153,255):setLabel("X")
-    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 9"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
+	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 10 E4")
+	maximilianZone:setColor(51,153,255):setLabel("X")
+	--[[
+    stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 10"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationMaximilian:setFaction("Spacer")
 	end
@@ -13345,6 +13426,7 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
+	--]]
 	--Mean Time
 	stationMeanTime = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Mean Time"):setPosition(-59605, -126288):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMeanTime.comms_data = {
@@ -32227,8 +32309,8 @@ function openShipReference(ship,console)
 		["Helms"] = {"Misc","Diff Sum","Engines","Tractor","Mining","Turbo Torp","Proximity Scan","Waypoint Calc"},
 		["Weapons"] = {"Misc","Diff Sum","Defense","Beams","Tubes","Mining","Turbo Torp","EPJAM","Trigger Missile"},
 		["Engineering"] = {"Misc","Diff Sum","Engines","Beams","Tubes","Tractor","Mining","Powered Sensors"},
-		["Science"] = {"Misc","Diff Sum","Mining","Proximity Scan","Powered Sensors"},
-		["Relay"] = {"Misc","Diff Sum","Engines","Waypoint Calc"},
+		["Science"] = {"Misc","Diff Sum","Mining","Patrol Probe","Proximity Scan","Powered Sensors"},
+		["Relay"] = {"Misc","Diff Sum","Engines","Patrol Probe","Waypoint Calc"},
 		["Tactical"] = {"Misc","Diff Sum","Engines","Defense","Beams","Tubes","Tractor","Mining","Turbo Torp","Proximity Scan","EPJAM","Waypoint Calc","Trigger Missile"},
 		["Operations"] = {"Misc","Diff Sum","Engines","Mining","Proximity Scan","Powered Sensors","Waypoint Calc"},
 		["Engineering+"] = {"Misc","Diff Sum","Engines","Beams","Tubes","Tractor","Mining","Powered Sensors"},
@@ -32237,6 +32319,7 @@ function openShipReference(ship,console)
 		["Tractor"] = "Your ship has a tractor beam. The control buttons appear on the Engineering console. The object to be tractored must be within one unit of your ship. Your ship must be traveling slower than 1 unit per minute. Use the 'Lock on Tractor' button to enable the tractor beam. Use the button that starts with 'Target' to get distance and bearing on the current tractor beam target. Use the 'Other tractor target' button to change to another valid tractor beam target if more than one are available. Use the 'Disengage Tractor' button to turn off the tractor beam once it is on. The tractor beam will disengage if the ship speed exceeds 1 unit per minute. The engineer should monitor energy usage while the tractor beam is engaged.",
 		["Mining"] = "Your ship can mine asteroids for minerals. The Weapons or Tactical officer should click the 'Start Mining' button to activate the mining beam. Before the beam can be activated, the Science or Operations officer needs to click the 'Lock for Mining' button for an asteroid within 1U of your ship. Science or Operations should click the 'Target Asteroid' button to get distance, bearing and mineral trace information on the mining target asteroid. Click the 'Other mining target' button to change to a different asteroid that may also be within 1U of your ship. Science or Operations may have to click the 'Scanning' widget to see other buttons. Engineering should monitor the beam system during mining.",
 		["Turbo Torp"] = "Your ship can increase the speed of torpedoes of type %s. The Weapons or Tactical officer should click the 'Turbo Torpedo' button to have the next torpedo launched get a speed boost. It takes %s seconds to recharge the turbo torp system.\n\nTurning speed is not increased, so it works better the straighter the missile can fly towards the target.",
+		["Patrol Probe"] = "Some of the probes on your ship can be programmed to patrol instead of stopping at their destination. The Relay officer should click the 'Patrol Probe Off' button to activate the patrol probe system. The next probe launched will be a patrol probe when the patrol probe system is active. Click the 'Patrol Probe On' button to deactivate the patrol probe system. The patrol probe system will automatically deactivate one you have %s patrol probes active. A patrol probe orbits your ship in a hexagonal pattern at the distance specified when setting the probe destination point. It will continue to orbit until it runs out of energy or is destroyed. A patrol probe cannot be linked to Science.",
 		["Proximity Scan"] = "Your ship has automated sensors that will conduct a simple scan on ships within %sU",
 		["EPJAM"] = "Your ship can generate an EMP blast of radius %sU. The Weapons or Tactical officer should click the 'Trigger %s EPJAM' button to trigger the blast. Be aware that this action takes down the shields and puts them in a calibration mode, so be careful when you use it. Why would you ever want to do this? If a nuke or other missile is getting too close, within the blast radius, they will get destroyed before hitting your ship, just like a normal EMP missile blast.",
 		["Powered Sensors"] = "Your ship long range sensors, used by Science and Operations, can reach further with the application of ship's battery power. Engineering should click the 'Boost Sensors' button to change from a disabled powered sensor boost state to a configure state. To enable the powered sensor boost, Engineering should click one of the three powered sensor level buttons 'Sensor Boost X' where X is 1, 2, or 3. Higher = greater range and greater power drain. Engineering should click 'Stop Sensor Boost' to switch from an enabled powered sensor boost state to a disabled state. The powered sensor boost will be disabled at low battery energy. Engineering should monitor power levels while boosted sensors are enabled.",
@@ -32297,6 +32380,9 @@ function openShipReference(ship,console)
 							end
 						end
 						ref_msg = string.format(generic_reference_messages[ref],ranges_types)
+					elseif ref == "Patrol Probe" then
+						local max_patrol = math.floor((1 - ship.patrol_probe/5) * ship:getMaxScanProbeCount())
+						ref_msg = string.format(generic_reference_messages[ref],max_patrol)
 					else
 						ref_msg = generic_reference_messages[ref]
 					end
@@ -32306,286 +32392,459 @@ function openShipReference(ship,console)
 		end
 	end
 end
+function createShipReference(ship)
+	local ftl = ""
+	if ship:hasJumpDrive() then
+		ftl = string.format("Jump: Long: %s, Short: %s",ship.max_jump_range/1000,ship.min_jump_range/1000)
+	end
+	if ship:hasWarpDrive() then
+		if ftl == "" then
+			ftl = string.format("Warp: Speed: %s",ship:getWarpSpeed())
+		else
+			ftl = string.format("%s\nWarp: Speed: %s",ftl,ship:getWarpSpeed())
+		end
+	end
+	local shield_line = ""
+	if ship:getShieldCount() > 1 then
+		shield_line = string.format("Shields: Front: %s, Rear: %s",ship:getShieldMax(0),ship:getShieldMax(1))
+	elseif ship:getShieldCount() > 0 then
+		shield_line = string.format("Shield: %s",ship:getShieldMax(0))
+	else
+		shield_line = "Shields: None"
+	end
+	local beam_line = ""
+	local beam_count = 0
+	local explain_damage_type = false
+	for i=0,15 do
+		if ship:getBeamWeaponRange(i) > 1 then
+			beam_count = beam_count + 1
+			if beam_line == "" then
+				beam_line = string.format("Direction: %s    Arc: %s    Range: %s    Cycle: %s    Damage: %s    Damage type: %s",ship:getBeamWeaponDirection(i),ship:getBeamWeaponArc(i),ship:getBeamWeaponRange(i)/1000,ship:getBeamWeaponCycleTime(i),ship:getBeamWeaponDamage(i),ship.beam_damage_type[i+1])
+				if ship:getBeamWeaponTurretArc(i) > ship:getBeamWeaponArc(i) then
+					beam_line = string.format("%s    Turret arc: %s    Turret speed: %.1f",beam_line,ship:getBeamWeaponTurretArc(i),ship:getBeamWeaponTurretRotationRate(i))
+				end
+			else
+				beam_line = string.format("%s\nDirection: %s    Arc: %s    Range: %s    Cycle: %s    Damage: %s    Damage type: %s",beam_line,ship:getBeamWeaponDirection(i),ship:getBeamWeaponArc(i),ship:getBeamWeaponRange(i)/1000,ship:getBeamWeaponCycleTime(i),ship:getBeamWeaponDamage(i),ship.beam_damage_type[i+1])
+				if ship:getBeamWeaponTurretArc(i) > ship:getBeamWeaponArc(i) then
+					beam_line = string.format("%s    Turret arc: %s    Turret speed: %.1f",beam_line,ship:getBeamWeaponTurretArc(i),ship:getBeamWeaponTurretRotationRate(i))
+				end
+			end
+			if ship.beam_damage_type[i+1] ~= "energy" then
+				explain_damage_type = true
+			end
+		end
+	end
+	if beam_count > 0 then
+		beam_line = string.format("Beams: %s\n%s",beam_count,beam_line)
+		if explain_damage_type then
+			beam_line = string.format("%s\nNote: beam damage type 'energy' is the typical beam weapon where the frequency of the beam and the frequency of the shield impacts the amount of damage applied. Damage type 'emp' just damages shields. Damage type 'kinetic' applies the given damage regardless of the frequency of the beam or shield",beam_line)
+		end
+	else
+		beam_line = "No beam weapons"
+	end
+	local tube_line = ""
+	local explain_missile_size = false
+	if ship:getWeaponTubeCount() > 0 then
+		tube_line = string.format("Tubes: %s",ship:getWeaponTubeCount())
+		for i=1,ship:getWeaponTubeCount() do
+			tube_line = string.format("%s\nDirection: %s    Speed: %s    Size: %s    Ordnance: %s",tube_line,ship.tube_direction[i],ship:getTubeLoadTime(i-1),ship:getTubeSize(i-1),ship.tube_ordnance[i])
+			if ship:getTubeSize(i-1) ~= "medium" then
+				explain_missile_size = true
+			end
+		end
+		tube_line = string.format("%s\nMagazine:",tube_line)
+		if ship:getWeaponStorageMax("Homing") > 0 then
+			tube_line = string.format("%s    Homing: %s",tube_line,ship:getWeaponStorageMax("Homing"))
+		end
+		if ship:getWeaponStorageMax("Nuke") > 0 then
+			tube_line = string.format("%s    Nuke: %s",tube_line,ship:getWeaponStorageMax("Nuke"))
+		end
+		if ship:getWeaponStorageMax("Mine") > 0 then
+			tube_line = string.format("%s    Mine: %s",tube_line,ship:getWeaponStorageMax("Mine"))
+		end
+		if ship:getWeaponStorageMax("EMP") > 0 then
+			tube_line = string.format("%s    EMP: %s",tube_line,ship:getWeaponStorageMax("EMP"))
+		end
+		if ship:getWeaponStorageMax("HVLI") > 0 then
+			tube_line = string.format("%s    HVLI: %s",tube_line,ship:getWeaponStorageMax("HVLI"))
+		end
+		if explain_missile_size then
+			tube_line = string.format("%s\nNote: Small missiles fly twice as fast as medium missiles, turn twice as fast as medium missiles and do half the damage (and half the blast radius for EMP/Nuke) of medium missiles. Large missiles fly half as fast as medium missiles, turn half as fast as medium missiles and do twice the damage (and twice the blast radius) of medium missiles.",tube_line)
+		end
+	else
+		tube_line = "No weapon tubes"
+	end
+	local hot_template = ship:getTypeName()
+	local ac_forward, ac_back = ship:getAcceleration()
+	local im_forward, im_back = ship:getImpulseMaxSpeed()
+	local turn = ship:getRotationMaxSpeed()
+	local boost = ship.combat_maneuver_boost
+	local strafe = ship.combat_maneuver_strafe
+	ship.ship_reference = {
+		["Misc"] = {ord = 1, desc = string.format("Relative strength: %s   Radar: Long: %s, Short: %s   Escape pod capacity: %s\nCargo space: %s   Probes: %s   Repair crew: %s   Energy capacity: %s",playerShipStats[hot_template].strength,playerShipStats[hot_template].long_range_radar/1000,playerShipStats[hot_template].short_range_radar/1000,playerShipStats[hot_template].pods,playerShipStats[hot_template].cargo,playerShipStats[hot_template].probes,ship:getRepairCrewCount(),ship:getEnergyLevelMax())},
+		["Engines"] = {ord = 3, desc = string.format("%s\nImpulse: Forward: %s, Back: %s\nAccelerate: Forward: %s, Back: %s\nTurn: %s\nCombat maneuver: Boost: %s, Strafe: %s",ftl,im_forward,im_back,ac_forward,ac_back,turn,boost,strafe)},
+		["Defense"] = {ord = 4, desc = string.format("Hull: %s\n%s",ship:getHullMax(),shield_line)},
+		["Beams"] = {ord = 5, desc = beam_line},
+		["Tubes"] = {ord = 6, desc = tube_line},
+	}
+	if playerShipStats[hot_template].tractor then
+		ship.ship_reference["Tractor"] = {ord = 7}
+	end
+	if playerShipStats[hot_template].mining then
+		ship.ship_reference["Mining"] = {ord = 8}
+	end
+	if playerShipStats[hot_template].turbo_torp then
+		ship.ship_reference["Turbo Torp"] = {ord = 9}
+	end
+	if playerShipStats[hot_template].patrol_probe > 0 then
+		ship.ship_reference["Patrol Probe"] = {ord = 10}
+	end
+	if playerShipStats[hot_template].prox_scan > 0 then
+		ship.ship_reference["Proximity Scan"] = {ord = 11}
+	end
+	if playerShipStats[hot_template].epjam > 0 then
+		ship.ship_reference["EPJAM"] = {ord = 12}
+	end
+	if playerShipStats[hot_template].power_sensor_interval > 0 then
+		ship.ship_reference["Powered Sensors"] = {ord = 13}
+	end
+	if playerShipStats[hot_template].way_dist then
+		ship.ship_reference["Waypoint Calc"] = {ord = 15}
+	end
+	if playerShipStats[hot_template].trigger_missile ~= nil then
+		ship.ship_reference["Trigger Missile"] = {ord = 16}
+	end
+end
 function createPlayerShipAmbition()
 	--first version destroyed 1Feb2020, version 2 reduced hull strength
-	playerAmbition = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Ambition")
-	setBeamColor(playerAmbition)
-	playerAmbition:setTypeName("Phobos T2")
-	playerAmbition:setRepairCrewCount(5)					--more repair crew (vs 3)
-	playerAmbition:setHullMax(150)							--weaker hull (vs 200)
-	playerAmbition:setHull(150)
-	playerAmbition:setJumpDrive(true)						--jump drive (vs none)
-	playerAmbition.max_jump_range = 25000					--shorter than typical (vs 50)
-	playerAmbition.min_jump_range = 2000					--shorter than typical (vs 5)
-	playerAmbition:setJumpDriveRange(playerAmbition.min_jump_range,playerAmbition.max_jump_range)
-	playerAmbition:setJumpDriveCharge(playerAmbition.max_jump_range)
---                 				   Arc, Dir, Range, CycleTime, Dmg
-	playerAmbition:setBeamWeapon(0, 10,  15,  1200,         8, 6)	--uncrossed (vs crossed)
-	playerAmbition:setBeamWeapon(1, 10, -15,  1200,         8, 6)
+	local base_template = "Phobos M3P"
+	local hot_template = "Phobos T2"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Ambition")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,0,0,180}
+	ship.tube_ordnance = {"HVLI","HVLI","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(5)					--more repair crew (vs 3)
+	ship:setHullMax(150)							--weaker hull (vs 200)
+	ship:setHull(150)
+	ship:setJumpDrive(true)						--jump drive (vs none)
+	ship.max_jump_range = 25000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2000					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+--                 		 Arc, Dir, Range, CycleTime, Dmg
+	ship:setBeamWeapon(0, 10,  15,  1200,         8, 6)	--uncrossed (vs crossed)
+	ship:setBeamWeapon(1, 10, -15,  1200,         8, 6)
 --										 Arc, Dir, Rotate speed
-	playerAmbition:setBeamWeaponTurret(0, 90,  15, .2)		--slow turret beams
-	playerAmbition:setBeamWeaponTurret(1, 90, -15, .2)
-	playerAmbition:setWeaponTubeCount(4)					--one more tube (vs 3)
-	playerAmbition:setWeaponTubeDirection(0,0)				--straight (vs angled)
-	playerAmbition:setWeaponTubeDirection(1,0)				--straight (vs angled)
-	playerAmbition:setWeaponTubeDirection(2,0)				--forward (vs rear)
-	playerAmbition:setWeaponTubeDirection(3,180)			--rear (vs none)
-	playerAmbition:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
-	playerAmbition:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI (vs any)
-	playerAmbition:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerAmbition:setWeaponTubeExclusiveFor(3,"Mine")
-	playerAmbition:weaponTubeAllowMissle(2,"Homing")
-	playerAmbition:weaponTubeAllowMissle(2,"Nuke")
-	playerAmbition:weaponTubeAllowMissle(2,"EMP")
-	playerAmbition:setTubeSize(0,"small")					--small (vs normal)
-	playerAmbition:setTubeSize(1,"small")					--small (vs normal)
-	playerAmbition:setTubeLoadTime(2, 15)					--slower (vs 10)
-	playerAmbition:setTubeLoadTime(3, 20)					--slower (vs 10)
-	playerAmbition:setWeaponStorageMax("Homing",6)			--reduce homing storage (vs 10)
-	playerAmbition:setWeaponStorage("Homing",6)
-	playerAmbition:setSystemCoolantRate("reactor",		1.3)	--more (vs 1.2)
-	playerAmbition:setSystemCoolantRate("beamweapons",	1.1)	--less (vs 1.2)
-	playerAmbition:setSystemCoolantRate("maneuver",		1.05)	--less (vs 1.2)
-	playerAmbition:setSystemCoolantRate("impulse",		1.1)	--less (vs 1.2)
-	playerAmbition:setSystemCoolantRate("frontshield",	1.05)	--less (vs 1.2)
-	playerAmbition:setSystemCoolantRate("rearshield",	1.15)	--less (vs 1.2)
-	playerAmbition:setSystemPowerRate("reactor",		0.40)	--more (vs 0.30)
-	playerAmbition:setSystemPowerRate("beamweapons",	0.275)	--less (vs 0.30)
-	playerAmbition:setSystemPowerRate("maneuver",		0.225)	--less (vs 0.30)
-	playerAmbition:setSystemPowerRate("impulse",		0.25)	--less (vs 0.30)
-	playerAmbition:setSystemPowerRate("frontshield",	0.225)	--less (vs 0.30)
-	playerAmbition:setSystemPowerRate("rearshield",		0.325)	--more (vs 0.30)
-	playerAmbition.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:19   Radar:Long:25,Short:5   Escape pod capacity:3\nCargo space:9   Probes:5   Repair crew:5   Energy capacity:1000"},
-		["Diff Sum"] = {ord = 2, desc = "Phobos T2 is based on Phobos M3P\nDifferences: more repair crew, weaker hull (vs 200), jump drive (vs none), uncrossed and turreted beams (vs crossed/fix mount), additional tube: 3 forward tubes, 1 rear (vs 3 tubes: 2 angled forward, 1 rear), 2 small forward tubes (vs medium tubes), fewer homing missiles (6 vs 10), varying speeds of coolant and power deployment per system (vs fixed)."},
-		["Engines"] = {ord = 3, desc = "Jump:Long:25,Short:2\nImpulse:Forward:80,Back:80\nAccelerate:Forward:20,Back:20\nTurn:10\nCombat maneuver:Boost:400,Strafe:250"},
-		["Defense"] = {ord = 4, desc = "Hull:150\nShields:Front:100,Rear:100"},
-		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:15   Arc:10   Range:1.2   Cycle:8   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.2\nDirection:-15   Arc:10   Range:1.2   Cycle:8   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.2"},
-		["Tubes"] = {ord = 6, desc = "Tubes:4\nDirection:0   Speed:10   Size:Small   Ordnance:HVLI\nDirection:0   Speed:10   Size:Small   Ordnance:HVLI\nDirection:0   Speed:15   Size:Medium   Ordnance:all but Mine\nDirection:180   Speed:20   Size:Medium   Ordnance:only Mine\nMagazine:   Homing:6   Nuke:2   Mine:4   EMP:2   HVLI:20"},
-		["Tractor"] = {ord = 7},
-		["Waypoint Calc"] = {ord = 15},
-	}
-	addShipReference(playerAmbition)
-	playerAmbition:onTakingDamage(playerShipDamage)
-	playerAmbition:addReputationPoints(50)
-	return playerAmbition
+	ship:setBeamWeaponTurret(0, 90,  15, .2)		--slow turret beams
+	ship:setBeamWeaponTurret(1, 90, -15, .2)
+	ship:setWeaponTubeCount(4)					--one more tube (vs 3)
+	ship:setWeaponTubeDirection(0,0)				--straight (vs angled)
+	ship:setWeaponTubeDirection(1,0)				--straight (vs angled)
+	ship:setWeaponTubeDirection(2,0)				--forward (vs rear)
+	ship:setWeaponTubeDirection(3,180)			--rear (vs none)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponTubeExclusiveFor(2,"HVLI")
+	ship:setWeaponTubeExclusiveFor(3,"Mine")
+	ship:weaponTubeAllowMissle(2,"Homing")
+	ship:weaponTubeAllowMissle(2,"Nuke")
+	ship:weaponTubeAllowMissle(2,"EMP")
+	ship:setTubeSize(0,"small")					--small (vs normal)
+	ship:setTubeSize(1,"small")					--small (vs normal)
+	ship:setTubeLoadTime(2, 15)					--slower (vs 10)
+	ship:setTubeLoadTime(3, 20)					--slower (vs 10)
+	ship:setWeaponStorageMax("Homing",6)			--reduce homing storage (vs 10)
+	ship:setWeaponStorage("Homing",6)
+	ship:setSystemCoolantRate("reactor",		1.3)	--more (vs 1.2)
+	ship:setSystemCoolantRate("beamweapons",	1.1)	--less (vs 1.2)
+	ship:setSystemCoolantRate("maneuver",		1.05)	--less (vs 1.2)
+	ship:setSystemCoolantRate("impulse",		1.1)	--less (vs 1.2)
+	ship:setSystemCoolantRate("frontshield",	1.05)	--less (vs 1.2)
+	ship:setSystemCoolantRate("rearshield",	1.15)	--less (vs 1.2)
+	ship:setSystemPowerRate("reactor",		0.40)	--more (vs 0.30)
+	ship:setSystemPowerRate("beamweapons",	0.275)	--less (vs 0.30)
+	ship:setSystemPowerRate("maneuver",		0.225)	--less (vs 0.30)
+	ship:setSystemPowerRate("impulse",		0.25)	--less (vs 0.30)
+	ship:setSystemPowerRate("frontshield",	0.225)	--less (vs 0.30)
+	ship:setSystemPowerRate("rearshield",		0.325)	--more (vs 0.30)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Phobos T2 is based on Phobos M3P\nDifferences: more repair crew, weaker hull (vs 200), jump drive (vs none), uncrossed and turreted beams (vs crossed/fix mount), additional tube: 3 forward tubes, 1 rear (vs 3 tubes: 2 angled forward, 1 rear), 2 small forward tubes (vs medium tubes), fewer homing missiles (6 vs 10), varying speeds of coolant and power deployment per system (vs fixed)."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipAnvil()
-	playerAnvil = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("Anvil")
-	setBeamColor(playerAnvil)
-	playerAnvil:setTypeName("Deimos")
-	playerAnvil:setWarpDrive(true)						--warp drive (vs none)
-	playerAnvil:setWarpSpeed(450)
-	playerAnvil:setShieldsMax(150, 80)					--asymmetric shields (vs 100, 100)
-	playerAnvil:setShields(150, 80)
-	playerAnvil:setHullMax(180)							--weaker hull (vs 200)
-	playerAnvil:setHull(180)
-	playerAnvil:setRotationMaxSpeed(15)					--faster spin (vs 10)
-	playerAnvil:setAcceleration(30,25)					--faster (vs 20/20)
-	playerAnvil:setImpulseMaxSpeed(80,72)				--slower reverse impulse (vs 80)
+	local base_template = "Phobos M3P"
+	local hot_template = "Deimos"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Anvil")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {4,-4,0,90,-90,180}
+	ship.tube_ordnance = {"Homing","Homing","EMP","all but Mine","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setWarpDrive(true)						--warp drive (vs none)
+	ship:setWarpSpeed(450)
+	ship:setShieldsMax(150, 80)					--asymmetric shields (vs 100, 100)
+	ship:setShields(150, 80)
+	ship:setHullMax(180)							--weaker hull (vs 200)
+	ship:setHull(180)
+	ship:setRotationMaxSpeed(15)					--faster spin (vs 10)
+	ship:setAcceleration(30,25)					--faster (vs 20/20)
+	ship:setImpulseMaxSpeed(80,72)				--slower reverse impulse (vs 80)
 --                 				 Arc, Dir, Range,   CycleTime,  Damage
-	playerAnvil:setBeamWeapon(0,  60,  20,	1200, 		  4.5,	5.5)	--narrower (vs 90), faster (vs 8), weaker (vs 6)
-	playerAnvil:setBeamWeapon(1,  60, -20,	1200, 		  4.5,	5.5)	
-	playerAnvil:setBeamWeapon(2,  10,   0,	1500, 		    6,	2.5)
+	ship:setBeamWeapon(0,  60,  20,	1200, 		  4.5,	5.5)	--narrower (vs 90), faster (vs 8), weaker (vs 6)
+	ship:setBeamWeapon(1,  60, -20,	1200, 		  4.5,	5.5)	
+	ship:setBeamWeapon(2,  10,   0,	1500, 		    6,	2.5)
 --										Arc,  Dir, Rotate speed
-	playerAnvil:setBeamWeaponTurret(2,	160,    0,			1)	
-	playerAnvil:setWeaponTubeCount(6)					--more (vs 3)
-	playerAnvil:setWeaponTubeDirection(0,  4)			--right with more angle (vs left -1)
-	playerAnvil:setWeaponTubeDirection(1, -4)			--left with more angle (vs right 1)
-	playerAnvil:setTubeSize(0,"large")					--large (vs medium)
-	playerAnvil:setTubeSize(1,"large")					--large (vs medium)
-	playerAnvil:setWeaponTubeExclusiveFor(0,"Homing")	--homing only (vs any)
-	playerAnvil:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs any)
-	playerAnvil:setTubeLoadTime(0,20)					--slower (vs 10)
-	playerAnvil:setTubeLoadTime(1,20)					--slower (vs 10)
-	playerAnvil:setWeaponTubeDirection(2,   0)			--forward (vs rear)
-	playerAnvil:setTubeSize(2,"small")					--small (vs medium)
-	playerAnvil:setTubeLoadTime(2,8)					--faster (vs 10)
-	playerAnvil:setWeaponTubeExclusiveFor(2,"EMP")		--EMP only (vs mine)
-	playerAnvil:setWeaponTubeDirection(3,  90)			
-	playerAnvil:setWeaponTubeDirection(4, -90)
-	playerAnvil:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerAnvil:weaponTubeAllowMissle(3,"Homing")
-	playerAnvil:weaponTubeAllowMissle(3,"Nuke")
-	playerAnvil:weaponTubeAllowMissle(3,"EMP")
-	playerAnvil:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerAnvil:weaponTubeAllowMissle(4,"Homing")
-	playerAnvil:weaponTubeAllowMissle(4,"Nuke")
-	playerAnvil:weaponTubeAllowMissle(4,"EMP")
-	playerAnvil:setWeaponTubeDirection(5,180)
-	playerAnvil:setWeaponTubeExclusiveFor(5,"Mine")
-	playerAnvil:setTubeLoadTime(5,15)					--slower (vs 10)
-	playerAnvil:setWeaponStorageMax("EMP", 6)			--more (vs 3)
-	playerAnvil:setWeaponStorage("EMP", 6)
-	playerAnvil:onTakingDamage(playerShipDamage)
-	playerAnvil:addReputationPoints(50)
-	return playerAnvil
+	ship:setBeamWeaponTurret(2,	160,    0,			1)	
+	ship:setWeaponTubeCount(6)					--more (vs 3)
+	ship:setWeaponTubeDirection(0,  4)			--right with more angle (vs left -1)
+	ship:setWeaponTubeDirection(1, -4)			--left with more angle (vs right 1)
+	ship:setTubeSize(0,"large")					--large (vs medium)
+	ship:setTubeSize(1,"large")					--large (vs medium)
+	ship:setWeaponTubeExclusiveFor(0,"Homing")	--homing only (vs any)
+	ship:setWeaponTubeExclusiveFor(1,"Homing")	--homing only (vs any)
+	ship:setTubeLoadTime(0,20)					--slower (vs 10)
+	ship:setTubeLoadTime(1,20)					--slower (vs 10)
+	ship:setWeaponTubeDirection(2,   0)			--forward (vs rear)
+	ship:setTubeSize(2,"small")					--small (vs medium)
+	ship:setTubeLoadTime(2,8)					--faster (vs 10)
+	ship:setWeaponTubeExclusiveFor(2,"EMP")		--EMP only (vs mine)
+	ship:setWeaponTubeDirection(3,  90)			
+	ship:setWeaponTubeDirection(4, -90)
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")
+	ship:weaponTubeAllowMissle(3,"Homing")
+	ship:weaponTubeAllowMissle(3,"Nuke")
+	ship:weaponTubeAllowMissle(3,"EMP")
+	ship:setWeaponTubeExclusiveFor(4,"HVLI")
+	ship:weaponTubeAllowMissle(4,"Homing")
+	ship:weaponTubeAllowMissle(4,"Nuke")
+	ship:weaponTubeAllowMissle(4,"EMP")
+	ship:setWeaponTubeDirection(5,180)
+	ship:setWeaponTubeExclusiveFor(5,"Mine")
+	ship:setTubeLoadTime(5,15)					--slower (vs 10)
+	ship:setWeaponStorageMax("EMP", 6)			--more (vs 3)
+	ship:setWeaponStorage("EMP", 6)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Deimos is based on Phobos M3P\nDifferences: Warp drive (vs none), asymetric shields (vs 100), weaker hull (vs 200), faster spin (vs 10), faster acceleration (vs 20), slower reverse impulse (vs 80), beams that are narrower (vs 90), faster (vs 8) and weaker (vs 6), additional long, weak, turreted beam, more tubes (vs 3) of varying sizes, load times and angles, more EMPs (vs 3)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipArgonaut()
-	playerArgonaut = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Argonaut")
-	setBeamColor(playerArgonaut)
-	playerArgonaut:setTypeName("Nusret")
-	playerArgonaut.max_jump_range = 25000					--shorter than typical (vs 50)
-	playerArgonaut.min_jump_range = 2500					--shorter than typical (vs 5)
-	playerArgonaut:setJumpDriveRange(playerArgonaut.min_jump_range,playerArgonaut.max_jump_range)
-	playerArgonaut:setJumpDriveCharge(playerArgonaut.max_jump_range)
-	playerArgonaut:setShieldsMax(100, 100)					--stronger shields (vs 60, 60)
-	playerArgonaut:setShields(100, 100)
-	playerArgonaut:setWeaponTubeDirection(0,-60)			--front left facing (vs back)
-	playerArgonaut:setWeaponTubeDirection(1, 60)			--front right facing (vs back)
-	playerArgonaut:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
-	playerArgonaut:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
-	playerArgonaut:setWeaponStorageMax("Homing",8)			--more homing (vs 0)
-	playerArgonaut:setWeaponStorage("Homing", 8)				
-	playerArgonaut:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
-	playerArgonaut:setWeaponStorage("Mine", 8)				
-	playerArgonaut:onTakingDamage(playerShipDamage)
-	playerArgonaut:addReputationPoints(50)
-	return playerArgonaut
+	local base_template = "Nautilus"
+	local hot_template = "Nusret"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Argonaut")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-60,60,180}
+	ship.tube_ordnance = {"Homing","Homing","Mine"}
+	ship:setTypeName(hot_template)
+	ship.max_jump_range = 25000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2500					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setShieldsMax(100, 100)					--stronger shields (vs 60, 60)
+	ship:setShields(100, 100)
+	ship:setWeaponTubeDirection(0,-60)			--front left facing (vs back)
+	ship:setWeaponTubeDirection(1, 60)			--front right facing (vs back)
+	ship:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
+	ship:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
+	ship:setWeaponStorageMax("Homing",8)			--more homing (vs 0)
+	ship:setWeaponStorage("Homing", 8)				
+	ship:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
+	ship:setWeaponStorage("Mine", 8)				
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Nusret is based on Nautilus\nDifferences: shorter jump drive range (vs 50), stronger shields (vs 60/60), realign 1st two tubes from rear to 60/-60 and let them shoot homing missiles, decrease mines and increase homing missiles."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipArwine()
 	--destroyed 14Dec2019
+	local base_template = "Piranha"
+	local hot_template = "Pacu"
 	playerArwine = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Arwine")
-	setBeamColor(playerArwine)
-	playerArwine:setTypeName("Pacu")
-	playerArwine:setRepairCrewCount(6)						--more repair crew (vs 2)
-	playerArwine.max_jump_range = 25000						--shorter than typical (vs 50)
-	playerArwine.min_jump_range = 2000						--shorter than typical (vs 5)
-	playerArwine:setJumpDriveRange(playerArwine.min_jump_range,playerArwine.max_jump_range)
-	playerArwine:setJumpDriveCharge(playerArwine.max_jump_range)
-	playerArwine:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
-	playerArwine:setHullMax(150)							--stronger hull (vs 120)
-	playerArwine:setHull(150)
-	playerArwine:setShieldsMax(150,150)						--stronger shields (vs 70, 70)
-	playerArwine:setShields(150,150)
-	playerArwine:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
-	playerArwine:setBeamWeaponTurret(0, 80, 0, .3)			--slow turret
-	playerArwine:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerArwine:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerArwine:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerArwine:setWeaponTubeExclusiveFor(6,"Mine")
-	playerArwine:weaponTubeAllowMissle(1,"Homing")
-	playerArwine:weaponTubeAllowMissle(1,"EMP")
-	playerArwine:weaponTubeAllowMissle(1,"Nuke")
-	playerArwine:weaponTubeAllowMissle(4,"Homing")
-	playerArwine:weaponTubeAllowMissle(4,"EMP")
-	playerArwine:weaponTubeAllowMissle(4,"Nuke")
-	playerArwine:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
-	playerArwine:setWeaponStorage("EMP", 4)					
-	playerArwine:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerArwine:setWeaponStorage("Nuke", 4)				
-	playerArwine:setSystemCoolantRate("reactor",		1.3)	--more (vs 1.2)
-	playerArwine:setSystemCoolantRate("beamweapons",	1.15)	--less (vs 1.2)
-	playerArwine:setSystemCoolantRate("missilesystem",	1.0)	--less (vs 1.2)
-	playerArwine:setSystemCoolantRate("maneuver",		1.15)	--less (vs 1.2)
-	playerArwine:setSystemCoolantRate("impulse",		1.35)	--more (vs 1.2) pump is here
-	playerArwine:setSystemCoolantRate("frontshield",	1.3)	--more (vs 1.2)
-	playerArwine:setSystemCoolantRate("rearshield",		1.0)	--less (vs 1.2)
-	playerArwine:setSystemPowerRate("reactor",			0.40)	--more (vs 0.30)
-	playerArwine:setSystemPowerRate("beamweapons",		0.275)	--less (vs 0.30)
-	playerArwine:setSystemPowerRate("missilesystem",	0.2)	--less (vs 0.30)
-	playerArwine:setSystemPowerRate("maneuver",			0.275)	--less (vs 0.30)
-	playerArwine:setSystemPowerRate("impulse",			0.375)	--more (vs 0.30)
-	playerArwine:setSystemPowerRate("jumpdrive",		0.325)	--more (vs 0.30)
-	playerArwine:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
-	playerArwine:setSystemPowerRate("rearshield",		0.2)	--less (vs 0.30)
-	playerArwine:onTakingDamage(playerShipDamage)
-	playerArwine:addReputationPoints(50)
-	return playerArwine
+	local ship = playerArwine
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-90,-90,-90,90,90,90,180}
+	ship.tube_ordnance = {"HVLI","all but Mine","HVLI","HVLI","all but Mine","HVLI","Mine"}
+	ship:setTypeName("Pacu")
+	ship:setRepairCrewCount(6)						--more repair crew (vs 2)
+	ship.max_jump_range = 25000						--shorter than typical (vs 50)
+	ship.min_jump_range = 2000						--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
+	ship:setHullMax(150)							--stronger hull (vs 120)
+	ship:setHull(150)
+	ship:setShieldsMax(150,150)						--stronger shields (vs 70, 70)
+	ship:setShields(150,150)
+	ship:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
+	ship:setBeamWeaponTurret(0, 80, 0, .3)			--slow turret
+	ship:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
+	ship:setWeaponTubeDirection(6, 180)				--mine tube points straight back
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")
+	ship:setWeaponTubeExclusiveFor(2,"HVLI")
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")
+	ship:setWeaponTubeExclusiveFor(4,"HVLI")
+	ship:setWeaponTubeExclusiveFor(5,"HVLI")
+	ship:setWeaponTubeExclusiveFor(6,"Mine")
+	ship:weaponTubeAllowMissle(1,"Homing")
+	ship:weaponTubeAllowMissle(1,"EMP")
+	ship:weaponTubeAllowMissle(1,"Nuke")
+	ship:weaponTubeAllowMissle(4,"Homing")
+	ship:weaponTubeAllowMissle(4,"EMP")
+	ship:weaponTubeAllowMissle(4,"Nuke")
+	ship:setWeaponStorageMax("EMP",4)				--more EMPs (vs 0)
+	ship:setWeaponStorage("EMP", 4)					
+	ship:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
+	ship:setWeaponStorage("Nuke", 4)				
+	ship:setSystemCoolantRate("reactor",		1.3)	--more (vs 1.2)
+	ship:setSystemCoolantRate("beamweapons",	1.15)	--less (vs 1.2)
+	ship:setSystemCoolantRate("missilesystem",	1.0)	--less (vs 1.2)
+	ship:setSystemCoolantRate("maneuver",		1.15)	--less (vs 1.2)
+	ship:setSystemCoolantRate("impulse",		1.35)	--more (vs 1.2) pump is here
+	ship:setSystemCoolantRate("frontshield",	1.3)	--more (vs 1.2)
+	ship:setSystemCoolantRate("rearshield",		1.0)	--less (vs 1.2)
+	ship:setSystemPowerRate("reactor",			0.40)	--more (vs 0.30)
+	ship:setSystemPowerRate("beamweapons",		0.275)	--less (vs 0.30)
+	ship:setSystemPowerRate("missilesystem",	0.2)	--less (vs 0.30)
+	ship:setSystemPowerRate("maneuver",			0.275)	--less (vs 0.30)
+	ship:setSystemPowerRate("impulse",			0.375)	--more (vs 0.30)
+	ship:setSystemPowerRate("jumpdrive",		0.325)	--more (vs 0.30)
+	ship:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
+	ship:setSystemPowerRate("rearshield",		0.2)	--less (vs 0.30)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Pacu is based on Piranha\nDifferences: shorter jump drive range (vs 50), faster impulse (vs 40), stronger hull (vs 120), stronger shields (vs 70), one beam (vs none), fewer tubes (vs 8), One rear facing mine tube (vs 2 angled), more EMPs (vs 0), fewer nukes (vs 6), varying speeds of coolant and power deployment per system (vs fixed)."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipBarracuda()
 	--destroyed 8feb2020
 	--clone of Headhunter
-	playerBarracuda = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Barracuda")
-	setBeamColor(playerBarracuda)
-	playerBarracuda:setTypeName("Redhook")
-	playerBarracuda:setRepairCrewCount(4)						--more repair crew (vs 2)
-	playerBarracuda.max_jump_range = 30000						--shorter than typical (vs 50)
-	playerBarracuda.min_jump_range = 3000						--shorter than typical (vs 5)
-	playerBarracuda:setJumpDriveRange(playerBarracuda.min_jump_range,playerBarracuda.max_jump_range)
-	playerBarracuda:setJumpDriveCharge(playerBarracuda.max_jump_range)
-	playerBarracuda:setSystemPowerFactor("jumpdrive",4)			--more efficient (vs 5)
-	playerBarracuda:setHullMax(140)								--stronger hull (vs 120)
-	playerBarracuda:setHull(140)
-	playerBarracuda:setShieldsMax(120, 120)						--stronger shields (vs 70, 70)
-	playerBarracuda:setShields(120, 120)
-	playerBarracuda:setBeamWeapon(0, 10, 0, 1000.0, 4.0, 4)		--one beam (vs 0)
-	playerBarracuda:setBeamWeaponTurret(0, 80, 0, .5)			--slow turret 
-	playerBarracuda:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
-	playerBarracuda:setWeaponTubeDirection(6, 180)				--mine tube points straight back
-	playerBarracuda:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(1,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(4,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(5,"HVLI")
-	playerBarracuda:setWeaponTubeExclusiveFor(6,"Mine")
-	playerBarracuda:setTubeSize(0,"small")						--small (vs large)
-	playerBarracuda:setTubeSize(3,"small")						--small (vs large)
-	playerBarracuda:setTubeLoadTime(0, 10)						--faster (vs 15)
-	playerBarracuda:setTubeLoadTime(3, 10)						--faster (vs 15)
-	playerBarracuda:setTubeLoadTime(2, 20)						--slower (vs 15)
-	playerBarracuda:setTubeLoadTime(5, 20)						--slower (vs 15)
-	playerBarracuda:weaponTubeAllowMissle(1,"Homing")
-	playerBarracuda:weaponTubeAllowMissle(1,"EMP")
-	playerBarracuda:weaponTubeAllowMissle(1,"Nuke")
-	playerBarracuda:weaponTubeAllowMissle(4,"Homing")
-	playerBarracuda:weaponTubeAllowMissle(4,"EMP")
-	playerBarracuda:weaponTubeAllowMissle(4,"Nuke")
-	playerBarracuda:setWeaponStorageMax("Mine",6)				--fewer mines (vs 8)
-	playerBarracuda:setWeaponStorage("Mine", 6)				
-	playerBarracuda:setWeaponStorageMax("EMP",6)				--more EMPs (vs 0)
-	playerBarracuda:setWeaponStorage("EMP", 6)					
-	playerBarracuda:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
-	playerBarracuda:setWeaponStorage("Nuke", 4)				
-	playerBarracuda:onTakingDamage(playerShipDamage)
-	playerBarracuda:addReputationPoints(50)
-	return playerBarracuda
+	local base_template = "Piranha"
+	local hot_template = "Redhook"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Barracuda")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-90,-90,-90,90,90,90,180}
+	ship.tube_ordnance = {"HVLI","all but Mine","HVLI","HVLI","all but Mine","HVLI","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(4)						--more repair crew (vs 2)
+	ship.max_jump_range = 30000						--shorter than typical (vs 50)
+	ship.min_jump_range = 3000						--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setSystemPowerFactor("jumpdrive",4)			--more efficient (vs 5)
+	ship:setHullMax(140)								--stronger hull (vs 120)
+	ship:setHull(140)
+	ship:setShieldsMax(120, 120)						--stronger shields (vs 70, 70)
+	ship:setShields(120, 120)
+	ship:setBeamWeapon(0, 10, 0, 1000.0, 4.0, 4)		--one beam (vs 0)
+	ship:setBeamWeaponTurret(0, 80, 0, .5)			--slow turret 
+	ship:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
+	ship:setWeaponTubeDirection(6, 180)				--mine tube points straight back
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")
+	ship:setWeaponTubeExclusiveFor(2,"HVLI")
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")
+	ship:setWeaponTubeExclusiveFor(4,"HVLI")
+	ship:setWeaponTubeExclusiveFor(5,"HVLI")
+	ship:setWeaponTubeExclusiveFor(6,"Mine")
+	ship:setTubeSize(0,"small")						--small (vs large)
+	ship:setTubeSize(3,"small")						--small (vs large)
+	ship:setTubeLoadTime(0, 10)						--faster (vs 15)
+	ship:setTubeLoadTime(3, 10)						--faster (vs 15)
+	ship:setTubeLoadTime(2, 20)						--slower (vs 15)
+	ship:setTubeLoadTime(5, 20)						--slower (vs 15)
+	ship:weaponTubeAllowMissle(1,"Homing")
+	ship:weaponTubeAllowMissle(1,"EMP")
+	ship:weaponTubeAllowMissle(1,"Nuke")
+	ship:weaponTubeAllowMissle(4,"Homing")
+	ship:weaponTubeAllowMissle(4,"EMP")
+	ship:weaponTubeAllowMissle(4,"Nuke")
+	ship:setWeaponStorageMax("Mine",6)				--fewer mines (vs 8)
+	ship:setWeaponStorage("Mine", 6)				
+	ship:setWeaponStorageMax("EMP",6)				--more EMPs (vs 0)
+	ship:setWeaponStorage("EMP", 6)					
+	ship:setWeaponStorageMax("Nuke",4)				--fewer Nukes (vs 6)
+	ship:setWeaponStorage("Nuke", 4)				
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Redhook is based on Piranha\nDifferences: shorter jump drive range (vs 50), more efficient jump drive (4 vs 5)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipBlaire()
-	playerBlaire = PlayerSpaceship():setTemplate("Maverick"):setFaction("Human Navy"):setCallSign("Blaire")
-	setBeamColor(playerBlaire)
-	playerBlaire:setTypeName("Kludge")
-	playerBlaire:setMaxEnergy(1130)						--more maximum energy (vs 1000)
-	playerBlaire:setEnergy(1130)							
-	playerBlaire:setShieldsMax(160, 80)					--weaker shields (vs 160, 160)
-	playerBlaire:setShields(100, 100)
-	playerBlaire:setWarpSpeed(250)						--slower (vs 800)
-	playerBlaire:setJumpDrive(true)						--jump drive (vs none)
-	playerBlaire.max_jump_range = 18000					--shorter than typical (vs 50)
-	playerBlaire.min_jump_range = 2000					--shorter than typical (vs 5)
-	playerBlaire:setJumpDriveRange(playerBlaire.min_jump_range,playerBlaire.max_jump_range)
-	playerBlaire:setJumpDriveCharge(playerBlaire.max_jump_range)
-	playerBlaire:setRepairCrewCount(7)					--more repair crew (vs 4)
+	local base_template = "Maverick"
+	local hot_template = "Kludge"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Blaire")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-11,-23,174}
+	ship.tube_ordnance = {"all but Mine","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setMaxEnergy(1130)						--more maximum energy (vs 1000)
+	ship:setEnergy(1130)							
+	ship:setShieldsMax(160, 80)					--weaker shields (vs 160, 160)
+	ship:setShields(100, 100)
+	ship:setWarpSpeed(250)						--slower (vs 800)
+	ship:setJumpDrive(true)						--jump drive (vs none)
+	ship.max_jump_range = 18000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2000					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setRepairCrewCount(7)					--more repair crew (vs 4)
 --                  		    Arc,   Dir,  Range, CycleTime, Dmg
-	playerBlaire:setBeamWeapon(0, 10,   25, 1000.0,       6.0, 6)	--shorter (vs 2000), turreted, angled (vs 0)
-	playerBlaire:setBeamWeapon(1, 34,   55,  500.0,       4.0, 8)	--shorter (vs 1500), angled (vs -20), faster (vs 6)
-	playerBlaire:setBeamWeapon(2, 70, -120,  800.0,       6.0, 6)	--shorter (vs 1500), angled (vs 20), weaker (vs 8)
-	playerBlaire:setBeamWeapon(3, 0, 0, 0, 0, 0)					--remove beams			
-	playerBlaire:setBeamWeapon(4, 0, 0, 0, 0, 0)	
-	playerBlaire:setBeamWeapon(5, 0, 0, 0, 0, 0)	
+	ship:setBeamWeapon(0, 10,   25, 1000.0,       6.0, 6)	--shorter (vs 2000), turreted, angled (vs 0)
+	ship:setBeamWeapon(1, 34,   55,  500.0,       4.0, 8)	--shorter (vs 1500), angled (vs -20), faster (vs 6)
+	ship:setBeamWeapon(2, 70, -120,  800.0,       6.0, 6)	--shorter (vs 1500), angled (vs 20), weaker (vs 8)
+	ship:setBeamWeapon(3, 0, 0, 0, 0, 0)					--remove beams			
+	ship:setBeamWeapon(4, 0, 0, 0, 0, 0)	
+	ship:setBeamWeapon(5, 0, 0, 0, 0, 0)	
 --									   Arc, Dir, Rotate speed
-	playerBlaire:setBeamWeaponTurret(0, 50,  20, .2)
-	playerBlaire:setWeaponTubeDirection(0, -11)			--angled (vs-90)
-	playerBlaire:setWeaponTubeDirection(1,-23)			--angled (vs 90)
-	playerBlaire:setWeaponTubeDirection(2,174)			--angled (vs 180)
-	playerBlaire:setTubeSize(0,"small")					--small (vs medium)
-	playerBlaire:setTubeLoadTime(1,6)					--faster (vs 8)
-	playerBlaire:setTubeLoadTime(2,20)					--slower (vs 8)
-	playerBlaire:setWeaponStorageMax("Homing", 3)		--less (vs 6)
-	playerBlaire:setWeaponStorage("Homing", 3)				
-	playerBlaire:setWeaponStorageMax("Nuke", 0)			--less (vs 2)
-	playerBlaire:setWeaponStorage("Nuke", 0)				
-	playerBlaire:setWeaponStorageMax("HVLI", 17)		--more (vs 10)
-	playerBlaire:setWeaponStorage("HVLI", 17)				
-	playerBlaire:onTakingDamage(playerShipDamage)
-	playerBlaire:addReputationPoints(50)
-	return playerBlaire
+	ship:setBeamWeaponTurret(0, 50,  20, .2)
+	ship:setWeaponTubeDirection(0, -11)			--angled (vs-90)
+	ship:setWeaponTubeDirection(1,-23)			--angled (vs 90)
+	ship:setWeaponTubeDirection(2,174)			--angled (vs 180)
+	ship:setTubeSize(0,"small")					--small (vs medium)
+	ship:setTubeLoadTime(1,6)					--faster (vs 8)
+	ship:setTubeLoadTime(2,20)					--slower (vs 8)
+	ship:setWeaponStorageMax("Homing", 3)		--less (vs 6)
+	ship:setWeaponStorage("Homing", 3)				
+	ship:setWeaponStorageMax("Nuke", 0)			--less (vs 2)
+	ship:setWeaponStorage("Nuke", 0)				
+	ship:setWeaponStorageMax("HVLI", 17)		--more (vs 10)
+	ship:setWeaponStorage("HVLI", 17)				
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Kludge is based on Maverick\nDifferences: Jump plus Warp (vs Warp only), slower warp (vs 800), greater energy capacity (vs 1000), weaker rear shield (vs 160), fewer beams (vs 5) at unusual angles and ranges, tubes pointing in unusual directions, different sizes, different load times, different missile types."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipBlazon()
 	--ship destroyed 24Aug2019
@@ -32662,50 +32921,61 @@ function createPlayerShipBling()
 	return playerGadfly
 end
 function createPlayerShipClaw()
-	playerRaven = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Claw")
-	setBeamColor(playerRaven)
-	playerRaven:setTypeName("Raven")
-	playerRaven:setJumpDrive(false)						
-	playerRaven:setWarpDrive(true)						--warp drive (vs jump)
-	playerRaven:setWarpSpeed(300)
-	playerRaven:setShieldsMax(120, 120)					--stronger shields (vs 80, 80)
-	playerRaven:setShields(120, 120)
-	playerRaven:setHullMax(160)							--weaker hull (vs 200)
-	playerRaven:setHull(160)
+	local base_template = "Player Cruiser"
+	local hot_template = "Raven"
+	playerRaven = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Claw")
+	local ship = playerRaven
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-30,30,-60,60,0,180}
+	ship.tube_ordnance = {"Nuke","Nuke","EMP","EMP","Homing","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setJumpDrive(false)						
+	ship:setWarpDrive(true)						--warp drive (vs jump)
+	ship:setWarpSpeed(300)
+	ship:setShieldsMax(120, 120)					--stronger shields (vs 80, 80)
+	ship:setShields(120, 120)
+	ship:setHullMax(160)							--weaker hull (vs 200)
+	ship:setHull(160)
 --                 				 Arc, Dir, Range,   CycleTime,  Damage
-	playerRaven:setBeamWeapon(0,  10, -90,	 900, 			6,	10)	--left (vs front) shorter (vs 1000)
-	playerRaven:setBeamWeapon(1,  10,  90,	 900, 			6,	10)	--right (vs front) shorter (vs 1000)
+	ship:setBeamWeapon(0,  10, -90,	 900, 			6,	10)	--left (vs front) shorter (vs 1000)
+	ship:setBeamWeapon(1,  10,  90,	 900, 			6,	10)	--right (vs front) shorter (vs 1000)
 --										Arc,  Dir, Rotate speed
-	playerRaven:setBeamWeaponTurret(0,	 90,  -90,			1)	
-	playerRaven:setBeamWeaponTurret(1,	 90,   90,			1)	
-	playerRaven:setWeaponTubeCount(6)					--more (vs 3)
-	playerRaven:setWeaponTubeDirection(0, -30)			--more angled (vs -5)
-	playerRaven:setWeaponTubeDirection(1,  30)			--more angled (vs 5)
-	playerRaven:setTubeSize(0,"small")					--small (vs medium)
-	playerRaven:setTubeSize(1,"small")					--small (vs medium)
-	playerRaven:setWeaponTubeExclusiveFor(0,"Nuke")		--Nuke only (vs all but mine)
-	playerRaven:setWeaponTubeExclusiveFor(1,"Nuke")		--Nuke only (vs all but mine)
-	playerRaven:setWeaponTubeDirection(2, -60)			
-	playerRaven:setWeaponTubeDirection(3,  60)
-	playerRaven:setTubeSize(2,"small")
-	playerRaven:setTubeSize(3,"small")
-	playerRaven:setWeaponTubeExclusiveFor(2,"EMP")
-	playerRaven:setWeaponTubeExclusiveFor(3,"EMP")
-	playerRaven:setTubeLoadTime(4, 12)					--slower (vs 8)
-	playerRaven:setTubeSize(4,"large")
-	playerRaven:setWeaponTubeExclusiveFor(4,"Homing")
-	playerRaven:setWeaponTubeDirection(5, 180)
-	playerRaven:setTubeLoadTime(5, 10)					--slower (vs 8)
-	playerRaven:setWeaponTubeExclusiveFor(5,"Mine")
-	playerRaven:setWeaponStorageMax("Homing",8)			--less (vs 12)
-	playerRaven:setWeaponStorage("Homing",8)
-	playerRaven:setWeaponStorageMax("EMP",4)			--less (vs 6)
-	playerRaven:setWeaponStorage("EMP",4)
-	playerRaven:setWeaponStorageMax("Mine",6)			--less (vs 8)
-	playerRaven:setWeaponStorage("Mine",6)
-	playerRaven:onTakingDamage(playerShipDamage)
-	playerRaven:addReputationPoints(50)
-	return playerRaven
+	ship:setBeamWeaponTurret(0,	 90,  -90,			1)	
+	ship:setBeamWeaponTurret(1,	 90,   90,			1)	
+	ship:setWeaponTubeCount(6)					--more (vs 3)
+	ship:setWeaponTubeDirection(0, -30)			--more angled (vs -5)
+	ship:setWeaponTubeDirection(1,  30)			--more angled (vs 5)
+	ship:setTubeSize(0,"small")					--small (vs medium)
+	ship:setTubeSize(1,"small")					--small (vs medium)
+	ship:setWeaponTubeExclusiveFor(0,"Nuke")		--Nuke only (vs all but mine)
+	ship:setWeaponTubeExclusiveFor(1,"Nuke")		--Nuke only (vs all but mine)
+	ship:setWeaponTubeDirection(2, -60)			
+	ship:setWeaponTubeDirection(3,  60)
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(3,"small")
+	ship:setWeaponTubeExclusiveFor(2,"EMP")
+	ship:setWeaponTubeExclusiveFor(3,"EMP")
+	ship:setTubeLoadTime(4, 12)					--slower (vs 8)
+	ship:setTubeSize(4,"large")
+	ship:setWeaponTubeExclusiveFor(4,"Homing")
+	ship:setWeaponTubeDirection(5, 180)
+	ship:setTubeLoadTime(5, 10)					--slower (vs 8)
+	ship:setWeaponTubeExclusiveFor(5,"Mine")
+	ship:setWeaponStorageMax("Homing",8)			--less (vs 12)
+	ship:setWeaponStorage("Homing",8)
+	ship:setWeaponStorageMax("EMP",4)			--less (vs 6)
+	ship:setWeaponStorage("EMP",4)
+	ship:setWeaponStorageMax("Mine",6)			--less (vs 8)
+	ship:setWeaponStorage("Mine",6)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Raven is based on Player Cruiser\nDifferences: Warp instead of jump, stronger shields (vs 80), weaker hull (vs 200), broadside turreted beams (vs forward), more tubes (vs 3), fewer missiles"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipCobra()
 	playerCobra = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Cobra")
@@ -32751,71 +33021,68 @@ function createPlayerShipCobra()
 	return playerCobra
 end
 function createPlayerShipCrux()
-	playerMantis = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Crux")
-	setBeamColor(playerMantis)
-	playerMantis:setTypeName("Mantis")
+	local base_template = "Player Missile Cr."
+	local hot_template = "Mantis"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Crux")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,0,-90,90,180}
+	ship.tube_ordnance = {"HVLI","HVLI","Homing,Nuke,EMP","Homing,Nuke,EMP","Mine"}
+	ship:setTypeName(hot_template)
 --                  			  Arc, Dir,  Range, CycleTime, Dmg
-	playerMantis:setBeamWeapon(0,  60, -15,	1000.0,			6, 4)	--two beams (vs none)
-	playerMantis:setBeamWeapon(1,  60,  15,	1000.0,			6, 4)
-	playerMantis:setWeaponTubeCount(5)					--fewer (vs 7)
-	playerMantis:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
-	playerMantis:setWeaponTubeExclusiveFor(1,"HVLI")	--HVLI only
-	playerMantis:setTubeSize(0,"small")					--small (vs medium)
-	playerMantis:setTubeSize(1,"small")					--small (vs medium)
-	playerMantis:setTubeLoadTime(0, 5)					--faster (vs 8)
-	playerMantis:setTubeLoadTime(1, 5)					--faster (vs 8)
-	playerMantis:setWeaponTubeDirection(2,-90)			--left (vs right)
-	playerMantis:setWeaponTubeDirection(4,180)			--rear (vs left)
-	playerMantis:weaponTubeAllowMissle(2,"EMP")			--allow EMP (vs Homing only)
-	playerMantis:weaponTubeAllowMissle(2,"Nuke")		--allow Nuke (vs Homing only)
-	playerMantis:weaponTubeAllowMissle(3,"EMP")			--allow EMP (vs Homing only)
-	playerMantis:weaponTubeAllowMissle(3,"Nuke")		--allow Nuke (vs Homing only)
-	playerMantis:setWeaponTubeExclusiveFor(4,"Mine")	--Mine only (vs Homing)
-	playerMantis:setWeaponStorageMax("HVLI", 12)	
-	playerMantis:setWeaponStorage("HVLI",    12)	
-	playerMantis:setWeaponStorageMax("Homing",8)
-	playerMantis:setWeaponStorage("Homing",   8)	
-	playerMantis:setWeaponStorageMax("EMP",   6)
-	playerMantis:setWeaponStorage("EMP",      6)	
-	playerMantis:setWeaponStorageMax("Nuke",  3)
-	playerMantis:setWeaponStorage("Nuke",     3)	
-	playerMantis:setWeaponStorageMax("Mine",  3)
-	playerMantis:setWeaponStorage("Mine",     3)	
-	playerMantis.turbo_torpedo_type = {"EMPMissile"}
-	playerMantis.turbo_torp_factor = 3
-	playerMantis.turbo_torp_charge_interval = 60
-	playerMantis:setSystemCoolantRate("reactor",		1.25)	--more (vs 1.2)
-	playerMantis:setSystemCoolantRate("beamweapons",	1.3)	--more (vs 1.2)
-	playerMantis:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
-	playerMantis:setSystemCoolantRate("warp",			1.3)	--more (vs 1.2)
-	playerMantis:setSystemCoolantRate("impulse",		1.15)	--less (vs 1.2)
-	playerMantis:setSystemCoolantRate("missilesystem",	1.25)	--more (vs 1.2)
-	playerMantis:setSystemCoolantRate("frontshield",	1)		--less (vs 1.2)
-	playerMantis:setSystemCoolantRate("rearshield",		1.1)	--less (vs 1.2)
-	playerMantis:setSystemPowerRate("reactor",		0.3)	--same (vs 0.30)
-	playerMantis:setSystemPowerRate("warp",			0.35)	--more (vs 0.30)
-	playerMantis:setSystemPowerRate("beamweapons",	0.3)	--same (vs 0.30)
-	playerMantis:setSystemPowerRate("maneuver",		0.25)	--less (vs 0.30)
-	playerMantis:setSystemPowerRate("impulse",		0.3)	--same (vs 0.30)
-	playerMantis:setSystemPowerRate("missilesystem",0.35)	--more (vs 0.30)
-	playerMantis:setSystemPowerRate("frontshield",	0.225)	--less (vs 0.30)
-	playerMantis:setSystemPowerRate("rearshield",	0.225)	--less (vs 0.30)
-	playerMantis.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:30   Radar:Long:25,Short:6   Escape pod capacity:2\nCargo space:8   Probes:9   Repair crew:3   Energy capacity:1000"},
-		["Diff Sum"] = {ord = 2, desc = "Mantis is based on Player Missile Cruiser\nDifferences: Beams (vs none), fewer tubes (5 vs 7), 2 small, fast forward facing HVLI only tubes, single broadside pair for medium Homing, Nuke and HVLI, rear tube for Mine, factor 3 turbo torpedo system for EMP, different missiles (vs Homing:30   Nuke:8   Mine:12   EMP:10   HVLI:0), varying speeds of coolant and power deployment per system (vs fixed)."},
-		["Engines"] = {ord = 3, desc = "Warp:Speed:800\nImpulse:Forward:60,Back:60\nAccelerate:Forward:15,Back:15\nTurn:8\nCombat maneuver:Boost:450,Strafe:150"},
-		["Defense"] = {ord = 4, desc = "Hull:200\nShields:Front:110,Rear:70"},
-		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-15   Arc:60   Range:1   Cycle:6   Damage:4   Damage type:Energy\nDirection:15   Arc:60   Range:1   Cycle:6   Damage:4   Damage type:Energy"},
-		["Tubes"] = {ord = 6, desc = "Tubes:5\nDirection:0   Speed:5   Size:Small   Ordnance:HVLI\nDirection:0   Speed:5   Size:Small   Ordnance:HVLI\nDirection:-90   Speed:8   Size:Medium   Ordnance:Homing,Nuke,EMP\nDirection:90   Speed:8   Size:Medium   Ordnance:Homing,Nuke,EMP\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine\nMagazine:   Homing:8   Nuke:3   Mine:3   EMP:6   HVLI:12"},
-		["Turbo Torp"] = {ord = 9},
-		["Proximity Scan"] = {ord = 11},
-		["Waypoint Calc"] = {ord = 15},
-		["Trigger Missile"] = {ord = 16},
-	}
-	addShipReference(playerMantis)
-	playerMantis:onTakingDamage(playerShipDamage)
-	playerMantis:addReputationPoints(50)
-	return playerMantis
+	ship:setBeamWeapon(0,  60, -15,	1000.0,			6, 4)	--two beams (vs none)
+	ship:setBeamWeapon(1,  60,  15,	1000.0,			6, 4)
+	ship:setWeaponTubeCount(5)					--fewer (vs 7)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")	--HVLI only
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")	--HVLI only
+	ship:setTubeSize(0,"small")					--small (vs medium)
+	ship:setTubeSize(1,"small")					--small (vs medium)
+	ship:setTubeLoadTime(0, 5)					--faster (vs 8)
+	ship:setTubeLoadTime(1, 5)					--faster (vs 8)
+	ship:setWeaponTubeDirection(2,-90)			--left (vs right)
+	ship:setWeaponTubeDirection(4,180)			--rear (vs left)
+	ship:weaponTubeAllowMissle(2,"EMP")			--allow EMP (vs Homing only)
+	ship:weaponTubeAllowMissle(2,"Nuke")		--allow Nuke (vs Homing only)
+	ship:weaponTubeAllowMissle(3,"EMP")			--allow EMP (vs Homing only)
+	ship:weaponTubeAllowMissle(3,"Nuke")		--allow Nuke (vs Homing only)
+	ship:setWeaponTubeExclusiveFor(4,"Mine")	--Mine only (vs Homing)
+	ship:setWeaponStorageMax("HVLI", 12)	
+	ship:setWeaponStorage("HVLI",    12)	
+	ship:setWeaponStorageMax("Homing",8)
+	ship:setWeaponStorage("Homing",   8)	
+	ship:setWeaponStorageMax("EMP",   6)
+	ship:setWeaponStorage("EMP",      6)	
+	ship:setWeaponStorageMax("Nuke",  3)
+	ship:setWeaponStorage("Nuke",     3)	
+	ship:setWeaponStorageMax("Mine",  3)
+	ship:setWeaponStorage("Mine",     3)	
+	ship.turbo_torpedo_type = {"EMPMissile"}
+	ship.turbo_torp_factor = 3
+	ship.turbo_torp_charge_interval = 60
+	ship:setSystemCoolantRate("reactor",		1.25)	--more (vs 1.2)
+	ship:setSystemCoolantRate("beamweapons",	1.3)	--more (vs 1.2)
+	ship:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
+	ship:setSystemCoolantRate("warp",			1.3)	--more (vs 1.2)
+	ship:setSystemCoolantRate("impulse",		1.15)	--less (vs 1.2)
+	ship:setSystemCoolantRate("missilesystem",	1.25)	--more (vs 1.2)
+	ship:setSystemCoolantRate("frontshield",	1)		--less (vs 1.2)
+	ship:setSystemCoolantRate("rearshield",		1.1)	--less (vs 1.2)
+	ship:setSystemPowerRate("reactor",		0.3)	--same (vs 0.30)
+	ship:setSystemPowerRate("warp",			0.35)	--more (vs 0.30)
+	ship:setSystemPowerRate("beamweapons",	0.3)	--same (vs 0.30)
+	ship:setSystemPowerRate("maneuver",		0.25)	--less (vs 0.30)
+	ship:setSystemPowerRate("impulse",		0.3)	--same (vs 0.30)
+	ship:setSystemPowerRate("missilesystem",0.35)	--more (vs 0.30)
+	ship:setSystemPowerRate("frontshield",	0.225)	--less (vs 0.30)
+	ship:setSystemPowerRate("rearshield",	0.225)	--less (vs 0.30)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Mantis is based on Player Missile Cruiser\nDifferences: Beams (vs none), fewer tubes (5 vs 7), 2 small, fast forward facing HVLI only tubes, single broadside pair for medium Homing, Nuke and HVLI, rear tube for Mine, factor 3 turbo torpedo system for EMP, different missiles (vs Homing:30   Nuke:8   Mine:12   EMP:10   HVLI:0), varying speeds of coolant and power deployment per system (vs fixed)."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipDarkstar()
 	playerDarkstar = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Darkstar")
@@ -32915,44 +33182,43 @@ function createPlayerShipEagle()
 	return playerEagle
 end
 function createPlayerShipEndeavor()
-	playerEndeavor = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Endeavor")
-	setBeamColor(playerEndeavor)
-	playerEndeavor:setTypeName("Bermuda")
-	playerEndeavor:setRepairCrewCount(5)					--more repair crew (vs 3)
-	playerEndeavor:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
-	playerEndeavor:setAcceleration(30)						--faster acceleration (vs 20)
-	playerEndeavor:setMaxEnergy(800)						--less maximum energy (vs 1000)
-	playerEndeavor:setEnergy(800)
-	playerEndeavor:setHullMax(150)							--weaker hull (vs 250)
-	playerEndeavor:setHull(150)							
-	playerEndeavor:setShieldsMax(150,150)					--weaker shields (vs 200)
-	playerEndeavor:setShields(150,150)
-	playerEndeavor.max_jump_range = 35000					--shorter than typical (vs 50)
-	playerEndeavor.min_jump_range = 3500					--shorter than typical (vs 5)
-	playerEndeavor:setJumpDriveRange(playerEndeavor.min_jump_range,playerEndeavor.max_jump_range)
-	playerEndeavor:setJumpDriveCharge(playerEndeavor.max_jump_range)
-	playerEndeavor:setBeamWeaponEnergyPerFire(0,playerEndeavor:getBeamWeaponEnergyPerFire(0)*3)		--triple power use
-	playerEndeavor:setBeamWeaponHeatPerFire(0,playerEndeavor:getBeamWeaponHeatPerFire(0)*3)			--triple heat
-	playerEndeavor:setBeamWeaponEnergyPerFire(1,playerEndeavor:getBeamWeaponEnergyPerFire(1)*3)		--triple power use
-	playerEndeavor:setBeamWeaponHeatPerFire(1,playerEndeavor:getBeamWeaponHeatPerFire(1)*3)			--triple heat
-	playerEndeavor:setWeaponTubeCount(3)					--fewer (vs 5)
-	playerEndeavor:setWeaponTubeDirection(1,  90)
-	playerEndeavor:setWeaponTubeDirection(2, 180)
-	playerEndeavor:setWeaponTubeExclusiveFor(2,"Mine")
-	playerEndeavor.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:30   Radar:Long:30,Short:4.5   Escape pod capacity:2\nCargo space:4   Probes:14   Repair crew:5   Energy capacity:800"},
-		["Diff Sum"] = {ord = 2, desc = "Bermuda is based on Atlantis\nDifferences: slower impulse (vs 90), faster acceleration (vs 20), less battery capacity (vs 1000), weaker hull (vs 250), weaker shields (vs 200), shorter jump (vs 50), beams eat more power and generate more heat, fewer tubes (vs 5)"},
-		["Engines"] = {ord = 3, desc = "Jump:Long:35,Short:3.5\nImpulse:Forward:70,Back:90\nAccelerate:Forward:30,Back:20\nTurn:10\nCombat maneuver:Boost:400,Strafe:250"},
-		["Defense"] = {ord = 4, desc = "Hull:150\nShields:Front:150,Rear:150"},
-		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-20   Arc:100   Range:1.5   Cycle:6   Damage:8   Damage type:Energy\nDirection:20   Arc:100   Range:1.5   Cycle:6   Damage:8   Damage type:Energy"},
-		["Tubes"] = {ord = 6, desc = "Tubes:3\nDirection:-90   Speed:8   Size:Medium   Ordnance:all but Mine\nDirection:90   Speed:8   Size:Medium   Ordnance:all but Mine\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine only\nMagazine:   Homing:12   Nuke:4   Mine:8   EMP:6   HVLI:20"},
-		["Tractor"] = {ord = 7},
-		["Trigger Missile"] = {ord = 16},
-	}
-	addShipReference(playerEndeavor)
-	playerEndeavor:onTakingDamage(playerShipDamage)
-	playerEndeavor:addReputationPoints(50)
-	return playerEndeavor
+	local base_template = "Atlantis"
+	local hot_template = "Bermuda"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Endeavor")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-90,90,180}
+	ship.tube_ordnance = {"all but Mine","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(5)					--more repair crew (vs 3)
+	ship:setImpulseMaxSpeed(70)					--slower impulse max (vs 90)
+	ship:setAcceleration(30)						--faster acceleration (vs 20)
+	ship:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	ship:setEnergy(800)
+	ship:setHullMax(150)							--weaker hull (vs 250)
+	ship:setHull(150)							
+	ship:setShieldsMax(150,150)					--weaker shields (vs 200)
+	ship:setShields(150,150)
+	ship.max_jump_range = 35000					--shorter than typical (vs 50)
+	ship.min_jump_range = 3500					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setBeamWeaponEnergyPerFire(0,ship:getBeamWeaponEnergyPerFire(0)*3)		--triple power use
+	ship:setBeamWeaponHeatPerFire(0,ship:getBeamWeaponHeatPerFire(0)*3)			--triple heat
+	ship:setBeamWeaponEnergyPerFire(1,ship:getBeamWeaponEnergyPerFire(1)*3)		--triple power use
+	ship:setBeamWeaponHeatPerFire(1,ship:getBeamWeaponHeatPerFire(1)*3)			--triple heat
+	ship:setWeaponTubeCount(3)					--fewer (vs 5)
+	ship:setWeaponTubeDirection(1,  90)
+	ship:setWeaponTubeDirection(2, 180)
+	ship:setWeaponTubeExclusiveFor(2,"Mine")
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Bermuda is based on Atlantis\nDifferences: slower impulse (vs 90), faster acceleration (vs 20), less battery capacity (vs 1000), weaker hull (vs 250), weaker shields (vs 200), shorter jump (vs 50), beams eat more power and generate more heat, fewer tubes (vs 5)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipEnola()
 	playerEnola = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Enola")
@@ -33135,98 +33401,110 @@ function createPlayerShipFlaire()
 	return playerPeacock
 end
 function createPlayerShipFlipper()
-	playerFlipper = PlayerSpaceship():setTemplate("Player Missile Cr."):setFaction("Human Navy"):setCallSign("Flipper")
-	setBeamColor(playerFlipper)
-	playerFlipper:setTypeName("Midian")
-	playerFlipper:setRadarTrace("cruiser.png")	--different radar trace
-	playerFlipper:setWarpSpeed(320)				--slower (vs 800)
+	local base_template = "Player Missile Cr."
+	local hot_template = "Midian"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Flipper")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-2,2,-90,90,180}
+	ship.tube_ordnance = {"Homing","Homing","Nuke,EMP,HVLI","Nuke,EMP,HVLI","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRadarTrace("cruiser.png")	--different radar trace
+	ship:setWarpSpeed(320)				--slower (vs 800)
 --                  				Arc, Dir, Range, CycleTime, Dmg
-	playerFlipper:setBeamWeapon(0,   50, -20,  1000, 	     6, 4)	--beams (vs none)
-	playerFlipper:setBeamWeapon(1,   50,  20,  1000, 	     6, 4)
-	playerFlipper:setBeamWeapon(2,   10, 180,  1000, 	     6, 2)
+	ship:setBeamWeapon(0,   50, -20,  1000, 	     6, 4)	--beams (vs none)
+	ship:setBeamWeapon(1,   50,  20,  1000, 	     6, 4)
+	ship:setBeamWeapon(2,   10, 180,  1000, 	     6, 2)
 --									     Arc, Dir, Rotate speed
-	playerFlipper:setBeamWeaponTurret(2, 220, 180, .3)
-	playerFlipper:setWeaponTubeCount(5)					--fewer (vs 7)
-	playerFlipper:setWeaponTubeDirection(0,-2)			--angled (vs front)
-	playerFlipper:setWeaponTubeDirection(1, 2)			--angled (vs front)
-	playerFlipper:setWeaponTubeDirection(2,-90)			--left (vs right)
-	playerFlipper:setWeaponTubeDirection(4,180)			--rear (vs left)
-	playerFlipper:setTubeSize(0,"small")				--small vs medium
-	playerFlipper:setTubeSize(1,"small")				--small vs medium
-	playerFlipper:setWeaponTubeExclusiveFor(0,"Homing")	--homing only
-	playerFlipper:setWeaponTubeExclusiveFor(1,"Homing")	--homing only
-	playerFlipper:setWeaponTubeExclusiveFor(2,"HVLI")
-	playerFlipper:setWeaponTubeExclusiveFor(3,"HVLI")
-	playerFlipper:setWeaponTubeExclusiveFor(4,"Mine")
-	playerFlipper:weaponTubeAllowMissle(2,"EMP")
-	playerFlipper:weaponTubeAllowMissle(3,"EMP")
-	playerFlipper:weaponTubeAllowMissle(2,"Nuke")
-	playerFlipper:weaponTubeAllowMissle(3,"Nuke")
-	playerFlipper:setTubeLoadTime(2,12)
-	playerFlipper:setTubeLoadTime(3,12)
-	playerFlipper:setTubeLoadTime(4,15)
-	playerFlipper:setWeaponStorageMax("Homing",16)		--less (vs 30)
-	playerFlipper:setWeaponStorage("Homing",   16)				
-	playerFlipper:setWeaponStorageMax("Nuke",   2)		--less (vs 8)
-	playerFlipper:setWeaponStorage("Nuke",      2)				
-	playerFlipper:setWeaponStorageMax("EMP",    5)		--less (vs 10)
-	playerFlipper:setWeaponStorage("EMP",       5)				
-	playerFlipper:setWeaponStorageMax("Mine",   8)		--less (vs 12)
-	playerFlipper:setWeaponStorage("Mine",      8)				
-	playerFlipper:setWeaponStorageMax("HVLI",  16)		--more (vs 0)
-	playerFlipper:setWeaponStorage("HVLI",     16)
-	playerFlipper.smallHomingOnly = true
-	playerFlipper.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:30   Radar:Long:25,Short:5.5   Escape pod capacity:3\nCargo space:9   Probes:9   Repair crew:3   Energy capacity:1000"},
-		["Diff Sum"] = {ord = 2, desc = "Midian is based on Player Missile Cruiser\nDifferences: uses the cruiser radar trace, slower warp speed (vs 800), 3 beams (vs none), fewer tubes (vs 7) with varying sizes, angles and load times, different set of ordnance (vs Homing:30   Nuke:8   Mine:12   EMP:10   HVLI:0), waypoint distance calculator, trigger splash missiles remotely"},
-		["Engines"] = {ord = 3, desc = "Jump:Long:35,Short:3.5\nImpulse:Forward:70,Back:90\nAccelerate:Forward:30,Back:20\nTurn:10\nCombat maneuver:Boost:400,Strafe:250"},
-		["Defense"] = {ord = 4, desc = "Hull:200\nShields:Front:110,Rear:70"},
-		["Beams"] = {ord = 5, desc = "Beams:3\nDirection:-20   Arc:50   Range:1   Cycle:6   Damage:4   Damage type:Energy\nDirection:20   Arc:50   Range:1   Cycle:6   Damage:4   Damage type:Energy\nDirection:180   Arc:10   Range:1   Cycle:6   Damage:2   Damage type:Energy   Turret arc:220   Turret speed:.3"},
-		["Tubes"] = {ord = 6, desc = "Tubes:5\nDirection:-2   Speed:8   Size:Small   Ordnance:Homing\nDirection:2   Speed:8   Size:Small   Ordnance:Homing\nDirection:-90   Speed:12   Size:Medium   Ordnance:Nuke,EMP,HVLI\nDirection:90   Speed:12   Size:Medium   Ordnance:Nuke,EMP,HVLI\nDirection:180   Speed:15   Size:Medium   Ordnance:Mine\nMagazine:   Homing:16   Nuke:2   Mine:8   EMP:5   HVLI:16"},
-		["Waypoint Calc"] = {ord = 15},
-		["Trigger Missile"] = {ord = 16},
-	}
-	addShipReference(playerFlipper)
-	playerFlipper:onTakingDamage(playerShipDamage)
-	playerFlipper:addReputationPoints(50)
-	return playerFlipper
+	ship:setBeamWeaponTurret(2, 220, 180, .3)
+	ship:setWeaponTubeCount(5)					--fewer (vs 7)
+	ship:setWeaponTubeDirection(0,-2)			--angled (vs front)
+	ship:setWeaponTubeDirection(1, 2)			--angled (vs front)
+	ship:setWeaponTubeDirection(2,-90)			--left (vs right)
+	ship:setWeaponTubeDirection(4,180)			--rear (vs left)
+	ship:setTubeSize(0,"small")				--small vs medium
+	ship:setTubeSize(1,"small")				--small vs medium
+	ship:setWeaponTubeExclusiveFor(0,"Homing")	--homing only
+	ship:setWeaponTubeExclusiveFor(1,"Homing")	--homing only
+	ship:setWeaponTubeExclusiveFor(2,"HVLI")
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")
+	ship:setWeaponTubeExclusiveFor(4,"Mine")
+	ship:weaponTubeAllowMissle(2,"EMP")
+	ship:weaponTubeAllowMissle(3,"EMP")
+	ship:weaponTubeAllowMissle(2,"Nuke")
+	ship:weaponTubeAllowMissle(3,"Nuke")
+	ship:setTubeLoadTime(2,12)
+	ship:setTubeLoadTime(3,12)
+	ship:setTubeLoadTime(4,15)
+	ship:setWeaponStorageMax("Homing",16)		--less (vs 30)
+	ship:setWeaponStorage("Homing",   16)				
+	ship:setWeaponStorageMax("Nuke",   2)		--less (vs 8)
+	ship:setWeaponStorage("Nuke",      2)				
+	ship:setWeaponStorageMax("EMP",    5)		--less (vs 10)
+	ship:setWeaponStorage("EMP",       5)				
+	ship:setWeaponStorageMax("Mine",   8)		--less (vs 12)
+	ship:setWeaponStorage("Mine",      8)				
+	ship:setWeaponStorageMax("HVLI",  16)		--more (vs 0)
+	ship:setWeaponStorage("HVLI",     16)
+	ship.smallHomingOnly = true
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Midian is based on Player Missile Cruiser\nDifferences: uses the cruiser radar trace, slower warp speed (vs 800), 3 beams (vs none), fewer tubes (vs 7) with varying sizes, angles and load times, different set of ordnance (vs Homing:30   Nuke:8   Mine:12   EMP:10   HVLI:0), waypoint distance calculator, trigger splash missiles remotely"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipFlorentine()
-	playerSafari = PlayerSpaceship():setTemplate("Flavia P.Falcon"):setFaction("Human Navy"):setCallSign("Florentine")
-	setBeamColor(playerSafari)
-	playerSafari:setTypeName("Safari")
-	playerSafari:setShieldsMax(150, 90)					--stronger front, weaker rear (vs 70, 70)
-	playerSafari:setShields(150, 90)
---                 			      Arc, Dir, Range, CycleTime, Damage
-	playerSafari:setBeamWeapon(0,  10,   0,	1200, 		5.0, 	7.0)	--1 forward, 1 turret (vs 2 rear)
-	playerSafari:setBeamWeapon(1,  60,   0,	1000, 		6.0,    6.0)	--shorter (vs 1200)
-	playerSafari:setBeamWeapon(2,  40,   0,	 800, 		8.0,   12.0)	--extra beam
---										Arc,  Dir, Rotate speed
-	playerSafari:setBeamWeaponTurret(0,	 80,    0,			 .4)		--slow turret
-	playerSafari:setBeamWeaponDamageType(0,"emp")
-	playerSafari:setBeamWeaponDamageType(1,"kinetic")
-	playerSafari:setWeaponTubeCount(3)									--more (vs 1)
-	playerSafari:setWeaponTubeDirection(0, -90)							--left (vs rear)
-	playerSafari:setWeaponTubeDirection(1,  90)							--right (vs none)
-	playerSafari:setWeaponTubeDirection(2, 180)							--rear (vs none)
-	playerSafari:setWeaponTubeExclusiveFor(0,"HVLI")					--HVLI only (vs any)
-	playerSafari:setWeaponTubeExclusiveFor(1,"HVLI")					--HVLI only (vs none)
-	playerSafari:setWeaponTubeExclusiveFor(2,"Mine")					--Mine only (vs none)
-	playerSafari:setTubeSize(0,"small")									--small (vs medium)
-	playerSafari:setTubeSize(1,"small")									--small (vs none)
-	playerSafari:setTubeLoadTime(0,8)									--faster (vs 20)
-	playerSafari:setTubeLoadTime(1,8)									--faster (vs none)
-	playerSafari:setWeaponStorageMax("Homing", 0)						--less (vs 3)
-	playerSafari:setWeaponStorage("Homing", 0)
-	playerSafari:setWeaponStorageMax("Nuke", 0)							--less (vs 1)
-	playerSafari:setWeaponStorage("Nuke", 0)
-	playerSafari:setWeaponStorageMax("HVLI", 20)						--more (vs 5)
-	playerSafari:setWeaponStorage("HVLI", 20)
-	playerSafari:setWeaponStorageMax("Mine", 4)							--more (vs 1)
-	playerSafari:setWeaponStorage("Mine", 4)
-	playerSafari:onTakingDamage(playerShipDamage)
-	playerSafari:addReputationPoints(50)
-	return playerSafari
+	local base_template = "Flavia P.Falcon"
+	local hot_template = "Safari"
+	playerSafari = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Florentine")
+	local ship = playerSafari
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.beam_damage_type[1] = "emp"
+	ship.beam_damage_type[2] = "kinetic"	
+	ship.tube_direction = {-90,90,180}
+	ship.tube_ordnance = {"HVLI","HVLI","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setShieldsMax(150, 90)					--stronger front, weaker rear (vs 70, 70)
+	ship:setShields(150, 90)
+--                 		  Arc, Dir, Range, CycleTime, Damage
+	ship:setBeamWeapon(0,  10,   0,	1200, 		5.0, 	7.0)	--1 forward, 1 turret (vs 2 rear)
+	ship:setBeamWeapon(1,  60,   0,	1000, 		6.0,    6.0)	--shorter (vs 1200)
+	ship:setBeamWeapon(2,  40,   0,	 800, 		8.0,   12.0)	--extra beam
+--								Arc,  Dir, Rotate speed
+	ship:setBeamWeaponTurret(0,	 80,    0,			 .4)		--slow turret
+	ship:setBeamWeaponDamageType(0,"emp")
+	ship:setBeamWeaponDamageType(1,"kinetic")
+	ship:setWeaponTubeCount(3)									--more (vs 1)
+	ship:setWeaponTubeDirection(0, -90)							--left (vs rear)
+	ship:setWeaponTubeDirection(1,  90)							--right (vs none)
+	ship:setWeaponTubeDirection(2, 180)							--rear (vs none)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")					--HVLI only (vs any)
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")					--HVLI only (vs none)
+	ship:setWeaponTubeExclusiveFor(2,"Mine")					--Mine only (vs none)
+	ship:setTubeSize(0,"small")									--small (vs medium)
+	ship:setTubeSize(1,"small")									--small (vs none)
+	ship:setTubeLoadTime(0,8)									--faster (vs 20)
+	ship:setTubeLoadTime(1,8)									--faster (vs none)
+	ship:setWeaponStorageMax("Homing", 0)						--less (vs 3)
+	ship:setWeaponStorage("Homing", 0)
+	ship:setWeaponStorageMax("Nuke", 0)							--less (vs 1)
+	ship:setWeaponStorage("Nuke", 0)
+	ship:setWeaponStorageMax("HVLI", 20)						--more (vs 5)
+	ship:setWeaponStorage("HVLI", 20)
+	ship:setWeaponStorageMax("Mine", 4)							--more (vs 1)
+	ship:setWeaponStorage("Mine", 4)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Safari is based on Flavia P. Falcon\nDifferences: stronger shields (150/90 vs 70/70), different beams including an added beam, more tubes, different missile types"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipGabble()
 	playerGabble = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Gabble")
@@ -33357,46 +33635,46 @@ function createPlayerShipGorn()
 	return playerGorn
 end
 function createPlayerShipGuinevere()
-	playerGuinevere = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Guinevere")
-	setBeamColor(playerGuinevere)
-	playerGuinevere:setTypeName("Caretaker")
-	playerGuinevere:setWarpDrive(false)						--no warp drive (vs warp)
-	playerGuinevere:setJumpDrive(true)						--jump drive (vs warp)
-	playerGuinevere.max_jump_range = 40000					--shorter than typical (vs 50)
-	playerGuinevere.min_jump_range = 4000					--shorter than typical (vs 5)
-	playerGuinevere:setJumpDriveRange(playerGuinevere.min_jump_range,playerGuinevere.max_jump_range)
-	playerGuinevere:setJumpDriveCharge(playerGuinevere.max_jump_range)
-	playerGuinevere:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
+	local base_template = "Crucible"
+	local hot_template = "Caretaker"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Guinevere")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,0,0,180}
+	ship.tube_ordnance = {"HVLI","Nuke,EMP","Homing","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setWarpDrive(false)						--no warp drive (vs warp)
+	ship:setJumpDrive(true)						--jump drive (vs warp)
+	ship.max_jump_range = 40000					--shorter than typical (vs 50)
+	ship.min_jump_range = 4000					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
 --                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerGuinevere:setBeamWeapon(0, 80, -90, 900.0, 		5.0,   6)	--side beams (vs forward), faster (vs 6)
-	playerGuinevere:setBeamWeapon(1, 80,  90, 900.0, 		5.0,   6)	
-	playerGuinevere:setWeaponTubeCount(4)					--fewer (vs 6)
-	playerGuinevere:setWeaponTubeExclusiveFor(1,"EMP")		--normal sized tube allow EMPs and Nukes (vs HVLI)
-	playerGuinevere:weaponTubeAllowMissle(1,"Nuke")
-	playerGuinevere:setWeaponTubeExclusiveFor(2,"Homing")	--large tube for homing (vs HVLI)
-	playerGuinevere:setWeaponTubeExclusiveFor(3,"Mine")
-	playerGuinevere:setWeaponTubeDirection(3, 180)
-	playerGuinevere:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
-	playerGuinevere:setWeaponStorage("Homing", 6)				
-	playerGuinevere:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
-	playerGuinevere:setWeaponStorage("EMP", 3)				
-	playerGuinevere:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
-	playerGuinevere:setWeaponStorage("Nuke", 2)				
-	playerGuinevere:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
-	playerGuinevere:setWeaponStorage("Mine", 3)				
-	playerGuinevere.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:23   Radar:Long:35,Short:5   Escape pod capacity:2\nCargo space:6   Probes:9   Repair crew:4   Energy capacity:1000"},
-		["Diff Sum"] = {ord = 2, desc = "Caretaker is based on Crucible\nDifferences: Jump (vs Warp), weaker shields (vs 160), broadside beams (vs forwards), faster beam cycle time (vs 6), fewer tubes (vs 6), no broadside tubes, different missile types for front tubes, different missiles (vs Homing:8   Nuke:4   Mine:6   EMP:6)"},
-		["Engines"] = {ord = 3, desc = "Jump:Long:40,Short:4\nImpulse:Forward:80,Back:80\nAccelerate:Forward:40,Back:40\nTurn:15\nCombat maneuver:Boost:400,Strafe:250"},
-		["Defense"] = {ord = 4, desc = "Hull:160\nShields:Front:160,Rear:160"},
-		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-90   Arc:80   Range:.9   Cycle:5   Damage:6   Damage type:Energy\nDirection:90   Arc:80   Range:.9   Cycle:5   Damage:6   Damage type:Energy"},
-		["Tubes"] = {ord = 6, desc = "Tubes:4\nDirection:0   Speed:8   Size:Small   Ordnance:HVLI\nDirection:0   Speed:8   Size:Medium   Ordnance:Nuke,EMP\nDirection:0   Speed:8   Size:Large   Ordnance:Homing\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine\nMagazine:   Homing:6   Nuke:2   Mine:3   EMP:3   HVLI:24"},
-		["Tractor"] = {ord = 7},
-	}
-	addShipReference(playerGuinevere)
-	playerGuinevere:onTakingDamage(playerShipDamage)
-	playerGuinevere:addReputationPoints(50)
-	return playerGuinevere
+	ship:setBeamWeapon(0, 80, -90, 900.0, 		5.0,   6)	--side beams (vs forward), faster (vs 6)
+	ship:setBeamWeapon(1, 80,  90, 900.0, 		5.0,   6)	
+	ship:setWeaponTubeCount(4)					--fewer (vs 6)
+	ship:setWeaponTubeExclusiveFor(1,"EMP")		--normal sized tube allow EMPs and Nukes (vs HVLI)
+	ship:weaponTubeAllowMissle(1,"Nuke")
+	ship:setWeaponTubeExclusiveFor(2,"Homing")	--large tube for homing (vs HVLI)
+	ship:setWeaponTubeExclusiveFor(3,"Mine")
+	ship:setWeaponTubeDirection(3, 180)
+	ship:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
+	ship:setWeaponStorage("Homing", 6)				
+	ship:setWeaponStorageMax("EMP",3)			--fewer (vs 6)
+	ship:setWeaponStorage("EMP", 3)				
+	ship:setWeaponStorageMax("Nuke",2)			--fewer (vs 4)
+	ship:setWeaponStorage("Nuke", 2)				
+	ship:setWeaponStorageMax("Mine",3)			--fewer (vs 6)
+	ship:setWeaponStorage("Mine", 3)				
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Caretaker is based on Crucible\nDifferences: Jump (vs Warp), weaker shields (vs 160), broadside beams (vs forwards), faster beam cycle time (vs 6), fewer tubes (vs 6), no broadside tubes, different missile types for front tubes, different missiles (vs Homing:8   Nuke:4   Mine:6   EMP:6)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipHalberd()
 	--destroyed 29Feb2020
@@ -33522,67 +33800,64 @@ function createPlayerShipHearken()
 	return playerHearken
 end
 function createPlayerShipHrothgar()
-	playerNusret = PlayerSpaceship():setTemplate("Nautilus"):setFaction("Human Navy"):setCallSign("Beowulf")
-	setBeamColor(playerNusret)
-	--aka Beowulf
-	playerNusret:setTypeName("Nusret")
-	playerNusret:setHullMax(150)						--stronger hull (vs 100)
-	playerNusret:setHull(150)
-	playerNusret:setShieldsMax(100, 100)				--stronger shields (vs 60, 60)
-	playerNusret:setShields(100, 100)
-	playerNusret:setRepairCrewCount(6)					--more repair crew (vs 4)
-	playerNusret.max_jump_range = 25000					--shorter than typical (vs 50)
-	playerNusret.min_jump_range = 2500						--shorter than typical (vs 5)
-	playerNusret:setJumpDriveRange(playerNusret.min_jump_range,playerNusret.max_jump_range)
-	playerNusret:setJumpDriveCharge(playerNusret.max_jump_range)
---                 			      Arc, Dir, Range, CycleTime, Damage
-	playerNusret:setBeamWeapon(0,  10, -35,	1000, 		6.0, 	6.0)	
-	playerNusret:setBeamWeapon(1,  10,  35,	1000, 		6.0,    6.0)	
-	playerNusret:setBeamWeapon(2,  40,	 0,	 500,		8.0,	9.0)	--additional short, slow, stronger beam
---										Arc,  Dir, Rotate speed
-	playerNusret:setBeamWeaponTurret(0,	 90,  -35,			 .4)		--slow turret
-	playerNusret:setBeamWeaponTurret(1,	 90,   35,			 .4)
-	playerNusret:setTubeLoadTime(2,8)					--faster (vs 10)
-	playerNusret:setWeaponTubeDirection(0,-60)			--front left facing (vs back)
-	playerNusret:setWeaponTubeDirection(1, 60)			--front right facing (vs back)
-	playerNusret:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
-	playerNusret:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
-	playerNusret:setWeaponStorageMax("Homing",8)		--more homing (vs 0)
-	playerNusret:setWeaponStorage("Homing", 8)				
-	playerNusret:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
-	playerNusret:setWeaponStorage("Mine", 8)				
-	playerNusret:setSystemCoolantRate("reactor",		1.25)	--more (vs 1.2)
-	playerNusret:setSystemCoolantRate("jumpdrive",		1.15)	--less (vs 1.2)
-	playerNusret:setSystemCoolantRate("beamweapons",	1.25)	--more (vs 1.2)
-	playerNusret:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
-	playerNusret:setSystemCoolantRate("impulse",		0.9)	--less (vs 1.2)
-	playerNusret:setSystemCoolantRate("frontshield",	0.95)	--less (vs 1.2)
-	playerNusret:setSystemCoolantRate("rearshield",		0.95)	--less (vs 1.2)
-	playerNusret:setSystemCoolantRate("missilesystem",	1.2)	--same (vs 1.2)
-	playerNusret:setSystemPowerRate("reactor",			0.4)	--more (vs 0.30)
-	playerNusret:setSystemPowerRate("beamweapons",		0.35)	--more (vs 0.30)
-	playerNusret:setSystemPowerRate("jumpdrive",		0.35)	--more (vs 0.30)
-	playerNusret:setSystemPowerRate("maneuver",			0.325)	--more (vs 0.30)
-	playerNusret:setSystemPowerRate("impulse",			0.275)	--less (vs 0.30)
-	playerNusret:setSystemPowerRate("frontshield",		0.3)	--same (vs 0.30)
-	playerNusret:setSystemPowerRate("rearshield",		0.3)	--same (vs 0.30)	
-	playerNusret:setSystemPowerRate("missilesystem",	0.375)	--more (vs 0.30)	
-	playerNusret.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:16   Radar:Long:25,Short:4   Escape pod capacity:1\nCargo space:7   Probes:10   Repair crew:6   Energy capacity:1000"},
-		["Diff Sum"] = {ord = 2, desc = "Nusret is based on Nautilus\nDifferences: more repair crew, stronger hull (vs 100), shorter jump drive range (vs 50), stronger shields (vs 60/60), turreted beams (vs fix mount), additional short, strong beam, realign 1st two tubes from rear to 60/-60 and speed up their load times and let them shoot homing missiles, decrease mines and increase homing missiles, varying speeds of coolant and power deployment per system (vs fixed)."},
-		["Engines"] = {ord = 3, desc = "Jump:Long:25,Short:2.5\nImpulse:Forward:100,Back:100\nAccelerate:Forward:15,Back:15\nTurn:10\nCombat maneuver:Boost:250,Strafe:150"},
-		["Defense"] = {ord = 4, desc = "Hull:150\nShields:Front:100,Rear:100"},
-		["Beams"] = {ord = 5, desc = "Beams:3\nDirection:-35   Arc:10   Range:1   Cycle:6   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.4\nDirection:35   Arc:10   Range:1   Cycle:6   Damage:6   Damage type:Energy   Turret arc:90   Turret speed:.4\nDirection:0   Arc:40   Range:0.5   Cycle:8   Damage:9   Damage type:Energy"},
-		["Tubes"] = {ord = 6, desc = "Tubes:3\nDirection:-60   Speed:8   Size:Medium   Ordnance:Homing\nDirection:60   Speed:8   Size:Medium   Ordnance:Homing\nDirection:180   Speed:10   Size:Medium   Ordnance:Mine\nMagazine:   Homing:8   Mine:8"},
-		["Mining"] = {ord = 8},
-		["EPJAM"] = {ord = 12},
-		["Powered Sensors"] = {ord = 13},
-		["Waypoint Calc"] = {ord = 15},
-	}
-	addShipReference(playerNusret)
-	playerNusret:onTakingDamage(playerShipDamage)
-	playerNusret:addReputationPoints(50)
-	return playerNusret
+	local base_template = "Nautilus"
+	local hot_template = "Nusret"
+	playerNusret = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Beowulf")
+	local ship = playerNusret
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-60,60,180}
+	ship.tube_ordnance = {"Homing","Homing","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setHullMax(150)						--stronger hull (vs 100)
+	ship:setHull(150)
+	ship:setShieldsMax(100, 100)				--stronger shields (vs 60, 60)
+	ship:setShields(100, 100)
+	ship:setRepairCrewCount(6)					--more repair crew (vs 4)
+	ship.max_jump_range = 25000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2500						--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+--                 		  Arc, Dir, Range, CycleTime, Damage
+	ship:setBeamWeapon(0,  10, -35,	1000, 		6.0, 	6.0)	
+	ship:setBeamWeapon(1,  10,  35,	1000, 		6.0,    6.0)	
+	ship:setBeamWeapon(2,  40,	 0,	 500,		8.0,	9.0)	--additional short, slow, stronger beam
+--								Arc,  Dir, Rotate speed
+	ship:setBeamWeaponTurret(0,	 90,  -35,			 .4)		--slow turret
+	ship:setBeamWeaponTurret(1,	 90,   35,			 .4)
+	ship:setTubeLoadTime(2,8)					--faster (vs 10)
+	ship:setWeaponTubeDirection(0,-60)			--front left facing (vs back)
+	ship:setWeaponTubeDirection(1, 60)			--front right facing (vs back)
+	ship:setWeaponTubeExclusiveFor(0,"Homing")	--Homing only (vs Mine)
+	ship:setWeaponTubeExclusiveFor(1,"Homing")	--Homing only (vs Mine)
+	ship:setWeaponStorageMax("Homing",8)		--more homing (vs 0)
+	ship:setWeaponStorage("Homing", 8)				
+	ship:setWeaponStorageMax("Mine",8)			--fewer mines (vs 12)
+	ship:setWeaponStorage("Mine", 8)				
+	ship:setSystemCoolantRate("reactor",		1.25)	--more (vs 1.2)
+	ship:setSystemCoolantRate("jumpdrive",		1.15)	--less (vs 1.2)
+	ship:setSystemCoolantRate("beamweapons",	1.25)	--more (vs 1.2)
+	ship:setSystemCoolantRate("maneuver",		1.2)	--same (vs 1.2)
+	ship:setSystemCoolantRate("impulse",		0.9)	--less (vs 1.2)
+	ship:setSystemCoolantRate("frontshield",	0.95)	--less (vs 1.2)
+	ship:setSystemCoolantRate("rearshield",		0.95)	--less (vs 1.2)
+	ship:setSystemCoolantRate("missilesystem",	1.2)	--same (vs 1.2)
+	ship:setSystemPowerRate("reactor",			0.4)	--more (vs 0.30)
+	ship:setSystemPowerRate("beamweapons",		0.35)	--more (vs 0.30)
+	ship:setSystemPowerRate("jumpdrive",		0.35)	--more (vs 0.30)
+	ship:setSystemPowerRate("maneuver",			0.325)	--more (vs 0.30)
+	ship:setSystemPowerRate("impulse",			0.275)	--less (vs 0.30)
+	ship:setSystemPowerRate("frontshield",		0.3)	--same (vs 0.30)
+	ship:setSystemPowerRate("rearshield",		0.3)	--same (vs 0.30)	
+	ship:setSystemPowerRate("missilesystem",	0.375)	--more (vs 0.30)	
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Nusret is based on Nautilus\nDifferences: more repair crew, stronger hull (vs 100), shorter jump drive range (vs 50), stronger shields (vs 60/60), turreted beams (vs fix mount), additional short, strong beam, realign 1st two tubes from rear to 60/-60 and speed up their load times and let them shoot homing missiles, decrease mines and increase homing missiles, varying speeds of coolant and power deployment per system (vs fixed)."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipHummer()
 	playerHummer = PlayerSpaceship():setTemplate("ZX-Lindworm"):setFaction("Human Navy"):setCallSign("Hummer")
@@ -33722,43 +33997,44 @@ function createPlayerShipJarvis()
 	return playerJarvis
 end
 function createPlayerShipJeeves()
-	playerJeeves = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Jeeves")
-	setBeamColor(playerJeeves)
-	playerJeeves:setTypeName("Butler")
-	playerJeeves:setWarpSpeed(400)							--slower (vs 750)
-	playerJeeves:setHullMax(100)							--weaker hull (vs 160)
-	playerJeeves:setHull(100)
-	playerJeeves:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
---                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerJeeves:setBeamWeapon(0, 80, -90, 900.0, 		6.0,   6)	--side beams (vs forward)
-	playerJeeves:setBeamWeapon(1, 80,  90, 900.0, 		6.0,   6)	
-	playerJeeves:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerJeeves:setWeaponTubeExclusiveFor(1,"EMP")			--normal sized tube allow EMPs and Nukes (vs HVLI)
-	playerJeeves:weaponTubeAllowMissle(1,"Nuke")
-	playerJeeves:setWeaponTubeExclusiveFor(2,"Homing")		--large tube for homing (vs HVLI)
-	playerJeeves:setWeaponTubeExclusiveFor(3,"Mine")
-	playerJeeves:setWeaponTubeDirection(3, 180)
-	playerJeeves:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
-	playerJeeves:setWeaponStorage("Homing", 6)				
-	playerJeeves:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
-	playerJeeves:setWeaponStorage("EMP", 3)				
-	playerJeeves:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
-	playerJeeves:setWeaponStorage("Nuke", 2)				
-	playerJeeves:setWeaponStorageMax("Mine",3)				--fewer (vs 6)
-	playerJeeves:setWeaponStorage("Mine", 3)		
-	playerJeeves.ship_reference = {
-		["Misc"] = {ord = 1, desc = "Relative strength:20   Radar:Long:30,Short:5.5   Escape pod capacity:2\nCargo space:6   Probes:8   Repair crew:4   Energy capacity:1000"},
-		["Diff Sum"] = {ord = 2, desc = "Butler is based on Crucible\nDifferences: Slower warp speed (vs 750), weaker hull (vs 160), weaker shields (vs 160), broadside beams (vs forward), fewer tubes (vs 6), no broadside tubes, different missile types for forward facing tubes, different missiles (vs Homing:8   Nuke:4   Mine:6   EMP:6), tractor beam."},
-		["Engines"] = {ord = 3, desc = "Jump:Long:40,Short:4\nImpulse:Forward:80,Back:80\nAccelerate:Forward:40,Back:40\nTurn:15\nCombat maneuver:Boost:400,Strafe:250"},
-		["Defense"] = {ord = 4, desc = "Hull:100\nShields:Front:100,Rear:100"},
-		["Beams"] = {ord = 5, desc = "Beams:2\nDirection:-90   Arc:80   Range:.9   Cycle:6   Damage:6   Damage type:Energy\nDirection:90   Arc:80   Range:.9   Cycle:6   Damage:6   Damage type:Energy"},
-		["Tubes"] = {ord = 6, desc = "Tubes:4\nDirection:0   Speed:8   Size:Small   Ordnance:HVLI\nDirection:0   Speed:8   Size:Medium   Ordnance:Nuke,EMP\nDirection:0   Speed:8   Size:Large   Ordnance:Homing\nDirection:180   Speed:8   Size:Medium   Ordnance:Mine\nMagazine:   Homing:6   Nuke:2   Mine:3   EMP:3   HVLI:24"},
-		["Tractor"] = {ord = 7},
-	}
-	addShipReference(playerJeeves)
-	playerJeeves:onTakingDamage(playerShipDamage)
-	playerJeeves:addReputationPoints(50)
-	return playerJeeves
+	local base_template = "Crucible"
+	local hot_template = "Butler"
+	playerJeeves = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Jeeves")
+	local ship = playerJeeves
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,0,0,180}
+	ship.tube_ordnance = {"HVLI","Nuke,EMP","Homing","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setWarpSpeed(400)							--slower (vs 750)
+	ship:setHullMax(100)							--weaker hull (vs 160)
+	ship:setHull(100)
+	ship:setShieldsMax(100, 100)					--weaker shields (vs 160, 160)
+--                  	 Arc, Dir, Range, CycleTime, Dmg
+	ship:setBeamWeapon(0, 80, -90, 900.0, 		6.0,   6)	--side beams (vs forward)
+	ship:setBeamWeapon(1, 80,  90, 900.0, 		6.0,   6)	
+	ship:setWeaponTubeCount(4)						--fewer (vs 6)
+	ship:setWeaponTubeExclusiveFor(1,"EMP")			--normal sized tube allow EMPs and Nukes (vs HVLI)
+	ship:weaponTubeAllowMissle(1,"Nuke")
+	ship:setWeaponTubeExclusiveFor(2,"Homing")		--large tube for homing (vs HVLI)
+	ship:setWeaponTubeExclusiveFor(3,"Mine")
+	ship:setWeaponTubeDirection(3, 180)
+	ship:setWeaponStorageMax("Homing",6)			--fewer (vs 8)
+	ship:setWeaponStorage("Homing", 6)				
+	ship:setWeaponStorageMax("EMP",3)				--fewer (vs 6)
+	ship:setWeaponStorage("EMP", 3)				
+	ship:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	ship:setWeaponStorage("Nuke", 2)				
+	ship:setWeaponStorageMax("Mine",3)				--fewer (vs 6)
+	ship:setWeaponStorage("Mine", 3)		
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Butler is based on Crucible\nDifferences: Slower warp speed (vs 750), weaker hull (vs 160), weaker shields (vs 160), broadside beams (vs forward), fewer tubes (vs 6), no broadside tubes, different missile types for forward facing tubes, different missiles (vs Homing:8   Nuke:4   Mine:6   EMP:6), tractor beam."}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipKindling()
 	playerKindling = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Kindling")
@@ -64324,6 +64600,9 @@ function presentPatrolProbe()
 				comms_source.patrol_probe = comms_target.patrol_probe
 				comms_source.patrol_probe_state = "Off"
 				comms_source.patrol_probe_button = "patrol_probe_button"
+				if comms_source.ship_reference ~= nil then
+					comms_source.ship_reference["Patrol Probe"] = {ord = 10}
+				end
 				comms_source:addCustomButton("Relay",comms_source.patrol_probe_button,"Patrol Probe Off",function()
 					string.format("")
 					togglePatrolProbeState(comms_source)
