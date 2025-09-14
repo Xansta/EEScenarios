@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.2"
+	scenario_version = "8.7.3"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -35244,35 +35244,45 @@ function createPlayerShipStick()
 end
 function createPlayerShipSting()
 	--sent to Kraylor war front. May return later
-	playerSting = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Sting")
-	setBeamColor(playerSting)
-	playerSting:setTypeName("Surkov")
-	playerSting:setRepairCrewCount(4)	--more repair crew (vs 2)
-	playerSting:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
-	playerSting:setRotationMaxSpeed(20)	--faster spin (vs 15)
-	playerSting:setJumpDrive(false)		--no jump
-	playerSting:setWarpDrive(true)		--add warp
-	playerSting:setWarpSpeed(400)
-	playerSting:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
-	playerSting:setWeaponTubeDirection(0, -90)
-	playerSting:weaponTubeDisallowMissle(0,"Mine")
-	playerSting:weaponTubeDisallowMissle(0,"Nuke")
-	playerSting:weaponTubeDisallowMissle(0,"EMP")
-	playerSting:setWeaponStorageMax("Mine",3)
-	playerSting:setWeaponStorage("Mine",3)
-	playerSting:setWeaponStorageMax("Nuke",0)
-	playerSting:setWeaponStorage("Nuke",0)
-	playerSting:setWeaponStorageMax("EMP",0)
-	playerSting:setWeaponStorage("EMP",0)
-	playerSting:setWeaponTubeDirection(1, 90)
-	playerSting:weaponTubeDisallowMissle(1,"Mine")
-	playerSting:weaponTubeDisallowMissle(1,"Nuke")
-	playerSting:weaponTubeDisallowMissle(1,"EMP")
-	playerSting:setWeaponTubeDirection(2,180)
-	playerSting:setWeaponTubeExclusiveFor(2,"Mine")
-	playerSting:onTakingDamage(playerShipDamage)
-	playerSting:addReputationPoints(50)
-	return playerSting
+	local base_template = "Hathcock"
+	local hot_template = "Surkov"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Sting")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-90,90,180}
+	ship.tube_ordnance = {"Homing,HVLI","Homing,HVLI","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(4)	--more repair crew (vs 2)
+	ship:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
+	ship:setRotationMaxSpeed(20)	--faster spin (vs 15)
+	ship:setJumpDrive(false)		--no jump
+	ship:setWarpDrive(true)		--add warp
+	ship:setWarpSpeed(400)
+	ship:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
+	ship:setWeaponTubeDirection(0, -90)
+	ship:weaponTubeDisallowMissle(0,"Mine")
+	ship:weaponTubeDisallowMissle(0,"Nuke")
+	ship:weaponTubeDisallowMissle(0,"EMP")
+	ship:setWeaponStorageMax("Mine",3)
+	ship:setWeaponStorage("Mine",3)
+	ship:setWeaponStorageMax("Nuke",0)
+	ship:setWeaponStorage("Nuke",0)
+	ship:setWeaponStorageMax("EMP",0)
+	ship:setWeaponStorage("EMP",0)
+	ship:setWeaponTubeDirection(1, 90)
+	ship:weaponTubeDisallowMissle(1,"Mine")
+	ship:weaponTubeDisallowMissle(1,"Nuke")
+	ship:weaponTubeDisallowMissle(1,"EMP")
+	ship:setWeaponTubeDirection(2,180)
+	ship:setWeaponTubeExclusiveFor(2,"Mine")
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Surkov is based on Hathcock\nDifferences: More repair crew (vs 2), faster impulse (vs 50), faster spin (vs 15), warp drive (vs jump), more tubes (vs 2), different tube configuration"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipTango()
 	playerTwister = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Tango")
@@ -35456,38 +35466,48 @@ function createPlayerShipThunderbird()
 	return playerThunderbird
 end
 function createPlayerShipDominant()
-	playerTriumph = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Dominant")
-	setBeamColor(playerTriumph)
-	playerTriumph:setTypeName("Triumph")
-	playerTriumph.max_jump_range = 30000					--shorter (vs 50)
-	playerTriumph.min_jump_range = 3000						--shorter (vs 5)
-	playerTriumph:setJumpDriveRange(playerTriumph.min_jump_range,playerTriumph.max_jump_range)
-	playerTriumph:setJumpDriveCharge(playerTriumph.max_jump_range)
-	playerTriumph:setHullMax(180)							--weaker hull (vs 250)
-	playerTriumph:setHull(180)
-	playerTriumph:setRotationMaxSpeed(15)					--faster spin (vs 10)
-	playerTriumph:setAcceleration(30,25)					--faster (vs 20/20)
-	playerTriumph:setImpulseMaxSpeed(90,80)					--slower reverse impulse (vs 90)
+	local base_template = "Atlantis"
+	local hot_template = "Triumph"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Dominant")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-90,90,-90,90,180}
+	ship.tube_ordnance = {"Homing","Homing","all but Mine","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship.max_jump_range = 30000					--shorter (vs 50)
+	ship.min_jump_range = 3000						--shorter (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setHullMax(180)							--weaker hull (vs 250)
+	ship:setHull(180)
+	ship:setRotationMaxSpeed(15)					--faster spin (vs 10)
+	ship:setAcceleration(30,25)					--faster (vs 20/20)
+	ship:setImpulseMaxSpeed(90,80)					--slower reverse impulse (vs 90)
 --                 				  Arc, Dir,  Range, CycleTime, Damage
-	playerTriumph:setBeamWeapon(0, 60, -20, 1200.0,		  4.5, 6.5)	--narrower (vs 100), faster (vs 6), weaker (vs 8)
-	playerTriumph:setBeamWeapon(1, 60,  20, 1200.0,		  4.5, 6.5)
-	playerTriumph:setBeamWeapon(2, 10, -90, 1000.0,			4, 3.5)
-	playerTriumph:setBeamWeapon(3, 10,  90, 1000.0,			4, 3.5)
+	ship:setBeamWeapon(0, 60, -20, 1200.0,		  4.5, 6.5)	--narrower (vs 100), faster (vs 6), weaker (vs 8)
+	ship:setBeamWeapon(1, 60,  20, 1200.0,		  4.5, 6.5)
+	ship:setBeamWeapon(2, 10, -90, 1000.0,			4, 3.5)
+	ship:setBeamWeapon(3, 10,  90, 1000.0,			4, 3.5)
 --										 Arc, Dir, Rotate speed
-	playerTriumph:setBeamWeaponTurret(2, 160, -90, 1)				--slow turret
-	playerTriumph:setBeamWeaponTurret(3, 160,  90, 1)
-	playerTriumph:setWeaponTubeDirection(1,  90)					--right (vs left)
-	playerTriumph:setWeaponTubeDirection(2, -90)					--left (vs right)
-	playerTriumph:setTubeSize(0,"large")							--large (vs medium)
-	playerTriumph:setTubeSize(1,"large")							--large (vs medium)
-	playerTriumph:setWeaponTubeExclusiveFor(0,"Homing")				--homing only (vs all)
-	playerTriumph:setWeaponTubeExclusiveFor(1,"Homing")				--homing only (vs all)
-	playerTriumph:setTubeLoadTime(0, 15)							--slower (vs 8)
-	playerTriumph:setTubeLoadTime(1, 15)							--slower (vs 8)
-	playerTriumph:setTubeLoadTime(4, 12)							--slower (vs 8)
-	playerTriumph:onTakingDamage(playerShipDamage)
-	playerTriumph:addReputationPoints(50)
-	return playerTriumph
+	ship:setBeamWeaponTurret(2, 160, -90, 1)				--slow turret
+	ship:setBeamWeaponTurret(3, 160,  90, 1)
+	ship:setWeaponTubeDirection(1,  90)					--right (vs left)
+	ship:setWeaponTubeDirection(2, -90)					--left (vs right)
+	ship:setTubeSize(0,"large")							--large (vs medium)
+	ship:setTubeSize(1,"large")							--large (vs medium)
+	ship:setWeaponTubeExclusiveFor(0,"Homing")				--homing only (vs all)
+	ship:setWeaponTubeExclusiveFor(1,"Homing")				--homing only (vs all)
+	ship:setTubeLoadTime(0, 15)							--slower (vs 8)
+	ship:setTubeLoadTime(1, 15)							--slower (vs 8)
+	ship:setTubeLoadTime(4, 12)							--slower (vs 8)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Triumph is based on Atlantis\nDifferences: Shorter jump (vs 50), weaker hull (vs 250), faster spin (vs 10), faster acceleration (vs 20), slower reverse impulse (vs 90), narrower beams (vs 100), faster beams (vs 6), weaker beams (vs 8), added two turreted beams, different tube configuration"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipTorch()
 	playerTorch = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Ignite")
