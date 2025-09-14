@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.1"
+	scenario_version = "8.7.2"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1921,11 +1921,11 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Beowulf")			--J
-	makePlayerShipActive("Endeavor")		--J
+	makePlayerShipActive("Dominant")		--J
 	makePlayerShipActive("Guinevere") 		--J 
 	makePlayerShipActive("Claw")			--W
 	makePlayerShipActive("Blaire")			--W
-	makePlayerShipActive("Crux") 			--W 
+	makePlayerShipActive("Sting") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -13552,11 +13552,11 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
---		local mermaidDPZone = squareZone(31664, -5237, "MDP1 E6")
---		mermaidDPZone:setColor(51,153,255):setLabel("M1")
-	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
-	    setBeamColor(mdp1)
-	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
+		local mermaidDPZone = squareZone(31664, -5237, "MDP1 E6")
+		mermaidDPZone:setColor(51,153,255):setLabel("M1")
+--	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+--	    setBeamColor(mdp1)
+--	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
 --	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
@@ -32848,77 +32848,98 @@ function createPlayerShipBlaire()
 end
 function createPlayerShipBlazon()
 	--ship destroyed 24Aug2019
-	playerBlazon = PlayerSpaceship():setTemplate("Striker"):setFaction("Human Navy"):setCallSign("Blazon")
-	setBeamColor(playerBlazon)
-	playerBlazon:setTypeName("Stricken")
-	playerBlazon:setRepairCrewCount(2)
-	playerBlazon:setImpulseMaxSpeed(105)					-- up from default of 45
-	playerBlazon:setRotationMaxSpeed(35)					-- up from default of 15
-	playerBlazon:setShieldsMax(80,50)						-- up from 50, 30
-	playerBlazon:setShields(80,50)							-- up from 50, 30
-	playerBlazon:setBeamWeaponTurret(0,60,-15,2)			-- 60: narrower than default 100, 
-	playerBlazon:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
-	playerBlazon:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
-	playerBlazon:setWeaponTubeCount(3)						-- add tubes
-	playerBlazon:setTubeLoadTime(0,10)
-	playerBlazon:setTubeLoadTime(1,10)
-	playerBlazon:setTubeLoadTime(2,15)
-	playerBlazon:setWeaponTubeDirection(0,-60)
-	playerBlazon:setWeaponTubeDirection(1,60)
-	playerBlazon:setWeaponTubeDirection(2,180)
-	playerBlazon:weaponTubeDisallowMissle(0,"Mine")
-	playerBlazon:weaponTubeDisallowMissle(1,"Mine")
-	playerBlazon:setWeaponTubeExclusiveFor(2,"Mine")
-	playerBlazon:setWeaponStorageMax("Homing",6)
-	playerBlazon:setWeaponStorage("Homing",6)
-	playerBlazon:setWeaponStorageMax("EMP",2)
-	playerBlazon:setWeaponStorage("EMP",2)
-	playerBlazon:setWeaponStorageMax("Nuke",2)
-	playerBlazon:setWeaponStorage("Nuke",2)
-	playerBlazon:setWeaponStorageMax("Mine",4)
-	playerBlazon:setWeaponStorage("Mine",4)
-	playerBlazon:onTakingDamage(playerShipDamage)
-	playerBlazon:addReputationPoints(50)
-	return playerBlazon
+	local base_template = "Striker"
+	local hot_template = "Stricken"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Blazon")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-60,60,180}
+	ship.tube_ordnance = {"Homing,Nuke,EMP","Homing,Nuke,EMP","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(2)
+	ship:setImpulseMaxSpeed(105)					-- up from default of 45
+	ship:setRotationMaxSpeed(35)					-- up from default of 15
+	ship:setShieldsMax(80,50)						-- up from 50, 30
+	ship:setShields(80,50)							-- up from 50, 30
+	ship:setBeamWeaponTurret(0,60,-15,2)			-- 60: narrower than default 100, 
+	ship:setBeamWeaponTurret(1,60, 15,2)			-- 2: slower than default 6
+	ship:setBeamWeapon(2,20,0,1200,6,5)				-- add forward facing beam
+	ship:setWeaponTubeCount(3)						-- add tubes
+	ship:setTubeLoadTime(0,10)
+	ship:setTubeLoadTime(1,10)
+	ship:setTubeLoadTime(2,15)
+	ship:setWeaponTubeDirection(0,-60)
+	ship:setWeaponTubeDirection(1,60)
+	ship:setWeaponTubeDirection(2,180)
+	ship:weaponTubeDisallowMissle(0,"Mine")
+	ship:weaponTubeDisallowMissle(1,"Mine")
+	ship:setWeaponTubeExclusiveFor(2,"Mine")
+	ship:setWeaponStorageMax("Homing",6)
+	ship:setWeaponStorage("Homing",6)
+	ship:setWeaponStorageMax("EMP",2)
+	ship:setWeaponStorage("EMP",2)
+	ship:setWeaponStorageMax("Nuke",2)
+	ship:setWeaponStorage("Nuke",2)
+	ship:setWeaponStorageMax("Mine",4)
+	ship:setWeaponStorage("Mine",4)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Stricken is based on Striker\nDifferences: faster impulse (vs 45), faster spin (vs 15), stronger shields (vs 50/30), narrower beams (vs 100), slower turret (vs 6), additional beam, weapon tubes and missiles (vs none)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipBling()
-	playerGadfly = PlayerSpaceship():setTemplate("Player Fighter"):setFaction("Human Navy"):setCallSign("Bling")
-	setBeamColor(playerGadfly)
-	playerGadfly:setTypeName("Gadfly")
-	playerGadfly:setHullMax(120)						--stronger (vs 60)
-	playerGadfly:setHull(120)
-	playerGadfly:setShieldsMax(100,70)					--stronger shields (vs 40)
-	playerGadfly:setShields(100,70)
-	playerGadfly:setJumpDrive(true)						--jump drive (vs none)
-	playerGadfly.max_jump_range = 15000					--shorter than typical (vs 50)
-	playerGadfly.min_jump_range = 2000					--shorter than typical (vs 5)
-	playerGadfly:setJumpDriveRange(playerGadfly.min_jump_range,playerGadfly.max_jump_range)
-	playerGadfly:setJumpDriveCharge(playerGadfly.max_jump_range)
+	local base_template = "Player Fighter"
+	local hot_template = "Gadfly"
+	playerGadfly = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Bling")
+	local ship = playerGadfly
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,0,180}
+	ship.tube_ordnance = {"HVLI","Nuke,EMP","Homing"}
+	ship:setTypeName(hot_template)
+	ship:setHullMax(120)						--stronger (vs 60)
+	ship:setHull(120)
+	ship:setShieldsMax(100,70)					--stronger shields (vs 40)
+	ship:setShields(100,70)
+	ship:setJumpDrive(true)						--jump drive (vs none)
+	ship.max_jump_range = 15000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2000					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
 --                  			 Arc, Dir, Range, CycleTime, Dmg
-	playerGadfly:setBeamWeapon(0, 50, 	0, 900.0, 		4.0, 9)		--wider (vs 40), shorter (vs 1), faster (vs 6)
-	playerGadfly:setBeamWeapon(1,  0,	0,	   0,		  0, 0)		--fewer (vs 2)
-	playerGadfly:setWeaponTubeCount(3)					--more (vs 0)
-	playerGadfly:setWeaponTubeDirection(2, 180)
-	playerGadfly:setTubeSize(0,"small")
-	playerGadfly:setTubeLoadTime(0,5)
-	playerGadfly:setWeaponTubeExclusiveFor(0,"HVLI")
-	playerGadfly:setTubeLoadTime(1,10)
-	playerGadfly:setWeaponTubeExclusiveFor(1,"Nuke")
-	playerGadfly:weaponTubeAllowMissle(1,"EMP")
-	playerGadfly:setTubeSize(2,"large")
-	playerGadfly:setTubeLoadTime(2,15)
-	playerGadfly:setWeaponTubeExclusiveFor(2,"Homing")
-	playerGadfly:setWeaponStorageMax("Homing", 4)		--more (vs 0)
-	playerGadfly:setWeaponStorage("Homing", 4)				
-	playerGadfly:setWeaponStorageMax("Nuke", 2)			--more (vs 0)
-	playerGadfly:setWeaponStorage("Nuke", 2)				
-	playerGadfly:setWeaponStorageMax("EMP", 2)			--more (vs 0)
-	playerGadfly:setWeaponStorage("EMP", 2)				
-	playerGadfly:setWeaponStorageMax("HVLI", 6)			--more (vs 0)
-	playerGadfly:setWeaponStorage("HVLI", 6)				
-	playerGadfly:onTakingDamage(playerShipDamage)
-	playerGadfly:addReputationPoints(50)
-	return playerGadfly
+	ship:setBeamWeapon(0, 50, 	0, 900.0, 		4.0, 9)		--wider (vs 40), shorter (vs 1), faster (vs 6)
+	ship:setBeamWeapon(1,  0,	0,	   0,		  0, 0)		--fewer (vs 2)
+	ship:setWeaponTubeCount(3)					--more (vs 0)
+	ship:setWeaponTubeDirection(2, 180)
+	ship:setTubeSize(0,"small")
+	ship:setTubeLoadTime(0,5)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")
+	ship:setTubeLoadTime(1,10)
+	ship:setWeaponTubeExclusiveFor(1,"Nuke")
+	ship:weaponTubeAllowMissle(1,"EMP")
+	ship:setTubeSize(2,"large")
+	ship:setTubeLoadTime(2,15)
+	ship:setWeaponTubeExclusiveFor(2,"Homing")
+	ship:setWeaponStorageMax("Homing", 4)		--more (vs 0)
+	ship:setWeaponStorage("Homing", 4)				
+	ship:setWeaponStorageMax("Nuke", 2)			--more (vs 0)
+	ship:setWeaponStorage("Nuke", 2)				
+	ship:setWeaponStorageMax("EMP", 2)			--more (vs 0)
+	ship:setWeaponStorage("EMP", 2)				
+	ship:setWeaponStorageMax("HVLI", 6)			--more (vs 0)
+	ship:setWeaponStorage("HVLI", 6)				
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Gadfly is based on Player Fighter\nDifferences: stronger hull (vs 60), stronger shields (vs 40), jump drive (vs no ftl), single beam (vs 2), weapon tubes and missiles (vs none)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipClaw()
 	local base_template = "Player Cruiser"
