@@ -1922,7 +1922,7 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Beowulf")			--J
 	makePlayerShipActive("Dominant")		--J
-	makePlayerShipActive("Guinevere") 		--J 
+	makePlayerShipActive("Magnum") 			--J 
 	makePlayerShipActive("Claw")			--W
 	makePlayerShipActive("Blaire")			--W
 	makePlayerShipActive("Sting") 			--W 
@@ -13364,9 +13364,8 @@ function createIcarusStations()
 	station_names[stationMacassa:getCallSign()] = {stationMacassa:getSectorName(), stationMacassa}
 	table.insert(stations,stationMacassa)
 	--Maximilian
-	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 10 E4")
-	maximilianZone:setColor(51,153,255):setLabel("X")
-	--[[
+--	local maximilianZone = squareZone(-16565, -16446, "Maximilian Mark 10 E4")
+--	maximilianZone:setColor(51,153,255):setLabel("X")
     stationMaximilian = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Maximilian Mark 10"):setPosition(-16565, -16446):setDescription("Black Hole Research"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationMaximilian:setFaction("Spacer")
@@ -13426,7 +13425,6 @@ function createIcarusStations()
 	if random(1,100) <= 16 then stationMaximilian:setSharesEnergyWithDocked(false) end
 	station_names[stationMaximilian:getCallSign()] = {stationMaximilian:getSectorName(), stationMaximilian}
 	table.insert(stations,stationMaximilian)
-	--]]
 	--Mean Time
 	stationMeanTime = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Mean Time"):setPosition(-59605, -126288):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationMeanTime.comms_data = {
@@ -34163,39 +34161,50 @@ function createPlayerShipLancelot()
 	return playerLancelot
 end
 function createPlayerShipMagnum()
-	playerMagnum = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Magnum")
-	setBeamColor(playerMagnum)
-	playerMagnum:setTypeName("Focus")
-	playerMagnum:setImpulseMaxSpeed(70)						--slower (vs 80)
-	playerMagnum:setRotationMaxSpeed(20)					--faster spin (vs 15)
-	playerMagnum:setWarpDrive(false)						--no warp
-	playerMagnum:setJumpDrive(true)							--jump drive
-	playerMagnum.max_jump_range = 25000					--shorter than typical (vs 50)
-	playerMagnum.min_jump_range = 2500						--shorter than typical (vs 5)
-	playerMagnum:setJumpDriveRange(playerMagnum.min_jump_range,playerMagnum.max_jump_range)
-	playerMagnum:setJumpDriveCharge(playerMagnum.max_jump_range)
-	playerMagnum:setHullMax(100)							--weaker hull (vs 160)
-	playerMagnum:setHull(100)
-	playerMagnum:setShieldsMax(120, 120)					--weaker shields (vs 160, 160)
-	playerMagnum:setShields(120, 120)
-	playerMagnum:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
-	playerMagnum:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
-	playerMagnum:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerMagnum:weaponTubeAllowMissle(2,"Homing")
-	playerMagnum:weaponTubeAllowMissle(2,"EMP")
-	playerMagnum:weaponTubeAllowMissle(2,"Nuke")
-	playerMagnum:setWeaponTubeExclusiveFor(3,"Mine")
-	playerMagnum:setWeaponTubeDirection(3, 180)
-	playerMagnum:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
-	playerMagnum:setWeaponStorage("EMP", 2)				
-	playerMagnum:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
-	playerMagnum:setWeaponStorage("Nuke", 2)	
-	playerMagnum.turbo_torpedo_type = {"Nuke","HomingMissile"}
-	playerMagnum.turbo_torp_factor = 3
-	playerMagnum.turbo_torp_charge_interval = 90
-	playerMagnum:onTakingDamage(playerShipDamage)
-	playerMagnum:addReputationPoints(50)
-	return playerMagnum
+	local base_template = "Crucible"
+	local hot_template = "Focus"
+	playerMagnum = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Magnum")
+	local ship = playerMagnum
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,0,180}
+	ship.tube_ordnance = {"HVLI","HVLI","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setImpulseMaxSpeed(70)						--slower (vs 80)
+	ship:setRotationMaxSpeed(20)					--faster spin (vs 15)
+	ship:setWarpDrive(false)						--no warp
+	ship:setJumpDrive(true)							--jump drive
+	ship.max_jump_range = 25000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2500						--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setHullMax(120)							--weaker hull (vs 160)
+	ship:setHull(120)
+	ship:setShieldsMax(120, 120)					--weaker shields (vs 160, 160)
+	ship:setShields(120, 120)
+	ship:setBeamWeapon(0, 60, -20, 1000.0, 6.0, 5)	--narrower (vs 70)
+	ship:setBeamWeapon(1, 60,  20, 1000.0, 6.0, 5)	
+	ship:setWeaponTubeCount(4)						--fewer (vs 6)
+	ship:weaponTubeAllowMissle(2,"Homing")
+	ship:weaponTubeAllowMissle(2,"EMP")
+	ship:weaponTubeAllowMissle(2,"Nuke")
+	ship:setWeaponTubeExclusiveFor(3,"Mine")
+	ship:setWeaponTubeDirection(3, 180)
+	ship:setWeaponStorageMax("EMP",2)				--fewer (vs 6)
+	ship:setWeaponStorage("EMP", 2)				
+	ship:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	ship:setWeaponStorage("Nuke", 2)	
+	ship.turbo_torpedo_type = {"Nuke","HomingMissile"}
+	ship.turbo_torp_factor = 3
+	ship.turbo_torp_charge_interval = 90
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Focus is based on Crucible\nDifferences: slower impulse (vs 80), faster spin (vs 15), jump instead of warp, weaker hull (vs 160), weaker shields (vs 160), narrower beams (vs 70), fewer tubes (vs 6), no broadsides, large tube shoots Homing, Nuke, EMP, and HVLI, fewer Nukes (vs 4) and EMPs (vs 6), turbo torpedo, mining"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipMixer()
 	playerAmalgam = PlayerSpaceship():setTemplate("Atlantis"):setFaction("Human Navy"):setCallSign("Mixer")
