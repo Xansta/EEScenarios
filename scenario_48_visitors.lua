@@ -56,10 +56,12 @@ require("spawn_ships_scenario_utility.lua")
 require("control_code_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.9"
-	ee_version = "2023.06.17"
+	scenario_version = "2.0.12"
+	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
-	print(_VERSION)
+	if _VERSION ~= nil then
+		print("Lua version:",_VERSION)
+	end
 	--stationCommunication could be nil (default), commsStation (embedded function) or comms_station_enhanced (external script)
 	stationCommunication = "commsStation"
 	setVariations()
@@ -83,6 +85,7 @@ function setGlobals()
 	moveDiagnostic = false
 	fixSatelliteDiagnostic = false
 	shipCommsDiagnostic = false
+	primaryOrders = _("DispatchOffice-comms","Survive")
 	goods = {}					--overall tracking of goods
 	tradeFood = {}				--stations that will trade food for other goods
 	tradeLuxury = {}			--stations that will trade luxury for other goods
@@ -1156,8 +1159,8 @@ function buildLocalSolarSystem()
 	planetPrimus = Planet():setPosition(solX+plx,solY+ply):setPlanetRadius(primusRadius):setAxialRotationTime(random(200,250)):setDistanceFromMovementPlane(-primusRadius/2)
 	planetPrimus:setPlanetSurfaceTexture("planets/planet-2.png"):setPlanetAtmosphereTexture("planets/atmosphere.png"):setPlanetAtmosphereColor(0.2,0.2,0.1)
 	planetPrimus:setCallSign(primusNames[math.random(1,#primusNames)])
-	lo = 400
-	hi = 500
+	lo = 800
+	hi = 1000
 	if orbitChoice == "lo" then
 		planetPrimus.orbit_speed = lo/difficulty
 	elseif orbitChoice == "hi" then
@@ -1240,7 +1243,7 @@ function buildLocalSolarSystem()
 	end
 	planetSecondusMoon:setPlanetSurfaceTexture("planets/moon-1.png"):setOrbit(planetSecondus,planetSecondusMoonOrbitTime)
 	-- stations orbiting Secondus
-	secondusStationOrbitIncrement = .05*difficulty
+	secondusStationOrbitIncrement = .02*difficulty
 	secondusStations = {}
 	secondusStationOrbit = (secondusRadius + secondusMoonOrbit - secondusMoonRadius)/2
 	stationSize = "Small Station"
@@ -1368,7 +1371,7 @@ function buildLocalSolarSystem()
 	beltStationAngle = random(0,360)
 	lo = 2
 	hi = 8
-	gradient = 450
+	gradient = 1400
 	if orbitChoice == "lo" then
 		belt1OrbitalSpeed = lo/gradient*difficulty
 	elseif orbitChoice == "hi" then
@@ -4090,7 +4093,7 @@ function handleDockedState()
 						local sx, sy = comms_target:getPosition()
 						local nearby_objects = getObjectsInRadius(sx,sy,30000)
 						for i, obj in ipairs(nearby_objects) do
-							if obj.typeName == "SpaceStation" then
+							if isObjectType(obj,"SpaceStation") then
 								if not obj:isEnemy(comms_target) then
 									if brochure_stations == "" then
 										brochure_stations = string.format(_("cartographyOffice-comms","%s %s %s"),obj:getSectorName(),obj:getFaction(),obj:getCallSign())
@@ -4115,7 +4118,7 @@ function handleDockedState()
 						local sx, sy = comms_target:getPosition()
 						local nearby_objects = getObjectsInRadius(sx,sy,30000)
 						for i, obj in ipairs(nearby_objects) do
-							if obj.typeName == "SpaceStation" then
+							if isObjectType(obj,"SpaceStation") then
 								if not obj:isEnemy(comms_target) then
 									if obj.comms_data.goods ~= nil then
 										for good, good_data in pairs(obj.comms_data.goods) do
@@ -4149,7 +4152,7 @@ function handleDockedState()
 					local nearby_objects = getObjectsInRadius(sx,sy,50000)
 					local stations_known = 0
 					for i, obj in ipairs(nearby_objects) do
-						if obj.typeName == "SpaceStation" then
+						if isObjectType(obj,"SpaceStation") then
 							if not obj:isEnemy(comms_target) then
 								stations_known = stations_known + 1
 								addCommsReply(obj:getCallSign(),function()
@@ -4190,7 +4193,7 @@ function handleDockedState()
 					local button_count = 0
 					local by_goods = {}
 					for i, obj in ipairs(nearby_objects) do
-						if obj.typeName == "SpaceStation" then
+						if isObjectType(obj,"SpaceStation") then
 							if not obj:isEnemy(comms_target) then
 								if obj.comms_data.goods ~= nil then
 									for good, good_data in pairs(obj.comms_data.goods) do
@@ -4407,7 +4410,7 @@ function masterCartographer()
 			local nearby_objects = getAllObjects()
 			local stations_known = 0
 			for i, obj in ipairs(nearby_objects) do
-				if obj.typeName == "SpaceStation" then
+				if isObjectType(obj,"SpaceStation") then
 					if not obj:isEnemy(comms_target) then
 						local station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
@@ -4455,7 +4458,7 @@ function masterCartographer()
 			local nearby_objects = getAllObjects()
 			local by_goods = {}
 			for i, obj in ipairs(nearby_objects) do
-				if obj.typeName == "SpaceStation" then
+				if isObjectType(obj,"SpaceStation") then
 					if not obj:isEnemy(comms_target) then
 						local station_distance = distance(comms_target,obj)
 						if station_distance > 50000 then
@@ -4517,19 +4520,19 @@ function getCartographerCost(service)
 end
 function showCurrentStats()
 	local stats_exist = false
-	if #humanStationDestroyedNameList ~= nil and #humanStationDestroyedNameList > 0 then
+	if humanStationDestroyedNameList ~= nil and #humanStationDestroyedNameList > 0 then
 		stats_exist = true
 	end
-	if #neutralStationDestroyedNameList ~= nil and #neutralStationDestroyedNameList > 0 then
+	if neutralStationDestroyedNameList ~= nil and #neutralStationDestroyedNameList > 0 then
 		stats_exist = true
 	end
-	if #kraylorVesselDestroyedNameList ~= nil and #kraylorVesselDestroyedNameList > 0 then
+	if kraylorVesselDestroyedNameList ~= nil and #kraylorVesselDestroyedNameList > 0 then
 		stats_exist = true
 	end
-	if #exuariVesselDestroyedNameList ~= nil and #exuariVesselDestroyedNameList > 0 then
+	if exuariVesselDestroyedNameList ~= nil and #exuariVesselDestroyedNameList > 0 then
 		stats_exist = true
 	end
-	if #arlenianVesselDestroyedNameList ~= nil and #arlenianVesselDestroyedNameList > 0 then
+	if arlenianVesselDestroyedNameList ~= nil and #arlenianVesselDestroyedNameList > 0 then
 		stats_exist = true
 	end
 	if stats_exist then
@@ -5380,7 +5383,7 @@ function friendlyComms(comms_data)
 		addCommsReply(_("Back"), commsShip)
 	end)
 	for i, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		if isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj) then
 			addCommsReply(string.format(_("shipAssist-comms","Dock at %s"),obj:getCallSign()), function()
 				setCommsMessage(string.format(_("shipAssist-comms","Docking at %s."),obj:getCallSign()))
 				comms_target:orderDock(obj)
@@ -5854,7 +5857,7 @@ function placeRandomAsteroidAroundPoint(object_type, amount, dist_min, dist_max,
         local x = x0 + math.cos(r / 180 * math.pi) * distance
         local y = y0 + math.sin(r / 180 * math.pi) * distance
         local obj = object_type():setPosition(x, y)
-        if obj.typeName == "Asteroid" or obj.typeName == "VisualAsteroid" then
+        if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
 			obj:setSize(random(3,100) + random(3,100) + random(3,100) + random(3,500))
         end
     end
@@ -5880,7 +5883,7 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, clo
 			local radialPoint = startArc+ndex
 			local pointDist = distance + random(-randomize,randomize)
 			obj = object_type():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist)		
-			if obj.typeName == "Asteroid" or obj.typeName == "VisualAsteroid" then
+			if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
 				obj:setSize(random(3,100) + random(3,100) + random(3,100) + random(3,500))
 			end	
 		end
@@ -5888,7 +5891,7 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, clo
 			radialPoint = random(startArc,clockwiseEndArc)
 			pointDist = distance + random(-randomize,randomize)
 			obj = object_type():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist)			
-			if obj.typeName == "Asteroid" or obj.typeName == "VisualAsteroid" then
+			if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
 				obj:setSize(random(3,100) + random(3,100) + random(3,100) + random(3,500))
 			end	
 		end
@@ -5897,7 +5900,7 @@ function createRandomAlongArc(object_type, amount, x, y, distance, startArc, clo
 			radialPoint = random(startArc,clockwiseEndArc)
 			pointDist = distance + random(-randomize,randomize)
 			obj = object_type():setPosition(x + math.cos(radialPoint / 180 * math.pi) * pointDist, y + math.sin(radialPoint / 180 * math.pi) * pointDist)
-			if obj.typeName == "Asteroid" or obj.typeName == "VisualAsteroid" then
+			if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
 				obj:setSize(random(3,100) + random(3,100) + random(3,100) + random(3,500))
 			end	
 		end
@@ -6364,7 +6367,7 @@ function checkDefendPrimusStationEvents(delta)
 					else
 						prx, pry = perceived_player:getPosition()
 						pmx, pmy = vectorFromAngle(random(0,360),random(6000,8000))
-						local tempFleet = spawnEnemies(prx+pmx,pry+pmy,1,"Exuari")
+						local tempFleet = spawnEnemies(prx+pmx,pry+pmy,difficulty/2,"Exuari")
 						for i, enemy in ipairs(tempFleet) do
 							enemy:orderAttack(perceived_player)
 							table.insert(enemyFleet,enemy)
@@ -6926,7 +6929,12 @@ function startDefendSpawnBandStation()
 		protect_station = playerSpawnBandStations[math.random(1,#playerSpawnBandStations)]
 	until(protect_station ~= nil and protect_station:isValid())
 	protect_station_name = protect_station:getCallSign()
-	primaryOrders = string.format(_("marauders-comms","Protect %s from marauding Exuari"),protect_station_name)
+	protect_station_sector = protect_station:getSectorName()
+	if difficulty > 1 then
+		primaryOrders = string.format(_("marauders-comms","Protect %s from marauding Exuari"),protect_station_name)
+	else
+		primaryOrders = string.format(_("marauders-comms","Protect %s in sector %s from marauding Exuari"),protect_station_name,protect_station_sector)
+	end
 end
 function defendSpawnBandStation(delta)
 	if set_up_defend_spawn_band_station == nil then
@@ -7709,7 +7717,7 @@ function setPlots()
 	first_plots = {
 		{func = fixSatellites,				desc = string.format(_("satellites-comms","Satellite stations %s, %s and %s orbiting %s have been reporting periodic problems. See what you can do to help them out"),secondusStations[1]:getCallSign(),secondusStations[2]:getCallSign(),secondusStations[3]:getCallSign(),planetSecondus:getCallSign()),											order = string.format(_("orders-comms","Fix satellites orbiting %s"),planetSecondus:getCallSign()),												voice = string.format("Pat01%s",planetSecondus:getCallSign()),	},
 		{func = transportPrimusResearcher,	desc = string.format(_("planetologist-comms","Planetologist Enrique Flogistan plans to study %s. However, his transport refuses to travel in the area due to increased Exuari activity. Dock with %s and transport the planetologist to %s"),planetPrimus:getCallSign(),belt1Stations[2]:getCallSign(),primusStation:getCallSign()),					order = string.format(_("orders-comms","Transport planetologist from %s to %s"),belt1Stations[2]:getCallSign(),primusStation:getCallSign()),	voice = string.format("Pat02%s",planetPrimus:getCallSign()),	},
-		{func = orbitingArtifact,			desc = string.format(_("Polly-comms","Analysis of sightings and readings taken by civilian astronmer Polly Hobbs shows anomalous readings in this area. She lives on station %s according to her published research. Find her, get the source data and investigate. Solicit her assistance if she's willing"),belt1Stations[5]:getCallSign()),	order = string.format(_("orders-comms","Dock with %s to investigate astronomer's unusual data"),belt1Stations[5]:getCallSign()),				voice = "Pat03",												},
+		{func = orbitingArtifact,			desc = string.format(_("Polly-comms","Analysis of sightings and readings taken by civilian astronomer Polly Hobbs shows anomalous readings in this area. She lives on station %s according to her published research. Find her, get the source data and investigate. Solicit her assistance if she's willing"),belt1Stations[5]:getCallSign()),	order = string.format(_("orders-comms","Dock with %s to investigate astronomer's unusual data"),belt1Stations[5]:getCallSign()),				voice = "Pat03",												},
 		{func = defendSpawnBandStation,		desc = _("marauders-comms","Intelligence indicates an imminent attack by the Exuari on a station in the area. Your mission is to protect the station"),																																															order = _("orders-comms","Defend station from Exuari attack"),																					voice = "Pat04",												},
 	}
 	initialMission = true
@@ -7976,6 +7984,16 @@ function update(delta)
 	setPlayers()
 	if #getActivePlayerShips() < 1 then	--do nothing until player ship is spawned
 		return
+	end
+	for i,p in ipairs(getActivePlayerShips()) do
+		if p.getOrdersAtFriendlyStation == nil then
+			if availableForComms(p) then
+				if primusStation:isValid() then
+					primusStation:sendCommsMessage(p,_("centralcommand-incCall","Check with us or other friendly stations for mission orders."))
+				end
+				p.getOrdersAtFriendlyStation = "sent"
+			end
+		end
 	end
 	if updateDiagnostic then print("plotManager") end
 	if plotManager ~= nil then
