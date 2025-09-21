@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.3"
+	scenario_version = "8.7.4"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1921,7 +1921,7 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Beowulf")			--J
-	makePlayerShipActive("Dominant")		--J
+	makePlayerShipActive("Ambition")		--J
 	makePlayerShipActive("Magnum") 			--J 
 	makePlayerShipActive("Claw")			--W
 	makePlayerShipActive("Blaire")			--W
@@ -35592,14 +35592,16 @@ function createPlayerShipWiggy()
 	playerWiggy:setHull(120)
 	playerWiggy:setShieldsMax(70, 120)					--stronger rear shields (vs 70, 70)
 	playerWiggy:setShields(70, 120)
-	playerWiggy:setMaxEnergy(900)						--less maximum energy (vs 1000)
-	playerWiggy:setEnergy(900)
+	playerWiggy:setMaxEnergy(800)						--less maximum energy (vs 1000)
+	playerWiggy:setEnergy(800)
 	playerWiggy:setLongRangeRadarRange(40000)			--longer long range sensors (vs 30000)
 	playerWiggy.normal_long_range_radar = 40000
-	playerWiggy:setWeaponStorageMax("Mine",2)
-	playerWiggy:setWeaponStorage("Mine", 2)
-	playerWiggy:setWeaponStorageMax("Nuke",2)
-	playerWiggy:setWeaponStorage("Nuke", 2)
+	playerWiggy:setWeaponStorageMax("Homing",5)
+	playerWiggy:setWeaponStorage("Homing", 5)
+	playerWiggy:setWeaponStorageMax("Mine",3)
+	playerWiggy:setWeaponStorage("Mine", 3)
+	playerWiggy:setWeaponStorageMax("Nuke",3)
+	playerWiggy:setWeaponStorage("Nuke", 3)
 	playerWiggy:onTakingDamage(playerShipDamage)
 	playerWiggy:addReputationPoints(50)
 	return playerWiggy
