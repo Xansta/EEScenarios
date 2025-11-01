@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.4"
+	scenario_version = "8.7.5"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1920,7 +1920,7 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Beowulf")			--J
+	makePlayerShipActive("Arwine")			--J
 	makePlayerShipActive("Ambition")		--J
 	makePlayerShipActive("Magnum") 			--J 
 	makePlayerShipActive("Claw")			--W
@@ -2945,6 +2945,7 @@ function createSkeletonUniverse()
 	CubicMineObject:addToUpdate()
 	skeleton_stations = {}
 	station_names = {}
+    Nebula():setPosition(15160, 4169)	--dragged in by Kraylor 25Oct2025
 	--Icarus
 	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus 4"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationIcarus:setShortRangeRadarRange(20000)
@@ -4745,6 +4746,7 @@ function asteroidsNebulae()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
 	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Wormhole Series",setWormholes)
 	addGMFunction("+Planet",function()
 		selected_planet = nil
 		tweakPlanet()
@@ -5753,6 +5755,54 @@ function planetSurface()
 		end)
 	end
 end
+function setWormholes()
+	clearGMFunctions()
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Bodies/Nebulae",asteroidsNebulae)
+	if wormhole_series == nil then
+		wormhole_series = "loop"
+	end
+	if gm_click_mode ~= "add to wormhole series" then
+		addGMFunction(string.format("WH shape: %s",wormhole_series),function()
+			if wormhole_series == "loop" then
+				wormhole_series = "chain"
+				setWormholes()
+			elseif wormhole_series == "chain" then
+				wormhole_series = "loop"
+				setWormholes()
+			end
+		end)
+	end
+	if gm_click_mode ~= nil then
+		if gm_click_mode == "add to wormhole series" then
+			addGMFunction(string.format(">Add to WH %s<",wormhole_series),
+		else
+		end
+	else
+		addGMFunction(string.format("Start WH %s",wormhole_series),addToWormholeSeries)
+	end
+end
+
+	if patrol_ship_selected then
+		local add_point_label = "Add patrol point"
+		if patrol_ship.patrol_points ~= nil then
+			add_point_label = string.format("%s %i",add_point_label,#patrol_ship.patrol_points + 1)
+		end
+		if gm_click_mode == "add patrol point" then
+			addGMFunction(string.format(">%s<",add_point_label),addPatrolPoint)
+		else
+			addGMFunction(string.format("%s",add_point_label),addPatrolPoint)
+		end
+		if patrol_ship.patrol_points ~= nil then
+			addGMFunction("Del Patrol Points",function()
+				patrol_ship.patrol_points = nil
+				addGMMessage(string.format("All patrol points deleted from %s",patrol_ship:getCallSign()))
+				setPatrolPoints()
+			end)
+		end
+	end
+
+
 --	nebula effects on players
 function nebulaEffectDegree()
 	clearGMFunctions()
@@ -12265,13 +12315,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
---		if i == 2 and not mirrorUniverse then
---			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
---			dp2Zone:setColor(0,128,0):setLabel("2")
---		elseif i == 1 and not mirrorUniverse then
---			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
---			dp1Zone:setColor(0,128,0):setLabel("1")
---		else		
+		if i == 2 and not mirrorUniverse then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
+		elseif i == 6 and not mirrorUniverse then
+			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+			dp6Zone:setColor(0,128,0):setLabel("6")
+		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -12280,7 +12330,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
---		end
+		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
