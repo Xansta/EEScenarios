@@ -63,9 +63,11 @@ require("generate_call_sign_scenario_utility.lua")
 require("cpu_ship_diversification_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.2.5"
+	scenario_name = "Chaos of War"
+	getScriptStorage():set("scenario_name", scenario_name)
+	scenario_version = "2.3.1"
 	ee_version = "2024.12.08"
-	print(string.format("    ----    Scenario: Chaos of War    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	print(string.format("    ----    Scenario: %s    ----    Version %s    ----    Tested with EE version %s    ----",scenario_name,scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
 	end
@@ -1646,7 +1648,7 @@ function mainGMButtonsAfterPause()
 		print("    NPC Asset Total:",stat_list.human.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
 		if respawn_type == "self" then
 			local weighted_death_penalty = stat_list.human.death_penalty * stat_list.weight.ship
-			out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.human.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+			out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%.2f"),out,stat_list.human.death_penalty,stat_list.weight.ship,weighted_death_penalty)
 			print("    Player ship death penalty:",stat_list.human.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
 		end
 		out = string.format(_("msgGM", "%s\n----Human weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.human.weighted_score,original_score["Human Navy"],stat_list.human.weighted_score/original_score["Human Navy"]*100)
@@ -1666,7 +1668,7 @@ function mainGMButtonsAfterPause()
 		out = string.format(_("msgGM", "%s\n    Player Ships: (score value, type, name)"),out)
 		print("    Player Ships: (score value, type, name)")
 		for name, details in pairs(stat_list.kraylor.ship) do
-			out = string.format(_("msgGM", "\n        %i %s %s"),out,details.score_value,details.template_type,name)
+			out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
 			print(" ",details.score_value,details.template_type,name)
 		end
 		local weighted_players = stat_list.kraylor.ship_score_total * stat_list.weight.ship
@@ -1688,7 +1690,7 @@ function mainGMButtonsAfterPause()
 		print("    NPC Asset Total:",stat_list.kraylor.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
 		if respawn_type == "self" then
 			local weighted_death_penalty = stat_list.kraylor.death_penalty * stat_list.weight.ship
-			out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.kraylor.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+			out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%.2f"),out,stat_list.kraylor.death_penalty,stat_list.weight.ship,weighted_death_penalty)
 			print("    Player ship death penalty:",stat_list.kraylor.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
 		end
 		out = string.format(_("msgGM", "%s\n----Kraylor weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.kraylor.weighted_score,original_score["Kraylor"],stat_list.kraylor.weighted_score/original_score["Kraylor"]*100)
@@ -1706,7 +1708,7 @@ function mainGMButtonsAfterPause()
 			local weighted_stations = stat_list.exuari.station_score_total * stat_list.weight.station
 			out = string.format(_("msgGM", "%s\n            Station Total:%i Weight:%.1f Weighted total:%.2f"),out,stat_list.exuari.station_score_total,stat_list.weight.station,weighted_stations)
 			print("    Station Total:",stat_list.exuari.station_score_total,"Weight:",stat_list.weight.station,"Weighted Total:",weighted_stations)
-			out = string.format(_("msgGM", "\n    Player Ships: (score value, type, name)"),out)
+			out = string.format(_("msgGM", "%s\n    Player Ships: (score value, type, name)"),out)
 			print("    Player Ships: (score value, type, name)")
 			for name, details in pairs(stat_list.exuari.ship) do
 				out = string.format(_("msgGM", "%s\n        %i %s %s"),out,details.score_value,details.template_type,name)
@@ -1731,7 +1733,7 @@ function mainGMButtonsAfterPause()
 			print("    NPC Asset Total:",stat_list.exuari.npc_score_total,"Weight:",stat_list.weight.npc,"Weighted Total:",weighted_npcs)
 			if respawn_type == "self" then
 				local weighted_death_penalty = stat_list.exuari.death_penalty * stat_list.weight.ship
-				out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%,2f"),out,stat_list.exuari.death_penalty,stat_list.weight.ship,weighted_death_penalty)
+				out = string.format(_("msgGM","%s\n            Player ship death penalty:%i Weight:%.1f Weighted Total:%.2f"),out,stat_list.exuari.death_penalty,stat_list.weight.ship,weighted_death_penalty)
 				print("    Player ship death penalty:",stat_list.exuari.death_penalty,"Weight:",stat_list.weight.ship,"Weighted Total:",weighted_death_penalty)
 			end
 			out = string.format(_("msgGM", "%s\n----Exuari weighted total:%.1f Original:%.1f Change:%.2f%%"),out,stat_list.exuari.weighted_score,original_score["Exuari"],stat_list.exuari.weighted_score/original_score["Exuari"]*100)
@@ -3946,13 +3948,13 @@ function farEnough(list,pos_x,pos_y,bubble)
 			far_enough = false
 			break
 		end
-		if list_item.typeName == "BlackHole" or list_item.typeName == "WormHole" then
+		if isObjectType(list_item,"BlackHole") or isObjectType(list_item,"WormHole") then
 			if distance_away < 6000 then
 				far_enough = false
 				break
 			end
 		end
-		if list_item.typeName == "Planet" then
+		if isObjectType(list_item,"Planet") then
 			if distance_away < 4000 then
 				far_enough = false
 				break
@@ -4233,6 +4235,29 @@ function playerDestroyed(self,instigator)
 	if p ~= nil and p:isValid() then
 		if respawn_type == "lindworm" then
 			p:setTemplate("ZX-Lindworm")
+			p:setHullMax(140):setHull(140)
+			p:setWarpDrive(true):setWarpSpeed(950)			--add warp (vs none)
+			p:setWarpSpeed(950)
+			p:setShieldsMax(160, 120):setShields(40, 30)	--stronger (vs 20)
+--                 			  Arc, Dir, Range, Cycle, Damage
+			p:setBeamWeapon(1, 10, -20, 900.0,	 4.0, 3)	--extra beams (vs 1@ 700 6.0, 2)
+			p:setBeamWeapon(2, 10,  20, 900.0,	 4.0, 3)	
+--									 Arc,	Dir, Rotate speed
+			p:setBeamWeaponTurret( 1, 60,	-20, .3)
+			p:setBeamWeaponTurret( 2, 60, 	 20, .3)
+			p:setWeaponTubeCount(4)							--more (vs 3)
+			p:setTubeSize(0,"medium"):setWeaponTubeDirection(0,  0):setTubeLoadTime(0,10):setWeaponTubeExclusiveFor(0,"HVLI")
+			p:setTubeSize(1, "small"):setWeaponTubeDirection(1,  1):setTubeLoadTime(1, 5):setWeaponTubeExclusiveFor(1,"HVLI"):weaponTubeAllowMissle(1,"Homing"):weaponTubeAllowMissle(1,"Nuke"):weaponTubeAllowMissle(1,"EMP")
+			p:setTubeSize(2, "small"):setWeaponTubeDirection(2, -1):setTubeLoadTime(2, 5):setWeaponTubeExclusiveFor(2,"HVLI"):weaponTubeAllowMissle(2,"Homing"):weaponTubeAllowMissle(2,"Nuke"):weaponTubeAllowMissle(2,"EMP")
+			p:setTubeSize(3,"medium"):setWeaponTubeDirection(3,180):setTubeLoadTime(3,15):setWeaponTubeExclusiveFor(2,"Mine")
+			p:setWeaponStorageMax("Homing",	6)				--more (vs 3)
+			p:setWeaponStorage("Homing",	6)				
+			p:setWeaponStorageMax("Nuke",	1)				--more (vs 0)
+			p:setWeaponStorage("Nuke", 		1)				
+			p:setWeaponStorageMax("Mine",	3)				--more (vs 0)
+			p:setWeaponStorage("Mine",   	3)				
+			p:setWeaponStorageMax("EMP",	2)				--more (vs 0)
+			p:setWeaponStorage("EMP",   	2)	
 		elseif respawn_type == "self" then
 			p:setTemplate(old_template)
 			death_penalty[faction] = death_penalty[faction] + self.shipScore
@@ -5100,16 +5125,24 @@ function completionConditions(return_function)
 		local out = string.format(_("stationStats-comms","The war ends in one of three ways:\n1) Time runs out\n2) A faction drops below half of original score\n3) A faction either leads or trails the other factions by %i%%\n"),thresh*100)
 		local stat_list = gatherStats()
 		out = string.format(_("stationStats-comms","%s\nHuman Navy Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.human.weighted_score,original_score["Human Navy"],(stat_list.human.weighted_score/original_score["Human Navy"])*100)
-		out = string.format(_("stationStats-comms","%s\nHuman Navy loss of player ship penalty: %.1f"),out,stat_list.human.death_penalty * stat_list.weight.ship)
+		if stat_list.human.death_penalty ~= nil then
+			out = string.format(_("stationStats-comms","%s\nHuman Navy loss of player ship penalty: %.1f"),out,stat_list.human.death_penalty * stat_list.weight.ship)
+		end
 		out = string.format(_("stationStats-comms","%s\nKraylor Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.kraylor.weighted_score,original_score["Kraylor"],(stat_list.kraylor.weighted_score/original_score["Kraylor"])*100)
-		out = string.format(_("stationStats-comms","%s\nKraylor loss of player ship penalty: %.1f"),out,stat_list.kraylor.death_penalty * stat_list.weight.ship)
+		if stat_list.kraylor.death_penalty ~= nil then
+			out = string.format(_("stationStats-comms","%s\nKraylor loss of player ship penalty: %.1f"),out,stat_list.kraylor.death_penalty * stat_list.weight.ship)
+		end
 		if exuari_angle ~= nil then
 			out = string.format(_("stationStats-comms","%s\nExuari Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.exuari.weighted_score,original_score["Exuari"],(stat_list.exuari.weighted_score/original_score["Exuari"])*100)
-			out = string.format(_("stationStats-comms","%s\nExuari loss of player ship penalty: %.1f"),out,stat_list.exuari.death_penalty * stat_list.weight.ship)
+			if stat_list.exuari.death_penalty ~= nil then
+				out = string.format(_("stationStats-comms","%s\nExuari loss of player ship penalty: %.1f"),out,stat_list.exuari.death_penalty * stat_list.weight.ship)
+			end
 		end
 		if ktlitan_angle ~= nil then
 			out = string.format(_("stationStats-comms","%s\nKtlitan Current:%.1f Original:%.1f (%.2f%%)"),out,stat_list.ktlitan.weighted_score,original_score["Ktlitans"],(stat_list.ktlitan.weighted_score/original_score["Ktlitans"])*100)
-			out = string.format(_("stationStats-comms","%s\nKtlitan loss of player ship penalty: %.1f"),out,stat_list.ktlitan.death_penalty * stat_list.weight.ship)
+			if stat_list.ktlitan.death_penalty ~= nil then
+				out = string.format(_("stationStats-comms","%s\nKtlitan loss of player ship penalty: %.1f"),out,stat_list.ktlitan.death_penalty * stat_list.weight.ship)
+			end
 		end
 		out = string.format(_("stationStats-comms","%s\n\nStation weight:%i%%   Player ship weight:%i%%   NPC weight:%i%%"),out,stat_list.weight.station*100,stat_list.weight.ship*100,stat_list.weight.npc*100)
 		local tie_breaker = {}
@@ -6652,20 +6685,20 @@ function shipDockNearby(return_function)
 	for idx, obj in ipairs(comms_target:getObjectsInRange(5000)) do
 		local player_carrier = false
 		local template_name = ""
-		if obj.typeName == "PlayerSpaceship" then
+		if isObjectType(obj,"PlayerSpaceship") then
 			template_name = obj:getTypeName()
 			if template_name == "Benedict" or template_name == "Kiriya" or template_name == "Saipan" then
 				player_carrier = true
 			end
 		end
 		local defense_platform = false
-		if obj.typeName == "CpuShip" then
+		if isObjectType(obj,"CpuShip") then
 			template_name = obj:getTypeName()
 			if template_name == "Defense platform" then
 				defense_platform = true
 			end
 		end
-		if (obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj)) or player_carrier or defense_platform then
+		if (isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj)) or player_carrier or defense_platform then
 			addCommsReply(string.format(_("shipAssist-comms", "Dock at %s"), obj:getCallSign()), function()
 				setCommsMessage(string.format(_("shipAssist-comms", "Docking at %s."), obj:getCallSign()));
 				comms_target:orderDock(obj)
@@ -7339,26 +7372,26 @@ function update(delta)
 	end
 	local hrs = stat_list.human.weighted_score/original_score["Human Navy"]
 	local krs = stat_list.kraylor.weighted_score/original_score["Kraylor"]
-	local rel_dif = math.abs(hrs-krs)
-	if rel_dif > thresh then
-		if exuari_angle ~= nil then
-			ers = stat_list.exuari.weighted_score/original_score["Exuari"]
-			rel_dif = math.abs(hrs-ers)
-			local ref_dif_2 = math.abs(ers-krs)
-			if rel_dif > thresh or ref_dif_2 > thresh then
-				if ktlitan_angle ~= nil then
-					brs = stat_list.ktlitan.weighted_score/original_score["Ktlitans"]
-					rel_dif = math.abs(brs-ers)
-					ref_dif_2 = math.abs(brs-krs)
-					local rel_dif_3 = math.abs(hrs-brs)
-					if rel_dif > thresh or ref_dif_2 > thresh or rel_dif_3 > thresh then
-						pickWinner(string.format("End cause: score difference exceeded %i%%",thresh*100))
-					end
-				else
-					pickWinner(string.format("End cause: score difference exceeded %i%%",thresh*100))
-				end
-			end
-		else
+	local score_rank = {hrs,krs}
+	local lead_dif = math.abs(score_rank[1] - score_rank[2])
+	if exuari_angle ~= nil then
+		local ers = stat_list.exuari.weighted_score/original_score["Exuari"]
+		score_rank = {hrs,krs,ers}
+		table.sort(score_rank)
+		lead_dif = math.abs(score_rank[1] - score_rank[2])
+		local trail_dif = math.abs(score_rank[2] - score_rank[3])
+		if ktlitan_angle ~= nil then
+			local brs = stat_list.ktlitan.weighted_score/original_score["Ktlitans"]
+			score_rank = {hrs,krs,ers,brs}
+			table.sort(score_rank)
+			lead_dif = math.abs(score_rank[1] - score_rank[2])
+			trail_dif = math.abs(score_rank[3] - score_rank[4])
+		end
+		if lead_dif > thresh or trail_dif > thresh then
+			pickWinner(string.format("End cause: score difference exceeded %i%%",thresh*100))
+		end
+	else
+		if lead_dif > thresh then
 			pickWinner(string.format("End cause: score difference exceeded %i%%",thresh*100))
 		end
 	end
@@ -7412,8 +7445,7 @@ function update(delta)
 					for idx, obj in ipairs(current_station:getObjectsInRange(station_sensor_range)) do
 						if obj ~= nil and obj:isValid() then
 							if obj:isEnemy(current_station) then
-								local obj_type_name = obj.typeName
-								if obj_type_name ~= nil and string.find(obj_type_name,"PlayerSpaceship") then
+								if isObjectType(obj,"PlayerSpaceship") then
 									warning_station[stn_faction] = current_station
 									warning_message[stn_faction] = string.format(_("helpfullWarning-shipLog", "[%s in %s] We detect one or more enemies nearby. At least one is of type %s"),current_station:getCallSign(),current_station:getSectorName(),obj:getTypeName())
 									current_station.proximity_warning = warning_message[stn_faction]
@@ -7515,7 +7547,9 @@ function update(delta)
 					local p_station = faction_primary_station[p_faction].station
 					for faction, p_s_info in pairs(faction_primary_station) do
 						if p_faction ~= faction then
-							p:addToShipLog(string.format("%s primary station %s is located in %s",faction,p_s_info.station:getCallSign(),p_s_info.station:getSectorName()),"Magenta")
+							if p_s_info.station ~= nil and p_s_info.station:isValid() then
+								p:addToShipLog(string.format("%s primary station %s is located in %s",faction,p_s_info.station:getCallSign(),p_s_info.station:getSectorName()),"Magenta")
+							end
 						end
 					end
 					p.advance_intel_msg = "sent"
