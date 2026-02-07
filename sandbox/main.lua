@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.5"
+	scenario_version = "8.7.7"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1920,11 +1920,11 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Arwine")			--J
-	makePlayerShipActive("Ambition")		--J
-	makePlayerShipActive("Magnum") 			--J 
-	makePlayerShipActive("Claw")			--W
-	makePlayerShipActive("Blaire")			--W
+	makePlayerShipActive("Thunderbird")		--J
+	makePlayerShipActive("Gabble")			--J
+	makePlayerShipActive("Manxman") 		--J 
+	makePlayerShipActive("Grad")			--W
+	makePlayerShipActive("Watson")			--W
 	makePlayerShipActive("Sting") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -2945,7 +2945,6 @@ function createSkeletonUniverse()
 	CubicMineObject:addToUpdate()
 	skeleton_stations = {}
 	station_names = {}
-    Nebula():setPosition(15160, 4169)	--dragged in by Kraylor 25Oct2025
 	--Icarus
 	stationIcarus = SpaceStation():setTemplate("Large Station"):setFaction("Human Navy"):setPosition(icx,icy):setCallSign("Icarus 4"):setDescription("Shipyard, Naval Regional Headquarters"):setCommsScript(""):setCommsFunction(commsStation)
     stationIcarus:setShortRangeRadarRange(20000)
@@ -5775,14 +5774,14 @@ function setWormholes()
 	end
 	if gm_click_mode ~= nil then
 		if gm_click_mode == "add to wormhole series" then
-			addGMFunction(string.format(">Add to WH %s<",wormhole_series),
+			--addGMFunction(string.format(">Add to WH %s<",wormhole_series),
 		else
 		end
 	else
 		addGMFunction(string.format("Start WH %s",wormhole_series),addToWormholeSeries)
 	end
 end
-
+--[[
 	if patrol_ship_selected then
 		local add_point_label = "Add patrol point"
 		if patrol_ship.patrol_points ~= nil then
@@ -5801,7 +5800,7 @@ end
 			end)
 		end
 	end
-
+--]]
 
 --	nebula effects on players
 function nebulaEffectDegree()
@@ -12315,13 +12314,13 @@ function createIcarusColor()
 	local startAngle = 23
 	for i=1,6 do
 		local dpx, dpy = vectorFromAngle(startAngle,8000)
-		if i == 2 and not mirrorUniverse then
-			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
-			dp2Zone:setColor(0,128,0):setLabel("2")
-		elseif i == 6 and not mirrorUniverse then
-			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
-			dp6Zone:setColor(0,128,0):setLabel("6")
-		else		
+--		if i == 2 and not mirrorUniverse then
+--			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+--			dp2Zone:setColor(0,128,0):setLabel("2")
+--		elseif i == 6 and not mirrorUniverse then
+--			dp6Zone = squareZone(icx+dpx,icy+dpy,"idp6")
+--			dp6Zone:setColor(0,128,0):setLabel("6")
+--		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
 			station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
@@ -12330,7 +12329,7 @@ function createIcarusColor()
 				dp:setFaction("Holy Terra")
 			end
 			table.insert(icarusDefensePlatforms,dp)
-		end
+--		end
 		for j=1,5 do
 			dpx, dpy = vectorFromAngle(startAngle+17+j*4,8000)
 			local dm = Mine():setPosition(icx+dpx,icy+dpy)
@@ -13512,7 +13511,7 @@ function createIcarusStations()
         trade = {	food = true, medicine = false, luxury = random(1,100)<42 },
         public_relations = true,
         general_information = "Mining the nebula is what we do",
-    	history = "Our founcing administrator was obsessed with systemic mean time between failure statistics, so we gave the station a related name",
+    	history = "Our founding administrator was obsessed with systemic mean time between failure statistics, so we gave the station a related name",
     	idle_defense_fleet = {
 			DF1 = "MT52 Hornet",
 			DF2 = "Ktlitan Drone",
@@ -13536,10 +13535,12 @@ function createIcarusStations()
 	--Mermaid
 	-- only destroyed in non mirror universe
 --	if not mirrorUniverse then
---		local mermaidZone = squareZone(28889, -4417, "Mermaid 13 E6")
---		mermaidZone:setColor(51,153,255):setLabel("11")
+--		local mermaidZone = squareZone(28889, -4417, "Mermaid 14 E6")
+--		mermaidZone:setColor(51,153,255):setLabel("14")
+--		local mermaidDPZone = squareZone(31664, -5237, "MDP1 E6")
+--		mermaidDPZone:setColor(51,153,255):setLabel("M1")
 --	else
-		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 13"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
+		stationMermaid = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setPosition(28889, -4417):setCallSign("Mermaid 14"):setDescription("Tavern and hotel"):setCommsScript(""):setCommsFunction(commsStation)
 		if mirrorUniverse then
 			stationMermaid:setFaction("Spacer")
 		end
@@ -13600,11 +13601,9 @@ function createIcarusStations()
 		if random(1,100) <= 5  then stationMermaid:setSharesEnergyWithDocked(false) end
 		station_names[stationMermaid:getCallSign()] = {stationMermaid:getSectorName(), stationMermaid}
 		table.insert(stations,stationMermaid)
-		local mermaidDPZone = squareZone(31664, -5237, "MDP1 E6")
-		mermaidDPZone:setColor(51,153,255):setLabel("M1")
---	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
---	    setBeamColor(mdp1)
---	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
+	    mdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("MDP1"):setPosition(31664, -5237):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	    setBeamColor(mdp1)
+	    station_names[mdp1:getCallSign()] = {mdp1:getSectorName(), mdp1}
 --	end
 	--Nilwea
 --	local nilweaZone = squareZone(-101008, -92567, "Nilwea Two A-1")
@@ -14197,9 +14196,9 @@ function createIcarusStations()
 	station_names[stationSovinec:getCallSign()] = {stationSovinec:getSectorName(), stationSovinec}
 	table.insert(stations,stationSovinec)	
 	--Speculator
---	local speculatorZone = squareZone(55000,108000, "Speculator 4 K7")
+--	local speculatorZone = squareZone(55000,108000, "Speculator 5 K7")
 --	speculatorZone:setColor(0,255,0):setLabel("S")
-    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 4"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+    stationSpeculator = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Speculator 5"):setPosition(55000,108000):setDescription("Mining and mobile nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationSpeculator:setShortRangeRadarRange(13000)
 	if mirrorUniverse then
 		stationSpeculator:setFaction("Holy Terra")
@@ -33528,8 +33527,7 @@ end
 function createPlayerShipFlorentine()
 	local base_template = "Flavia P.Falcon"
 	local hot_template = "Safari"
-	playerSafari = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Florentine")
-	local ship = playerSafari
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Florentine")
 	setBeamColor(ship)
 	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
 	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
@@ -33576,41 +33574,51 @@ function createPlayerShipFlorentine()
 	return ship
 end
 function createPlayerShipGabble()
-	playerGabble = PlayerSpaceship():setTemplate("Piranha"):setFaction("Human Navy"):setCallSign("Gabble")
-	setBeamColor(playerGabble)
-	playerGabble:setTypeName("Squid")
-	playerGabble:setRepairCrewCount(5)					--more repair crew (vs 2)
-	playerGabble:setShieldsMax(120, 120)				--stronger shields (vs 70, 70)
-	playerGabble:setShields(120, 120)
-	playerGabble.max_jump_range = 20000					--shorter than typical (vs 50)
-	playerGabble.min_jump_range = 2000					--shorter than typical (vs 5)
-	playerGabble:setJumpDriveRange(playerGabble.min_jump_range,playerGabble.max_jump_range)
-	playerGabble:setJumpDriveCharge(playerGabble.max_jump_range)
+	local base_template = "Piranha"
+	local hot_template = "Squid"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Gabble")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {0,-90,-90,0,90,90,170,190}
+	ship.tube_ordnance = {"HVLI","all but Mine","Homing","HVLI","all but Mine","Homing","Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(5)					--more repair crew (vs 2)
+	ship:setShieldsMax(120, 120)				--stronger shields (vs 70, 70)
+	ship:setShields(120, 120)
+	ship.max_jump_range = 20000					--shorter than typical (vs 50)
+	ship.min_jump_range = 2000					--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
 --                 				 Arc, Dir, Range, CycleTime, Damage
-	playerGabble:setBeamWeapon(0, 10,	0,	1000,		4,		4)		--one beam (vs 0)
+	ship:setBeamWeapon(0, 10,	0,	1000,		4,		4)		--one beam (vs 0)
 --									   Arc,	  Dir, Rotate speed
-	playerGabble:setBeamWeaponTurret(0,	80,		0,		1)		--slow turret 
-	playerGabble:setWeaponTubeDirection(0,0)					--forward facing (vs left)
-	playerGabble:setWeaponTubeDirection(3,0)					--forward facing (vs right)
-	playerGabble:setWeaponTubeExclusiveFor(2,"Homing")			--homing only (vs HVLI)
-	playerGabble:setWeaponTubeExclusiveFor(5,"Homing")			--homing only (vs HVLI)
-	playerGabble:setWeaponTubeExclusiveFor(0,"HVLI")			--HVLI only (vs Homing + HVLI)
-	playerGabble:setWeaponTubeExclusiveFor(3,"HVLI")			--HVLI only (vs Homing + HVLI)
-	playerGabble:weaponTubeDisallowMissle(1,"Mine")				--no sideways mines
-	playerGabble:weaponTubeDisallowMissle(4,"Mine")				--no sideways mines
-	playerGabble:setWeaponStorageMax("Homing",8)				--fewer Homing (vs 12)
-	playerGabble:setWeaponStorage("Homing", 8)				
-	playerGabble:setWeaponStorageMax("Mine",6)					--fewer mines (vs 8)
-	playerGabble:setWeaponStorage("Mine", 6)				
-	playerGabble:setWeaponStorageMax("EMP",4)					--more EMPs (vs 0)
-	playerGabble:setWeaponStorage("EMP", 4)					
-	playerGabble:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
-	playerGabble:setWeaponStorage("Nuke", 4)				
-	playerGabble:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
-	playerGabble.normal_long_range_radar = 25000
-	playerGabble:onTakingDamage(playerShipDamage)
-	playerGabble:addReputationPoints(50)
-	return playerGabble
+	ship:setBeamWeaponTurret(0,	80,		0,		1)		--slow turret 
+	ship:setWeaponTubeDirection(0,0)					--forward facing (vs left)
+	ship:setWeaponTubeDirection(3,0)					--forward facing (vs right)
+	ship:setWeaponTubeExclusiveFor(2,"Homing")			--homing only (vs HVLI)
+	ship:setWeaponTubeExclusiveFor(5,"Homing")			--homing only (vs HVLI)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")			--HVLI only (vs Homing + HVLI)
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")			--HVLI only (vs Homing + HVLI)
+	ship:weaponTubeDisallowMissle(1,"Mine")				--no sideways mines
+	ship:weaponTubeDisallowMissle(4,"Mine")				--no sideways mines
+	ship:setWeaponStorageMax("Homing",8)				--fewer Homing (vs 12)
+	ship:setWeaponStorage("Homing", 8)				
+	ship:setWeaponStorageMax("Mine",6)					--fewer mines (vs 8)
+	ship:setWeaponStorage("Mine", 6)				
+	ship:setWeaponStorageMax("EMP",4)					--more EMPs (vs 0)
+	ship:setWeaponStorage("EMP", 4)					
+	ship:setWeaponStorageMax("Nuke",4)					--fewer Nukes (vs 6)
+	ship:setWeaponStorage("Nuke", 4)				
+	ship:setLongRangeRadarRange(25000)					--shorter long range sensors (vs 30000)
+	ship.normal_long_range_radar = 25000
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Squid is based on Piranha\nDifferences: more repair crew (5 vs 2), stronger shields (120 vs 70), added beam weapon, realigned tubes, shorter sensor range (25U vs 30U)"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipGeorge()
 	playerRodent = PlayerSpaceship():setTemplate("Phobos M3P"):setFaction("Human Navy"):setCallSign("George")
@@ -35495,34 +35503,44 @@ function createPlayerShipThelonius()
 end
 function createPlayerShipThunderbird()
 	--destroyed 29Feb2020
-	playerThunderbird = PlayerSpaceship():setTemplate("Player Cruiser"):setFaction("Human Navy"):setCallSign("Thunderbird")
-	setBeamColor(playerThunderbird)
-	playerThunderbird:setTypeName("Destroyer IV")
-	playerThunderbird.max_jump_range = 28000					--shorter than typical (vs 50)
-	playerThunderbird.min_jump_range = 3000						--shorter than typical (vs 5)
-	playerThunderbird:setJumpDriveRange(playerThunderbird.min_jump_range,playerThunderbird.max_jump_range)
-	playerThunderbird:setJumpDriveCharge(playerThunderbird.max_jump_range)
-	playerThunderbird:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
-	playerThunderbird:setShields(100, 100)
-	playerThunderbird:setHullMax(150)							--weaker hull (vs 200)
-	playerThunderbird:setHull(150)
-	playerThunderbird:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
-	playerThunderbird:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
-	playerThunderbird:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
-	playerThunderbird:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
-	playerThunderbird:setWeaponStorageMax("Homing",8)			--less (vs 12)
-	playerThunderbird:setWeaponStorage("Homing", 8)				
-	playerThunderbird:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
-	playerThunderbird:setWeaponStorage("Nuke", 2)				
-	playerThunderbird:setWeaponStorageMax("EMP",4)				--fewer (vs 6)
-	playerThunderbird:setWeaponStorage("EMP", 4)				
-	playerThunderbird:setWeaponStorageMax("Mine",6)				--fewer (vs 8)
-	playerThunderbird:setWeaponStorage("Mine", 6)				
-	playerThunderbird:setWeaponStorageMax("HVLI",12)				--more (vs 0)
-	playerThunderbird:setWeaponStorage("HVLI", 12)				
-	playerThunderbird:onTakingDamage(playerShipDamage)
-	playerThunderbird:addReputationPoints(50)
-	return playerThunderbird
+	local base_template = "Player Cruiser"
+	local hot_template = "Destroyer IV"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Thunderbird")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.tube_direction = {-60,60,180}
+	ship.tube_ordnance = {"all but Mine","all but Mine","Mine"}
+	ship:setTypeName(hot_template)
+	ship.max_jump_range = 28000					--shorter than typical (vs 50)
+	ship.min_jump_range = 3000						--shorter than typical (vs 5)
+	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
+	ship:setJumpDriveCharge(ship.max_jump_range)
+	ship:setShieldsMax(100, 100)					--stronger shields (vs 80, 80)
+	ship:setShields(100, 100)
+	ship:setHullMax(150)							--weaker hull (vs 200)
+	ship:setHull(150)
+	ship:setBeamWeapon(0, 40, -10, 1000.0, 5, 6)	--narrower (40 vs 90), faster (5 vs 6), weaker (6 vs 10)
+	ship:setBeamWeapon(1, 40,  10, 1000.0, 5, 6)
+	ship:setWeaponTubeDirection(0,-60)				--left -60 (vs -5)
+	ship:setWeaponTubeDirection(1, 60)				--right 60 (vs 5)
+	ship:setWeaponStorageMax("Homing",8)			--less (vs 12)
+	ship:setWeaponStorage("Homing", 8)				
+	ship:setWeaponStorageMax("Nuke",2)				--fewer (vs 4)
+	ship:setWeaponStorage("Nuke", 2)				
+	ship:setWeaponStorageMax("EMP",4)				--fewer (vs 6)
+	ship:setWeaponStorage("EMP", 4)				
+	ship:setWeaponStorageMax("Mine",6)				--fewer (vs 8)
+	ship:setWeaponStorage("Mine", 6)				
+	ship:setWeaponStorageMax("HVLI",12)				--more (vs 0)
+	ship:setWeaponStorage("HVLI", 12)				
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Destroyer IV is based on Player Cruiser\nDifferences: Shorter jump (vs 50), stronger shields (100 vs 80), weaker hull (150 vs 200), narrower, faster, weaker beams, different tube angles and missile load out"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipDominant()
 	local base_template = "Atlantis"
@@ -63725,7 +63743,7 @@ function getRepairCrewFromStation(relationship)
 					string.format("Recruit repair crew member for %i reputation",hire_cost),
 					string.format("Hire repair crew member for %i reputation",hire_cost),
 					string.format("Spend %i reputation to recruit repair crew member",hire_cost),
-					string.format("Spend %i reuptation to hire repair crew member",hire_cost),
+					string.format("Spend %i reputation to hire repair crew member",hire_cost),
 				}
 				addCommsReply(tableSelectRandom(recruit_repair_crew_prompt), function()
 					setCommsMessage("Repair crew escaped")
