@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.7"
+	scenario_version = "8.7.8"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -35675,40 +35675,51 @@ function createPlayerShipWiggy()
 	return playerWiggy
 end
 function createPlayerShipWatson()
-	playerHolmes = PlayerSpaceship():setTemplate("Crucible"):setFaction("Human Navy"):setCallSign("Watson")
-	setBeamColor(playerHolmes)
-	playerHolmes:setTypeName("Holmes")
-	playerHolmes:setImpulseMaxSpeed(70)						--slower (vs 80)
---                  			 Arc, Dir,  Range,CycleTime, Dmg
-	playerHolmes:setBeamWeapon(0, 10, -90, 1000.0, 		6.0, 7)	--broadside beams, narrower (vs 70)
-	playerHolmes:setBeamWeapon(1, 60, -90,  500.0, 		6.0, 7)	
-	playerHolmes:setBeamWeapon(2, 10,  90, 1000.0, 		6.0, 7)	
-	playerHolmes:setBeamWeapon(3, 60,  90,  500.0, 		6.0, 7)	
+	local base_template = "Crucible"
+	local hot_template = "Holmes"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Watson")
+	setBeamColor(ship)
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.beam_damage_type[1] = "emp"
+	ship.beam_damage_type[3] = "emp"
+	ship.tube_direction = {0,0,0,180}
+	ship.tube_ordnance = {"Homing","Homing","Homing","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setImpulseMaxSpeed(70)						--slower (vs 80)
+--                 		 Arc, Dir,  Range,CycleTime, Dmg
+	ship:setBeamWeapon(0, 10, -90, 1000.0, 		3.0, 7):setBeamWeaponDamageType(0,"emp")
+	ship:setBeamWeapon(1, 60, -90,  500.0, 		6.0, 8)	
+	ship:setBeamWeapon(2, 10,  90, 1000.0, 		3.0, 7):setBeamWeaponDamageType(2,"emp")
+	ship:setBeamWeapon(3, 60,  90,  500.0, 		6.0, 8)	
 	for i=0,3 do
-		playerHolmes:setBeamWeaponHeatPerFire(i,0.3)
-		playerHolmes:setBeamWeaponEnergyPerFire(i,6)
+		ship:setBeamWeaponHeatPerFire(i,0.3)
+		ship:setBeamWeaponEnergyPerFire(i,6)
 	end
-	playerHolmes:setWeaponTubeCount(4)						--fewer (vs 6)
-	playerHolmes:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
-	playerHolmes:setWeaponTubeExclusiveFor(1,"Homing")
-	playerHolmes:setWeaponTubeExclusiveFor(2,"Homing")
-	playerHolmes:setWeaponTubeExclusiveFor(3,"Mine")
-	playerHolmes:setWeaponTubeDirection(3, 180)
-	playerHolmes:setWeaponStorageMax("Homing",10)			--more (vs 8)
-	playerHolmes:setWeaponStorage("Homing", 10)				
-	playerHolmes:setWeaponStorageMax("HVLI",0)				--fewer
-	playerHolmes:setWeaponStorage("HVLI", 0)				
-	playerHolmes:setWeaponStorageMax("EMP",0)				--fewer
-	playerHolmes:setWeaponStorage("EMP", 0)				
-	playerHolmes:setWeaponStorageMax("Nuke",0)				--fewer
-	playerHolmes:setWeaponStorage("Nuke", 0)	
-	playerHolmes:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
-	playerHolmes.normal_long_range_radar = 35000
-	playerHolmes:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
-	playerHolmes:onTakingDamage(playerShipDamage)
-	playerHolmes:addReputationPoints(50)
---	print("energy per beam for watson:",playerHolmes:getBeamWeaponEnergyPerFire(0))
-	return playerHolmes
+	ship:setWeaponTubeCount(4)						--fewer (vs 6)
+	ship:setWeaponTubeExclusiveFor(0,"Homing")		--tubes only shoot homing missiles (vs more options)
+	ship:setWeaponTubeExclusiveFor(1,"Homing")
+	ship:setWeaponTubeExclusiveFor(2,"Homing")
+	ship:setWeaponTubeExclusiveFor(3,"Mine")
+	ship:setWeaponTubeDirection(3, 180)
+	ship:setWeaponStorageMax("Homing",10)			--more (vs 8)
+	ship:setWeaponStorage("Homing", 10)				
+	ship:setWeaponStorageMax("HVLI",0)				--fewer
+	ship:setWeaponStorage("HVLI", 0)				
+	ship:setWeaponStorageMax("EMP",0)				--fewer
+	ship:setWeaponStorage("EMP", 0)				
+	ship:setWeaponStorageMax("Nuke",0)				--fewer
+	ship:setWeaponStorage("Nuke", 0)	
+	ship:setLongRangeRadarRange(35000)				--longer longer range sensors (vs 30000)
+	ship.normal_long_range_radar = 35000
+	ship:setShortRangeRadarRange(4000)				--shorter short range sensors (vs 5000)
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Holmes is based on Crucible\nDifferences: Slower impulse (vs 80), broadside beams (long beam only impacts shields) - more damage, heat, energy per fire, different tube and magazine configuration, longer sensor range"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipWesson()
 	playerChavez = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Wesson")
