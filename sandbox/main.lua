@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.8"
+	scenario_version = "8.7.9"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1924,7 +1924,7 @@ function setConstants()
 	makePlayerShipActive("Gabble")			--J
 	makePlayerShipActive("Manxman") 		--J 
 	makePlayerShipActive("Grad")			--W
-	makePlayerShipActive("Watson")			--W
+	makePlayerShipActive("Spike")			--W
 	makePlayerShipActive("Sting") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
@@ -3607,10 +3607,10 @@ function createSkeletonUniverse()
     	},
 	}
 	--	Staunch defense platforms
-	local sdp_1 = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("SDP_1"):setPosition(144252, 774451):orderRoaming()
+	local sdp_1 = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("SDP_1"):setPosition(144252, 774451):orderRoaming():setScannedByFaction("Human Navy",true)
 	setBeamColor(sdp_1)
 	station_names[sdp_1:getCallSign()] = {sdp_1:getSectorName(), sdp_1}
-	local sdp_2 = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("SDP_2"):setPosition(141426, 776608):orderRoaming()
+	local sdp_2 = CpuShip():setFaction("Human Navy"):setTemplate("Defense platform"):setCallSign("SDP_2"):setPosition(141426, 776608):orderRoaming():setScannedByFaction("Human Navy",true)
 	setBeamColor(sdp_2)
 	station_names[sdp_2:getCallSign()] = {sdp_2:getSectorName(), sdp_2}
 	station_names[stationStaunch:getCallSign()] = {stationStaunch:getSectorName(), stationStaunch}
@@ -32468,12 +32468,12 @@ function createShipReference(ship)
 			if beam_line == "" then
 				beam_line = string.format("Direction: %s    Arc: %s    Range: %s    Cycle: %s    Damage: %s    Damage type: %s",ship:getBeamWeaponDirection(i),ship:getBeamWeaponArc(i),ship:getBeamWeaponRange(i)/1000,ship:getBeamWeaponCycleTime(i),ship:getBeamWeaponDamage(i),ship.beam_damage_type[i+1])
 				if ship:getBeamWeaponTurretArc(i) > ship:getBeamWeaponArc(i) then
-					beam_line = string.format("%s    Turret arc: %s    Turret speed: %.1f",beam_line,ship:getBeamWeaponTurretArc(i),ship:getBeamWeaponTurretRotationRate(i))
+					beam_line = string.format("%s    Turret(arc: %s    speed: %.1f)",beam_line,ship:getBeamWeaponTurretArc(i),ship:getBeamWeaponTurretRotationRate(i))
 				end
 			else
 				beam_line = string.format("%s\nDirection: %s    Arc: %s    Range: %s    Cycle: %s    Damage: %s    Damage type: %s",beam_line,ship:getBeamWeaponDirection(i),ship:getBeamWeaponArc(i),ship:getBeamWeaponRange(i)/1000,ship:getBeamWeaponCycleTime(i),ship:getBeamWeaponDamage(i),ship.beam_damage_type[i+1])
 				if ship:getBeamWeaponTurretArc(i) > ship:getBeamWeaponArc(i) then
-					beam_line = string.format("%s    Turret arc: %s    Turret speed: %.1f",beam_line,ship:getBeamWeaponTurretArc(i),ship:getBeamWeaponTurretRotationRate(i))
+					beam_line = string.format("%s    Turret(arc: %s    speed: %.1f)",beam_line,ship:getBeamWeaponTurretArc(i),ship:getBeamWeaponTurretRotationRate(i))
 				end
 			end
 			if ship.beam_damage_type[i+1] ~= "energy" then
@@ -35255,59 +35255,75 @@ function createPlayerShipSpyder()
 	return playerSpyder
 end
 function createPlayerShipStick()
-	playerStick = PlayerSpaceship():setTemplate("Hathcock"):setFaction("Human Navy"):setCallSign("Stick")	
-	setBeamColor(playerStick)
+	local base_template = "Hathcock"
+	local hot_template = "Surkov"
+	local ship = PlayerSpaceship():setTemplate(base_template):setFaction("Human Navy"):setCallSign("Spike")
+	setBeamColor(ship)
 	--aka stick or spike
-	playerStick:setTypeName("Surkov")
-	playerStick:setRepairCrewCount(3)	--more repair crew (vs 2)
-	playerStick:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
-	playerStick:setJumpDrive(false)		--no jump
-	playerStick:setWarpDrive(true)		--add warp
-	playerStick:setWarpSpeed(500)
-	playerStick:setShieldsMax(80,120)	--stronger (vs 70,70)
-	playerStick:setShields(80,120)
-	playerStick:setHullMax(175)			--stronger (vs 120)
-	playerStick:setHull(175)
---                 				   Arc, Dir,   Range, Cycle,  Dmg
-	playerStick:setBeamWeapon(1,	20,   0,	1200,	6.0,	5)	--stronger (vs 4)
-	playerStick:setBeamWeapon(2,	60,   0,	1000,	6.0,	6)	--stronger (vs 4)
-	playerStick:setBeamWeapon(3,	90,   0,	 800,	6.0,	7)	--stronger (vs 4)
-	playerStick:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
-	playerStick:setWeaponTubeDirection(0, -90)
-	playerStick:weaponTubeDisallowMissle(0,"Mine")
-	playerStick:weaponTubeDisallowMissle(0,"Nuke")
-	playerStick:weaponTubeDisallowMissle(0,"EMP")
-	playerStick:setWeaponStorageMax("Mine",3)		--more (vs 0)
-	playerStick:setWeaponStorage("Mine",3)
-	playerStick:setWeaponStorageMax("Nuke",0)		--less
-	playerStick:setWeaponStorage("Nuke",0)
-	playerStick:setWeaponStorageMax("EMP",0)		--less
-	playerStick:setWeaponStorage("EMP",0)
-	playerStick:setWeaponTubeDirection(1, 90)
-	playerStick:weaponTubeDisallowMissle(1,"Mine")
-	playerStick:weaponTubeDisallowMissle(1,"Nuke")
-	playerStick:weaponTubeDisallowMissle(1,"EMP")
-	playerStick:setWeaponTubeDirection(2,180)
-	playerStick:setWeaponTubeExclusiveFor(2,"Mine")
-	playerStick:setTubeLoadTime(2, 20)				--slower (vs 15)
-	playerStick:setSystemCoolantRate("warp",			1.4)	--more (vs 1.2) pump is here
-	playerStick:setSystemCoolantRate("reactor",			1.35)	--more (vs 1.2)
-	playerStick:setSystemCoolantRate("beamweapons",		1.1)	--less (vs 1.2)
-	playerStick:setSystemCoolantRate("impulse",			1.3)	--more (vs 1.2)
-	playerStick:setSystemCoolantRate("frontshield",		1.1)	--less (vs 1.2)
-	playerStick:setSystemCoolantRate("missilesystem",	1.05)	--less (vs 1.2)
-	playerStick:setSystemCoolantRate("rearshield",		1.35)	--more (vs 1.2)
-	playerStick:setSystemPowerRate("reactor",			0.40)	--more (vs 0.30)
-	playerStick:setSystemPowerRate("warp",				0.375)	--more (vs 0.30)
-	playerStick:setSystemPowerRate("beamweapons",		0.225)	--less (vs 0.30)
-	playerStick:setSystemPowerRate("maneuver",			0.275)	--less (vs 0.30)
-	playerStick:setSystemPowerRate("impulse",			0.325)	--more (vs 0.30)
-	playerStick:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
-	playerStick:setSystemPowerRate("rearshield",		0.35)	--more (vs 0.30)
---	playerStick:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
-	playerStick:onTakingDamage(playerShipDamage)
-	playerStick:addReputationPoints(50)
-	return playerStick
+	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
+	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
+	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.beam_damage_type[1] = "emp"
+	ship.beam_damage_type[2] = "emp"
+	ship.tube_direction = {-90,90,180}
+	ship.tube_ordnance = {"Homing, HVLI","Homing, HVLI","Mine"}
+	ship:setTypeName(hot_template)
+	ship:setRepairCrewCount(3)	--more repair crew (vs 2)
+	ship:setImpulseMaxSpeed(60)	--faster impulse max (vs 50)
+	ship:setJumpDrive(false)		--no jump
+	ship:setWarpDrive(true)		--add warp
+	ship:setWarpSpeed(500)
+	ship:setShieldsMax(80,120)	--stronger (vs 70,70)
+	ship:setShields(80,120)
+	ship:setHullMax(175)			--stronger (vs 120)
+	ship:setHull(175)
+--                 		   Arc, Dir,   Range, Cycle,  Dmg
+	ship:setBeamWeapon(0,	10,  40,	1200,	6.0,	5)	--stronger (vs 4), shorter range (vs 1400), angled
+	ship:setBeamWeapon(1,	10, -40,	1200,	6.0,	5)	--stronger (vs 4), angled
+	ship:setBeamWeapon(2,	50,  10,	 900,	6.0,	7)	--stronger (vs 4), shorter range (vs 1000), angled
+	ship:setBeamWeapon(3,	50, -10,	 900,	6.0,	7)	--stronger (vs 4), longer range (vs 800), angled
+--								Arc,   Dir,  Rotate
+	ship:setBeamWeaponTurret(0,	120,	40,		0.5):setBeamWeaponDamageType(0,"emp")
+	ship:setBeamWeaponTurret(1,	120,   -40,		0.5):setBeamWeaponDamageType(1,"emp")
+	ship:setWeaponTubeCount(3)	--one more tube for mines, no other splash ordnance
+	ship:setWeaponTubeDirection(0, -90)
+	ship:weaponTubeDisallowMissle(0,"Mine")
+	ship:weaponTubeDisallowMissle(0,"Nuke")
+	ship:weaponTubeDisallowMissle(0,"EMP")
+	ship:setWeaponStorageMax("Mine",3)		--more (vs 0)
+	ship:setWeaponStorage("Mine",3)
+	ship:setWeaponStorageMax("Nuke",0)		--less
+	ship:setWeaponStorage("Nuke",0)
+	ship:setWeaponStorageMax("EMP",0)		--less
+	ship:setWeaponStorage("EMP",0)
+	ship:setWeaponTubeDirection(1, 90)
+	ship:weaponTubeDisallowMissle(1,"Mine")
+	ship:weaponTubeDisallowMissle(1,"Nuke")
+	ship:weaponTubeDisallowMissle(1,"EMP")
+	ship:setWeaponTubeDirection(2,180)
+	ship:setWeaponTubeExclusiveFor(2,"Mine")
+	ship:setTubeLoadTime(2, 20)				--slower (vs 15)
+	ship:setSystemCoolantRate("warp",			1.4)	--more (vs 1.2) pump is here
+	ship:setSystemCoolantRate("reactor",			1.35)	--more (vs 1.2)
+	ship:setSystemCoolantRate("beamweapons",		1.1)	--less (vs 1.2)
+	ship:setSystemCoolantRate("impulse",			1.3)	--more (vs 1.2)
+	ship:setSystemCoolantRate("frontshield",		1.1)	--less (vs 1.2)
+	ship:setSystemCoolantRate("missilesystem",	1.05)	--less (vs 1.2)
+	ship:setSystemCoolantRate("rearshield",		1.35)	--more (vs 1.2)
+	ship:setSystemPowerRate("reactor",			0.40)	--more (vs 0.30)
+	ship:setSystemPowerRate("warp",				0.375)	--more (vs 0.30)
+	ship:setSystemPowerRate("beamweapons",		0.225)	--less (vs 0.30)
+	ship:setSystemPowerRate("maneuver",			0.275)	--less (vs 0.30)
+	ship:setSystemPowerRate("impulse",			0.325)	--more (vs 0.30)
+	ship:setSystemPowerRate("frontshield",		0.35)	--more (vs 0.30)
+	ship:setSystemPowerRate("rearshield",		0.35)	--more (vs 0.30)
+--	ship:setSystemHeatRate("beamweapons",	.5)	--more (vs .05) Lingling	
+	createShipReference(ship)
+	ship.ship_reference["Diff Sum"] = {ord = 2, desc = "Surkov is based on Hathcock\nDifferences: Faster impulse (vs 50), Warp instead of Jump, stronger shields (vs 70/70), stronger hull (vs 120), more repair crew (vs 2), different beam configuration: longer turreted beams hit shields, divergent coolant and power rates, different tube and magazine configuration"}
+	addShipReference(ship)
+	ship:onTakingDamage(playerShipDamage)
+	ship:addReputationPoints(50)
+	return ship
 end
 function createPlayerShipSting()
 	--sent to Kraylor war front. May return later
@@ -71402,7 +71418,7 @@ function updateStaunchExpeditions(delta)
 			if not station_deleted then
 				if #expedition_pool > 0 then
 					if staunch_expedition_time == nil then
-						staunch_expedition_time = getScenarioTime() + 5	--test: 5, final: 180 - 600
+						staunch_expedition_time = getScenarioTime() + 10	--test: 10, final: 180 - 600
 					end
 					if getScenarioTime() > staunch_expedition_time then
 						staunch_expedition_time = nil
