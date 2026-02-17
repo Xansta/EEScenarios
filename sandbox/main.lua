@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.7.9"
+	scenario_version = "8.8.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -71784,7 +71784,7 @@ function updateCarrierDeployedFighter(delta)
 --									print("Carrier has a list of supported fighter types")
 									if obj.carrier_ship_types[fighter_type].carry then
 --										print("Fighter type matches a supported type on carrier:",fighter_type)
-										table.insert(carriers,obj)
+										table.insert(carriers,{cxr=obj,dist=distance(obj,fighter)})
 									end
 								end
 							end
@@ -71793,9 +71793,12 @@ function updateCarrierDeployedFighter(delta)
 				end
 				if #carriers > 0 then
 --					print("Carrier list contains this many carriers:",#carriers)
-					carrier = carriers[1]
+					carrier = carriers[1].cxr
 					if #carriers > 1 then
-						--pick the closest carrier
+						table.sort(carriers, function(a,b)
+							return a.dist < b.dist
+						end)
+						carrier = carriers[1].cxr
 					end
 					local dock_banner = false
 					local fighter_heading = fighter:getHeading()
@@ -71963,6 +71966,19 @@ function updateCarrierDeployedFighter(delta)
 							fighter:removeCustom(string.format("%s_tac",fighter.dock_banner))
 							fighter.dock_banner = nil
 						end
+					end
+				else	--no player carriers nearby
+					if fighter.dock_with_carrier_button ~= nil then
+						fighter:removeCustom(string.format("%s_helm",fighter.dock_with_carrier_button))
+						fighter:removeCustom(string.format("%s_tac",fighter.dock_with_carrier_button))
+						fighter:removeCustom(string.format("%s_one",fighter.dock_with_carrier_button))
+						fighter.dock_with_carrier_button = nil
+						fighter.retract_timer = nil
+					end
+					if fighter.dock_banner ~= nil then
+						fighter:removeCustom(string.format("%s_helm",fighter.dock_banner))
+						fighter:removeCustom(string.format("%s_tac",fighter.dock_banner))
+						fighter.dock_banner = nil
 					end
 				end
 --				carrier_deployed_fighter[fighter_name] = nil
