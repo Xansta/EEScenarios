@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.8.1"
+	scenario_version = "8.8.2"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -219,6 +219,7 @@ function setConstants()
 	universe:addAvailableRegion("Bask (R56)",baskSector,1027800,251000)
 	universe:addAvailableRegion("Staunch (AR12)",staunchSector,153668,775877)
 	universe:addAvailableRegion("Glikton (zf25)",gliktonSector,407073,-502604)
+	universe:addAvailableRegion("Goodall (ys54)",goodallSector,990252,-802802)
 	universe:addAvailableRegion("Santa Containment(J41)",santaContainment,754554, 64620)-- probably worth considering as temporary
 	universe:addAvailableRegion("FilkRoad (zj-12).", filkRoadSector, -323500, -431000)
 	initialSandboxDatabaseUpdate()
@@ -226,6 +227,7 @@ function setConstants()
 	playerSpawnY = 0
 	prefix_length = 0
 	suffix_index = 0
+	colliding_planets = {}
 	startRegion = "Icarus (F5)"
 	icarus_color = false
 	kentar_color = false
@@ -1923,7 +1925,7 @@ function setConstants()
 	makePlayerShipActive("Thunderbird")		--J
 	makePlayerShipActive("Gabble")			--J
 	makePlayerShipActive("Manxman") 		--J 
-	makePlayerShipActive("Grad")			--W
+	makePlayerShipActive("Eagle")			--W
 	makePlayerShipActive("Spike")			--W
 	makePlayerShipActive("Sting") 			--W 
 	carrier_class_launch_time = {
@@ -3543,6 +3545,71 @@ function createSkeletonUniverse()
 	}
 	station_names[stationGlikton:getCallSign()] = {stationGlikton:getSectorName(), stationGlikton}
 	stationGlikton.skeleton_station = true
+	--	Goodall
+	goodall_x = 989665
+	goodall_y = -793590
+	stationGoodall = SpaceStation():setTemplate("Medium Station"):setFaction("Human Navy"):setCallSign("Goodall"):setPosition(goodall_x,goodall_y):setDescription("Administrative and coordination"):setCommsScript(""):setCommsFunction(commsStation)
+	stationGoodall:setShortRangeRadarRange(12000)
+	stationGoodall.comms_data = {
+    	friendlyness = 72,
+        weapons = 			{Homing = "neutral",HVLI = "neutral", 		Mine = "neutral",		Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = 2, 		HVLI = 1,				Mine = math.random(2,4),Nuke = 12,					EMP = math.random(9,11) },
+        weapon_available = 	{Homing = true,		HVLI = true,			Mine = true,			Nuke = true,				EMP = true},
+        service_cost = 		{
+        	supplydrop = math.random(90,110), 
+        	reinforcements = math.random(140,160),
+   			hornet_reinforcements =	math.random(75,125),
+			phobos_reinforcements =	math.random(175,225),
+			shield_overcharge = math.random(1,5)*5,
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<80},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        },
+        jump_overcharge =		true,
+        shield_overcharge =		true,
+        probe_launch_repair =	true,
+        hack_repair =			true,
+        scan_repair =			true,
+        combat_maneuver_repair=	true,
+        self_destruct_repair =	true,
+        tube_slow_down_repair =	true,
+        sensor_boost = {value = 10000, cost = 0},
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
+        goods = {	food = 		{quantity = 10,		cost = 1},
+        			medicine =	{quantity = 10,		cost = 5}	},
+        trade = {	food = false, medicine = false, luxury = false },
+        public_relations = true,
+        general_information = "We coordinate Human Navy, CUF, TSN, and USN activity in this region.",
+    	history = "We started off as a research station for planet Grendel and its moons (be careful, they're dangerous), then became a commerce and travel hub, then eventually a coordination center.",
+    	idle_defense_fleet = {
+			DF1 = "MT52 Hornet",
+			DF2 = "MU52 Hornet",
+			DF3 = "MT52 Hornet",
+			DF4 = "MU52 Hornet",
+			DF5 = "Phobos T3",
+			DF6 = "Nirvana R5",
+			DF7 = "Adder MK8",
+			DF8 = "Elara P2",
+    	},
+	}
+	station_names[stationGoodall:getCallSign()] = {stationGoodall:getSectorName(), stationGoodall}
+	stationGoodall.skeleton_station = true
 	--	Staunch
 	staunch_x = 142731
 	staunch_y = 775509
@@ -12133,7 +12200,7 @@ function setDefaultPlayerSpawnPointsInOtherRegions()
 	addGMFunction("-Start Region",setStartRegion)
 	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
 	local region_group_2 = {
-		"Eris", "Santa", "Riptide", "Staunch", "Glikton"
+		"Eris", "Santa", "Riptide", "Staunch", "Glikton", "Goodall"
 	}
 	for i=1,#universe.available_regions do
 		local region=universe.available_regions[i]
@@ -27789,6 +27856,1311 @@ function createGliktonAsteroids()
 	return asteroids
 end
 --	Other
+function goodallSector()
+	goodall_color = true
+	hatchling_x = 961998
+	hatchling_y = -839090
+	hatchling_angle = 10
+	hatchling_dist = 10000
+	goodall_planets = createGoodallPlanets()	--includes other objects in motion
+	goodall_asteroids = createGoodallAsteroids()
+	goodall_mines = createGoodallMines()
+	goodall_stations = createGoodallStations()
+	return {destroy=removeGoodallColor}
+end
+function createGoodallStations()
+	--	economy need refining as well as decisions made about specialty probes
+	local stations = {}
+	--	Baltar
+	stationBaltar = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Baltar"):setPosition(1008023, -704212)
+	stationBaltar:setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	stationBaltar:setShortRangeRadarRange(8000)
+	stationBaltar.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "Simple mining operation",
+    	history = "Station named after Dr. Gaius Baltar by the station establishing crew to celebrate the human ability to go from reviled evil propogationist to hero and quiet farmer.",
+	}
+	station_names[stationBaltar:getCallSign()] = {stationBaltar:getSectorName(), stationBaltar}
+	table.insert(stations,stationBaltar)
+	--	Ganges
+	stationGanges = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Ganges"):setPosition(1010165, -656938)
+	stationGanges:setDescription("Mining and mineral commerce"):setCommsScript(""):setCommsFunction(commsStation)
+	stationGanges:setShortRangeRadarRange(8000)
+	stationGanges.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "Mining of minerals for sale to the highest bidder",
+    	history = "The nearby asteroids are especially rich in exotic minerals. A veritable river of minerals flows from the region, similar to the river Ganges on Earth",
+	}
+	station_names[stationGanges:getCallSign()] = {stationGanges:getSectorName(), stationGanges}
+	table.insert(stations,stationGanges)
+	--	Golden Light
+	stationGoldenLight = SpaceStation():setTemplate("Large Station"):setFaction("USN"):setCallSign("Golden Light"):setPosition(762648, -936396)
+	stationGoldenLight:setDescription("Mining, manufacturing, training and research"):setCommsScript(""):setCommsFunction(commsStation)
+	stationGoldenLight:setShortRangeRadarRange(8000)
+	stationGoldenLight.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "Our original and primary source of income comes from the minerals obtained from the asteroids, but we have diversified into education, research, and manufacturing.",
+    	history = "The reflection of Grendel, Heorot and Geats from the myriad of asteroids nearby frequently creates a golden light visible from the viewports of the station, hence the station name.",
+	}
+	station_names[stationGoldenLight:getCallSign()] = {stationGoldenLight:getSectorName(), stationGoldenLight}
+	table.insert(stations,stationGoldenLight)
+	--	Gremlin
+	stationGremlin = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Gremlin"):setPosition(945045, -867289)
+	stationGremlin:setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	stationGremlin:setShortRangeRadarRange(8000)
+	stationGremlin.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We gather minerals from the asteroids and distribute them to other stations here and around the galaxy.",
+    	history = "When we established this station, little things kept breaking down or acting strangely. One of our crew, Lt O'Riley, blamed it on a mythical creature known as a Gremlin. Over time, O'Riley became commander O'Riley, head of the station. She refused to allow the station to be named after her despite her contributions and sacrifices. Eventually, the crew voted to name the station Gremlin in her honor.",
+	}
+	station_names[stationGremlin:getCallSign()] = {stationGremlin:getSectorName(), stationGremlin}
+	table.insert(stations,stationGremlin)
+	--	Hatchling
+	stationHatchling = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Hatchling"):setPosition(hatchling_x, hatchling_y)
+	stationHatchling:setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	stationHatchling:setShortRangeRadarRange(8000)
+	stationHatchling.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We mine the nearby exotic minerals that are availble and put them to good use to manufacture high value goods.",
+    	history = "From the start, the operations on this station were designed to extract the rarest of minerals and to make the most valuable of goods. Our name is designed to convey a sense of small scale and relative immaturity to the general public. The defenses placed here reflect the expectation that pirates will eventually attempt to take our resources and goods by force.",
+	}
+	station_names[stationHatchling:getCallSign()] = {stationHatchling:getSectorName(), stationHatchling}
+	table.insert(stations,stationHatchling)
+	--	defense platforms in motion near Hatchling
+	for i=1,6 do
+		local angle = (hatchling_angle + (60 * i)) % 360
+		local corner_1_x, corner_1_y = vectorFromAngle(angle,hatchling_dist,true)
+		corner_1_x = corner_1_x + hatchling_x
+		corner_1_y = corner_1_y + hatchling_y
+		local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(corner_1_x, corner_1_y):setCallSign(string.format("HDP%i",i)):orderStandGround():setCommsScript(""):setCommsFunction(commsStation):setScannedByFaction("Human Navy",true)
+		setBeamColor(dp)
+		dp.patrol_info_index = 1
+		dp.patrol_info_count = 0
+		if i % 2 == 0 then
+			dp.patrol_info = {
+				{angle = (angle + 95) % 360},
+				{angle = (angle + 95 + 180) % 360},
+				{angle = (angle + 95 + 120) % 360},
+				{angle = (angle + 95 + 180 + 120) % 360},
+			}
+		else
+			dp.patrol_info = {
+				{angle = (angle + 95 + 180 - 60) % 360},
+				{angle = (angle + 95 - 60) % 360},
+				{angle = (angle + 95 + 180 - 60 + 240) % 360},
+				{angle = (angle + 95 - 60 + 240) % 360},
+			}
+		end
+		station_names[dp:getCallSign()] = {dp:getSectorName(), dp}
+		table.insert(goodall_planets,dp)
+	end
+	--	Hub
+	stationHub = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Hub"):setPosition(902005, -901965)
+	stationHub:setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	stationHub:setShortRangeRadarRange(8000)
+	stationHub.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "The resources and goods that come from this station serve a variety of Ghost interests making Ghost traffic revolve around this station.",
+    	history = "Once the volume of traffic increased significantly, we renamed our station to Hub to reflect its central traffic nature.",
+	}
+	station_names[stationHub:getCallSign()] = {stationHub:getSectorName(), stationHub}
+	table.insert(stations,stationHub)
+	--	Jarkon
+	stationJarkon = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Jarkon"):setPosition(798064, -862437)
+	stationJarkon:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationJarkon:setShortRangeRadarRange(8000)
+	stationJarkon.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We just mine the asteroids and ship or sell the minerals obtained.",
+    	history = "Jarkon is the owner/proprietor of the station",
+	}
+	station_names[stationJarkon:getCallSign()] = {stationJarkon:getSectorName(), stationJarkon}
+	table.insert(stations,stationJarkon)
+	--	Jaundice
+	stationJaundice = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Jaundice"):setPosition(1041418, -858030)
+	stationJaundice:setDescription("Mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
+	stationJaundice:setShortRangeRadarRange(8000)
+	stationJaundice.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We use the minerals extracted from the asteroids. We either sell them or use them in our manufacturing efforts",
+    	history = "When we first set up operations here, an illness swept through the crew causing a yellowish tinge to their skin. We overcame the illness, but for weeks, the skin tinge remained for the station personnel, so our station was given the name Jaundice. We tried to have it changed, but it stuck. Now we just roll with it.",
+	}
+	station_names[stationJaundice:getCallSign()] = {stationJaundice:getSectorName(), stationJaundice}
+	table.insert(stations,stationJaundice)
+	--	Kepler's Folly
+	stationKeplersFolly = SpaceStation():setTemplate("Small Station"):setFaction("CUF"):setCallSign("Kepler's Folly"):setPosition(1083684, -626672)
+	stationKeplersFolly:setDescription("Observatory"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKeplersFolly:setShortRangeRadarRange(10000)
+	stationKeplersFolly.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We observe and study the orbital phenomenon represented by planet Grendel and her moons.",
+    	history = "Kepler's laws have been hashed by the behavior of planet Grendel. The scientists named this station after one of the scientists quipped 'Kepler would be turning in his grave.'",
+	}
+	station_names[stationKeplersFolly:getCallSign()] = {stationKeplersFolly:getSectorName(), stationKeplersFolly}
+	table.insert(stations,stationKeplersFolly)
+	--	Millipedia
+	stationMillipedia = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Millipedia"):setPosition(992996, -889337)
+	stationMillipedia:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationMillipedia:setShortRangeRadarRange(5000)
+	stationMillipedia.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We're here for the minerals these asteroids provide.",
+    	history = "The station is named after the multilegged creatures found on two of the asteroids. Those creatures have since been destroyed due to extensive mining.",
+	}
+	station_names[stationMillipedia:getCallSign()] = {stationMillipedia:getSectorName(), stationMillipedia}
+	table.insert(stations,stationMillipedia)
+	--	Molory
+	stationMolory = SpaceStation():setTemplate("Small Station"):setFaction("Arlenians"):setCallSign("Molory"):setPosition(962086, -916191)
+	stationMolory:setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
+	stationMolory:setShortRangeRadarRange(5000)
+	stationMolory.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "Mining pays the bills. Our passion is observing the energy generated by the unusual orbit of Grendel between Heorot and Geats",
+    	history = "We started by mining, then a group of scientists joined us. We all became enamored of the unusual stellar body behavior. We maintain the mining to support our fascination.",
+	}
+	station_names[stationMolory:getCallSign()] = {stationMolory:getSectorName(), stationMolory}
+	table.insert(stations,stationMolory)
+	--	Porthos
+	stationPorthos = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Porthos"):setPosition(1024561, -826392)
+	stationPorthos:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationPorthos:setShortRangeRadarRange(5000)
+	stationPorthos.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "The minerals in the asteroids are crucial resources for us.",
+    	history = "We were the fourth station established in the region. Our founders were fans of the Three Musketeers, of which Porthos was the fourth.",
+	}
+	station_names[stationPorthos:getCallSign()] = {stationPorthos:getSectorName(), stationPorthos}
+	table.insert(stations,stationPorthos)
+	--	Spiracle
+	stationSpiracle = SpaceStation():setTemplate("Small Station"):setFaction("Ktlitans"):setCallSign("Spiracle"):setPosition(898202, -848328)
+	stationSpiracle:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationSpiracle:setShortRangeRadarRange(5000)
+	stationSpiracle.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We mine the asteroids",
+    	history = "We gather minerals to support hive activities",
+	}
+	station_names[stationSpiracle:getCallSign()] = {stationSpiracle:getSectorName(), stationSpiracle}
+	table.insert(stations,stationSpiracle)
+	--	Torontogosh
+	stationTorontogosh = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Torontogosh"):setPosition(837109, -976455)
+	stationTorontogosh:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationTorontogosh:setShortRangeRadarRange(5000)
+	stationTorontogosh.comms_data = {
+    	friendlyness = 91,
+        weapons = 			{Homing = "neutral",			HVLI = "neutral", 			Mine = "neutral",			Nuke = "friend", 			EMP = "friend"},
+        weapon_cost =		{Homing = math.random(3,4), 	HVLI = math.random(1,4),	Mine = math.random(2,4),	Nuke = math.random(12,18),	EMP = math.random(9,15) },
+        weapon_available = 	{Homing = random(1,100) <= 60,	HVLI = random(1,100) <= 80,	Mine = random(1,100) <= 60,	Nuke = random(1,100) <= 30,	EMP = random(1,100) <= 40},
+        service_cost = 		{
+        	supplydrop = math.random(80,120), 
+        	reinforcements = math.random(125,175),
+			probe_launch_repair = math.random(1,4) + math.random(1,5),
+			hack_repair = math.random(1,4) + math.random(1,5),
+			scan_repair = math.random(1,4) + math.random(1,5),
+			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
+			self_destruct_repair = math.random(1,4) + math.random(1,5),
+			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+        },
+        system_repair = {
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.5, .99),	avail = random(1,100)<30},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<40},
+        	["impulse"] =		{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<80},
+        	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<70},
+        	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<60},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.7, .99),	avail = random(1,100)<45},
+        },
+        hack_repair =			random(1,100)<30,
+        tube_slow_down_repair = random(1,100)<30,
+        jump_overcharge =		random(1,100)<30,
+        probe_launch_repair =	random(1,100)<30,
+        scan_repair =			random(1,100)<30,
+        self_destruct_repair =	random(1,100)<30,
+--		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
+        reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
+        max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
+        goods = {	platinum =	{quantity = math.random(4,11),	cost = math.random(55,120)}, },
+        trade = {	food = random(1,100) < 32, medicine = random(1,100) < 42, luxury = random(1,100) < 22 },
+        public_relations = true,
+        general_information = "We harvest minerals from the asteroids.",
+    	history = "The minerals and the sale of minerals help support Kraylor activity.",
+	}
+	station_names[stationTorontogosh:getCallSign()] = {stationTorontogosh:getSectorName(), stationTorontogosh}
+	table.insert(stations,stationTorontogosh)
+    return stations
+end
+function createGoodallMines()
+	local mines = {}
+	--	near Hatchling
+	for i=1,6 do
+		local angle = (hatchling_angle + (60 * i)) % 360
+		local corner_1_x, corner_1_y = vectorFromAngle(angle,hatchling_dist,true)
+		angle = (angle + 60) % 360
+		local corner_2_x, corner_2_y = vectorFromAngle(angle,hatchling_dist,true)
+		corner_1_x = corner_1_x + hatchling_x
+		corner_1_y = corner_1_y + hatchling_y
+		corner_2_x = corner_2_x + hatchling_x
+		corner_2_y = corner_2_y + hatchling_y
+--		Asteroid():setPosition(corner_1_x, corner_1_y):setSize(500)
+		angle = angleHeading(corner_1_x, corner_1_y, corner_2_x, corner_2_y)
+		local halfway = distance(corner_1_x, corner_1_y, corner_2_x, corner_2_y)/2
+		local mid_mine_x, mid_mine_y = vectorFromAngle(angle,halfway,true)
+		mid_mine_x = mid_mine_x + corner_1_x
+		mid_mine_y = mid_mine_y + corner_1_y
+		table.insert(mines,Mine():setPosition(mid_mine_x, mid_mine_y))
+		local m_x, m_y = vectorFromAngle(angle,halfway + 1500,true)
+		m_x = m_x + corner_1_x
+		m_y = m_y + corner_1_y
+		table.insert(mines,Mine():setPosition(m_x, m_y))
+		m_x, m_y = vectorFromAngle(angle,halfway - 1500,true)
+		m_x = m_x + corner_1_x
+		m_y = m_y + corner_1_y
+		table.insert(mines,Mine():setPosition(m_x, m_y))
+	end
+	--	near station Goodall
+	table.insert(mines,Mine():setPosition(1002256, -797001))
+	table.insert(mines,Mine():setPosition(1001921, -795469))
+	table.insert(mines,Mine():setPosition(1002344, -794134))
+	table.insert(mines,Mine():setPosition(998244, -797931))
+	table.insert(mines,Mine():setPosition(996972, -798679))
+	table.insert(mines,Mine():setPosition(998211, -799331))
+	table.insert(mines,Mine():setPosition(1001344, -801479))
+	table.insert(mines,Mine():setPosition(1000292, -800555))
+	table.insert(mines,Mine():setPosition(999642, -797861))
+	table.insert(mines,Mine():setPosition(1000792, -796296))
+	table.insert(mines,Mine():setPosition(997982, -801941))
+	table.insert(mines,Mine():setPosition(998588, -800679))
+	table.insert(mines,Mine():setPosition(1000160, -799162))
+	table.insert(mines,Mine():setPosition(1001030, -797676))
+	--	west of Goodall
+	table.insert(mines,Mine():setPosition(967002, -801145))
+	table.insert(mines,Mine():setPosition(968376, -801414))
+	table.insert(mines,Mine():setPosition(965703, -800624))
+	table.insert(mines,Mine():setPosition(964399, -800113))
+	table.insert(mines,Mine():setPosition(963010, -799933))
+	table.insert(mines,Mine():setPosition(964421, -801513))
+	return mines
+end
+function createGoodallAsteroids()
+	local asteroids = {}
+	--	near Baltar
+	table.insert(asteroids,Asteroid():setPosition(1012453, -699848):setSize(124))
+	table.insert(asteroids,Asteroid():setPosition(1012204, -701468):setSize(130))
+	table.insert(asteroids,Asteroid():setPosition(1010958, -699226):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(1007844, -698104):setSize(121))
+	table.insert(asteroids,Asteroid():setPosition(1007346, -700845):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(1008592, -702090):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(1010709, -697357):setSize(116))
+	table.insert(asteroids,Asteroid():setPosition(1010834, -700471):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(1006225, -698976):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(1008841, -698976):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(1010585, -702838):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(1008716, -700720):setSize(118))
+    --	near Ganges
+	table.insert(asteroids,Asteroid():setPosition(1024136, -659495):setSize(63))
+	table.insert(asteroids,Asteroid():setPosition(1021465, -662315):setSize(81))
+	table.insert(asteroids,Asteroid():setPosition(1024285, -660534):setSize(69))
+	table.insert(asteroids,Asteroid():setPosition(1022504, -660089):setSize(74))
+	table.insert(asteroids,Asteroid():setPosition(1025769, -658010):setSize(41))
+	table.insert(asteroids,Asteroid():setPosition(1024285, -657862):setSize(54))
+	table.insert(asteroids,Asteroid():setPosition(1016121, -657268):setSize(162))
+	table.insert(asteroids,Asteroid():setPosition(1015824, -655932):setSize(376))
+	table.insert(asteroids,Asteroid():setPosition(1014785, -658901):setSize(189))
+	table.insert(asteroids,Asteroid():setPosition(1014191, -657120):setSize(323))
+	table.insert(asteroids,Asteroid():setPosition(1014340, -655339):setSize(399))
+	table.insert(asteroids,Asteroid():setPosition(1013004, -657862):setSize(244))
+	table.insert(asteroids,Asteroid():setPosition(1012707, -656081):setSize(427))
+	table.insert(asteroids,Asteroid():setPosition(1020871, -661128):setSize(87))
+	table.insert(asteroids,Asteroid():setPosition(1019387, -661721):setSize(92))
+	table.insert(asteroids,Asteroid():setPosition(1018051, -662167):setSize(110))
+	table.insert(asteroids,Asteroid():setPosition(1013449, -659940):setSize(211))
+	table.insert(asteroids,Asteroid():setPosition(1014934, -661128):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(1017754, -660831):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(1016566, -661870):setSize(111))
+	--	near Golden Light
+	table.insert(asteroids,Asteroid():setPosition(742594, -955387):setSize(50))
+	table.insert(asteroids,Asteroid():setPosition(742075, -952281):setSize(56))
+	table.insert(asteroids,Asteroid():setPosition(742220, -950031):setSize(61))
+	table.insert(asteroids,Asteroid():setPosition(743898, -947854):setSize(69))
+	table.insert(asteroids,Asteroid():setPosition(741846, -947166):setSize(76))
+	table.insert(asteroids,Asteroid():setPosition(748325, -947854):setSize(253))
+	table.insert(asteroids,Asteroid():setPosition(751971, -948375):setSize(160))
+	table.insert(asteroids,Asteroid():setPosition(761867, -955406):setSize(231))
+	table.insert(asteroids,Asteroid():setPosition(746242, -955927):setSize(160))
+	table.insert(asteroids,Asteroid():setPosition(741846, -944675):setSize(76))
+	table.insert(asteroids,Asteroid():setPosition(747283, -942646):setSize(279))
+	table.insert(asteroids,Asteroid():setPosition(759523, -946031):setSize(257))
+	table.insert(asteroids,Asteroid():setPosition(759262, -929364):setSize(1935))
+	table.insert(asteroids,Asteroid():setPosition(736366, -952896):setSize(81))
+	table.insert(asteroids,Asteroid():setPosition(738110, -953768):setSize(89))
+	table.insert(asteroids,Asteroid():setPosition(736739, -949657):setSize(69))
+	table.insert(asteroids,Asteroid():setPosition(736241, -951028):setSize(76))
+	table.insert(asteroids,Asteroid():setPosition(739355, -955138):setSize(96))
+	table.insert(asteroids,Asteroid():setPosition(740476, -954266):setSize(92))
+	table.insert(asteroids,Asteroid():setPosition(767856, -948896):setSize(1832))
+	table.insert(asteroids,Asteroid():setPosition(776190, -947073):setSize(1732))
+	table.insert(asteroids,Asteroid():setPosition(770721, -935614):setSize(1673))
+	table.insert(asteroids,Asteroid():setPosition(782440, -942385):setSize(1587))
+	table.insert(asteroids,Asteroid():setPosition(779314, -934833):setSize(1443))
+	table.insert(asteroids,Asteroid():setPosition(779575, -925198):setSize(1321))
+	table.insert(asteroids,Asteroid():setPosition(738857, -942807):setSize(52))
+	table.insert(asteroids,Asteroid():setPosition(739355, -945173):setSize(63))
+	table.insert(asteroids,Asteroid():setPosition(737648, -944729):setSize(45))
+	table.insert(asteroids,Asteroid():setPosition(743377, -942906):setSize(89))
+	table.insert(asteroids,Asteroid():setPosition(744337, -940440):setSize(96))
+	table.insert(asteroids,Asteroid():setPosition(755096, -932750):setSize(1283))
+	table.insert(asteroids,Asteroid():setPosition(759523, -917125):setSize(1154))
+	table.insert(asteroids,Asteroid():setPosition(739992, -949156):setSize(78))
+	table.insert(asteroids,Asteroid():setPosition(739355, -946917):setSize(72))
+	table.insert(asteroids,Asteroid():setPosition(737487, -946668):setSize(41))
+	table.insert(asteroids,Asteroid():setPosition(736346, -948114):setSize(36))
+	table.insert(asteroids,Asteroid():setPosition(733750, -950031):setSize(23))
+	table.insert(asteroids,Asteroid():setPosition(734622, -952024):setSize(14))
+	table.insert(asteroids,Asteroid():setPosition(734871, -954141):setSize(21))
+	table.insert(asteroids,Asteroid():setPosition(736739, -954764):setSize(25))
+	table.insert(asteroids,Asteroid():setPosition(755877, -953583):setSize(204))
+	table.insert(asteroids,Asteroid():setPosition(752492, -953844):setSize(184))
+	table.insert(asteroids,Asteroid():setPosition(740227, -952148):setSize(89))
+	table.insert(asteroids,Asteroid():setPosition(737860, -956010):setSize(36))
+	table.insert(asteroids,Asteroid():setPosition(740725, -950778):setSize(83))
+	table.insert(asteroids,Asteroid():setPosition(745460, -951240):setSize(209))
+	table.insert(asteroids,Asteroid():setPosition(772023, -926760):setSize(1057))
+	table.insert(asteroids,Asteroid():setPosition(765773, -922333):setSize(982))
+	table.insert(asteroids,Asteroid():setPosition(767596, -915562):setSize(830))
+	table.insert(asteroids,Asteroid():setPosition(736346, -940562):setSize(310))
+	table.insert(asteroids,Asteroid():setPosition(734248, -946170):setSize(363))
+	table.insert(asteroids,Asteroid():setPosition(739729, -956508):setSize(45))
+	table.insert(asteroids,Asteroid():setPosition(735304, -943687):setSize(337))
+	table.insert(asteroids,Asteroid():setPosition(732179, -943948):setSize(427))
+	table.insert(asteroids,Asteroid():setPosition(740252, -940042):setSize(299))
+	table.insert(asteroids,Asteroid():setPosition(742856, -937177):setSize(242))
+	table.insert(asteroids,Asteroid():setPosition(752752, -943427):setSize(171))
+	table.insert(asteroids,Asteroid():setPosition(745200, -932229):setSize(209))
+	table.insert(asteroids,Asteroid():setPosition(749106, -936656):setSize(198))
+	table.insert(asteroids,Asteroid():setPosition(731882, -947291):setSize(396))
+	table.insert(asteroids,Asteroid():setPosition(767335, -941604):setSize(748))
+	table.insert(asteroids,Asteroid():setPosition(766033, -930667):setSize(634))
+	table.insert(asteroids,Asteroid():setPosition(732179, -936135):setSize(487))
+	table.insert(asteroids,Asteroid():setPosition(735564, -937437):setSize(454))
+	table.insert(asteroids,Asteroid():setPosition(740773, -933271):setSize(410))
+	table.insert(asteroids,Asteroid():setPosition(741814, -928583):setSize(385))
+	table.insert(asteroids,Asteroid():setPosition(749106, -925719):setSize(361))
+	table.insert(asteroids,Asteroid():setPosition(751971, -924156):setSize(339))
+	table.insert(asteroids,Asteroid():setPosition(750669, -930146):setSize(304))
+	table.insert(asteroids,Asteroid():setPosition(754835, -937698):setSize(288))
+	table.insert(asteroids,Asteroid():setPosition(732179, -940302):setSize(460))
+	table.insert(asteroids,Asteroid():setPosition(738110, -948536):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(738608, -950156):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(738690, -952281):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(737611, -951775):setSize(128))
+	--	near station Goodall
+	table.insert(asteroids,Asteroid():setPosition(994525, -793108):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(996186, -792970):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(997432, -792140):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(997570, -795184):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(997708, -796707):setSize(124))
+	table.insert(asteroids,Asteroid():setPosition(998677, -794631):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(996048, -794354):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(995632, -797122):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(995356, -796153):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(996601, -796292):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(996324, -795461):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(997293, -793524):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(994387, -796153):setSize(129))
+	table.insert(asteroids,Asteroid():setPosition(994802, -797399):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(994940, -794631):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(994664, -798506):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(998954, -796015):setSize(112))
+    --	near Hatchling: East
+	table.insert(asteroids,Asteroid():setPosition(988043, -839747):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(988260, -841045):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(986746, -841261):setSize(128))
+	table.insert(asteroids,Asteroid():setPosition(990639, -842991):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(989557, -842126):setSize(124))
+	table.insert(asteroids,Asteroid():setPosition(985881, -842342):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(986097, -840180):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(987395, -842991):setSize(110))
+	table.insert(asteroids,Asteroid():setPosition(988476, -843207):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(981772, -842991):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(983934, -844289):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(984583, -845586):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(987395, -844938):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(985881, -843856):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(984367, -842126):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(984367, -839747):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(982420, -840180):setSize(114))
+	table.insert(asteroids,Asteroid():setPosition(978095, -839531):setSize(118))
+	table.insert(asteroids,Asteroid():setPosition(982204, -841261):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(980474, -841045):setSize(123))
+	table.insert(asteroids,Asteroid():setPosition(975500, -839531):setSize(118))
+	table.insert(asteroids,Asteroid():setPosition(974419, -845154):setSize(114))
+	table.insert(asteroids,Asteroid():setPosition(977230, -845803):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(977663, -843424):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(979609, -844505):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(982204, -844505):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(983286, -846451):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(980474, -847965):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(976365, -841694):setSize(114))
+	table.insert(asteroids,Asteroid():setPosition(975067, -842991):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(982637, -836503):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(983934, -838233):setSize(123))
+	table.insert(asteroids,Asteroid():setPosition(981123, -838450):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(979393, -836719):setSize(130))
+	--	near Hatchling: NorthWest
+	table.insert(asteroids,Asteroid():setPosition(950758, -851220):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(950758, -854791):setSize(124))
+	table.insert(asteroids,Asteroid():setPosition(947306, -854314):setSize(130))
+	table.insert(asteroids,Asteroid():setPosition(954686, -851696):setSize(123))
+	table.insert(asteroids,Asteroid():setPosition(947663, -851339):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(941831, -855148):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(946235, -854196):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(945045, -853481):setSize(121))
+	table.insert(asteroids,Asteroid():setPosition(945402, -851339):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(947187, -852648):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(953224, -856616):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(955820, -850993):setSize(118))
+	table.insert(asteroids,Asteroid():setPosition(952792, -848830):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(949115, -857697):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(952359, -851426):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(951278, -850128):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(953853, -858242):setSize(118))
+	table.insert(asteroids,Asteroid():setPosition(953258, -860385):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(950639, -859790):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(941355, -857766):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(943974, -857647):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(944807, -860861):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(942783, -859790):setSize(123))
+	table.insert(asteroids,Asteroid():setPosition(942664, -861932):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(945521, -861932):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(951591, -862051):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(948854, -860266):setSize(123))
+	table.insert(asteroids,Asteroid():setPosition(945997, -859671):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(945997, -857052):setSize(116))
+	table.insert(asteroids,Asteroid():setPosition(947306, -857647):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(948378, -855981):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(949092, -852648):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(947544, -861337):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(946473, -863956):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(949687, -863718):setSize(114))
+	table.insert(asteroids,Asteroid():setPosition(952067, -865860):setSize(113))
+	table.insert(asteroids,Asteroid():setPosition(952143, -853372):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(951494, -858346):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(953657, -854886):setSize(128))
+	table.insert(asteroids,Asteroid():setPosition(952359, -855318):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(950845, -852723):setSize(128))
+	table.insert(asteroids,Asteroid():setPosition(949331, -851209):setSize(122))
+	table.insert(asteroids,Asteroid():setPosition(949115, -854453):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(950629, -855967):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(954954, -855102):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(955171, -853372):setSize(112))
+	table.insert(asteroids,Asteroid():setPosition(955603, -852074):setSize(116))
+	table.insert(asteroids,Asteroid():setPosition(953657, -852507):setSize(111))
+	table.insert(asteroids,Asteroid():setPosition(953873, -850344):setSize(118))
+	--	near Hub
+	table.insert(asteroids,Asteroid():setPosition(907116, -913804):setSize(815))
+	table.insert(asteroids,Asteroid():setPosition(907424, -911805):setSize(922))
+	table.insert(asteroids,Asteroid():setPosition(903887, -910729):setSize(1024))
+	table.insert(asteroids,Asteroid():setPosition(904348, -907961):setSize(1127))
+	table.insert(asteroids,Asteroid():setPosition(903118, -905500):setSize(1228))
+	table.insert(asteroids,Asteroid():setPosition(901273, -905500):setSize(1329))
+	table.insert(asteroids,Asteroid():setPosition(899274, -902886):setSize(1423))
+	--	near Jarkon
+	table.insert(asteroids,Asteroid():setPosition(793230, -865495):setSize(1120))
+	table.insert(asteroids,Asteroid():setPosition(792000, -861343):setSize(1210))
+	table.insert(asteroids,Asteroid():setPosition(788924, -864573):setSize(1318))
+	table.insert(asteroids,Asteroid():setPosition(796151, -869186):setSize(1413))
+	table.insert(asteroids,Asteroid():setPosition(786617, -868263):setSize(1516))
+	table.insert(asteroids,Asteroid():setPosition(790462, -869032):setSize(1622))
+	--	near Jaundice
+	table.insert(asteroids,Asteroid():setPosition(1049652, -857641):setSize(512))
+	table.insert(asteroids,Asteroid():setPosition(1046787, -856339):setSize(621))
+	table.insert(asteroids,Asteroid():setPosition(1044444, -854776):setSize(724))
+	table.insert(asteroids,Asteroid():setPosition(1049392, -854776):setSize(818))
+	table.insert(asteroids,Asteroid():setPosition(1046527, -853474):setSize(910))
+	table.insert(asteroids,Asteroid():setPosition(1044183, -860766):setSize(1025))
+	table.insert(asteroids,Asteroid():setPosition(1048089, -859985):setSize(1129))
+	table.insert(asteroids,Asteroid():setPosition(1046527, -862329):setSize(1211))
+	table.insert(asteroids,Asteroid():setPosition(1045225, -858422):setSize(1313))
+	--	near Millipedia
+    table.insert(asteroids,Asteroid():setPosition(986249, -895680):setSize(115))
+    table.insert(asteroids,Asteroid():setPosition(987578, -893316):setSize(119))
+    table.insert(asteroids,Asteroid():setPosition(993044, -875295):setSize(120))
+    table.insert(asteroids,Asteroid():setPosition(990680, -895384):setSize(129))
+    table.insert(asteroids,Asteroid():setPosition(989794, -895975):setSize(115))
+    table.insert(asteroids,Asteroid():setPosition(991271, -892430):setSize(116))
+    table.insert(asteroids,Asteroid():setPosition(988317, -896714):setSize(127))
+    table.insert(asteroids,Asteroid():setPosition(989203, -895384):setSize(125))
+    table.insert(asteroids,Asteroid():setPosition(984329, -891544):setSize(128))
+    table.insert(asteroids,Asteroid():setPosition(988022, -894941):setSize(120))
+    table.insert(asteroids,Asteroid():setPosition(986840, -894350):setSize(110))
+    table.insert(asteroids,Asteroid():setPosition(988760, -892578):setSize(118))
+    table.insert(asteroids,Asteroid():setPosition(996146, -892578):setSize(115))
+    table.insert(asteroids,Asteroid():setPosition(989203, -894203):setSize(128))
+    table.insert(asteroids,Asteroid():setPosition(990533, -893907):setSize(121))
+    table.insert(asteroids,Asteroid():setPosition(996146, -878988):setSize(123))
+    table.insert(asteroids,Asteroid():setPosition(998214, -881942):setSize(119))
+    table.insert(asteroids,Asteroid():setPosition(994521, -882976):setSize(124))
+    table.insert(asteroids,Asteroid():setPosition(999691, -888294):setSize(129))
+    table.insert(asteroids,Asteroid():setPosition(997475, -885783):setSize(121))
+    table.insert(asteroids,Asteroid():setPosition(991862, -895975):setSize(116))
+    table.insert(asteroids,Asteroid():setPosition(998066, -894203):setSize(116))
+    table.insert(asteroids,Asteroid():setPosition(993487, -897895):setSize(114))
+    table.insert(asteroids,Asteroid():setPosition(995555, -895975):setSize(117))
+    table.insert(asteroids,Asteroid():setPosition(987874, -890362):setSize(126))
+    table.insert(asteroids,Asteroid():setPosition(998214, -890805):setSize(125))
+    table.insert(asteroids,Asteroid():setPosition(986840, -896861):setSize(127))
+    table.insert(asteroids,Asteroid():setPosition(992748, -893316):setSize(128))
+    --	near Molory
+	table.insert(asteroids,Asteroid():setPosition(964438, -911209):setSize(500))
+	table.insert(asteroids,Asteroid():setPosition(963885, -912870):setSize(381))
+	table.insert(asteroids,Asteroid():setPosition(965822, -911486):setSize(456))
+	table.insert(asteroids,Asteroid():setPosition(967483, -911071):setSize(379))
+	table.insert(asteroids,Asteroid():setPosition(965545, -912870):setSize(348))
+	table.insert(asteroids,Asteroid():setPosition(966237, -914392):setSize(295))
+	table.insert(asteroids,Asteroid():setPosition(964300, -914530):setSize(228))
+	table.insert(asteroids,Asteroid():setPosition(962639, -914115):setSize(215))
+	table.insert(asteroids,Asteroid():setPosition(970804, -904289):setSize(162))
+	table.insert(asteroids,Asteroid():setPosition(969282, -905258):setSize(189))
+	table.insert(asteroids,Asteroid():setPosition(968313, -907334):setSize(200))
+	table.insert(asteroids,Asteroid():setPosition(966514, -910240):setSize(350))
+	table.insert(asteroids,Asteroid():setPosition(965545, -909410):setSize(295))
+	table.insert(asteroids,Asteroid():setPosition(967898, -909271):setSize(224))
+	table.insert(asteroids,Asteroid():setPosition(966791, -908026):setSize(264))
+	table.insert(asteroids,Asteroid():setPosition(961117, -912593):setSize(184))
+	table.insert(asteroids,Asteroid():setPosition(969697, -902075):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(962639, -912316):setSize(429))
+	--	near Porthos
+	table.insert(asteroids,Asteroid():setPosition(1028956, -822034):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(1029766, -823656):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(1031792, -824669):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(1030374, -824263):setSize(124))
+	table.insert(asteroids,Asteroid():setPosition(1031184, -823250):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(1030982, -821426):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(1028753, -827708):setSize(121))
+	table.insert(asteroids,Asteroid():setPosition(1029158, -825884):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(1029766, -829329):setSize(116))
+	table.insert(asteroids,Asteroid():setPosition(1031387, -829531):setSize(110))
+	table.insert(asteroids,Asteroid():setPosition(1032806, -828316):setSize(130))
+	table.insert(asteroids,Asteroid():setPosition(1033008, -826289):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(1030982, -827100):setSize(119))
+	table.insert(asteroids,Asteroid():setPosition(1027537, -830950):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(1027942, -823858):setSize(116))
+	--	near Spiracle
+	table.insert(asteroids,Asteroid():setPosition(900025, -861088):setSize(123))
+	table.insert(asteroids,Asteroid():setPosition(898688, -863715):setSize(80))
+	table.insert(asteroids,Asteroid():setPosition(898904, -859130):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(897284, -861462):setSize(70))
+	table.insert(asteroids,Asteroid():setPosition(896379, -855880):setSize(115))
+	table.insert(asteroids,Asteroid():setPosition(899244, -855880):setSize(60))
+	table.insert(asteroids,Asteroid():setPosition(897421, -858484):setSize(117))
+	table.insert(asteroids,Asteroid():setPosition(899244, -853015):setSize(50))
+	table.insert(asteroids,Asteroid():setPosition(894817, -852755):setSize(126))
+	table.insert(asteroids,Asteroid():setPosition(894817, -859265):setSize(40))
+	table.insert(asteroids,Asteroid():setPosition(901067, -858484):setSize(120))
+	table.insert(asteroids,Asteroid():setPosition(902629, -851192):setSize(30))
+	table.insert(asteroids,Asteroid():setPosition(897421, -854057):setSize(127))
+	table.insert(asteroids,Asteroid():setPosition(897160, -852234):setSize(20))
+	table.insert(asteroids,Asteroid():setPosition(901588, -854317):setSize(116))
+	--	near Torontogosh
+	table.insert(asteroids,Asteroid():setPosition(818099, -968382):setSize(29))
+	table.insert(asteroids,Asteroid():setPosition(820964, -967601):setSize(33))
+	table.insert(asteroids,Asteroid():setPosition(820703, -972810):setSize(40))
+	table.insert(asteroids,Asteroid():setPosition(826432, -969424):setSize(57))
+	table.insert(asteroids,Asteroid():setPosition(824609, -974112):setSize(64))
+	table.insert(asteroids,Asteroid():setPosition(822786, -962914):setSize(74))
+	table.insert(asteroids,Asteroid():setPosition(825130, -979060):setSize(82))
+	table.insert(asteroids,Asteroid():setPosition(824349, -985570):setSize(91))
+	table.insert(asteroids,Asteroid():setPosition(828255, -975153):setSize(116))
+	table.insert(asteroids,Asteroid():setPosition(827995, -978278):setSize(130))
+	table.insert(asteroids,Asteroid():setPosition(821484, -979580):setSize(125))
+	table.insert(asteroids,Asteroid():setPosition(826953, -981143):setSize(220))
+	table.insert(asteroids,Asteroid():setPosition(839193, -993903):setSize(323))
+	table.insert(asteroids,Asteroid():setPosition(834245, -992341):setSize(417))
+	table.insert(asteroids,Asteroid():setPosition(837109, -988695):setSize(530))
+	table.insert(asteroids,Asteroid():setPosition(843880, -997028):setSize(624))
+	table.insert(asteroids,Asteroid():setPosition(841536, -987393):setSize(719))
+	table.insert(asteroids,Asteroid():setPosition(831641, -989737):setSize(819))
+	table.insert(asteroids,Asteroid():setPosition(830078, -986091):setSize(923))
+	table.insert(asteroids,Asteroid():setPosition(830859, -982184):setSize(1015))
+	table.insert(asteroids,Asteroid():setPosition(833464, -984528):setSize(1115))
+	table.insert(asteroids,Asteroid():setPosition(833724, -980882):setSize(1226))
+	table.insert(asteroids,Asteroid():setPosition(839714, -981924):setSize(1327))
+	table.insert(asteroids,Asteroid():setPosition(837370, -984528):setSize(1424))
+	return asteroids
+end
+function removeGoodallColor()
+	goodall_color = false
+	if goodall_planets ~= nil then
+		for i,p in ipairs(goodall_planets) do
+			for j,m in ipairs(colliding_planets) do
+				if m == p then
+					table.remove(colliding_planets,j)
+					break
+				end
+			end
+			p:destroy()
+		end
+	end
+	goodall_planets = nil
+	if goodall_asteroids ~= nil then
+		for i,a in ipairs(goodall_asteroids) do
+			a:destroy()
+		end
+	end
+	goodall_asteroids = nil
+	if goodall_mines ~= nil then
+		for i,m in ipairs(goodall_mines) do
+			m:destroy()
+		end
+	end
+	goodall_mines = nil
+	if goodall_stations ~= nil then
+		for i,s in ipairs(goodall_stations) do
+			s:destroy()
+		end
+	end
+	goodall_stations = nil
+end
+function createGoodallPlanets()
+	local planets = {}
+	local cross_over_x = 990000
+	local cross_over_y = -750000
+	planet_grendel = Planet()
+		:setPosition(cross_over_x, cross_over_y)
+		:setPlanetRadius(20000)
+		:setDistanceFromMovementPlane(-5000)
+		:setPlanetSurfaceTexture("planets/gas-3.png")
+		:setPlanetAtmosphereColor(.8,.2,.4)
+		:setAxialRotationTime(100)
+		:setCallSign("Grendel")
+	table.insert(planets,planet_grendel)
+	local orbit_distance = 120000
+	planet_grendel.orbit_distance = orbit_distance
+	planet_grendel.angle = 350
+	planet_grendel.cross_over_x = cross_over_x
+	planet_grendel.cross_over_y = cross_over_y
+	local heorot_x, heorot_y = vectorFromAngle(planet_grendel.angle,orbit_distance,true)
+	heorot_x = heorot_x + planet_grendel.cross_over_x
+	heorot_y = heorot_y + planet_grendel.cross_over_y
+	star_heorot = Planet()
+		:setPosition(heorot_x, heorot_y)
+    	:setPlanetRadius(5000)
+		:setDistanceFromMovementPlane(-2000)
+		:setPlanetAtmosphereTexture("planets/star-1.png")
+		:setPlanetAtmosphereColor(1.0,.9,.9)
+		:setCallSign("Heorot")
+	table.insert(planets,star_herot)
+	planet_grendel.center_x = heorot_x
+	planet_grendel.center_y = heorot_y
+	planet_grendel.ready = true
+	planet_grendel.upper_orbit = true
+	planet_grendel.increment = .02
+	plotMobile = movingObjects
+	local geats_x, geats_y = vectorFromAngle((planet_grendel.angle + 180) % 360,orbit_distance,true)
+	geats_x = geats_x + planet_grendel.cross_over_x
+	geats_y = geats_y + planet_grendel.cross_over_y
+	star_geats = Planet()
+		:setPosition(geats_x, geats_y)
+    	:setPlanetRadius(5000)
+		:setDistanceFromMovementPlane(-2000)
+		:setPlanetAtmosphereTexture("planets/star-1.png")
+		:setPlanetAtmosphereColor(.6,.8,.8)
+		:setCallSign("Geats")
+	table.insert(planets,star_geats)
+	local moon_orbit_distance = 25000
+	local moon_orbit_speed = 50
+	local tooth_x, tooth_y = vectorFromAngle(0,moon_orbit_distance,true)
+	tooth_x = tooth_x + planet_grendel.cross_over_x
+	tooth_y = tooth_y + planet_grendel.cross_over_y
+	local moon_tooth = Planet()
+		:setPosition(tooth_x, tooth_y)
+		:setPlanetRadius(1300)
+		:setDistanceFromMovementPlane(-5000)
+		:setPlanetSurfaceTexture("planets/moon-1.png")
+		:setOrbit(planet_grendel,moon_orbit_speed)
+		:setCallSign("Tooth")
+	table.insert(planets,moon_tooth)
+	table.insert(colliding_planets,moon_tooth)
+	local nail_x, nail_y = vectorFromAngle(120,moon_orbit_distance + 5000,true)
+	nail_x = nail_x + planet_grendel.cross_over_x
+	nail_y = nail_y + planet_grendel.cross_over_y
+	local moon_nail = Planet()
+		:setPosition(nail_x, nail_y)
+		:setPlanetRadius(2500)
+		:setDistanceFromMovementPlane(-5000)
+		:setPlanetSurfaceTexture("planets/moon-2.png")
+		:setOrbit(planet_grendel,moon_orbit_speed - 20)
+		:setCallSign("Nail")
+	table.insert(planets,moon_nail)
+	table.insert(colliding_planets,moon_nail)
+	local claw_x, claw_y = vectorFromAngle(240,moon_orbit_distance + 13000,true)
+	claw_x = claw_x + planet_grendel.cross_over_x
+	claw_y = claw_y + planet_grendel.cross_over_y
+	local moon_claw = Planet()
+		:setPosition(claw_x, claw_y)
+		:setPlanetRadius(1800)
+		:setDistanceFromMovementPlane(-5000)
+		:setPlanetSurfaceTexture("planets/moon-3.png")
+		:setOrbit(planet_grendel,moon_orbit_speed + 30)
+		:setCallSign("Claw")
+	table.insert(planets,moon_claw)
+	table.insert(colliding_planets,moon_claw)
+	local cain_x, cain_y = vectorFromAngle(planet_grendel.angle,orbit_distance/2,true)
+	cain_x = cain_x + cross_over_x
+	cain_y = cain_y + cross_over_y
+	local planet_cain = Planet()
+		:setPosition(cain_x, cain_y)
+		:setPlanetRadius(3800)
+		:setDistanceFromMovementPlane(-1000)
+		:setPlanetSurfaceTexture("planets/planet-1.png")
+		:setPlanetAtmosphereTexture("planets/atmosphere.png")
+		:setPlanetAtmosphereColor(.4,.5,.8)
+		:setPlanetCloudTexture("planets/clouds-1.png")
+		:setPlanetCloudRadius(4200)
+		:setOrbit(star_heorot,-1200)
+		:setCallSign("Cain")
+	table.insert(planets,planet_cain)
+	local riser_x, riser_y = vectorFromAngle(0,5500,true)
+	riser_x = riser_x + cain_x
+	riser_y = riser_y + cain_y
+	local moon_riser = Planet()
+		:setPosition(riser_x, riser_y)
+		:setPlanetRadius(1100)
+		:setDistanceFromMovementPlane(-800)
+		:setPlanetSurfaceTexture("planets/moon-1.png")
+		:setOrbit(planet_cain,350)
+		:setCallSign("Riser")
+	table.insert(planets,moon_riser)
+	local abel_x, abel_y = vectorFromAngle(170,orbit_distance/2,true)
+	abel_x = abel_x + cross_over_x
+	abel_y = abel_y + cross_over_y
+	local planet_abel = Planet()
+		:setPosition(abel_x, abel_y)
+		:setPlanetRadius(4500)
+		:setDistanceFromMovementPlane(-1000)
+		:setPlanetSurfaceTexture("planets/planet-2.png")
+		:setPlanetAtmosphereTexture("planets/atmosphere.png")
+		:setPlanetAtmosphereColor(.3,.9,.4)
+		:setPlanetCloudTexture("planets/clouds-3.png")
+		:setPlanetCloudRadius(5000)
+		:setOrbit(star_geats,900)
+		:setCallSign("Abel")
+	table.insert(planets,planet_abel)
+	local mn = Nebula():setPosition(cross_over_x, cross_over_y)
+	local neb_orbit_center_x, neb_orbit_center_y = vectorFromAngle(planet_grendel.angle,orbit_distance*1.2,true)
+	neb_orbit_center_x = neb_orbit_center_x + cross_over_x
+	neb_orbit_center_y = neb_orbit_center_y + cross_over_y
+	mn.center_x, mn.center_y = vectorFromAngle(planet_grendel.angle,orbit_distance*1.2,true)
+	mn.center_x = neb_orbit_center_x
+	mn.center_y = neb_orbit_center_y
+	mn.angle = (planet_grendel.angle + 180) % 360
+	mn.increment = -.01
+	table.insert(planets,mn)
+	mn = Nebula():setPosition(cross_over_x, cross_over_y)
+	mn.center_x = neb_orbit_center_x
+	mn.center_y = neb_orbit_center_y
+	mn.angle = (planet_grendel.angle + 180) % 360
+	mn.increment = -.05
+	table.insert(planets,mn)
+	mn = Nebula():setPosition(cross_over_x, cross_over_y)
+	mn.center_x = neb_orbit_center_x
+	mn.center_y = neb_orbit_center_y
+	mn.angle = (planet_grendel.angle + 180) % 360
+	mn.increment = -.15
+	table.insert(planets,mn)
+	neb_orbit_center_x, neb_orbit_center_y = vectorFromAngle((planet_grendel.angle + 180) % 360,orbit_distance*1.2,true)
+	neb_orbit_center_x = neb_orbit_center_x + cross_over_x
+	neb_orbit_center_y = neb_orbit_center_y + cross_over_y
+	mn = Nebula():setPosition(cross_over_x, cross_over_y)
+	mn.center_x = neb_orbit_center_x
+	mn.center_y = neb_orbit_center_y
+	mn.angle = planet_grendel.angle
+	mn.increment = .015
+	table.insert(planets,mn)
+	mn = Nebula():setPosition(cross_over_x, cross_over_y)
+	mn.center_x = neb_orbit_center_x
+	mn.center_y = neb_orbit_center_y
+	mn.angle = planet_grendel.angle
+	mn.increment = .055
+	table.insert(planets,mn)
+	mn = Nebula():setPosition(cross_over_x, cross_over_y)
+	mn.center_x = neb_orbit_center_x
+	mn.center_y = neb_orbit_center_y
+	mn.angle = planet_grendel.angle
+	mn.increment = .155
+	table.insert(planets,mn)
+	return planets
+end
 function placeTknolgBase()
 	if gm_click_mode == "tknolg base" then
 		gm_click_mode = nil
@@ -67789,6 +69161,71 @@ function movingObjects(delta)
 		local px,py = vectorFromAngle(kentar_mobile_nebula_1.angle,kentar_mobile_nebula_1.mobile_neb_dist)
 		kentar_mobile_nebula_1:setPosition(kentar_mobile_nebula_1.center_x+px,kentar_mobile_nebula_1.center_y+py)
 	end
+	if planet_grendel ~= nil and planet_grendel:isValid() then
+		if planet_grendel.upper_orbit then
+			planet_grendel.angle = (planet_grendel.angle - planet_grendel.increment) % 360
+			if planet_grendel.ready then
+				if planet_grendel.angle <= 170 then
+					planet_grendel.upper_orbit = false
+					planet_grendel.angle = 350 + (170 - planet_grendel.angle)
+					local geats_x, geats_y = star_geats:getPosition()
+					planet_grendel.center_x = geats_x
+					planet_grendel.center_y = geats_y
+					planet_grendel.ready = false
+				end
+			else
+				if planet_grendel.angle >= 350 then
+					planet_grendel.ready = true
+				end
+			end
+		else
+			planet_grendel.angle = (planet_grendel.angle + planet_grendel.increment) % 360
+			if planet_grendel.ready then
+				if planet_grendel.angle >= 350 then
+					planet_grendel.upper_orbit = true
+					planet_grendel.angle = 170 - (planet_grendel.angle - 350)
+					local heorot_x, heorot_y = star_heorot:getPosition()
+					planet_grendel.center_x = heorot_x
+					planet_grendel.center_y = heorot_y
+					planet_grendel.ready = false
+				end
+			else
+				if planet_grendel.angle > 170 and planet_grendel.angle < 350 then
+					planet_grendel.ready = true
+				end
+			end
+		end
+		local px, py = vectorFromAngle(planet_grendel.angle,planet_grendel.orbit_distance,true)
+		planet_grendel:setPosition(planet_grendel.center_x + px,planet_grendel.center_y + py)
+		if goodall_planets ~= nil then
+			for i,obj in ipairs(goodall_planets) do
+				if isObjectType(obj,"Nebula") then
+					if obj.center_x ~= nil then
+						obj.angle = (obj.angle + obj.increment) % 360
+						px, py = vectorFromAngle(obj.angle,planet_grendel.orbit_distance*1.2,true)
+						obj:setPosition(obj.center_x + px, obj.center_y + py)
+					end
+				end
+				if isObjectType(obj,"CpuShip") then
+					if obj.patrol_info ~= nil then
+						local obj_x, obj_y = obj:getPosition()
+						local angle = obj.patrol_info[obj.patrol_info_index].angle
+						local move_x, move_y = vectorFromAngle(angle,2,true)
+--						print(obj:getCallSign(),"angle:",angle,"move:",move_x,move_y)
+						obj:setPosition(obj_x + move_x, obj_y + move_y)
+						obj.patrol_info_count = obj.patrol_info_count + 1
+						if obj.patrol_info_count > 2500 then
+							obj.patrol_info_count = 0
+							obj.patrol_info_index = obj.patrol_info_index + 1
+							if obj.patrol_info_index > #obj.patrol_info then
+								obj.patrol_info_index = 1
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 	if rotate_station ~= nil and #rotate_station > 0 then
 		for i=1,#rotate_station do
 			local current_station = rotate_station[i]
@@ -68538,6 +69975,7 @@ function update(delta)
 	updateProbeLabor()
 	updateShowMineBlob()
 	expeditedDockingServices()
+	updatePlanetCollisionDetection()
 	if staunch_phenomenon ~= nil then
 		updateStaunch(delta)
 	end
@@ -72533,6 +73971,58 @@ function updateCommerce(assets,region_station)
 			end	--of skeletal commerce asset loop
 		end	--of zero item check branch
 	end	--not nil commercial asset list check branch
+end
+function updatePlanetCollisionDetection()
+	local planet_bump_damage = 5
+	for planet_index, planet in ipairs(colliding_planets) do
+		local planet_x, planet_y = planet:getPosition()
+		local collision_list = getObjectsInRadius(planet_x, planet_y, planet:getPlanetRadius() + 2000)
+		local obj_dist = 0
+		local ship_distance = 0
+		local obj_type_name = ""
+		for i, obj in ipairs(collision_list) do
+			if obj:isValid() then
+				obj_dist = distance(obj,planet)
+				if isObjectType(obj,"CpuShip") then
+					obj_type_name = obj:getTypeName()
+					if obj_type_name ~= nil then
+						ship_distance = shipTemplateDistance[obj:getTypeName()]
+						if ship_distance == nil then
+							print("distance not retrieved from ship template for cpu ship:",obj:getCallSign(),"defaulting to ship distance 400")
+							ship_distance = 400
+						end
+					else
+						print("type name nil on cpu ship:",obj:getCallSign(),"defaulting to ship distance 400")
+						ship_distance = 400
+					end
+					if obj_dist <= (planet:getPlanetRadius() + ship_distance + 100) then
+						obj:takeDamage(planet_bump_damage,"kinetic",planet_x,planet_y)
+					end
+				end
+				if isObjectType(obj,"PlayerSpaceship") then
+					obj_type_name = obj:getTypeName()
+					if obj_type_name ~= nil then
+						ship_distance = playerShipStats[obj:getTypeName()].distance
+						if ship_distance == nil then
+							print("distance not retrieved from player ship stats for player ship:",obj:getCallSign(),"defaulting to ship distance 400")
+							ship_distance = 400
+						end
+					else
+						print("type name nil on player ship:",obj:getCallSign(),"defaulting to ship distance 400")
+						ship_distance = 400
+					end
+					if obj_dist <= (planet:getPlanetRadius() + ship_distance + 100) then
+						obj:takeDamage(planet_bump_damage,"energy",planet_x,planet_y)
+					end
+				end
+				if isObjectType(obj,"ScanProbe") then
+					if obj_dist <= (planet:getPlanetRadius() + 50) then
+						obj:takeDamage(planet_bump_damage,"kinetic",planet_x,planet_y)
+					end
+				end
+			end
+		end
+	end
 end
 function onError(error, errorTraceback)
 	local err = "script error : - \n" .. error .. "\n\ntraceback :-\n" .. errorTraceback
