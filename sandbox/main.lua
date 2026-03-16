@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.9.1"
+	scenario_version = "8.9.2"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1924,8 +1924,8 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Thunderbird")		--J
-	makePlayerShipActive("Gabble")			--J
-	makePlayerShipActive("Manxman") 		--J 
+	makePlayerShipActive("Arwine")			--J
+	makePlayerShipActive("Ambition") 		--J 
 	makePlayerShipActive("Eagle")			--W
 	makePlayerShipActive("Jarvis")			--W
 	makePlayerShipActive("Pinwheel") 		--W 
@@ -28015,6 +28015,7 @@ function createGoodallStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
+        fast_probes = {name = "Mark 3", cost = math.random(3,8), quantity = math.random(1,5), speed = 2000},
 --		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
@@ -28069,6 +28070,7 @@ function createGoodallStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
+		fast_probes = {name = "Gogo", cost = math.random(6,11), quantity = math.random(1,5), speed = 3000},
 --		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
@@ -28609,6 +28611,7 @@ function createGoodallStations()
         probe_launch_repair =	random(1,100)<30,
         scan_repair =			random(1,100)<30,
         self_destruct_repair =	random(1,100)<30,
+        fast_probes = {name = "Screamer", cost = math.random(8,15), quantity = math.random(3,5), speed = 4000},
 --		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 1.5},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.8 },
@@ -28629,7 +28632,7 @@ function createGoodallStations()
 		local corner_1_x, corner_1_y = vectorFromAngle(angle,hatchling_dist,true)
 		corner_1_x = corner_1_x + hatchling_x
 		corner_1_y = corner_1_y + hatchling_y
-		if i == 3 or i == 4 then
+		if i == 3 then
 			local va = VisualAsteroid():setPosition(corner_1_x,corner_1_y)
 			local zs = va:getSectorName()
 			local dpz = squareZone(corner_1_x,corner_1_y,string.format("HDP%i %s",i,zs))
@@ -29250,7 +29253,7 @@ function createGoodallStations()
 	table.insert(stations,stationLinkage)
 	--	Loosey Goosey
 	stationLooseyGoosey = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Loosey Goosey"):setPosition(709268, -800098)
-	stationLooseyGoosey:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationLooseyGoosey:setDescription("Tavern and Brothel"):setCommsScript(""):setCommsFunction(commsStation)
 	stationLooseyGoosey:setShortRangeRadarRange(random(5000,10000))
 	stationLooseyGoosey.comms_data = {
     	friendlyness = math.random(40,100),
@@ -29297,14 +29300,14 @@ function createGoodallStations()
         buy =	{	warp = math.random(105,125),
         			dilithium = math.random(105,125),	},
         public_relations = true,
-        general_information = "Loosey Goosey",
-    	history = "Loosey Goosey",
+        general_information = "Patrons can get a drink and relax here.",
+    	history = "We started by mining tritanium and making tractor components, but found that the hospitality business was more lucrative.",
 	}
 	station_names[stationLooseyGoosey:getCallSign()] = {stationLooseyGoosey:getSectorName(), stationLooseyGoosey}
 	table.insert(stations,stationLooseyGoosey)
 	--	Lufliday
 	stationLufliday = SpaceStation():setTemplate("Medium Station"):setFaction("Arlenians"):setCallSign("Lufliday"):setPosition(804575, -744208)
-	stationLufliday:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationLufliday:setDescription("Mining and research"):setCommsScript(""):setCommsFunction(commsStation)
 	stationLufliday:setShortRangeRadarRange(random(5000,15000))
 	stationLufliday.comms_data = {
     	friendlyness = math.random(40,100),
@@ -29351,8 +29354,8 @@ function createGoodallStations()
         buy =	{	shield = math.random(80,100),
         			tritanium = math.random(95,125),	},
         public_relations = true,
-        general_information = "Lufliday",
-    	history = "Lufliday",
+        general_information = "We gather minerals and observe Grendel",
+    	history = "After long distance observations of Grendel, we decided to establish a closer observation point. The mining helps defray the costs of research and observation.",
 	}
 	station_names[stationLufliday:getCallSign()] = {stationLufliday:getSectorName(), stationLufliday}
 	table.insert(stations,stationLufliday)
@@ -29405,8 +29408,8 @@ function createGoodallStations()
         buy =	{	tractor = math.random(95,115),
         			cobalt = math.random(100,120),	},
         public_relations = true,
-        general_information = "Manta",
-    	history = "Manta",
+        general_information = "We grab nickel and make beam components.",
+    	history = "Our station name, Manta, is inspired by the underwater Earth creature of the same name.",
 	}
 	station_names[stationManta:getCallSign()] = {stationManta:getSectorName(), stationManta}
 	table.insert(stations,stationManta)
@@ -29567,8 +29570,8 @@ function createGoodallStations()
         buy =	{	optic = math.random(90,110),
         			gold = math.random(85,105),	},
         public_relations = true,
-        general_information = "Moria",
-    	history = "Moria",
+        general_information = "We gather minerals, primarily dilithium. We also make filament.",
+    	history = "Our name is inspired by the fictional mines of Moria in Tolkein's literature.",
 	}
 	station_names[stationMoria:getCallSign()] = {stationMoria:getSectorName(), stationMoria}
 	table.insert(stations,stationMoria)
@@ -29621,14 +29624,14 @@ function createGoodallStations()
         buy =	{	robotic = math.random(95,115),
         			dilithium = math.random(105,125),	},
         public_relations = true,
-        general_information = "Moriarty",
-    	history = "Moriarty",
+        general_information = "We take minerals and make life hard for our arch-enemies.",
+    	history = "Our name is inspired by human literature where the Moriarty character is a foil to the primary character, Holmes.",
 	}
 	station_names[stationMoriarty:getCallSign()] = {stationMoriarty:getSectorName(), stationMoriarty}
 	table.insert(stations,stationMoriarty)
 	--	One Shot
 	stationOneShot = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("One Shot"):setPosition(701450, -767646)
-	stationOneShot:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationOneShot:setDescription("Mining and observatory"):setCommsScript(""):setCommsFunction(commsStation)
 	stationOneShot:setShortRangeRadarRange(random(5000,10000))
 	stationOneShot.comms_data = {
     	friendlyness = math.random(40,100),
@@ -29675,8 +29678,8 @@ function createGoodallStations()
         buy =	{	filament = math.random(90,110),
         			tritanium = math.random(95,115),	},
         public_relations = true,
-        general_information = "One Shot",
-    	history = "One Shot",
+        general_information = "We watch for nefarious activities. We mine cobalt and sell sensor components.",
+    	history = "If you're given a pistol with one shot, you must choose carefully how to use it. This historical requirement for innovation inspires our station's operations",
 	}
 	station_names[stationOneShot:getCallSign()] = {stationOneShot:getSectorName(), stationOneShot}
 	table.insert(stations,stationOneShot)
@@ -29729,8 +29732,8 @@ function createGoodallStations()
         buy =	{	transporter = math.random(95,115),
         			cobalt = math.random(100,120),	},
         public_relations = true,
-        general_information = "Placid",
-    	history = "Placid",
+        general_information = "We mine nickel and make communication components.",
+    	history = "We are neutral, stay out of the way of warring factions and otherwise spread calm as best we can.",
 	}
 	station_names[stationPlacid:getCallSign()] = {stationPlacid:getSectorName(), stationPlacid}
 	table.insert(stations,stationPlacid)
@@ -29790,7 +29793,7 @@ function createGoodallStations()
 	table.insert(stations,stationPorthos)
 	--	Potentiometer
 	stationPotentiometer = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Potentiometer"):setPosition(669573, -722118)
-	stationPotentiometer:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationPotentiometer:setDescription("Research"):setCommsScript(""):setCommsFunction(commsStation)
 	stationPotentiometer:setShortRangeRadarRange(random(5000,10000))
 	stationPotentiometer.comms_data = {
     	friendlyness = math.random(40,100),
@@ -29837,8 +29840,8 @@ function createGoodallStations()
         buy =	{	communication = math.random(80,100),
         			platinum = math.random(95,115),	},
         public_relations = true,
-        general_information = "Potentiometer",
-    	history = "Potentiometer",
+        general_information = "We mine, observe, measure and publish research results.",
+    	history = "Our scientist originators had us measuring every aspect of this region with a focus on energy readings and patterns.",
 	}
 	station_names[stationPotentiometer:getCallSign()] = {stationPotentiometer:getSectorName(), stationPotentiometer}
 	table.insert(stations,stationPotentiometer)
@@ -29891,8 +29894,8 @@ function createGoodallStations()
         buy =	{	autodoc = math.random(95,120),
         			tritanium = math.random(95,120),	},
         public_relations = true,
-        general_information = "Ribs",
-    	history = "Ribs",
+        general_information = "We mine cobalt and make android components.",
+    	history = "We have often salvaged derelect ships either in part or in full. Often the components make up the ribs or structural interiors of the refurbished ships we produce.",
 	}
 	station_names[stationRibs:getCallSign()] = {stationRibs:getSectorName(), stationRibs}
 	table.insert(stations,stationRibs)
@@ -29952,7 +29955,7 @@ function createGoodallStations()
 	table.insert(stations,stationSpiracle)
 	--	Stetson
 	stationStetson = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Stetson"):setPosition(716286, -692125)
-	stationStetson:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationStetson:setDescription("Recreation facility"):setCommsScript(""):setCommsFunction(commsStation)
 	stationStetson:setShortRangeRadarRange(random(5000,10000))
 	stationStetson.comms_data = {
     	friendlyness = math.random(40,100),
@@ -29999,14 +30002,14 @@ function createGoodallStations()
         buy =	{	android = math.random(105,120),
         			gold = math.random(85,100),	},
         public_relations = true,
-        general_information = "Stetson",
-    	history = "Stetson",
+        general_information = "We provide entertainment for patrons as well as dilithium and software.",
+    	history = "After mining and trying out a variety of recreational optios, we have settled on bronco riding as our most profitable and entertaining recreational option.",
 	}
 	station_names[stationStetson:getCallSign()] = {stationStetson:getSectorName(), stationStetson}
 	table.insert(stations,stationStetson)
 	--	Stitches
 	stationStitches = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Stitches"):setPosition(657832, -697331)
-	stationStitches:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationStitches:setDescription("Mining and shipyards"):setCommsScript(""):setCommsFunction(commsStation)
 	stationStitches:setShortRangeRadarRange(random(5000,10000))
 	stationStitches.comms_data = {
     	friendlyness = math.random(40,100),
@@ -30053,14 +30056,14 @@ function createGoodallStations()
         buy =	{	nanites = math.random(85,105),	
         			dilithium = math.random(105,125)	},
         public_relations = true,
-        general_information = "Toklorg",
-    	history = "Toklorg",
+        general_information = "We mine tritanium, a critical material for ship building. we also sell circuit.",
+    	history = "Some of the ships we make provide the Exuari with the most amusing destructive sequences against our numerous enemies. Those actions make us laugh so hard we are left in stitches",
 	}
 	station_names[stationStitches:getCallSign()] = {stationStitches:getSectorName(), stationStitches}
 	table.insert(stations,stationStitches)
 	--	Toklorg
 	stationToklorg = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Toklorg"):setPosition(686653, -744197)
-	stationToklorg:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationToklorg:setDescription("Mining and hydroponics"):setCommsScript(""):setCommsFunction(commsStation)
 	stationToklorg:setShortRangeRadarRange(random(5000,10000))
 	stationToklorg.comms_data = {
     	friendlyness = math.random(40,100),
@@ -30107,8 +30110,8 @@ function createGoodallStations()
         buy =	{	software = math.random(95,115),
         			tritanium = math.random(95,115),	},
         public_relations = true,
-        general_information = "Toklorg",
-    	history = "Toklorg",
+        general_information = "We mine cobalt, povide battery and export food to other stations.",
+    	history = "We serve the Kraylor empire with our efforts.",
 	}
 	station_names[stationToklorg:getCallSign()] = {stationToklorg:getSectorName(), stationToklorg}
 	table.insert(stations,stationToklorg)
@@ -30215,14 +30218,14 @@ function createGoodallStations()
         buy =	{	battery = math.random(100,120),
         			nickel = math.random(80,100),	},
         public_relations = true,
-        general_information = "Trellis",
-    	history = "Trellis",
+        general_information = "We mine platinum and make warp components",
+    	history = "Our mining efforts often take us throughout the region. We trawl through the area for more resources.",
 	}
 	station_names[stationTrawler:getCallSign()] = {stationTrawler:getSectorName(), stationTrawler}
 	table.insert(stations,stationTrawler)
 	--	Trellis
 	stationTrellis = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Trellis"):setPosition(553358, -749267)
-	stationTrellis:setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
+	stationTrellis:setDescription("Mining and logistics"):setCommsScript(""):setCommsFunction(commsStation)
 	stationTrellis:setShortRangeRadarRange(random(5000,10000))
 	stationTrellis.comms_data = {
     	friendlyness = math.random(40,100),
@@ -30269,8 +30272,8 @@ function createGoodallStations()
         buy =	{	impulse = math.random(95,120),
         			platinum = math.random(95,115),	},
         public_relations = true,
-        general_information = "Trellis",
-    	history = "Trellis",
+        general_information = "We mine gold, sell shield components and support stations in the area with logistic planning and execution.",
+    	history = "We started simply, then branched out based on our logistical capabilities",
 	}
 	station_names[stationTrellis:getCallSign()] = {stationTrellis:getSectorName(), stationTrellis}
 	table.insert(stations,stationTrellis)
@@ -35884,20 +35887,26 @@ function createPlayerShipAmbition()
 	ship.combat_maneuver_boost = stock_combat_maneuver[base_template].boost
 	ship.combat_maneuver_strafe = stock_combat_maneuver[base_template].strafe
 	ship.beam_damage_type = stock_beam_damage_type[base_template]
+	ship.beam_damage_type[1] = "emp"
+	ship.beam_damage_type[2] = "emp"	
+	ship.beam_damage_type[3] = "energy"	
+	ship.beam_damage_type[4] = "energy"	
 	ship.tube_direction = {0,0,0,180}
 	ship.tube_ordnance = {"HVLI","HVLI","all but Mine","Mine"}
 	ship:setTypeName(hot_template)
 	ship:setRepairCrewCount(5)					--more repair crew (vs 3)
-	ship:setHullMax(150)							--weaker hull (vs 200)
-	ship:setHull(150)
+	ship:setHullMax(160)							--weaker hull (vs 200)
+	ship:setHull(160)
 	ship:setJumpDrive(true)						--jump drive (vs none)
 	ship.max_jump_range = 25000					--shorter than typical (vs 50)
 	ship.min_jump_range = 2000					--shorter than typical (vs 5)
 	ship:setJumpDriveRange(ship.min_jump_range,ship.max_jump_range)
 	ship:setJumpDriveCharge(ship.max_jump_range)
 --                 		 Arc, Dir, Range, CycleTime, Dmg
-	ship:setBeamWeapon(0, 10,  15,  1200,         8, 6)	--uncrossed (vs crossed)
-	ship:setBeamWeapon(1, 10, -15,  1200,         8, 6)
+	ship:setBeamWeapon(0, 10,  15,  1200,         8, 6):setBeamWeaponDamageType(0,"emp")	--uncrossed (vs crossed), emp damage (vs energy)
+	ship:setBeamWeapon(1, 10, -15,  1200,         8, 6):setBeamWeaponDamageType(1,"emp")
+	ship:setBeamWeapon(2, 90,  15,   900,		  8, 6)
+	ship:setBeamWeapon(3, 90, -15,   900,		  8, 6)
 --										 Arc, Dir, Rotate speed
 	ship:setBeamWeaponTurret(0, 90,  15, .2)		--slow turret beams
 	ship:setBeamWeaponTurret(1, 90, -15, .2)
@@ -36052,8 +36061,8 @@ function createPlayerShipArwine()
 	ship:setImpulseMaxSpeed(70)						--faster impulse max (vs 40)
 	ship:setHullMax(150)							--stronger hull (vs 120)
 	ship:setHull(150)
-	ship:setShieldsMax(150,150)						--stronger shields (vs 70, 70)
-	ship:setShields(150,150)
+	ship:setShieldsMax(160,160)						--stronger shields (vs 70, 70)
+	ship:setShields(160,160)
 	ship:setBeamWeapon(0, 10, 0, 1200.0, 4.0, 4)	--one beam (vs 0)
 	ship:setBeamWeaponTurret(0, 80, 0, .3)			--slow turret
 	ship:setWeaponTubeCount(7)						--one fewer mine tube, but EMPs added
@@ -68548,7 +68557,7 @@ function goodallPackage()
 			if comms_source:hasJumpDrive() then
 				pkg = string.format("%s\nA 150 unit jump drive",pkg)
 			end
-			pkg = string.format("%s\nA sensor range boost out to 80 units\nThese upgrades don't work outside of the Goodall region",pkg)
+			pkg = string.format("%s\nA sensor range boost out to 80 units\nA set of fast probes\nMost of these upgrades don't work outside of the Goodall region",pkg)
 			setCommsMessage(pkg)
 			addCommsReply("Please provide the Goodall upgrade package",function()
 				setCommsMessage("Upgrades provided")
@@ -68575,6 +68584,28 @@ function goodallPackage()
 				comms_source.normal_long_range_radar = 80000
 				if goodall_package_players == nil then
 					goodall_package_players = {}
+				end
+				if comms_source.probe_type_list == nil then
+					comms_source.probe_type_list = {}
+					table.insert(comms_source.probe_type_list,{name = "standard", count = -1})
+				end
+				table.insert(comms_source.probe_type_list,{name = "Screamer", count = 5, speed = 4000})
+				if comms_source.probe_type == nil then
+					comms_source.probe_type = "standard"
+				end
+				if comms_source.probe_type_button == nil then
+					comms_source.probe_type_button = "probe_type_button"
+					comms_source:addCustomButton("Relay",comms_source.probe_type_button,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(comms_source)
+					end,10)
+				end
+				if comms_source.probe_type_button_ops == nil then
+					comms_source.probe_type_button_ops = "probe_type_button_ops"
+					comms_source:addCustomButton("Operations",comms_source.probe_type_button_ops,"Probes: standard",function()
+						string.format("")
+						cycleProbeType(comms_source)
+					end,10)
 				end
 				table.insert(goodall_package_players,comms_source)
 				comms_source.goodall_package = true
