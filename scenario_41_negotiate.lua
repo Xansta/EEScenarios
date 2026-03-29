@@ -55,12 +55,12 @@ require("cpu_ship_diversification_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "0.0.4"
+	scenario_version = "1.0.1"
 	print(string.format("     -----     Scenario: Negotiate     -----     Version %s     -----",scenario_version))
 	print(_VERSION)
 	spawn_enemy_diagnostic = false
 	env_obj_coordinate_diagnostic = false
-	construct_environment_diagnostic = true
+	construct_environment_diagnostic = false
 	setVariations()	--numeric difficulty, enemy fortress size
 	setConstants()	--missle type names, template names and scores, deployment directions, player ship names, etc.
 	constructEnvironment()
@@ -134,7 +134,7 @@ function setVariations()
 			["Hard"] =		{number = 2,	adverse = .99,	lose_coolant = .9999,	gain_coolant = .0001,	rep = 0},
 		}
 		difficulty =	murphy_config[getScenarioSetting("Murphy")].number
-		--	affects:
+		--	difficulty affects:
 		--		sensor buoy scan complexity and depth (ads, transport info, station info)
 		--		sensor jammer scan complexity and depth
 		--		nebula concealment of mine fields
@@ -868,19 +868,7 @@ function setConstants()
 	clarifyExistingScience()
 	mainLinearPlot = continuousSpawn	--Note: the main plot line is divided up between
 	--	several functions. This breaks up the code as well as reducing the number of
-	--	computations required for each cycle of the update loop. The sequence:
-	--	continuousSpawn
-	--	researchSurvival
-	--	if proximity to research station has been breached:
-	--		destroyLeadEnemyResearchStation
-	--	otherwise
-	--		if the scenario time has gone past the research completion time marker:
-	--			escortResearchVessel
-	--		otherwise
-	--			researchProximityCheck
-	--	destroyLeadEnemyResearchStation, escortResearchVessel, and researchProximityCheck switch to fighterPatrol
-	--	fighterPatrol
-	--	back to continuousSpawn
+	--	computations required for each cycle of the update loop. 
 end
 function clarifyExistingScience()
 	local weapons_key = _("scienceDB","Weapons")
@@ -903,7 +891,7 @@ function mainGMButtons()
 		print(version_message)
 	end)
 	addGMFunction(_("buttonGM","+Station Reports"),stationReports)
---[[
+--[[	--test upgrade/downgrade
 	local button_label = "TUD Off -> On"
 	if diagnostic_tud then
 		button_label = "TUD On -> Off"
@@ -959,6 +947,18 @@ function mainGMButtonsAfterPause()
 			mainGMButtonsAfterPause()
 		end)
 	end
+--[[	--used for testing negotiation logic
+	addGMFunction("End Negotiation",function()
+		if negotiation_started then
+			negotiation_timer = getScenarioTime()
+			addGMMessage("Current negotiation timer advanced to its end")
+			mainGMButtonsAfterPause()
+		else
+			addGMMessage("No negotiations are underway")
+			mainGMButtonsAfterPause()
+		end
+	end)
+--]]
 end
 function setEnemyPower()
 	clearGMFunctions()
@@ -1440,10 +1440,20 @@ function playerDestruction(self,instigator)
 	if #players <= 1 then	--last player ship destroyed
 		local duration_string = getDuration()
 		local reason = string.format(_("msgMainscreen","Negotiations failed. Without your leadership, the %s defeated us. You lasted for %s."),primary_enemy_faction,duration_string)
-		globalMessage(reason)
+		local final_stats = finalStats()
+		globalMessage(string.format("%s\n%s",reason,final_stats))
 		setBanner(reason)
 		victory(primary_enemy_faction)
 	end
+end
+function finalStats()
+	local msg = string.format(_("finalStats_msgMainscreen","Number of negotiation attempts: %i"),negotiation_attempts)
+	msg = string.format(_("finalStats_msgMainscreen","%s\nEnemy strength:%s   Murphy:%s"),msg,getScenarioSetting("Enemies"),getScenarioSetting("Murphy"))
+	msg = string.format(_("finalStats_msgMainscreen","%s\nAmbush at ~%i minutes"),msg,getScenarioSetting("Ambush"))
+	msg = string.format(_("finalStats_msgMainscreen","%s\nEnemy technical advancement pace:%s"),msg,getScenarioSetting("Pace"))
+	msg = string.format(_("finalStats_msgMainscreen","%s\nPlayer ship upgrade pricing:%s"),msg,getScenarioSetting("Upgrade"))
+	msg = string.format(_("finalStats_msgMainscreen","%s\nEnemy technical advancement application:%s (higher = greater chance)"),msg,getScenarioSetting("Special Factor"))
+	return msg
 end
 --	End of game messaging functions
 function getDuration()
@@ -2100,7 +2110,7 @@ function constructEnvironment()
 	if faction_db == nil then
 		faction_db = ScienceDatabase():setName("Factions")
 	end
-	faction_db:setLongDescription("A large variety of life forms may be found across the galaxy. These organize themselves in various ways. This list of factions represent the most common space faring species and groups of space faring species you may encounter.")
+	faction_db:setLongDescription(_("scienceDB","A large variety of life forms may be found across the galaxy. These organize themselves in various ways. This list of factions represent the most common space faring species and groups of space faring species you may encounter."))
 	local faction_letter = {
 		["Human Navy"] = "H",
 		["Independent"] = "I",
@@ -2679,9 +2689,9 @@ function constructEnvironment()
 			table.insert(primary_enemy_primary_stations,station)
 		end
 	end
-	for i,blob in ipairs(placement_regions) do
-		print("i,x,y:",i,math.floor(blob.x),math.floor(blob.y),"shape, inner, outer:",blob.shape,blob.inner_radius,blob.outer_radius)
-	end
+--	for i,blob in ipairs(placement_regions) do
+--		print("i,x,y:",i,math.floor(blob.x),math.floor(blob.y),"shape, inner, outer:",blob.shape,blob.inner_radius,blob.outer_radius)
+--	end
 	transport_list = {}
 	transport_stations = {}
 	env_stations = {}
@@ -3946,6 +3956,13 @@ function ratifyNegotiatedTerms()
 	if oMsg == nil then
 		setCommsMessage(_("negotiate_comms","Your terms have been negotiated. Would you like to ratify them?"))
 	end
+	if negotiation_attempts > 1 then
+		addCommsReply(_("negotiate_comms","Analyze negotiation attempts"),function()
+			setCommsMessage(_("negotiate_comms","Analysis placed in ship's log"))
+			analyzeNegotiations()
+			addCommsReply(_("Back"), commsStation)
+		end)
+	end
 	addCommsReply(_("negotiate_comms","Ratify negotiated terms"),function()
 		if successful_outcomes ~= nil and #successful_outcomes > 0 then
 			print("successful outcome count:",#successful_outcomes)
@@ -3962,7 +3979,7 @@ function ratifyNegotiatedTerms()
 					else
 						out = string.format(_("negotiate_comms","%s\nYour military superiors will consider this outcome a victory."),out)						
 					end
-					setCommsMessage()
+					setCommsMessage(out)
 					addCommsReply(_("negotiate_comms","Ratify"),function()
 						local valid_stations = true
 						if outcome.except_stations ~= nil then
@@ -3983,7 +4000,8 @@ function ratifyNegotiatedTerms()
 						end
 						if valid_stations then
 							setCommsMessage(_("negotiate_comms","Negotiated terms ratified."))
-							globalMessage(outcome.closing_message)
+							local final_stats = finalStats()
+							globalMessage(string.format("%s\n%s",outcome.closing_message,final_stats)
 							if outcome.defeat then
 								victory(primary_enemy_faction)
 							else
@@ -9006,20 +9024,17 @@ function grossEndConditions()
 		end
 	end
 	if clean_list then
+		local final_stats = finalStats()
 		if enemy_faction_station_count < 1 then
 			local reason = string.format(_("msgMainscreen","All %s stations destroyed."),primary_enemy_faction)
-			globalMessage(reason)
+			globalMessage(string.format("%s\n%s",reason,final_stats))
 			setBanner(reason)
 			victory(player_faction)
 		elseif player_faction_station_count < 1 then
 			local reason = string.format(_("msgMainscreen","All %s stations destroyed."),player_faction)
-			globalMessage(reason)
+			globalMessage(string.format("%s\n%s",reason,final_stats))
 			setBanner(reason)
 			victory(primary_enemy_faction)
-		end
-		for i,p in ipairs(getActivePlayerShips()) do
-			p.ship_log_status_message = "ship_log_status_message"
-			p:addCustomInfo("ShipLog",p.ship_log_status_message,string.format("Us:%i Them:%s",player_faction_station_count,enemy_faction_station_count),7)
 		end
 	end
 	mainLinearPlot = continuousSpawn
@@ -9057,10 +9072,17 @@ function checkNegotiation()
 				end
 			end
 			print("Negotiator:",selected_negotiator,"Chance:",negotiators[selected_negotiator].chance,"Confidence * opportunities:",negotiators[selected_negotiator].confidence * negotiators[selected_negotiator].opportunities)
+			local insult_before = insult
 			local insult_count = 0
+			if documented_negotiations == nil then
+				documented_negotiations = {}
+			end
 			for i,outcome in ipairs(potential_outcomes) do
 				local success_chance = outcome.base
+				local calc = "Success calculation:\nOutcome base - insult + time limit impact ((time limit/3 - 1)/10) + ((attempts-1)/10) + negotiator chance + (negotiator confidence * number of opportunities)"
+				calc = string.format("%s\noutcome base: %.4f   Description: %s",calc,outcome.base,outcome.desc)
 				success_chance = success_chance - insult
+				calc = string.format("%s\nrt: %.4f   insult: %.4f   count of enemy stations destroyed: %i",calc,success_chance,insult,primary_enemy_stations_destroyed_count)
 				if outcome.typ == "annex" then
 					if primary_enemy_stations_destroyed_count == 0 then
 						insult_count = insult_count + 1
@@ -9071,14 +9093,39 @@ function checkNegotiation()
 					end
 				end
 				success_chance = success_chance + (negotiation_time_limit/3 - 1)/10
-				success_chance = success_chance + negotiation_attempts/10
+				calc = string.format("%s\nrt: %.4f   negotiation time limit: %i   impact: %.4f",calc,success_chance,negotiation_time_limit,(negotiation_time_limit/3 - 1)/10)
+				success_chance = success_chance + math.max(negotiation_attempts-1,0)/10
+				calc = string.format("%s\nrt: %.4f   negotiation attempts: %i   impact: %.4f",calc,success_chance,negotiation_attempts,math.max(negotiation_attempts-1,0)/10)
 				success_chance = success_chance + negotiators[selected_negotiator].chance
+				calc = string.format("%s\nrt: %.4f   negotiator success chance: %.4f",calc,success_chance,negotiators[selected_negotiator].chance)
 				success_chance = success_chance + negotiators[selected_negotiator].confidence * negotiators[selected_negotiator].opportunities
+				calc = string.format("%s\nrt: %.4f   negotiator confidence: %.4f   opportunities: %i   impact: %.4f",calc,success_chance,negotiators[selected_negotiator].confidence,negotiators[selected_negotiator].opportunities,negotiators[selected_negotiator].opportunities * negotiators[selected_negotiator].confidence)
 				outcome.success_chance = success_chance
 				outcome.roll = random(0,1)
 				outcome.success = outcome.roll < outcome.success_chance
-				print("success chance:",outcome.success_chance,"roll:",outcome.roll,outcome.desc)
+				calc = string.format("%s\nsuccess chance: %.4f   roll: %.4f",calc,outcome.success_chance,outcome.roll)
+				if documented_negotiations[negotiation_attempts] == nil then
+					documented_negotiations[negotiation_attempts] = {}
+				end
+				documented_negotiations[negotiation_attempts][i] = {
+					outcome_base = outcome.base,
+					outcome_desc = outcome.desc,
+					outcome_short_desc = outcome.short_desc,
+					insult = insult,
+					time_limit = negotiation_time_limit,
+					time_limit_impact = (negotiation_time_limit/3 - 1)/10,
+					attempts_impact = math.max(negotiation_attempts-1,0)/10,
+					negotiator = selected_negotiator,
+					negotiator_chance = negotiators[selected_negotiator].chance,
+					negotiator_confidence = negotiators[selected_negotiator].confidence,
+					negotiator_opportunities = negotiators[selected_negotiator].opportunities,
+					outcome_chance = outcome.success_chance,
+					outcome_roll = outcome.roll,
+					outcome_success = outcome.success,
+				}
+				print(calc)
 			end
+			negotiators[selected_negotiator].opportunities = negotiators[selected_negotiator].opportunities + 1
 			insult = insult_count/10
 			successful_outcomes = {}
 			for i,outcome in ipairs(potential_outcomes) do
@@ -9088,15 +9135,21 @@ function checkNegotiation()
 			end
 			if #successful_outcomes > 0 then
 				for i,p in ipairs(getActivePlayerShips()) do
-					p:addToShipLog(string.format("%s has news. Contact a station to check negotiation status",selected_negotiator),"Magenta")
+					p:addToShipLog(string.format(_("negotiationResults_shipLog","%s has news. Contact a station to check negotiation status"),selected_negotiator),"Magenta")
 				end
 				ratify_timer = getScenarioTime() + negotiation_time_limit*60
 			else
 				for i,p in ipairs(getActivePlayerShips()) do
-					p:addToShipLog(string.format("%s was unable to negotiate for any of the desired outcomes.",selected_negotiator),"Magenta")
+					p:addToShipLog(string.format(_("negotiationResults_shipLog","%s was unable to negotiate for any of the desired outcomes."),selected_negotiator),"Magenta")
 				end
 				if random(0,1) < .2 then
 					negotiators[selected_negotiator] = nil
+					for i,p in ipairs(getActivePlayerShips()) do
+						p:addToShipLog(string.format(_("negotiationResults_shipLog","%s has resigned as a negotiator."),selected_negotiator),"Magenta")
+					end
+				end
+				if negotiation_attempts > 1 then
+					analyzeNegotiations()
 				end
 				selected_negotiator = nil
 				minimum_outcome_index = nil
@@ -9109,9 +9162,33 @@ function checkNegotiation()
 		local remaining_negotiation_time = colonTime(negotiation_timer - getScenarioTime())
 		for i,p in ipairs(getActivePlayerShips()) do
 			p.negotiation_timer_rel = "negotiation_timer_rel"
-			p:addCustomInfo("Relay",p.negotiation_timer_rel,string.format("Negotiation: %s",remaining_negotiation_time),4)
+			p:addCustomInfo("Relay",p.negotiation_timer_rel,string.format(_("negotiationTime_tabRelay","Negotiation: %s"),remaining_negotiation_time),4)
 			p.negotiation_timer_ops = "negotiation_timer_ops"
-			p:addCustomInfo("Operations",p.negotiation_timer_ops,string.format("Negotiation: %s",remaining_negotiation_time),4)
+			p:addCustomInfo("Operations",p.negotiation_timer_ops,string.format(_("negotiationTime_tabOperations","Negotiation: %s",remaining_negotiation_time),4)
+		end
+	end
+end
+function analyzeNegotiations()
+	for i,p in ipairs(getActivePlayerShips()) do
+		p:addToShipLog(_("negotiationResults_shipLog","Analysis of negotiations:"),"Yellow")
+	end
+	for i,neg in ipairs(documented_negotiations) do
+		for j,pot in ipairs(neg) do
+			for k,p in ipairs(getActivePlayerShips()) do
+				p:addToShipLog(string.format(_("negotiationResults_shipLog","Negotiator:%s   Negotiation attempt number %i"),pot.negotiator,i),"Magenta")
+				p:addToShipLog(string.format(_("negotiationResults_shipLog","   Chance of success: %.2f%%   Roll: %.2f%%   Success: %s   Desc: %s"),pot.outcome_chance*100,pot.outcome_roll*100,pot.outcome_success,pot.outcome_short_desc),"Cyan")
+				if negotiation_attempts > 2 then
+					p:addToShipLog(string.format(_("negotiationResults_shipLog","      Outcome base chance of success: %.2f%% minus insult penalty (%.2f%%) = %.2f%%"),pot.outcome_base*100,pot.insult*100,(pot.outcome_base - pot.insult)*100),"Magenta")
+					p:addToShipLog(string.format(_("negotiationResults_shipLog","      plus negotiator chance: %.2f%% plus (negotiator confidence: %.2f%% multiplied by their negotiation opportunities: %i)"),pot.negotiator_chance*100,pot.negotiator_confidence*100,pot.negotiator_opportunities),"Magenta")
+				end
+				if negotiation_attempts > 3 then
+					p:addToShipLog(string.format(_("negotiationResults_shipLog","      plus negotiation time limit factor: %.2f%% = (%i minutes / 3 - 1) / 10"),pot.time_limit_impact,pot.time_limit),"Magenta")
+					p:addToShipLog(string.format(_("negotiationResults_shipLog","      plus negotiation attempts: %i / 10 = %.2f%%"),i-1,(i-1)/10*100),"Magenta")
+				end
+				if negotiation_attempts > 2 then
+					p:addToShipLog(_("negotiationResults_shipLog","         Note: insult occurs if you request to annex a station and you have not destroyed any enemy stations. It applies to the next round of negotiations."),"Magenta")
+				end
+			end
 		end
 	end
 end
@@ -9292,9 +9369,9 @@ function updatePlayerShieldBanner(p)
 	if p.shield_banner then
 		local shield_status = ""
 		if p:getShieldCount() > 1 then
-			shield_status = string.format("F:%.1f/%i R:%.1f/%i",p:getShieldLevel(0),p:getShieldMax(0),p:getShieldLevel(1),p:getShieldMax(1))
+			shield_status = string.format(_("shield_status_tabEngineer&Engineer+","F:%.1f/%i R:%.1f/%i"),p:getShieldLevel(0),p:getShieldMax(0),p:getShieldLevel(1),p:getShieldMax(1))
 		elseif p:getShieldCount() == 1 then
-			shield_status = string.format("Shield:%.1f/%i",p:getShieldLevel(0),p:getShieldMax(0))
+			shield_status = string.format(_("shield_status_tabEngineer&Engineer+","Shield:%.1f/%i"),p:getShieldLevel(0),p:getShieldMax(0))
 		end
 		if shield_status ~= "" then
 			p.shield_banner_eng = "shield_banner_eng"
