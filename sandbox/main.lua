@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.9.2"
+	scenario_version = "8.9.3"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1927,8 +1927,8 @@ function setConstants()
 	makePlayerShipActive("Arwine")			--J
 	makePlayerShipActive("Ambition") 		--J 
 	makePlayerShipActive("Eagle")			--W
-	makePlayerShipActive("Jarvis")			--W
-	makePlayerShipActive("Pinwheel") 		--W 
+	makePlayerShipActive("Osprey")			--W
+	makePlayerShipActive("Falcon") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -2270,6 +2270,7 @@ function setConstants()
 		["Equipment Jump Freighter 3"] =	600,
 		["Equipment Jump Freighter 4"] =	800,
 		["Equipment Jump Freighter 5"] =	800,
+		["Era"] =							200,
 		["Farco 3"] =						200,
 		["Farco 5"] =						200,
 		["Farco 8"] =						200,
@@ -2397,6 +2398,7 @@ function setConstants()
 		["Ranus U"] =						200,
 		["Roc"] =							200,
 		["Rook"] =							200,
+		["Rotor"] =							200,
 		["Ryder"] =							2000,
 		["Sentinel"] =						600,
 		["Service Jonque"] =				800,
@@ -37775,8 +37777,8 @@ function createPlayerShipOsprey()
 	playerOsprey:setTypeName("Flavia 2C")
 	playerOsprey:setRotationMaxSpeed(20)					--faster spin (vs 10)
 	playerOsprey:setImpulseMaxSpeed(70)						--faster (vs 60)
-	playerOsprey:setShieldsMax(120, 120)					--stronger shields (vs 70, 70)
-	playerOsprey:setShields(120, 120)
+	playerOsprey:setShieldsMax(160, 160)					--stronger shields (vs 70, 70)
+	playerOsprey:setShields(160, 160)
 	playerOsprey:setBeamWeapon(0, 40, -10, 1200.0, 5.5, 6.5)	--two forward (vs rear)
 	playerOsprey:setBeamWeapon(1, 40,  10, 1200.0, 5.5, 6.5)	--faster (vs 6.0) and stronger (vs 6.0)
 	playerOsprey:setWeaponTubeCount(3)						--more (vs 1)
