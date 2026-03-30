@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.9.3"
+	scenario_version = "8.9.4"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1923,7 +1923,7 @@ function setConstants()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Thunderbird")		--J
+	makePlayerShipActive("Headhunter")		--J
 	makePlayerShipActive("Arwine")			--J
 	makePlayerShipActive("Ambition") 		--J 
 	makePlayerShipActive("Eagle")			--W
@@ -13000,9 +13000,8 @@ function createIcarusStations()
 		stationChitlok:destroy()
 	end
 	--Cindy's Folly
-	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 4 E9")
-	cindyZone:setColor(51,153,255):setLabel("C")
-	--[[
+--	local cindyZone = squareZone(81075, -1304, "Cindy's Folly 4 E9")
+--	cindyZone:setColor(51,153,255):setLabel("C")
     stationCindyFolly = SpaceStation():setTemplate("Small Station"):setFaction("Independent"):setCallSign("Cindy's Folly 4"):setPosition(81075, -1304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     if random(1,100) <= 37 then homeAvail = true else homeAvail = false end
     if random(1,100) <= 44 then hvliAvail = true else hvliAvail = false end
@@ -13055,7 +13054,6 @@ function createIcarusStations()
 	if random(1,100) <= 13 then stationCindyFolly:setSharesEnergyWithDocked(false) end
 	station_names[stationCindyFolly:getCallSign()] = {stationCindyFolly:getSectorName(), stationCindyFolly}
 	table.insert(stations,stationCindyFolly)
-	--]]
 	--Clew
 	stationClew = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Clew"):setPosition(-130445, -97789):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
@@ -13172,19 +13170,18 @@ function createIcarusStations()
 	station_names[stationElysium:getCallSign()] = {stationElysium:getSectorName(), stationElysium}
 	table.insert(stations,stationElysium)
 	--Endymion
-	local endymionDP1zone = squareZone(136035, 82232, "EndymionDP1 J11")
-	endymionDP1zone:setColor(255, 255, 128):setLabel("D")
---	local edp1 = CpuShip():setFaction("TSN"):setTemplate("Defense platform"):setCallSign("EDP1"):setPosition(136035, 82232):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
---	setBeamColor(edp1)
---	station_names[edp1:getCallSign()] = {edp1:getSectorName(), edp1}
---	if mirrorUniverse then
---		-- TSN doesnt really have a mirror version
---		edp1:setFaction("Spacer")
---	end
---	table.insert(stations,edp1)
-	local endymionZone = squareZone(138284, 81805,"Endymion 2 J11")
-	endymionZone:setColor(255, 255, 128):setLabel("E")
-	--[[
+--	local endymionDP1zone = squareZone(136035, 82232, "EndymionDP1 J11")
+--	endymionDP1zone:setColor(255, 255, 128):setLabel("D")
+	local edp1 = CpuShip():setFaction("TSN"):setTemplate("Defense platform"):setCallSign("EDP1"):setPosition(136035, 82232):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	setBeamColor(edp1)
+	station_names[edp1:getCallSign()] = {edp1:getSectorName(), edp1}
+	if mirrorUniverse then
+		-- TSN doesnt really have a mirror version
+		edp1:setFaction("Spacer")
+	end
+	table.insert(stations,edp1)
+--	local endymionZone = squareZone(138284, 81805,"Endymion 2 J11")
+--	endymionZone:setColor(255, 255, 128):setLabel("E")
 	stationEndymion = SpaceStation():setTemplate("Small Station"):setFaction("TSN"):setCallSign("Endymion"):setPosition(138284, 81805):setDescription("Trading and mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		-- TSN doesnt really have a mirror version
@@ -13242,11 +13239,9 @@ function createIcarusStations()
 	if random(1,100) <= 27 then stationEndymion:setSharesEnergyWithDocked(false) end
 	station_names[stationEndymion:getCallSign()] = {stationEndymion:getSectorName(), stationEndymion}
 	table.insert(stations,stationEndymion)
-	--]]
 	--Finnegan
-	local finneganZone = squareZone(114460, 95868, "Finnegan 3 J10")
-	finneganZone:setColor(51,153,255):setLabel("F")
-	--[[
+--	local finneganZone = squareZone(114460, 95868, "Finnegan 3 J10")
+--	finneganZone:setColor(51,153,255):setLabel("F")
 	stationFinnegan = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Finnegan 3"):setPosition(114460, 95868):setDescription("Trading, mining and manufacturing"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationFinnegan:setFaction("Spacer")
@@ -13312,7 +13307,6 @@ function createIcarusStations()
 	if random(1,100) <= 25 then stationFinnegan:setSharesEnergyWithDocked(false) end
 	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
-	--]]
 	--Gagarin
 	--local gagarinZone = squareZone(-60000, 62193, "Gagarin I2")
 	--gagarinZone:setColor(0,128,0)
@@ -14285,11 +14279,11 @@ function createIcarusStations()
 	--Sovinec
 --	local sovinecZone = squareZone(134167, 104690, "Sovinec Four K11")
 --	sovinecZone:setColor(51,153,255)
---	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
---	setBeamColor(sdp1)
---	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
-	local sdpZone = squareZone(136055, 105132, "SDP K11")
-	sdpZone:setColor(51,153,255):setLabel("DP")
+	local sdp1 = CpuShip():setFaction("Independent"):setTemplate("Defense platform"):setCallSign("SDP1"):setPosition(136055, 105132):orderStandGround():setCommsScript(""):setCommsFunction(commsStation)
+	setBeamColor(sdp1)
+	station_names[sdp1:getCallSign()] = {sdp1:getSectorName(), sdp1}
+--	local sdpZone = squareZone(136055, 105132, "SDP K11")
+--	sdpZone:setColor(51,153,255):setLabel("DP")
 	if mirrorUniverse then
 		sdp1:setFaction("Spacer")
 	end
@@ -14564,10 +14558,9 @@ function createIcarusStations()
 	end
 	--Tortuga
 	if not mirrorUniverse then
-		local tortugaZone = squareZone(-49045, 241042, "Tortuga 2 R2")
-		tortugaZone:setColor(255,128,255):setLabel("T")
+--		local tortugaZone = squareZone(-49045, 241042, "Tortuga 2 R2")
+--		tortugaZone:setColor(255,128,255):setLabel("T")
 	end
-	--[[
 	stationTortuga = SpaceStation():setTemplate("Small Station"):setFaction("USN"):setCallSign("Tortuga 2"):setPosition(-49045, 241042):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationTortuga.comms_data = {
     	friendlyness = 35,
@@ -14624,7 +14617,6 @@ function createIcarusStations()
 	if random(1,100) <= 21 then stationTortuga:setSharesEnergyWithDocked(false) end
 	station_names[stationTortuga:getCallSign()] = {stationTortuga:getSectorName(), stationTortuga}
 	table.insert(stations,stationTortuga)
-	--]]
 	--Transylvania
 	--local transylvaniaZone = squareZone(-95000, 111000, "Transylvania K0")
 	--transylvaniaZone:setColor(51,153,255)
