@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "8.9.4"
+	scenario_version = "9.1.0"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -284,6 +284,36 @@ function setConstants()
 		"jumpdrive",
 		"frontshield",
 		"rearshield",
+	}
+	zone_actions = {
+		{action = "Drain shields",		color = "Orange Red",		dmg =	.999},
+		{action = "Drain power",		color = "Orange Red",		dmg =	.999},
+		{action = "Dmg shield gen",		color = "Red",				dmg =	.999,	systems = {"frontshield","rearshield"}},
+		{action = "Dmg engines",		color = "Red",				dmg =	.999,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Dmg FTL",			color = "Red",				dmg =	.999,	systems = {"warp","jumpdrive"}},
+		{action = "Dmg weapons",		color = "Red",				dmg =	.999,	systems = {"beamweapons","missilesystem"}},
+		{action = "Dmg maneuver",		color = "Red",				dmg =	.999,	systems = {"maneuver"}},
+		{action = "Dmg reactor",		color = "Red",				dmg =	.999,	systems = {"reactor"}},
+		{action = "Dmg front shield",	color = "Red",				dmg =	.999,	systems = {"frontshield"}},
+		{action = "Dmg rear shield",	color = "Red",				dmg =	.999,	systems = {"rearshield"}},
+		{action = "Dmg impulse",		color = "Red",				dmg =	.999,	systems = {"impulse"}},
+		{action = "Dmg warp",			color = "Red",				dmg =	.999,	systems = {"warp"}},
+		{action = "Dmg jump",			color = "Red",				dmg =	.999,	systems = {"jumpdrive"}},
+		{action = "Dmg beam weapons",	color = "Red",				dmg =	.999,	systems = {"beamweapons"}},
+		{action = "Dmg missiles",		color = "Red",				dmg =	.999,	systems = {"missilesystem"}},
+		{action = "Heat shields",		color = "Firebrick Red",	heat =	.001,	systems = {"frontshield","rearshield"}},
+		{action = "Heat engines",		color = "Firebrick Red",	heat =	.001,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Heat FTL",			color = "Firebrick Red",	heat =	.001,	systems = {"warp","jumpdrive"}},
+		{action = "Heat weapons",		color = "Firebrick Red",	heat =	.001,	systems = {"beamweapons","missilesystem"}},
+		{action = "Heat maneuver",		color = "Firebrick Red",	heat =	.001,	systems = {"maneuver"}},
+		{action = "Heat reactor", 		color = "Firebrick Red",	heat =	.001,	systems = {"reactor"}},
+		{action = "Heat front shield",	color = "Firebrick Red",	heat =	.001,	systems = {"frontshield"}},
+		{action = "Heat rear shield",	color = "Firebrick Red",	heat =	.001,	systems = {"rearshield"}},
+		{action = "Heat impulse",		color = "Firebrick Red",	heat =	.001,	systems = {"impulse"}},
+		{action = "Heat warp",			color = "Firebrick Red",	heat =	.001,	systems = {"warp"}},
+		{action = "Heat jump",			color = "Firebrick Red",	heat =	.001,	systems = {"jumpdrive"}},
+		{action = "Heat beam weapons",	color = "Firebrick Red",	heat =	.001,	systems = {"beamweapons"}},
+		{action = "Heat missiles",		color = "Firebrick Red",	heat =	.001,	systems = {"missilesystem"}},
 	}
 	coolant_losses = {
 		["Lo"] = {val = .99999,	desc = "May cause low level coolant leakage"},			--easy
@@ -2690,8 +2720,9 @@ function setConstants()
 	zone_click_type = "rectangle"
 	zone_point_count = 0
 	zone_point_max = 3
-	zone_color = "Red"
+	zone_color = "No Color"
 	zone_color_list = {
+		["No Color"]			= {r =   0, g =   0, b =   0},
 		["Red"]					= {r = 255, g =   0, b =   0},
 		["Green"]				= {r =   0, g = 255, b =   0},
 		["Blue"]				= {r =   0, g =   0, b = 255},
@@ -3101,6 +3132,8 @@ function createSkeletonUniverse()
     	{name = "Macassa",		x = 19080,		y = -19780,		tax = wormholeTax1,	region_name = "Icarus",		},
     	{name = "Staunch",		x = 153668,		y = 775877,		tax = wormholeTax1,	region_name = "Staunch",	},
     	{name = "Teresh",		x = 800001,		y = 120001,		tax = wormholeTax1,	region_name = "Teresh",		},
+    	{name = "Glikton",		x = 407073,		y = -502604,	tax = wormholeTax3,	region_name = "Glikton",	},
+    	{name = "Goodall",		x = 990252,		y = -802802,	tax = wormholeTax3,	region_name = "Goodall",	},
     }
 	stationWormholeWrangler = SpaceStation():setTemplate("Medium Station"):setFaction("Independent"):setCallSign("Wormhole Wrangler"):setPosition(-41977, 18955):setDescription("Wormhole control and trading post"):setCommsScript(""):setCommsFunction(commsStation)
     stationWormholeWrangler.wormhole = wormholeIcarus
@@ -3575,15 +3608,15 @@ function createSkeletonUniverse()
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
-        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
-        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
-        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = random(1,100)<80},
-        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = random(1,100)<80},
+        	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["beamweapons"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["missilesystem"] =	{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
+        	["maneuver"] =		{cost = math.random(0,9),	max = random(.9, .99),	avail = true},
         	["impulse"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         	["warp"] =			{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
         	["jumpdrive"] =		{cost = math.random(0,9),	max = random(.6, .99),	avail = true},
-        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
-        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<85},
+        	["frontshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
+        	["rearshield"] =	{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
         },
         jump_overcharge =		true,
         shield_overcharge =		true,
@@ -12177,6 +12210,29 @@ function wormholeTax2(worm_hole,transportee)
 		end
 	end
 end
+function wormholeTax3(worm_hole,transportee)
+	createRegionUponTeleportation(worm_hole)
+	if transportee ~= nil then
+		if isObjectType(transportee,"PlayerSpaceship") then
+			transportee:setEnergyLevel(transportee:getEnergyLevel()/2)
+			transportee:commandSetAlertLevel("yellow")
+		end
+		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
+			local system_pool = {}
+			for i,system in ipairs(system_list) do
+				if transportee:hasSystem(system) then
+					table.insert(system_pool,system)
+				end
+			end
+			local damage_system = tableSelectRandom(system_pool)
+			local adjust = random(-.8,-.2)
+			if transportee:getShieldsActive() then
+				adjust = math.max(-.5,adjust)
+			end
+			transportee:setSystemHealth(damage_system,adjust)
+		end
+	end
+end
 ------------------------------
 --	Initial Set Up > Zones  --
 ------------------------------
@@ -12192,6 +12248,8 @@ function changeZones()
 	addGMFunction("+Add Zone",addZone)
 	if zone_list ~= nil and #zone_list > 0 then
 		addGMFunction("+Delete Zone",deleteZone)
+		addGMFunction("+Add Action to Zone",addActionToZone)
+		addGMFunction("+Del Action from Zone",deleteActionFromZone)
 	end
 end
 --------------------------------------------------
@@ -39419,6 +39477,152 @@ function deleteZone()
 		changeZones()
 	end
 end
+function addActionToZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from add action",changeZones)
+	if selected_zone_index == nil then
+		selected_zone_index = 1
+	end
+	if #zone_list > 0 then
+		local button_label = string.format("+%s",zone_list[selected_zone_index].name)
+		if zone_list[selected_zone_index].actions ~= nil and #zone_list[selected_zone_index].actions > 0 then
+			button_label = string.format("%s*",button_label)
+		end
+		addGMFunction(button_label,addActionToZoneFromList)
+		addGMFunction("Select Next Zone",function()
+			selected_zone_index = selected_zone_index + 1
+			if selected_zone_index > #zone_list then
+				selected_zone_index = 1
+			end
+			addActionToZone()
+		end)
+	else
+		changeZones()
+	end
+end
+function addActionToZoneFromList()
+	clearGMFunctions()
+	addGMFunction("-Add action to zone",addActionToZone)
+--[[
+	zone_actions = {
+		{action = "Drain shields",		dmg =	.999},
+		{action = "Drain power",		dmg =	.999},
+		{action = "Dmg shield gen",		dmg =	.999,	systems = {"frontshield","rearshield"}},
+		{action = "Dmg engines",		dmg =	.999,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Dmg FTL",			dmg =	.999,	systems = {"warp","jumpdrive"}},
+		{action = "Dmg weapons",		dmg =	.999,	systems = {"beamweapons","missilesystem"}},
+		{action = "Dmg maneuver",		dmg =	.999,	systems = {"maneuver"}},
+		{action = "Dmg reactor",		dmg =	.999,	systems = {"reactor"}},
+		{action = "Dmg front shield",	dmg =	.999,	systems = {"frontshield"}},
+		{action = "Dmg rear shield",	dmg =	.999,	systems = {"rearshield"}},
+		{action = "Dmg impulse",		dmg =	.999,	systems = {"impulse"}},
+		{action = "Dmg warp",			dmg =	.999,	systems = {"warp"}},
+		{action = "Dmg jump",			dmg =	.999,	systems = {"jumpdrive"}},
+		{action = "Dmg beam weapons",	dmg =	.999,	systems = {"beamweapons"}},
+		{action = "Dmg missiles",		dmg =	.999,	systems = {"missilesystem"}},
+		{action = "Heat shields",		heat =	.001,	systems = {"frontshield","rearshield"}},
+		{action = "Heat engines",		heat =	.001,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Heat FTL",			heat =	.001,	systems = {"warp","jumpdrive"}},
+		{action = "Heat weapons",		heat =	.001,	systems = {"beamweapons","missilesystem"}},
+		{action = "Heat maneuver",		heat =	.001,	systems = {"maneuver"}},
+		{action = "Heat reactor", 		heat =	.001,	systems = {"reactor"}},
+		{action = "Heat front shield",	heat =	.001,	systems = {"frontshield"}},
+		{action = "Heat rear shield",	heat =	.001,	systems = {"rearshield"}},
+		{action = "Heat impulse",		heat =	.001,	systems = {"impulse"}},
+		{action = "Heat warp",			heat =	.001,	systems = {"warp"}},
+		{action = "Heat jump",			heat =	.001,	systems = {"jumpdrive"}},
+		{action = "Heat beam weapons",	heat =	.001,	systems = {"beamweapons"}},
+		{action = "Heat missiles",		heat =	.001,	systems = {"missilesystem"}},
+	}
+--]]
+	for i,a in ipairs(zone_actions) do
+		local button_label = a.action
+		if zone_list[selected_zone_index].actions ~= nil and #zone_list[selected_zone_index].actions > 0 then
+			for j,z in ipairs(zone_list[selected_zone_index].actions) do
+				if z.action == a.action then
+					button_label = string.format("%s*",button_label)
+					break
+				end
+			end
+		end
+		addGMFunction(button_label,function()
+			local action_present = false
+			if zone_list[selected_zone_index].actions ~= nil and #zone_list[selected_zone_index].actions > 0 then
+				for j,z in ipairs(zone_list[selected_zone_index].actions) do
+					if z.action == a.action then
+						action_present = true
+						break
+					end
+				end
+			end
+			if not action_present then
+				if zone_list[selected_zone_index].actions == nil then
+					zone_list[selected_zone_index].actions = {}
+				end
+				table.insert(zone_list[selected_zone_index].actions,a)
+			end
+			addActionToZoneFromList()
+		end)
+	end
+end
+function deleteActionFromZone()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones from del action",changeZones)
+	if selected_zone_index == nil then
+		selected_zone_index = 1
+	end
+	if #zone_list > 0 then
+		local current_zone_index = selected_zone_index
+		local found_action = false
+		repeat
+			current_zone_index = current_zone_index + 1
+			if current_zone_index > #zone_list then
+				current_zone_index = 1
+			end
+			if zone_list[current_zone_index].actions ~= nil and #zone_list[current_zone_index].actions > 0 then
+				found_action = true
+				selected_zone_index = current_zone_index
+				break
+			end
+		until(current_zone_index == selected_zone_index)
+		if found_action then
+			selected_zone_index = current_zone_index
+			addGMFunction(string.format("+%s",zone_list[selected_zone_index].name),deleteActionFromZoneFromList)
+			addGMFunction("Select Next Zone",function()
+				selected_zone_index = selected_zone_index + 1
+				if selected_zone_index > #zone_list then
+					selected_zone_index = 1
+				end
+				deleteActionFromZone()
+			end)
+		else
+			addGMMessage("No zones with attached actions to delete found")
+			changeZones()
+		end
+	else
+		changeZones()
+	end
+end
+function deleteActionFromZoneFromList()
+	clearGMFunctions()
+	addGMFunction("-Delete action from zone",deleteActionFromZone)
+	if #zone_list[selected_zone_index].actions > 0 then
+		for i,z in ipairs(zone_list[selected_zone_index].actions) do
+			addGMFunction(z.action,function()
+				zone_list[selected_zone_index].actions[i] = zone_list[selected_zone_index].actions[#zone_list[selected_zone_index].actions]
+				zone_list[selected_zone_index].actions[#zone_list[selected_zone_index].actions] = nil
+				deleteActionFromZoneFromList()
+			end)
+		end
+	else
+		addGMMessage("No actions to delete from zone")
+		deleteActionFromZone()
+	end
+end
 --	********************************************************************  --
 --	****				Initial Set Up Zones Add Zone				****  --
 --	********************************************************************  --
@@ -39468,7 +39672,9 @@ function addZoneByObject()
 			oy = oy * 20000
 			local zone = Zone():setPoints(ox,oy,ox+20000,oy,ox+20000,oy+20000,ox,oy+20000)
 			--zone:setColor(64,64,64)
-			zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+			if zone_color ~= "No Color" then
+				zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+			end
 			zone.name = object_list[1]:getSectorName()
 			if zone_list == nil then
 				zone_list = {}
@@ -39484,7 +39690,9 @@ function addZoneByObject()
 			local ox, oy = object_list[1]:getPosition()
 			local zone = Zone():setPoints(ox+500,oy+500,ox-500,oy+500,ox-500,oy-500,ox+500,oy-500)
 			--zone:setColor(255,255,128)
-			zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+			if zone_color ~= "No Color" then
+				zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+			end
 			if square_zone_char_val == nil then
 				square_zone_char_val = 65
 			end
@@ -39567,7 +39775,9 @@ function gmClickZoneRectangle(x,y)
 	local half_width = zone_rectangle_width*1000/2
 	local half_height = zone_rectangle_height*1000/2
 	local zone = Zone():setPoints(x - half_width, y - half_height, x + half_width, y - half_height, x + half_width, y + half_height, x - half_width, y + half_height)
-	zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+	if zone_color ~= "No Color" then
+		zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+	end
 	if rectangle_zone_char_val == nil then
 		rectangle_zone_char_val = 65
 	end
@@ -39658,7 +39868,9 @@ function gmClickZonePolygon(x,y)
 				zone_polygon_point_list_x[8],zone_polygon_point_list_y[8]
 			)
 		end
-		zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+		if zone_color ~= "No Color" then
+			zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+		end
 		if polygon_zone_char_val == nil then
 			polygon_zone_char_val = 65
 		end
@@ -71787,6 +71999,7 @@ function update(delta)
 	if updateDiagnostic then print("update: universe update") end
 	update_system:update(delta)
 	local players = getActivePlayerShips()
+	local zone_actions_pending = true
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
@@ -71892,6 +72105,9 @@ function update(delta)
 			updateWaypointSharingButtons(p)
 			updatePlayerMissileTriggerButtons(p)
 			updatePlayerBalanceShield(p)
+			if zone_actions_pending then
+				zone_actions_pending = updatePlayerZoneActions(p)
+			end
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -72313,6 +72529,102 @@ function updatePlayerRendezvousPoints(p)
 				end
 			end
 		end
+	end
+end
+function updatePlayerZoneActions(p)
+	if zone_list == nil or #zone_list < 1 then
+		return false
+	else
+		local zone_with_action = false
+		for i,z in ipairs(zone_list) do
+			if z.actions ~= nil and #z.actions > 0 then
+				zone_with_action = true
+				if z:isInside(p) then
+					if z.visible == nil then
+						z.visible = false
+					end
+					if not z.visible then
+						if z.visible_time == nil then
+							z.visible_time = getScenarioTime() + 5
+						end
+						if getScenarioTime() > z.visible_time then
+							z.visible = true
+							local color = z.actions[1].color
+							z:setColor(zone_color_list[color].r,zone_color_list[color].g,zone_color_list[color].b)
+						end
+					end
+					for j,a in ipairs(z.actions) do
+						if a.systems == nil then
+							if a.action == "Drain shields" then
+								if p:getShieldCount() == 1 then
+									p:setShields(p:getShieldLevel(0)*a.dmg)
+								else
+									if random(1,100) <= 50 then
+										p:setShields(p:getShieldLevel(0)*a.dmg,p:getShieldLevel(1))
+									else
+										p:setShields(p:getShieldLevel(0),p:getShieldLevel(1)*a.dmg)
+									end
+								end
+							elseif a.action == "Drain power" then
+								p:setEnergy(p:getEnergy()*a.dmg)
+							end
+						else
+							local system_pool = {}
+							for k,system in ipairs(a.systems) do
+								if p:hasSystem(system) then
+									table.insert(system_pool,system)
+								end
+							end
+							local selected_system = tableSelectRandom(system_pool)
+							if selected_system ~= nil then
+								if a.dmg == nil then
+									p:setSystemHeat(selected_system,p:getSystemHeat(selected_system) + a.heat)
+								else
+									if p:getSystemHealth(selected_system) > 0 then
+										p:setSystemHealth(selected_system,p:getSystemHealth(selected_system)*a.dmg)
+									else
+										p:setSystemHealth(selected_system,p:getSystemHealth(selected_system) - (1 - a.dmg))
+									end
+								end
+							end
+						end
+--[[
+	zone_actions = {
+		{action = "Drain shields",		dmg =	.999},
+		{action = "Drain power",		dmg =	.999},
+		{action = "Dmg shield gen",		dmg =	.999,	systems = {"frontshield","rearshield"}},
+		{action = "Dmg engines",		dmg =	.999,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Dmg FTL",			dmg =	.999,	systems = {"warp","jumpdrive"}},
+		{action = "Dmg weapons",		dmg =	.999,	systems = {"beamweapons","missilesystem"}},
+		{action = "Dmg maneuver",		dmg =	.999,	systems = {"maneuver"}},
+		{action = "Dmg reactor",		dmg =	.999,	systems = {"reactor"}},
+		{action = "Dmg front shield",	dmg =	.999,	systems = {"frontshield"}},
+		{action = "Dmg rear shield",	dmg =	.999,	systems = {"rearshield"}},
+		{action = "Dmg impulse",		dmg =	.999,	systems = {"impulse"}},
+		{action = "Dmg warp",			dmg =	.999,	systems = {"warp"}},
+		{action = "Dmg jump",			dmg =	.999,	systems = {"jumpdrive"}},
+		{action = "Dmg beam weapons",	dmg =	.999,	systems = {"beamweapons"}},
+		{action = "Dmg missiles",		dmg =	.999,	systems = {"missilesystem"}},
+		{action = "Heat shields",		heat =	.001,	systems = {"frontshield","rearshield"}},
+		{action = "Heat engines",		heat =	.001,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Heat FTL",			heat =	.001,	systems = {"warp","jumpdrive"}},
+		{action = "Heat weapons",		heat =	.001,	systems = {"beamweapons","missilesystem"}},
+		{action = "Heat maneuver",		heat =	.001,	systems = {"maneuver"}},
+		{action = "Heat reactor", 		heat =	.001,	systems = {"reactor"}},
+		{action = "Heat front shield",	heat =	.001,	systems = {"frontshield"}},
+		{action = "Heat rear shield",	heat =	.001,	systems = {"rearshield"}},
+		{action = "Heat impulse",		heat =	.001,	systems = {"impulse"}},
+		{action = "Heat warp",			heat =	.001,	systems = {"warp"}},
+		{action = "Heat jump",			heat =	.001,	systems = {"jumpdrive"}},
+		{action = "Heat beam weapons",	heat =	.001,	systems = {"beamweapons"}},
+		{action = "Heat missiles",		heat =	.001,	systems = {"missilesystem"}},
+	}
+--]]
+					end
+				end
+			end
+		end
+		return zone_with_action
 	end
 end
 function updatePlayerDamageConsequences(p)
