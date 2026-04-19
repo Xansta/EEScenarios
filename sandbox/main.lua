@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.1.0"
+	scenario_version = "9.2.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1955,10 +1955,10 @@ function setConstants()
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Headhunter")		--J
 	makePlayerShipActive("Arwine")			--J
-	makePlayerShipActive("Ambition") 		--J 
+	makePlayerShipActive("Halberd") 		--J 
 	makePlayerShipActive("Eagle")			--W
-	makePlayerShipActive("Osprey")			--W
-	makePlayerShipActive("Falcon") 			--W 
+	makePlayerShipActive("Jeeves")			--W
+	makePlayerShipActive("Vision") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -3004,6 +3004,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -3024,6 +3025,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
 		mine_probes = {name = "LDSM 1.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
 		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
@@ -3071,6 +3073,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3091,6 +3094,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         mine_probes = {name = "LDSM 2.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -3152,6 +3156,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3172,6 +3177,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -3277,6 +3283,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<70},
@@ -3297,6 +3304,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
 --		sensor_boost = {value = 5000, cost = 0},
 --		mine_probes = {name = "LDSM 3.1", cost = math.random(45,83), quantity = math.random(1,3), speed = 3000, mine_fetus = 1, mines_required = 1},	--first number in name is speed, second is fetus
         sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
@@ -3339,6 +3347,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -3359,6 +3368,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 5000, cost = 0},
 		sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
 --        mine_probes = {name = "LDSM 1.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
@@ -3407,6 +3417,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3427,6 +3438,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         sensor_boost_probes = {name = "Spectacle", cost = math.random(15,38), quantity = math.random(1,3), speed = 1000, boost = 10, range = 30},
 --        mine_probes = {name = "LDSM 1.3", cost = math.random(45,83), quantity = math.random(1,3), speed = 1000, mine_fetus = 3, mines_required = 5},	--first number in name is speed, second is fetus
@@ -3476,6 +3488,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3496,6 +3509,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -3541,6 +3555,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3561,6 +3576,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -3606,6 +3622,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -3626,6 +3643,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
 --		mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -3671,6 +3689,7 @@ function createSkeletonUniverse()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<80},
@@ -3691,6 +3710,7 @@ function createSkeletonUniverse()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         mine_probes = {name = "LDSM 2.2", cost = math.random(45,83), quantity = math.random(1,3), speed = 2000, mine_fetus = 2, mines_required = 3},	--first number in name is speed, second is fetus
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
@@ -4684,6 +4704,7 @@ function tweakTerrain()
 								combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 								self_destruct_repair = math.random(1,4) + math.random(1,5),
 								tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+								hazard_buoys = math.random(1,4) + math.random(1,5),
 							},
 							system_repair = {
 								["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -4722,6 +4743,7 @@ function tweakTerrain()
 									combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 									self_destruct_repair = math.random(1,4) + math.random(1,5),
 									tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+									hazard_buoys = math.random(1,4) + math.random(1,5),
 								},
 								system_repair = {
 									["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -4786,6 +4808,7 @@ function tweakTerrain()
 										combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 										self_destruct_repair = math.random(1,4) + math.random(1,5),
 										tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+										hazard_buoys = math.random(1,4) + math.random(1,5),
 									},
 									system_repair = {
 										["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = random(1,100)<40},
@@ -9795,6 +9818,7 @@ function santaContainment()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         system_repair = {
         	["reactor"] =		{cost = math.random(0,9),	max = random(.8, .99),	avail = true},
@@ -9813,6 +9837,7 @@ function santaContainment()
         combat_maneuver_repair=	true,
         self_destruct_repair =	true,
         tube_slow_down_repair =	true,
+        hazard_buoys =			true,
         sensor_boost = {value = 10000, cost = 0},
         reputation_cost_multipliers = {friend = 1.0, neutral = 2.0},
         max_weapon_refill_amount = {friend = 1.0, neutral = 0.5 },
@@ -20908,16 +20933,16 @@ function createTereshAsteroids()
     table.insert(asteroid_list,Asteroid():setPosition(843887, 140417):setSize(20))
     table.insert(asteroid_list,Asteroid():setPosition(832545, 141551):setSize(182))
     table.insert(asteroid_list,Asteroid():setPosition(873755, 138148):setSize(23))
---	table.insert(asteroid_list,Mine():setPosition(903722, 133420))
---	table.insert(asteroid_list,Mine():setPosition(902383, 133141))
---	table.insert(asteroid_list,Mine():setPosition(901178, 133789))
---	table.insert(asteroid_list,Mine():setPosition(900671, 135059))
---	table.insert(asteroid_list,Mine():setPosition(901099, 136358))
---	table.insert(asteroid_list,Mine():setPosition(902263, 137078))
---	table.insert(asteroid_list,Mine():setPosition(903617, 136882))
---	table.insert(asteroid_list,Mine():setPosition(904528, 135861))
---	table.insert(asteroid_list,Mine():setPosition(904569, 134494))
---	table.insert(asteroid_list,WarpJammer():setFaction("Human Navy"):setPosition(902678, 135124):setRange(25000):setCallSign("BDWJ"))
+	table.insert(asteroid_list,Mine():setPosition(903722, 133420))
+	table.insert(asteroid_list,Mine():setPosition(902383, 133141))
+	table.insert(asteroid_list,Mine():setPosition(901178, 133789))
+	table.insert(asteroid_list,Mine():setPosition(900671, 135059))
+	table.insert(asteroid_list,Mine():setPosition(901099, 136358))
+	table.insert(asteroid_list,Mine():setPosition(902263, 137078))
+	table.insert(asteroid_list,Mine():setPosition(903617, 136882))
+	table.insert(asteroid_list,Mine():setPosition(904528, 135861))
+	table.insert(asteroid_list,Mine():setPosition(904569, 134494))
+	table.insert(asteroid_list,WarpJammer():setFaction("Human Navy"):setPosition(902678, 135124):setRange(25000):setCallSign("BDWJ"))
     table.insert(asteroid_list,BlackHole():setPosition(917143, 136163))
 	table.insert(asteroid_list,BlackHole():setPosition(848929, 120250))
     --north north
@@ -21046,9 +21071,8 @@ function createTereshStations()
 	local tradeMedicine = true
 	local tradeLuxury = true
 	--	Bastion
-	local bastionZone = squareZone(891524, 130398, "Bastion 3 L49")
-	bastionZone:setColor(0,128,0):setLabel("B")
-	--[[
+--	local bastionZone = squareZone(891524, 130398, "Bastion 3 L49")
+--	bastionZone:setColor(0,128,0):setLabel("B")
 	stationBastion = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Bastion 3"):setPosition(891524, 130398):setDescription("Research and Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBastion:setShortRangeRadarRange(15000)
     stationBastion.comms_data = {
@@ -21107,7 +21131,6 @@ function createTereshStations()
 	if random(1,100) <= 12 then stationBastion:setSharesEnergyWithDocked(false) end
 	station_names[stationBastion:getCallSign()] = {stationBastion:getSectorName(), stationBastion}
 	table.insert(stations,stationBastion)
-	--]]
 	--	Breadboard
 	stationBreadboard = SpaceStation():setTemplate("Small Station"):setFaction("Ghosts"):setCallSign("Breadboard"):setPosition(864105, -24962):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationBreadboard.comms_data = {
@@ -39022,8 +39045,8 @@ function createPlayerShipVision()
 	playerVision:setBeamWeapon(1,  80, 180,	1200, 		6.0,	6.0)
 --										Arc,  Dir, Rotate speed
 	playerVision:setBeamWeaponTurret(0,	300,    0,			 .5)		--slow turret
-	playerVision:setShieldsMax(70, 100)									--stronger rear shields (vs 70, 70)
-	playerVision:setShields(70, 100)
+	playerVision:setShieldsMax(100, 130)									--stronger rear shields (vs 70, 70)
+	playerVision:setShields(100, 130)
 	playerVision:setLongRangeRadarRange(50000)							--longer long range sensors (vs 30000)
 	playerVision.normal_long_range_radar = 50000
 	playerVision:onTakingDamage(playerShipDamage)
@@ -55507,229 +55530,146 @@ end
 -- FIX SCAN ON			D	inline
 -- FIX C.MANEUVER ON	D	inline
 -- FIX DESTRUCT ON		D	inline
+function getSelectedStation()
+	local object_list = getGMSelection()
+	if #object_list == 1 then
+		local first_object = object_list[1]
+		if isObjectType(first_object,"SpaceStation") then
+			return first_object
+		else
+			return nil, "Station not selected. No action taken"
+		end
+	else
+		return nil, "Select only one object. No action taken"
+	end
+end
 function stationOperations()
 	clearGMFunctions()
 	addGMFunction("-Station Manipulation",stationManipulation)
-	local objectList = getGMSelection()
-	if #objectList ~= 1 then
+	local selected_station = getSelectedStation()
+	if selected_station == nil then
 		addGMFunction("+Select Station",stationOperations)
 	else
-		local first_object = objectList[1]
-		if not isObjectType(first_object,"SpaceStation") then
-			addGMFunction("+Select Station",stationOperations)
-		else
-			addGMFunction("+Major Repair",stationOpsMajorRepair)
-			--[[	now in tweak menu
-			local button_label = "Probes"
-			if first_object:getRestocksScanProbes() then
-				button_label = string.format("%s On->Off",button_label)
-			else
-				button_label = string.format("%s Off->On",button_label)
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object:getRestocksScanProbes() then
-							first_object:setRestocksScanProbes(false)
-						else
-							first_object:setRestocksScanProbes(true)
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object:getRepairDocked() then
-				button_label = "Repair On->Off"
-			else
-				button_label = "Repair Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object:getRepairDocked() then
-							first_object:setRepairDocked(false)
-						else
-							first_object:setRepairDocked(true)
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object:getSharesEnergyWithDocked() then
-				button_label = "Energy On-Off"
-			else
-				button_label = "Energy Off-On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object:getSharesEnergyWithDocked() then
-							first_object:setSharesEnergyWithDocked(false)
-						else
-							first_object:setSharesEnergyWithDocked(true)
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			--]]
-			if first_object.comms_data.probe_launch_repair then
-				button_label = "Fix Probes On->Off"
-			else
-				button_label = "Fix Probes Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object.comms_data.probe_launch_repair then
-							first_object.comms_data.probe_launch_repair = false
-						else
-							first_object.comms_data.probe_launch_repair = true
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object.comms_data.hack_repair then
-				button_label = "Fix Hack On->Off"
-			else
-				button_label = "Fix Hack Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object.comms_data.hack_repair then
-							first_object.comms_data.hack_repair = false
-						else
-							first_object.comms_data.hack_repair = true
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object.comms_data.scan_repair then
-				button_label = "Fix Scan On->Off"
-			else
-				button_label = "Fix Scan Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object.comms_data.scan_repair then
-							first_object.comms_data.scan_repair = false
-						else
-							first_object.comms_data.scan_repair = true
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object.comms_data.combat_maneuver_repair then
-				button_label = "Fix C.Maneuver On->Off"
-			else
-				button_label = "Fix C.Maneuver Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object.comms_data.combat_maneuver_repair then
-							first_object.comms_data.combat_maneuver_repair = false
-						else
-							first_object.comms_data.combat_maneuver_repair = true
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object.comms_data.self_destruct_repair then
-				button_label = "Fix Destruct On->Off"
-			else
-				button_label = "Fix Destruct Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object.comms_data.self_destruct_repair then
-							first_object.comms_data.self_destruct_repair = false
-						else
-							first_object.comms_data.self_destruct_repair = true
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
-			if first_object.comms_data.tube_slow_down_repair then
-				button_label = "Fix Slow Tube On->Off"
-			else
-				button_label = "Fix Slow Tube Off->On"
-			end
-			addGMFunction(button_label,function()
-				local objectList = getGMSelection()
-				if #objectList == 1 then
-					local first_object = objectList[1]
-					if isObjectType(first_object,"SpaceStation") then
-						if first_object.comms_data.tube_slow_down_repair then
-							first_object.comms_data.tube_slow_down_repair = false
-						else
-							first_object.comms_data.tube_slow_down_repair = true
-						end
-						stationOperations()
-					else
-						addGMMessage("Station not selected. No action taken")
-					end
-				else
-					addGMMessage("Select only one object. No action taken")
-				end
-			end)
+		addGMFunction("+Major Repair",stationOpsMajorRepair)
+		local button_label = "Fix Probes Off->On"
+		if selected_station.comms_data.probe_launch_repair then
+			button_label = "Fix Probes On->Off"
 		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.probe_launch_repair then
+					selected_station.comms_data.probe_launch_repair = false
+				else
+					selected_station.comms_data.probe_launch_repair = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
+		button_label = "Fix Hack Off->On"
+		if selected_station.comms_data.hack_repair then
+			button_label = "Fix Hack On->Off"
+		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.hack_repair then
+					selected_station.comms_data.hack_repair = false
+				else
+					selected_station.comms_data.hack_repair = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
+		button_label = "Fix Scan Off->On"
+		if selected_station.comms_data.scan_repair then
+			button_label = "Fix Scan On->Off"
+		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.scan_repair then
+					selected_station.comms_data.scan_repair = false
+				else
+					selected_station.comms_data.scan_repair = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
+		button_label = "Fix C.Maneuver Off->On"
+		if selected_station.comms_data.combat_maneuver_repair then
+			button_label = "Fix C.Maneuver On->Off"
+		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.combat_maneuver_repair then
+					selected_station.comms_data.combat_maneuver_repair = false
+				else
+					selected_station.comms_data.combat_maneuver_repair = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
+		button_label = "Fix Destruct Off->On"
+		if selected_station.comms_data.self_destruct_repair then
+			button_label = "Fix Destruct On->Off"
+		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.self_destruct_repair then
+					selected_station.comms_data.self_destruct_repair = false
+				else
+					selected_station.comms_data.self_destruct_repair = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
+		button_label = "Fix Slow Tube Off->On"
+		if selected_station.comms_data.tube_slow_down_repair then
+			button_label = "Fix Slow Tube On->Off"
+		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.tube_slow_down_repair then
+					selected_station.comms_data.tube_slow_down_repair = false
+				else
+					selected_station.comms_data.tube_slow_down_repair = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
+		button_label = "Hazard Buoys N->Y"
+		if selected_station.comms_data.hazard_buoys then
+			button_label = "Hazard Buoys Y->N"
+		end
+		addGMFunction(button_label,function()
+			local selected_station, err_msg = getSelectedStation()
+			if selected_station ~= nil then
+				if selected_station.comms_data.hazard_buoys then
+					selected_station.comms_data.hazard_buoys = false
+				else
+					selected_station.comms_data.hazard_buoys = true
+				end
+			else
+				addGMMessage(err_msg)
+			end
+			stationOperations()
+		end)
 	end
 end
 function stationOpsMajorRepair()
@@ -56695,7 +56635,7 @@ function stationReport()
 				addGMFunction(string.format("%s %s",station:getCallSign(),station:getSectorName()),function()
 					local out = string.format("%s %s  %s  %s  Friendliness:%s",station:getSectorName(),station:getCallSign(),station:getTypeName(),station:getFaction(),station.comms_data.friendlyness)
 					out = string.format("%s\nShares Energy: %s,  Repairs Hull: %s,  Restocks Scan Probes: %s",out,station:getSharesEnergyWithDocked(),station:getRepairDocked(),station:getRestocksScanProbes())
-					out = string.format("%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s",out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair)
+					out = string.format("%s\nFix Probes: %s,  Fix Hack: %s,  Fix Scan: %s,  Fix Combat Maneuver: %s,  Fix Destruct: %s, Fix Slow Tube: %s, Give hazard buoys: %s",out,station.comms_data.probe_launch_repair,station.comms_data.hack_repair,station.comms_data.scan_repair,station.comms_data.combat_maneuver_repair,station.comms_data.self_destruct_repair,station.comms_data.self_destruct_repair,station.comms_data.tube_slow_down_repair,station.comms_data.hazard_buoys)
 					out = string.format("%s\nHoming: %s %s %s,   Nuke: %s %s %s,   Mine: %s %s %s,   EMP: %s %s %s,   HVLI: %s %s %s",out,station.comms_data.weapon_available.Homing,station.comms_data.weapons.Homing,station.comms_data.weapon_cost.Homing,station.comms_data.weapon_available.Nuke,station.comms_data.weapons.Nuke,station.comms_data.weapon_cost.Nuke,station.comms_data.weapon_available.Mine,station.comms_data.weapons.Mine,station.comms_data.weapon_cost.Mine,station.comms_data.weapon_available.EMP,station.comms_data.weapons.EMP,station.comms_data.weapon_cost.EMP,station.comms_data.weapon_available.HVLI,station.comms_data.weapons.HVLI,station.comms_data.weapon_cost.HVLI)
 					out = string.format("%s\n      Cost multipliers and Max Refill:   Friend: %.1f %.1f,   Neutral: %.1f %.1f",out,station.comms_data.reputation_cost_multipliers.friend,station.comms_data.max_weapon_refill_amount.friend,station.comms_data.reputation_cost_multipliers.neutral,station.comms_data.max_weapon_refill_amount.neutral)
 					out = string.format("%s\nServices and their costs:",out)
@@ -61892,6 +61832,7 @@ function commsStation()
 			combat_maneuver_repair = math.random(1,4) + math.random(1,5),
 			self_destruct_repair = math.random(1,4) + math.random(1,5),
 			tube_slow_down_repair = math.random(1,4) + math.random(1,5),
+			hazard_buoys = math.random(1,4) + math.random(1,5),
         },
         reputation_cost_multipliers = {
             friend = 1.0,
@@ -62945,6 +62886,9 @@ function catalogImprovements(msg)
 		msg = string.format(_("situationReport-comms","%s\nNo ordnance available."),msg)
 	else
 		msg = string.format("%s\n%s.",msg,missile_provision_msg)
+	end
+	if comms_target.comms_data.hazard_buoys ~= nil and comms_target.comms_data.hazard_buoys then
+		msg = string.format("%s\nHazard buoys available",msg)
 	end
 	return msg,improvements	
 end
@@ -65383,6 +65327,22 @@ function commercialOptions(calling_function)
 	end)
 end
 --	circumstantial comms
+function getHazardBuoys(calling_function)
+	string.format("")
+	if comms_source.hazard_buoys == nil then
+		comms_source.hazard_buoys = 0
+	end
+	if comms_source.hazard_buoys < 1 then
+		if comms_target.comms_data.hazard_buoys ~= nil and comms_target.comms_data.hazard_buoys then
+			addCommsReply("Get hazard buoys",function()
+				comms_source.hazard_buoys = 10
+				setCommsMessage("Ten hazard buoys have been loaded onto your ship")
+				addCommsReply(string.format("Back to %s",calling_function.name),calling_function.identifier)
+				addCommsReply("Back to station communication", commsStation)
+			end)
+		end
+	end
+end
 function wormholeWranglerOptions(calling_function)
 	string.format("")
 	local wormhole_destination_change_prompt = {
@@ -66100,6 +66060,7 @@ function androidDockedStationCommsMeat()
 			end
 		end
 	end
+	getHazardBuoys({identifier=androidDockedStationCommsMeat,name="automated station communication"})
 	if android_docked_station_back == nil or getScenarioTime() > android_docked_station_back + comms_fudge then
 		addCommsReply(_("Back"), commsStation)	--problem child
 		android_docked_station_back = getScenarioTime()
@@ -66249,6 +66210,7 @@ function interactiveDockedStationCommsMeat()
 	if comms_target == stationWormholeWrangler then
 		wormholeWranglerOptions({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
 	end
+	getHazardBuoys({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
 	if comms_target == stationHossenfelder then
 		if interactive_docked_station_riptide_hossenfelder == nil or getScenarioTime() > interactive_docked_station_riptide_hossenfelder + comms_fudge then
 			riptideHossenfelderDiscussion({identifier=interactiveDockedStationCommsMeat,name="interactive relay officer"})
@@ -72095,6 +72057,7 @@ function update(delta)
 			updatePlayerInNebula(delta,p)
 			updatePlayerJumpOverchargeBanner(p)
 			updatePlayerHackedButton(p)
+			updatePlayerHazardBuoyButton(p)
 			updatePlayerShieldBanner(p)
 			updatePlayerHullBanner(p)
 			updatePlayerLockBanners(p)
@@ -72489,6 +72452,24 @@ function updatePlayerHackedButton(p)
 			p:removeCustom(p.hacked_button_rel)
 			p.hacked_button_rel = nil
 		end
+	end
+end
+function updatePlayerHazardBuoyButton(p)
+	if p.hazard_buoys == nil or p.hazard_buoys < 1 then
+		if p.hazard_buoy_button_rel ~= nil then
+			p:removeCustom(p.hazard_buoy_button_rel)
+			p:removeCustom(p.hazard_buoy_button_ops)
+			p.hazard_buoy_button_rel = nil
+			p.hazard_buoy_button_ops = nil
+		end
+	else
+		p.hazard_buoy_button_rel = "hazard_buoy_button_rel"
+		p:addCustomButton("Relay",p.hazard_buoy_button_rel,string.format("Hazard Buoy (%s)",p.hazard_buoys),function()
+			string.format("")
+			local bx, by = p:getPosition()
+			Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+			p.hazard_buoys = p.hazard_buoys - 1
+		end)
 	end
 end
 function hackedReport(p,console)
