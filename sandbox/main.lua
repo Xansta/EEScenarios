@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.2.1"
+	scenario_version = "9.3.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1954,11 +1954,11 @@ function setConstants()
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
 	makePlayerShipActive("Headhunter")		--J
-	makePlayerShipActive("Arwine")			--J
-	makePlayerShipActive("Halberd") 		--J 
-	makePlayerShipActive("Eagle")			--W
+	makePlayerShipActive("Magnum")			--J
+	makePlayerShipActive("Argonaut") 		--J 
+	makePlayerShipActive("Narsil")			--W
 	makePlayerShipActive("Jeeves")			--W
-	makePlayerShipActive("Vision") 			--W 
+	makePlayerShipActive("Anvil") 			--W 
 	carrier_class_launch_time = {
 		["Starfighter"] = 5,
 		["Frigate"] = 10,
@@ -72470,6 +72470,13 @@ function updatePlayerHazardBuoyButton(p)
 			Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
 			p.hazard_buoys = p.hazard_buoys - 1
 		end)
+		p.hazard_buoy_button_ops = "hazard_buoy_button_ops"
+		p:addCustomButton("Operations",p.hazard_buoy_button_ops,string.format("Hazard Buoy (%s)",p.hazard_buoys),function()
+			string.format("")
+			local bx, by = p:getPosition()
+			Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+			p.hazard_buoys = p.hazard_buoys - 1
+		end)
 	end
 end
 function hackedReport(p,console)
@@ -72534,73 +72541,86 @@ function updatePlayerZoneActions(p)
 							z:setColor(zone_color_list[color].r,zone_color_list[color].g,zone_color_list[color].b)
 						end
 					end
-					for j,a in ipairs(z.actions) do
-						if a.systems == nil then
-							if a.action == "Drain shields" then
-								if p:getShieldCount() == 1 then
-									p:setShields(p:getShieldLevel(0)*a.dmg)
-								else
-									if random(1,100) <= 50 then
-										p:setShields(p:getShieldLevel(0)*a.dmg,p:getShieldLevel(1))
+					if p.action_zones == nil then
+						p.action_zones = {}
+					end
+					if p.action_zones[z] == nil then
+						p.action_zones[z] = 0
+					end
+					p.action_zones[z] = p.action_zones[z] + 1
+					if p.action_zones[z] > 5 then
+						for j,a in ipairs(z.actions) do
+							if a.systems == nil then
+								if a.action == "Drain shields" then
+									if p:getShieldCount() == 1 then
+										p:setShields(p:getShieldLevel(0)*a.dmg)
 									else
-										p:setShields(p:getShieldLevel(0),p:getShieldLevel(1)*a.dmg)
+										if random(1,100) <= 50 then
+											p:setShields(p:getShieldLevel(0)*a.dmg,p:getShieldLevel(1))
+										else
+											p:setShields(p:getShieldLevel(0),p:getShieldLevel(1)*a.dmg)
+										end
+									end
+								elseif a.action == "Drain power" then
+									p:setEnergy(p:getEnergy()*a.dmg)
+								end
+							else
+								local system_pool = {}
+								for k,system in ipairs(a.systems) do
+									if p:hasSystem(system) then
+										table.insert(system_pool,system)
 									end
 								end
-							elseif a.action == "Drain power" then
-								p:setEnergy(p:getEnergy()*a.dmg)
-							end
-						else
-							local system_pool = {}
-							for k,system in ipairs(a.systems) do
-								if p:hasSystem(system) then
-									table.insert(system_pool,system)
-								end
-							end
-							local selected_system = tableSelectRandom(system_pool)
-							if selected_system ~= nil then
-								if a.dmg == nil then
-									p:setSystemHeat(selected_system,p:getSystemHeat(selected_system) + a.heat)
-								else
-									if p:getSystemHealth(selected_system) > 0 then
-										p:setSystemHealth(selected_system,p:getSystemHealth(selected_system)*a.dmg)
+								local selected_system = tableSelectRandom(system_pool)
+								if selected_system ~= nil then
+									if a.dmg == nil then
+										p:setSystemHeat(selected_system,p:getSystemHeat(selected_system) + a.heat)
 									else
-										p:setSystemHealth(selected_system,p:getSystemHealth(selected_system) - (1 - a.dmg))
+										if p:getSystemHealth(selected_system) > 0 then
+											p:setSystemHealth(selected_system,p:getSystemHealth(selected_system)*a.dmg)
+										else
+											p:setSystemHealth(selected_system,p:getSystemHealth(selected_system) - (1 - a.dmg))
+										end
 									end
 								end
 							end
+	--[[
+		zone_actions = {
+			{action = "Drain shields",		dmg =	.999},
+			{action = "Drain power",		dmg =	.999},
+			{action = "Dmg shield gen",		dmg =	.999,	systems = {"frontshield","rearshield"}},
+			{action = "Dmg engines",		dmg =	.999,	systems = {"impulse","warp","jumpdrive"}},
+			{action = "Dmg FTL",			dmg =	.999,	systems = {"warp","jumpdrive"}},
+			{action = "Dmg weapons",		dmg =	.999,	systems = {"beamweapons","missilesystem"}},
+			{action = "Dmg maneuver",		dmg =	.999,	systems = {"maneuver"}},
+			{action = "Dmg reactor",		dmg =	.999,	systems = {"reactor"}},
+			{action = "Dmg front shield",	dmg =	.999,	systems = {"frontshield"}},
+			{action = "Dmg rear shield",	dmg =	.999,	systems = {"rearshield"}},
+			{action = "Dmg impulse",		dmg =	.999,	systems = {"impulse"}},
+			{action = "Dmg warp",			dmg =	.999,	systems = {"warp"}},
+			{action = "Dmg jump",			dmg =	.999,	systems = {"jumpdrive"}},
+			{action = "Dmg beam weapons",	dmg =	.999,	systems = {"beamweapons"}},
+			{action = "Dmg missiles",		dmg =	.999,	systems = {"missilesystem"}},
+			{action = "Heat shields",		heat =	.001,	systems = {"frontshield","rearshield"}},
+			{action = "Heat engines",		heat =	.001,	systems = {"impulse","warp","jumpdrive"}},
+			{action = "Heat FTL",			heat =	.001,	systems = {"warp","jumpdrive"}},
+			{action = "Heat weapons",		heat =	.001,	systems = {"beamweapons","missilesystem"}},
+			{action = "Heat maneuver",		heat =	.001,	systems = {"maneuver"}},
+			{action = "Heat reactor", 		heat =	.001,	systems = {"reactor"}},
+			{action = "Heat front shield",	heat =	.001,	systems = {"frontshield"}},
+			{action = "Heat rear shield",	heat =	.001,	systems = {"rearshield"}},
+			{action = "Heat impulse",		heat =	.001,	systems = {"impulse"}},
+			{action = "Heat warp",			heat =	.001,	systems = {"warp"}},
+			{action = "Heat jump",			heat =	.001,	systems = {"jumpdrive"}},
+			{action = "Heat beam weapons",	heat =	.001,	systems = {"beamweapons"}},
+			{action = "Heat missiles",		heat =	.001,	systems = {"missilesystem"}},
+		}
+	--]]
 						end
---[[
-	zone_actions = {
-		{action = "Drain shields",		dmg =	.999},
-		{action = "Drain power",		dmg =	.999},
-		{action = "Dmg shield gen",		dmg =	.999,	systems = {"frontshield","rearshield"}},
-		{action = "Dmg engines",		dmg =	.999,	systems = {"impulse","warp","jumpdrive"}},
-		{action = "Dmg FTL",			dmg =	.999,	systems = {"warp","jumpdrive"}},
-		{action = "Dmg weapons",		dmg =	.999,	systems = {"beamweapons","missilesystem"}},
-		{action = "Dmg maneuver",		dmg =	.999,	systems = {"maneuver"}},
-		{action = "Dmg reactor",		dmg =	.999,	systems = {"reactor"}},
-		{action = "Dmg front shield",	dmg =	.999,	systems = {"frontshield"}},
-		{action = "Dmg rear shield",	dmg =	.999,	systems = {"rearshield"}},
-		{action = "Dmg impulse",		dmg =	.999,	systems = {"impulse"}},
-		{action = "Dmg warp",			dmg =	.999,	systems = {"warp"}},
-		{action = "Dmg jump",			dmg =	.999,	systems = {"jumpdrive"}},
-		{action = "Dmg beam weapons",	dmg =	.999,	systems = {"beamweapons"}},
-		{action = "Dmg missiles",		dmg =	.999,	systems = {"missilesystem"}},
-		{action = "Heat shields",		heat =	.001,	systems = {"frontshield","rearshield"}},
-		{action = "Heat engines",		heat =	.001,	systems = {"impulse","warp","jumpdrive"}},
-		{action = "Heat FTL",			heat =	.001,	systems = {"warp","jumpdrive"}},
-		{action = "Heat weapons",		heat =	.001,	systems = {"beamweapons","missilesystem"}},
-		{action = "Heat maneuver",		heat =	.001,	systems = {"maneuver"}},
-		{action = "Heat reactor", 		heat =	.001,	systems = {"reactor"}},
-		{action = "Heat front shield",	heat =	.001,	systems = {"frontshield"}},
-		{action = "Heat rear shield",	heat =	.001,	systems = {"rearshield"}},
-		{action = "Heat impulse",		heat =	.001,	systems = {"impulse"}},
-		{action = "Heat warp",			heat =	.001,	systems = {"warp"}},
-		{action = "Heat jump",			heat =	.001,	systems = {"jumpdrive"}},
-		{action = "Heat beam weapons",	heat =	.001,	systems = {"beamweapons"}},
-		{action = "Heat missiles",		heat =	.001,	systems = {"missilesystem"}},
-	}
---]]
+					end
+				else	--not in zone
+					if p.action_zones ~= nil then
+						p.action_zones[z] = nil
 					end
 				end
 			end
