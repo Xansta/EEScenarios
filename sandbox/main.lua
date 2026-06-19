@@ -70,7 +70,7 @@ require("sandbox/library.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.3.1"
+	scenario_version = "9.3.2"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -82,6 +82,7 @@ function init()
 	end
 	updateDiagnostic = false
 	healthDiagnostic = false
+	fatality_diagnostic = true
 	specialty_probe_diagnostic = false
 	change_enemy_order_diagnostic = false
 	magnasol_nebula_diagnostic = false
@@ -6710,12 +6711,22 @@ function actOnFactionPair()
 	if va_1:isEnemy(va_2) then
 		button_label = button_label .. "*"
 	end
+	addGMFunction(button_label,function()
+		local faction_info = getFactionInfo(relation_faction_1)
+		local faction_info_2 = getFactionInfo(relation_faction_2)
+		faction_info:setEnemy(faction_info_2)
+		actOnFactionPair()
+	end)
+	button_label = "Neutral"
+	if not va_1:isEnemy(va_2) and not va_1:isFriendly(va_2) then
+		button_label = button_label .. "*"
+	end
 	va_1:destroy()
 	va_2:destroy()
 	addGMFunction(button_label,function()
 		local faction_info = getFactionInfo(relation_faction_1)
 		local faction_info_2 = getFactionInfo(relation_faction_2)
-		faction_info:setEnemy(faction_info_2)
+		faction_info:setNeutral(faction_info_2)
 		actOnFactionPair()
 	end)
 end
@@ -13391,9 +13402,10 @@ function createIcarusStations()
 	station_names[stationFinnegan:getCallSign()] = {stationFinnegan:getSectorName(), stationFinnegan}
 	table.insert(stations,stationFinnegan)
 	--Gagarin
-	--local gagarinZone = squareZone(-60000, 62193, "Gagarin I2")
-	--gagarinZone:setColor(0,128,0)
-	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
+	local gagarinZone = squareZone(-60000, 62193, "Gagarin II I2")
+	gagarinZone:setColor(0,128,0)
+	--[[
+	stationGagarin = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Gagarin II"):setPosition(-60000, 62193):setDescription("Mining and exploring"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
 		stationGagarin:setFaction("Holy Terra")
 	end
@@ -13450,6 +13462,7 @@ function createIcarusStations()
 	if random(1,100) <= 11 then stationGagarin:setSharesEnergyWithDocked(false) end
 	station_names[stationGagarin:getCallSign()] = {stationGagarin:getSectorName(), stationGagarin}
 	table.insert(stations,stationGagarin)
+	--]]
 	--Gatarbleax
 	stationGatarbleax = SpaceStation():setTemplate("Small Station"):setFaction("Exuari"):setCallSign("Gatarbleax"):setPosition(-36658, -122758):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
 	if mirrorUniverse then
@@ -14051,9 +14064,10 @@ function createIcarusStations()
 	station_names[stationNerva:getCallSign()] = {stationNerva:getSectorName(), stationNerva}
 	table.insert(stations,stationNerva)
 	--Pistil
---	local pistilZone = squareZone(24834, 20416, "Pistil 9 G6")
---	pistilZone:setColor(0,128,0):setLabel("P")
-    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 9"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
+	local pistilZone = squareZone(24834, 20416, "Pistil 10 G6")
+	pistilZone:setColor(0,128,0):setLabel("P")
+	--[[
+    stationPistil = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setPosition(24834, 20416):setCallSign("Pistil 10"):setDescription("Fleur nebula research"):setCommsScript(""):setCommsFunction(commsStation)
     stationPistil:setShortRangeRadarRange(10000)
 	if mirrorUniverse then
 		stationPistil:setFaction("Holy Terra")
@@ -14117,6 +14131,7 @@ function createIcarusStations()
 	if random(1,100) <= 8  then stationPistil:setSharesEnergyWithDocked(false) end
 	station_names[stationPistil:getCallSign()] = {stationPistil:getSectorName(), stationPistil}
 	table.insert(stations,stationPistil)
+	--]]
 	--Proktan
 	stationProktan = SpaceStation():setTemplate("Small Station"):setFaction("Kraylor"):setCallSign("Proktan"):setPosition(106363, 89304):setDescription("Mining"):setCommsScript(""):setCommsFunction(commsStation)
     stationProktan:setShortRangeRadarRange(12000)
@@ -14945,6 +14960,24 @@ function createIcarusToRiptideWormholeArea()
 				stab:setFaction("Holy Terra")
 			end
 		table.insert(ret, stab)
+	end
+	local riptide_hazard_buoys = {
+		{x = 0,		y = 100000},
+		{x = 10000,	y = 100000},
+		{x = 20000,	y = 100000},
+		{x = 30000,	y = 100000},
+		{x = 40000,	y = 100000},
+		{x = 0,		y = 110000},
+		{x = 0,		y = 120000},
+		{x = 10000,	y = 120000},
+		{x = 20000,	y = 120000},
+		{x = 30000,	y = 120000},
+		{x = 40000,	y = 120000},
+		{x = 40000,	y = 110000},
+	}
+	for i,hb in ipairs(riptide_hazard_buoys) do
+		local a = Artifact():setModel("SensorBuoyMKIII"):setPosition(hb.x,hb.y):setDescription("Hazardous region. Use caution. Do not enter wormhole."):setRadarTraceColor(255,0,0)
+		table.insert(ret,a)
 	end
 
 	return ret
@@ -72791,7 +72824,16 @@ function updatePlayerDamageConsequences(p)
 							if not found_system then
 								named_consequence = "reactor"
 							end
-							p:setSystemHealthMax(named_consequence,(p:getSystemHealthMax(named_consequence) - p:getSystemHealth(named_consequence))/2)
+							local current_max = p:getSystemHealthMax(named_consequence) + 10
+							local current_health = p:getSystemHealth(named_consequence) + 10
+							local divergence = current_max - current_health
+							local half_divergence = divergence / 2
+							local midway = current_max - half_divergence
+							if fatality_diagnostic then
+								print("Fatality: severe damage to system:",named_consequence)
+								print("Max health before:",current_max - 10,"max health after:",midway,"divergence:",divergence,"half divergence:",half_divergence,"current health:",current_health - 10)
+							end
+							p:setSystemHealthMax(named_consequence,midway)
 							p:wrappedAddCustomMessage("Engineering","severe_damage",string.format("Severe damage to %s",named_consequence))
 						end
 					end	--coolant loss branch
