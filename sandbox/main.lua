@@ -72,7 +72,7 @@ require("sandbox/playerShips.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.4.1"
+	scenario_version = "9.5.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -231,6 +231,8 @@ function setConstants()
 	prefix_length = 0
 	suffix_index = 0
 	colliding_planets = {}
+	blinking_artifacts = {}
+	blink_artifact_time = getScenarioTime() + 1
 	startRegion = "Icarus (F5)"
 	icarus_color = false
 	kentar_color = false
@@ -2528,7 +2530,6 @@ function addFactions()
 		:setEnemy(getFactionInfo("Holy Terra"))
 		:setEnemy(getFactionInfo("Spacer"))
 end
-
 --	*										   *  --
 --	**										  **  --
 --	********************************************  --
@@ -3493,1650 +3494,896 @@ function tweakTerrain()
 	addGMFunction("+Commerce",freighterCommerce)
 	addGMFunction("+Explosion",setExplosion)
 end
-
-
-
-
---	explosions and beam effects
-function setExplosion()
+-----------------------
+--	Countdown Timer  --
+-----------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM TIMER		F	initialGMFunctions
+-- +DISPLAY: GM			D	GMTimerDisplay
+-- +LENGTH: 5			D	GMTimerLength
+-- +PURPOSE: TIMER		D	GMTimerPurpose
+-- +ADD SECONDS			F	addSecondsToTimer		(only present after timer starts)
+-- +DELETE SECONDS		F	deleteSecondsFromTimer	(only present after timer starts)
+-- +CHANGE SPEED		F	changeTimerSpeed		(only present after timer starts)
+-- SHOW CURRENT			F	inline					(only present after timer starts)
+-- START TIMER			F	inline: toggles between START and STOP (related code in update)
+function countdownTimer()
 	clearGMFunctions()
-	addGMFunction("-Main from Explosion",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("+Max Damage",setExplosionDamage)
-	addGMFunction("+Effect Size",setExplosionSize)
-	addGMFunction("+Range",setExplosionRange)
-	addGMFunction(string.format("Type: %s",explosion_type),function()
-		if explosion_type == "Normal" then
-			explosion_type = "Electric"
-		else
-			explosion_type = "Normal"
-		end
-		setExplosion()
-	end)
-	local button_label = "+Linked Beam"
-	if linked_beam then
-		button_label = string.format("%s: Yes",button_label)
-	else
-		button_label = string.format("%s: No",button_label)
+	addGMFunction("-Main from Timer",initialGMFunctions)
+	local timer_display = "+Display: GM"
+	if timer_display_helm then
+		timer_display = timer_display .. ",H"
 	end
-	addGMFunction(button_label,linkBeam)
-	addGMFunction("Explode Object",function()
-		local object_list = getGMSelection()
-		if #object_list ~= 1 then
-			addGMMessage("Select one object. No action taken")
-		else
-			local exp_x, exp_y = object_list[1]:getPosition()
-			object_list[1]:destroy()
-			if explosion_type == "Electric" then
-				ElectricExplosionEffect():setPosition(exp_x, exp_y):setSize(explosion_size):setOnRadar(true)				
-			else
-				ExplosionEffect():setPosition(exp_x, exp_y):setSize(explosion_size):setOnRadar(true)
-			end
-			if explosion_damage > 0 then
-				local damage_list = getObjectsInRadius(exp_x, exp_y, explosion_range)
-				if #damage_list > 0 then
-					for i=1,#damage_list do
-						if distance_diagnostic then
-							print("distance_diagnostic 3 damage_list[i]:",damage_list[i],"exp_x:",exp_x,"exp_y:",exp_y,"i:",i)
-						end
-						local dist = distance(damage_list[i], exp_x, exp_y)
-						local applied_damage = explosion_damage
-						if explosion_damage_degredation == "Linear" then
-							applied_damage = (1 - (dist/explosion_range)) * explosion_damage
-						end
-						if explosion_type == "Electric" then
-							damage_list[i]:takeDamage(applied_damage, "emp", exp_x, exp_y)
-						else
-							damage_list[i]:takeDamage(applied_damage, "energy", exp_x, exp_y)
-						end
-					end
-				end
-			end
-		end
-		setExplosion()
-	end)
-	if gm_click_mode == "place explosion" then
-		addGMFunction(">Place Explosion<",placeExplosion)
-	else
-		addGMFunction("Place Explosion",placeExplosion)
+	if timer_display_weapons then
+		timer_display = timer_display .. ",W"
 	end
-end
-function linkBeam()
-	clearGMFunctions()
-	addGMFunction("-Main from Link Beam",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Explosion",setExplosion)
-	if beam_link_object ~= nil and beam_link_object:isValid() then
-		if linked_beam then
-			addGMFunction("Unlink Beam",function()
-				linked_beam = false
-				beam_link_object = nil
-				setExplosion()
-			end)
-			addGMFunction(string.format("+Chg: ",beam_link_object_name),function()
-				local object_list = getGMSelection()
-				if #object_list ~= 1 then
-					addGMMessage("Select one object. No action taken")
-				else
-					if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
-						beam_link_object_name = object_list[1]:getCallSign()
-					else
-						if ECS then
-							beam_link_object_name = "something" .. object_list[1]:getSectorName()
-						else
-							beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
-						end
-					end
-					beam_link_object = object_list[1]
-				end
-				linkBeam()
-			end)
-		end
-	else
-		addGMFunction("Link Beam", function()
-			local object_list = getGMSelection()
-			if #object_list ~= 1 then
-				addGMMessage("Select one object. No action taken")
+	if timer_display_engineer then
+		timer_display = timer_display .. ",E"
+	end
+	if timer_display_science then
+		timer_display = timer_display .. ",S"
+	end
+	if timer_display_relay then
+		timer_display = timer_display .. ",R"
+	end
+	addGMFunction(timer_display,GMTimerDisplay)
+	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
+	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
+	addGMFunction(string.format("+Type: %s",timer_type),GMTimerType)
+	if timer_started then
+		addGMFunction("+Add Seconds",addSecondsToTimer)
+		addGMFunction("+Delete Seconds",deleteSecondsFromTimer)
+		addGMFunction("+Change Speed",changeTimerSpeed)
+		addGMFunction("Show Current",function()
+			local timer_status = timer_purpose
+			local timer_minutes = math.floor(timer_value / 60)
+			local timer_seconds = math.floor(timer_value % 60)
+			if timer_minutes <= 0 then
+				timer_status = string.format("%s %i",timer_status,timer_seconds)
 			else
-				if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
-					beam_link_object_name = object_list[1]:getCallSign()
-				else
-					if ECS then
-						beam_link_object_name = "something" .. object_list[1]:getSectorName()
-					else
-						beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
-					end
-				end
-				beam_link_object = object_list[1]
-				linked_beam = true
+				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
 			end
-			linkBeam()
+			if timer_scale > 1 then
+				timer_status = string.format("%s\n(sped up: %.3f)",timer_status,timer_scale)
+			elseif timer_scale < 1 then
+				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,timer_scale)
+			end
+			addGMMessage(timer_status)
+		end)
+		addGMFunction("Stop Timer", function()
+			timer_started = false
+			countdownTimer()
+		end)
+	else
+		addGMFunction("Start Timer", function()
+			startTimer()
+			countdownTimer()
 		end)
 	end
 end
-function placeExplosion()
-	if gm_click_mode == "place explosion" then
+function startTimer()
+	timer_started = true
+end
+describeFunction("startTimer","starts the gm configured timer")
+--------------
+--	Custom  --
+--------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Custom		F	initialGMFunctions
+-- +Debug					F	debugButtons
+-- +SNIPPET					F	snippetButtons
+-- +ONE-OFFS				F	oneOffs
+-- +Gateway/Rifts			F	gatewayRifts
+-- 4K MINE RING				F	inline
+-- contact gm				F	inline
+-- ***DANGER*** RUN DESC	F	mollyGuardLoadDescription
+function customButtons()
+	clearGMFunctions()
+	addGMFunction("-Main from Custom",initialGMFunctions)
+	addGMFunction("+Debug",debugButtons)
+	addGMFunction("+Snippet",snippetButtons)
+	addGMFunction("+One-Offs",oneOffs)
+	addGMFunction("+Gateway/Rifts",gatewayRifts)
+	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
+		local x,y = obj:getPosition()
+			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
+		end))	-- this probably wants to be done properly with a nice fancy UI but today is not the day
+	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
+	-- though when I get round to one of the next improvements to gateway this may need to change anyway
+	addGMFunction("contact gm",function ()
+		playerFleet:addCustomButton("Relay","gm contact","Contact HQ",function (player)
+			if not openGMComms(player) then
+				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
+			end
+		end)
+	end)
+	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
+end
+-------------------
+--	End Session  --
+-------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM END		F	initialGMFunctions
+-- +REGION REPORT		F	regionReport
+-- +FACTION VICTORY		F	endMission
+function endSession()
+	clearGMFunctions()
+	addGMFunction("-Main From End",initialGMFunctions)
+	addGMFunction("+Region Report",regionReport)
+	addGMFunction("+Faction Victory",endMission)
+end
+--	*											   *  --
+--	**											  **  --
+--	************************************************  --
+--	****			Initial Set Up				****  --
+--	************************************************  --
+--	**											  **  --
+--	*											   *  --
+-------------------------------------
+--	Initial Set Up > Start Region  --
+-------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN FROM REGION	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- +PLAYER SPAWN POINT	F	setDefaultPlayerSpawnPoint
+-- +TERRAIN				F	changeTerrain
+-- +Dynamic				F	setDynamicTerrain
+function setStartRegion()
+	clearGMFunctions()
+	addGMFunction("-Main From Region",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Player Spawn Point",setDefaultPlayerSpawnPoint)
+	addGMFunction("+Terrain",changeTerrain)
+	addGMFunction("+Dynamic",setDynamicTerrain)
+end
+-------------------------------------
+--	Initial Set Up > Player Ships  --
+-------------------------------------
+-- Button text		   FD*	Related function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- +TWEAK PLAYER		F	tweakPlayerShip
+-- +SPAWN				F	spawnPlayerShip
+-- +TELEPORT PLAYERS	F	teleportPlayers
+function playerShip()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Tweak player",tweakPlayerShip)
+	addGMFunction("+Spawn",spawnPlayerShip)
+	addGMFunction("+Filtered Spawn",filteredPlayerShipSpawn)
+	addGMFunction("+Teleport Players",teleportPlayers)
+end
+----------------------------------
+--	Initial Set Up > Wormholes  --
+----------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN FROM WORMHOLE		F	initialGMFunctions
+-- -SETUP					F	initialSetUp
+-- +ICARUS TO DEFAULT		D	setIcarusWormholeExit
+function setWormholes()
+	clearGMFunctions()
+	addGMFunction("-Main From Wormhole",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Icarus to " .. wormholeIcarus.exit,setIcarusWormholeExit)
+end
+function setIcarusWormholeExit()
+	clearGMFunctions()
+	addGMFunction("-Wormhole",setWormholes)
+	for i,w_exit in ipairs(wormholeIcarus.exits) do
+		local button_label = w_exit.name
+		if button_label == wormholeIcarus.exit then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			wormholeIcarus.exit = w_exit.name
+			wormholeIcarus:setTargetPosition(w_exit.x,w_exit.y):onTeleportation(w_exit.tax)
+			setIcarusWormholeExit()
+		end)
+	end
+end
+function createRegionUponTeleportation(worm_hole)
+	local exit_region = nil
+	for i,w_exit in ipairs(worm_hole.exits) do
+		if w_exit.name == worm_hole.exit then
+			exit_region = w_exit.region_name
+			break
+		end
+	end
+	if exit_region ~= nil then
+		for i=1,#universe.available_regions do
+			local region = universe.available_regions[i]
+			if string.find(region.name,exit_region) then
+				if not universe:hasRegionSpawned(region) then
+					universe:spawnRegion(region)
+				end
+				break
+			end
+		end
+	end
+end
+function wormholeTax1(worm_hole,transportee)
+	createRegionUponTeleportation(worm_hole)
+	if transportee ~= nil then
+		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
+			for i,system in ipairs(system_list) do
+				if transportee:hasSystem(system) then
+					local adjust = random(.7,.95)
+					if transportee:getShieldsActive() then
+						adjust = math.min(1,adjust + .2)
+					end
+					transportee:setSystemHealth(system,transportee:getSystemHealth(system)*adjust)
+				end
+			end
+		end
+	end
+end
+function wormholeTax2(worm_hole,transportee)
+	createRegionUponTeleportation(worm_hole)
+	if transportee ~= nil then
+		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
+			local system_pool = {}
+			for i,system in ipairs(system_list) do
+				if transportee:hasSystem(system) then
+					table.insert(system_pool,system)
+				end
+			end
+			for i=1,3 do
+				local damage_system = tableRemoveRandom(system_pool)
+				transportee:setSystemHealth(damage_system,transportee:getSystemHealth(damage_system)*random(.2,.6))
+			end
+		end
+	end
+end
+function wormholeTax3(worm_hole,transportee)
+	createRegionUponTeleportation(worm_hole)
+	if transportee ~= nil then
+		if isObjectType(transportee,"PlayerSpaceship") then
+			transportee:setEnergyLevel(transportee:getEnergyLevel()/2)
+			transportee:commandSetAlertLevel("yellow")
+		end
+		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
+			local system_pool = {}
+			for i,system in ipairs(system_list) do
+				if transportee:hasSystem(system) then
+					table.insert(system_pool,system)
+				end
+			end
+			local damage_system = tableSelectRandom(system_pool)
+			local adjust = random(-.8,-.2)
+			if transportee:getShieldsActive() then
+				adjust = math.max(-.5,adjust)
+			end
+			transportee:setSystemHealth(damage_system,adjust)
+		end
+	end
+end
+------------------------------
+--	Initial Set Up > Zones  --
+------------------------------
+-- Button Text		 	  FD*	Related Function(s)
+-- -MAIN FROM ZONES			F	initialGMFunctions
+-- -SETUP					F	initialSetUp
+-- +ADD ZONE				F	addZone
+-- +DELETE ZONE				F	deleteZone (button only present if zones available to delete)
+-- +Add Actin to Zone		F	addActionToZone
+-- +Del Action from Zone	F	deleteActionFromZone
+function changeZones()
+	clearGMFunctions()
+	addGMFunction("-Main From Zones",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("+Add Zone",addZone)
+	if zone_list ~= nil and #zone_list > 0 then
+		addGMFunction("+Delete Zone",deleteZone)
+		addGMFunction("+Add Action to Zone",addActionToZone)
+		addGMFunction("+Del Action from Zone",deleteActionFromZone)
+	end
+end
+--------------------------------------------------
+--	Initial Set Up > Automated Station Warning  --
+--------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -INITIAL				F	initialSetUp
+-- WARNING ON*			*	inline
+-- WARNING OFF			*	inline
+-- SHIP TYPE ON*		*	inline
+-- SHIP TYPE OFF		*	inline
+-- +PROXIMITY 30U DFLT	D	setStationSensorRange
+function autoStationWarn()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Initial",initialSetUp)
+	local button_label = "Warning On"
+	if automated_station_danger_warning then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		automated_station_danger_warning = true
+		autoStationWarn()
+	end)
+	button_label = "Warning Off"
+	if not automated_station_danger_warning then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		automated_station_danger_warning = false
+		autoStationWarn()
+	end)
+	button_label = "Ship Type On"
+	if warning_includes_ship_type then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		warning_includes_ship_type = true
+		autoStationWarn()
+	end)
+	button_label = "Ship Type Off"
+	if not warning_includes_ship_type then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label, function()
+		warning_includes_ship_type = false
+		autoStationWarn()
+	end)
+	button_label = "+Proximity"
+	if server_sensor then
+		--local long_range_server = getLongRangeRadarRange()
+		local long_range_server = 30000
+		button_label = string.format("%s %iU Dflt",button_label,long_range_server/1000)
+	else
+		button_label = string.format("%s %iU",button_label,station_sensor_range/1000)
+	end
+	addGMFunction(button_label,setStationSensorRange)
+end
+-----------------------------------------------------------------------------------
+--	Initial Set Up > Automated Station Warning > Set Warning Proximity Distance  --
+-----------------------------------------------------------------------------------
+-- Button Text FD*	Related Function(s)
+-- DEFAULT 30U	D	inline	
+-- ZERO			F	inline
+-- 5U			F	inline
+-- 10U			F	inline
+-- 20U			F	inline
+-- 30U			F	inline
+function setStationSensorRange()
+	clearGMFunctions()
+	--local long_range_server = getLongRangeRadarRange()
+	local long_range_server = 30000
+	addGMFunction(string.format("Default %iU",long_range_server/1000),function()
+		station_sensor_range = long_range_server
+		server_sensor = true
+		autoStationWarn()
+	end)
+	addGMFunction("Zero",function()
+		station_sensor_range = 0
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("5U",function()
+		station_sensor_range = 5000
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("10U",function()
+		station_sensor_range = 10000
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("20U",function()
+		station_sensor_range = 20000
+		server_sensor = false
+		autoStationWarn()
+	end)
+	addGMFunction("30U",function()
+		station_sensor_range = 30000
+		server_sensor = false
+		autoStationWarn()
+	end)
+end
+--	****************************************************************  --
+--	****				Initial Set Up Start Region				****  --
+--	****************************************************************  --
+----------------------------------------------------------
+--	Initial Set Up > Start Region > Player Spawn Point  --
+----------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -FROM PLYR SPWN PT	F	setStartRegion
+-- followed by all regions after that
+function setDefaultPlayerSpawnPoint()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
+	local region_group_1 = {
+		"Icarus", "Kentar", "Lafrina", "Teresh", "Astron", "Bask"
+	}
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		local button_name=region.name
+		if startRegion==region.name then
+			button_name=button_name .. "*"
+		end
+		local found_in_group_1 = false
+		for _, group_1 in ipairs(region_group_1) do
+			if string.find(button_name,group_1) then
+				found_in_group_1 = true
+			end
+		end
+		if found_in_group_1 then
+			addGMFunction(button_name, function()
+				playerSpawnX=region.spawn_x
+				playerSpawnY=region.spawn_y
+				if not has_been_created then
+					universe:spawnRegion(region)
+				end
+				startRegion=region.name
+				setDefaultPlayerSpawnPoint()
+			end)
+		end
+	end
+	addGMFunction("+Other Regions",setDefaultPlayerSpawnPointsInOtherRegions)
+end
+function setDefaultPlayerSpawnPointsInOtherRegions()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Start Region",setStartRegion)
+	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
+	local region_group_2 = {
+		"Eris", "Santa", "Riptide", "Staunch", "Glikton", "Goodall"
+	}
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local has_been_created=universe:hasRegionSpawned(region)
+		local button_name=region.name
+		if startRegion==region.name then
+			button_name=button_name .. "*"
+		end
+		local found_in_group_2 = false
+		for _, group_1 in ipairs(region_group_2) do
+			if string.find(button_name,group_1) then
+				found_in_group_2 = true
+			end
+		end
+		if found_in_group_2 then
+			addGMFunction(button_name, function()
+				playerSpawnX=region.spawn_x
+				playerSpawnY=region.spawn_y
+				if not has_been_created then
+					universe:spawnRegion(region)
+				end
+				startRegion=region.name
+				setDefaultPlayerSpawnPoint()
+			end)
+		end
+	end
+end
+-----------------------------------------------
+--	Initial Set Up > Start Region > Terrain  --
+-----------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -FROM TERRAIN		F	setStartRegion
+-- +Typical				F	changeTypicalTerrain
+-- +Atypical			F	changeAtypicalTerrain
+function changeTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-From Terrain",setStartRegion)
+	addGMFunction("+Typical",changeTypicalTerrain)
+	addGMFunction("+Atypical",changeAtypicalTerrain)
+end
+---------------------------------------------------------
+--	Initial Set Up > Start Region > Terrain > Typical  --
+---------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -Start Region		F	setStartRegion
+-- -From Typical		F	changeTerrain
+-- List of buttons with region names
+function changeTypicalTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Start Region",setStartRegion)
+	addGMFunction("-From Typical",changeTerrain)
+	local atypical_regions = {
+		"Riptide Binary", 
+		"Eris", 
+		"Santa Containment", 
+		"FilkRoad",
+	}
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local typical = true
+		for j,atypical_region in ipairs(atypical_regions) do
+			if string.find(region.name,atypical_region) then
+				typical = false
+				break
+			end
+		end
+		if typical then
+			local has_been_created=universe:hasRegionSpawned(region)
+			if has_been_created then
+				addGMFunction(region.name .. "*",function ()
+					universe:removeRegion(region)
+					changeTerrain()
+				end)
+			else
+				addGMFunction(region.name,function ()
+					universe:spawnRegion(region)
+					changeTerrain()
+				end)
+			end
+		end
+	end
+end
+----------------------------------------------------------
+--	Initial Set Up > Start Region > Terrain > Atypical  --
+----------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -Start Region		F	setStartRegion
+-- -From Atypical		F	changeTerrain
+-- List of buttons with region names
+-- Add Kentar Whirlpool	F	createKentarOrbitingAsteroids
+-- Del Kentar Whirlpool	F	inline (either this button or previous appears)
+-- Add Wormhole Tour	F	wormholeTour
+-- Del Wormhole Tour	F	inline (either this button or previous appears)
+-- Tknolg Base			D	placeTknolgBase
+-- To Mirror			F	convertToMirror
+-- To Non Mirror		F	convertToNonMirror (either this button or previous appears)
+function changeAtypicalTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Start Region",setStartRegion)
+	addGMFunction("-From Atypical",changeTerrain)
+	local atypical_regions = {
+		"Riptide Binary", 
+		"Eris", 
+		"Santa Containment", 
+		"FilkRoad",
+	}
+	for i=1,#universe.available_regions do
+		local region=universe.available_regions[i]
+		local typical = true
+		for j,atypical_region in ipairs(atypical_regions) do
+			if string.find(region.name,atypical_region) then
+				typical = false
+				break
+			end
+		end
+		if not typical then
+			local has_been_created=universe:hasRegionSpawned(region)
+			if has_been_created then
+				addGMFunction(region.name .. "*",function ()
+					universe:removeRegion(region)
+					changeTerrain()
+				end)
+			else
+				addGMFunction(region.name,function ()
+					universe:spawnRegion(region)
+					changeTerrain()
+				end)
+			end
+		end
+	end
+	if kentar_moving_asteroids == nil then
+		addGMFunction("Add Kentar Whirlpool",function()
+			kentar_moving_asteroids = createKentarOrbitingAsteroids()
+			changeTerrain()
+		end)
+	else
+		addGMFunction("Del Kentar Whirlpool",function()
+			if kentar_moving_asteroids ~= nil then
+				for _,ka in pairs(kentar_moving_asteroids) do
+					ka:destroy()
+				end
+			end
+			kentar_moving_asteroids = nil
+			changeTerrain()
+		end)
+	end
+	if icarus_color then
+		if wormhole_tour then
+			addGMFunction("Del Wormhole Tour",function()
+				wormhole_tour = false
+				if wormhole_tour_stuff ~= nil then
+					for _, dw in pairs(wormhole_tour_stuff) do
+						dw:destroy()
+					end
+				end
+				changeTerrain()	
+			end)
+		else
+			addGMFunction("Add Wormhole tour",function()
+				wormhole_tour = true
+				wormhole_tour_stuff = wormholeTour()
+				changeTerrain()
+			end)
+		end
+	end
+	if stationTknolg == nil then
+		if gm_click_mode == "tknolg base" then
+			addGMFunction(">Tknolg Base<",placeTknolgBase)
+		else
+			addGMFunction("Tknolg Base",placeTknolgBase)
+		end
+	else
+		if gm_click_mode == "tknolg base" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+	end
+	if mirrorUniverse then
+		addGMFunction("To Non Mirror",function ()
+			convertToNonMirror()
+			changeTerrain()
+		end)
+	else
+		addGMFunction("To Mirror",function ()
+			convertToMirror()
+			changeTerrain()
+		end)
+	end
+end
+function placeTknolgBase()
+	if gm_click_mode == "tknolg base" then
 		gm_click_mode = nil
 		onGMClick(nil)
 	else
 		local prev_mode = gm_click_mode
-		gm_click_mode = "place explosion"
-		onGMClick(gmClickPlaceExplosion)
+		gm_click_mode = "tknolg base"
+		onGMClick(tknolgBase)
 		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   place explosion\nGM click mode.",prev_mode))
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   tknolg base\nGM click mode.",prev_mode))
 		end
 	end
-	setExplosion()
+	changeTerrain()
 end
-function gmClickPlaceExplosion(x,y)
-	if linked_beam then
-		if beam_link_object ~= nil and beam_link_object:isValid() then
-			local temp_target = VisualAsteroid():setSize(1):setPosition(x,y)
-			BeamEffect():setSource(beam_link_object,0,0,0):setTarget(temp_target,0,0)
-			temp_target:destroy()
-			if explosion_type == "Electric" then
-				ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
-			else
-				ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
-			end
-			applyExplosionDamage(x,y)
-		else
-			addGMMessage("Linked beam source no longer valid. No action taken")
-		end
-	else
-		if explosion_type == "Electric" then
-			ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
-		else
-			ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
-		end
-		applyExplosionDamage(x,y)
-	end
-end
-function applyExplosionDamage(x,y)
-	if explosion_damage > 0 then
-		local damage_list = getObjectsInRadius(x, y, explosion_range)
-		if #damage_list > 0 then
-			for i=1,#damage_list do
-				if distance_diagnostic then
-					print("distance_diagnostic 4 damage_list[i]:",damage_list[i],"x:",x,"y:",y,"i:",i)
-				end
-				local dist = distance(damage_list[i], x, y)
-				local applied_damage = explosion_damage
-				if explosion_damage_degredation == "Linear" then
-					applied_damage = (1 - (dist/explosion_range)) * explosion_damage
-				end
-				if explosion_type == "Electric" then
-					damage_list[i]:takeDamage(applied_damage, "emp", x, y)
-				else
-					damage_list[i]:takeDamage(applied_damage, "energy", x, y)
-				end
-			end
-		end
-	end
-end
-function setExplosionRange()
-	clearGMFunctions()
-	addGMFunction("-Main from Range",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Explosion",setExplosion)
-	local min_explosion_range = 250
-	local max_explosion_range = 5000
-	local button_label = ""
-	if explosion_range == min_explosion_range or explosion_range == min_explosion_range + 250 then
-		for i=min_explosion_range,1250,250 do
-			button_label = string.format("Range: %i",i)
-			if i == explosion_range then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_range = i
-				setExplosionRange()
-			end)
-		end
-	elseif explosion_range == max_explosion_range or explosion_range == max_explosion_range - 250 then
-		for i=max_explosion_range - 1000,max_explosion_range,250 do
-			button_label = string.format("Range: %i",i)
-			if i == explosion_range then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_range = i
-				setExplosionRange()
-			end)
-		end
-	else
-		for i=explosion_range - 500,explosion_range + 500,250 do
-			button_label = string.format("Range: %i",i)
-			if i == explosion_range then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_range = i
-				setExplosionRange()
-			end)
-		end
-	end
-end
-function setExplosionSize()
-	clearGMFunctions()
-	addGMFunction("-Main from Size",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Explosion",setExplosion)
-	local min_explosion_size = 250
-	local max_explosion_size = 5000
-	local button_label = ""
-	if explosion_size == min_explosion_size or explosion_size == min_explosion_size + 250 then
-		for i=min_explosion_size,1250,250 do
-			button_label = string.format("Size: %i",i)
-			if i == explosion_size then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_size = i
-				setExplosionSize()
-			end)
-		end
-	elseif explosion_size == max_explosion_size or explosion_size == max_explosion_size - 250 then
-		for i=max_explosion_size - 1000,max_explosion_size,250 do
-			button_label = string.format("Size: %i",i)
-			if i == explosion_size then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_size = i
-				setExplosionSize()
-			end)
-		end
-	else
-		for i=explosion_size - 500,explosion_size + 500,250 do
-			button_label = string.format("Size: %i",i)
-			if i == explosion_size then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_size = i
-				setExplosionSize()
-			end)
-		end
-	end
-end
-function setExplosionDamage()
-	clearGMFunctions()
-	addGMFunction("-Main from Damage",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	addGMFunction("-Explosion",setExplosion)
-	local min_explosion_damage = 0
-	local max_explosion_damage = 500
-	local button_label = ""
-	addGMFunction(string.format("Degradation: %s",explosion_damage_degredation),function()
-		if explosion_damage_degredation == "None" then
-			explosion_damage_degredation = "Linear"
-		else
-			explosion_damage_degredation = "None"
-		end
-		setExplosionDamage()
-	end)
-	if explosion_damage == min_explosion_damage or explosion_damage == min_explosion_damage + 10 then
-		for i=min_explosion_damage,40,10 do
-			button_label = string.format("Damage: %i",i)
-			if i == explosion_damage then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_damage = i
-				setExplosionDamage()
-			end)
-		end
-	elseif explosion_damage == max_explosion_damage or explosion_damage == max_explosion_damage - 10 then
-		for i=max_explosion_damage - 40,max_explosion_damage,10 do
-			button_label = string.format("Damage: %i",i)
-			if i == explosion_damage then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_damage = i
-				setExplosionDamage()
-			end)
-		end
-	else
-		for i=explosion_damage - 20,explosion_damage + 20,10 do
-			button_label = string.format("Damage: %i",i)
-			if i == explosion_damage then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				explosion_damage = i
-				setExplosionDamage()
-			end)
-		end
-	end
-end
---	freighter commerce
-function freighterCommerce()
-	clearGMFunctions()
-	addGMFunction("-Main from Commerce",initialGMFunctions)
-	addGMFunction("-Tweak Terrain",tweakTerrain)
-	local commerce_regions = {
-		{name = "Skeletal", status = skeletal_commerce,	func = skeletalFreighterCommerce},
-		{name = "Icarus",	status = icarus_commerce,	color = icarus_color,	func = icarusFreighterCommerce},
-		{name = "Kentar",	status = kentar_commerce,	color = kentar_color,	func = kentarFreighterCommerce},
-		{name = "Teresh",	status = teresh_commerce,	color = teresh_color,	func = tereshFreighterCommerce},
-		{name = "Lafrina",	status = lafrina_commerce,	color = lafrina_color,	func = lafrinaFreighterCommerce},
-		{name = "Bask",		status = bask_commerce,		color = bask_color,		func = baskFreighterCommerce},
-		{name = "Staunch",	status = staunch_commerce,	color = staunch_color,	func = staunchFreighterCommerce},
-		{name = "Glikton",	status = glikton_commerce,	color = glikton_color,	func = gliktonFreighterCommerce},
-		{name = "Goodall",	status = goodall_commerce,	color = goodall_color,	func = goodallFreighterCommerce},
-	}
-	for i,commerce in ipairs(commerce_regions) do
-		local button_label = commerce.name
-		if commerce.status then
-			button_label = button_label .. " On"
-		else
-			button_label = button_label .. " Off"
-		end
-		if commerce.color ~= nil then
-			if commerce.color then
-				addGMFunction(button_label,commerce.func)
-			end
-		else
-			addGMFunction(button_label,commerce.func)
-		end
-	end
-end
-function addCommerceFreighterEscorts(ship,escort_type,protectee_x,protectee_y,assets)
-	local escort_ship = nil
-	local escort_count = 0
-	ship.escorts = {}
-	for i=1,#escort_type do
-		if random(1,100) < escort_type[i].chance then
-			escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
-			setBeamColor(escort_ship)
-			escort_ship:setJumpDrive(true)
-			escort_ship:setFaction(ship:getFaction())
-			escort_count = escort_count + 1
-			escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
-			local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
-			escort_ship:setPosition(protectee_x + cs_x, protectee_y, cs_y)
-			escort_ship:orderDefendTarget(ship)
-			escort_ship.commerce_escort = true
-			table.insert(ship.escorts,escort_ship)
-			table.insert(assets,escort_ship)
-		end
-	end
-end
-function setCommerceFreighterStartPosition(ship)
-	local origin_x, origin_y = ship.commerce_origin:getPosition()
-	local destination_x, destination_y = ship.commerce_target:getPosition()
-	local start_x = (origin_x + destination_x) / 2
-	local start_y = (origin_y + destination_y) / 2
-	local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
-	ship:setPosition(start_x + ds_x, start_y + ds_y)
-	ship:orderDock(ship.commerce_target)
-	local protectee_x, protectee_y = ship:getPosition()
-	return protectee_x, protectee_y
-end
-function goodallFreighterCommerce()
-	if goodall_color ~= nil and goodall_color then
-		if goodall_commerce then
-			removeGoodallCommerce()
-		else
-			local freighters_message = "Goodall Commerce Assets:"
-			local region_identifying_station = stationGoodall
-			--Courier
-			local ship = courier()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Courier
-			ship = courier()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Work Wagon
-			ship = workWagon()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Work Wagon
-			ship = workWagon()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Space Sedan
-			ship = spaceSedan()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Space Sedan
-			ship = spaceSedan()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Omnibus
-			ship = omnibus()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Omnibus
-			ship = omnibus()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Laden Lorry
-			ship = ladenLorry()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			--Laden Lorry
-			ship = ladenLorry()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(goodall_commerce_assets,ship)
-			addGMMessage(freighters_message)
-			goodall_commerce = true
-		end
-	else
-		addGMMessage("Don't try to turn on Goodall commerce without the Goodall region")
-	end
-	freighterCommerce()
-end
-function gliktonFreighterCommerce()
-	if glikton_color ~= nil and glikton_color then
-		if glikton_commerce then
-			removeGliktonCommerce()
-		else
-			local freighters_message = "Glikton Commerce Assets:"
-			local region_identifying_station = stationGlikton
-			--Courier
-			local ship = courier()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Work Wagon
-			ship = workWagon()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Work Wagon
-			ship = workWagon()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Work Wagon
-			ship = workWagon()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Space Sedan
-			ship = spaceSedan()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Omnibus
-			ship = omnibus()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Garbage Freighter 2
-			ship = CpuShip():setTemplate("Garbage Freighter 2")
-			ship:setCommsScript(""):setCommsFunction(commsShip)
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Laden Lorry
-			ship = ladenLorry()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Laden Lorry
-			ship = ladenLorry()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			--Laden Lorry
-			ship = ladenLorry()
-			identifyFreighter(ship,region_identifying_station)
-			regionCommerceDestination(ship,region_identifying_station)
-			setCommerceFreighterStartPosition(ship)
-			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-			table.insert(glikton_commerce_assets,ship)
-			addGMMessage(freighters_message)
-			glikton_commerce = true
-		end
-	else
-		addGMMessage("Don't try to turn on Glikton commerce without the Glikton region")
-	end
-	freighterCommerce()
-end
-function staunchFreighterCommerce()
-	if staunch_commerce then
-		removeStaunchCommerce()
-	else
-		local staunch_freighters_message = "Staunch Commerce Assets:"
-		--Courier
-		local ship = courier()
-		identifyFreighter(ship,stationStaunch)
-		regionCommerceDestination(ship,stationStaunch)
-		setCommerceFreighterStartPosition(ship)
-		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(staunch_commerce_assets,ship)
-		--Work Wagon
-		ship = workWagon()
-		identifyFreighter(ship,stationStaunch)
-		regionCommerceDestination(ship,stationStaunch)
-		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(staunch_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 36, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 23, type = "Fighter"},
-			},
-			protectee_x, protectee_y, staunch_commerce_assets
-		)
-		--Space Sedan
-		ship = spaceSedan()
-		identifyFreighter(ship,stationStaunch)
-		regionCommerceDestination(ship,stationStaunch)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(staunch_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 63, type = "MT52 Hornet"},
-				{chance = 38, type = "MU52 Hornet"},
-				{chance = 21, type = "Fighter"},
-			},
-			protectee_x, protectee_y, staunch_commerce_assets
-		)
-		--Omnibus
-		ship = omnibus()
-		identifyFreighter(ship,stationStaunch)
-		regionCommerceDestination(ship,stationStaunch)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(staunch_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 47, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 16, type = "Fighter"},
-			},
-			protectee_x, protectee_y, staunch_commerce_assets
-		)
-		--Garbage Freighter 2
-		local ship = CpuShip():setTemplate("Garbage Freighter 2")
-		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship,stationStaunch)
-		regionCommerceDestination(ship,stationStaunch)
-		setCommerceFreighterStartPosition(ship)
-		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(staunch_commerce_assets,ship)
-		--Laden Lorry
-		ship = ladenLorry()
-		identifyFreighter(ship,stationStaunch)
-		regionCommerceDestination(ship,stationStaunch)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(staunch_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 75, type = "MT52 Hornet"},
-				{chance = 55, type = "MU52 Hornet"},
-				{chance = 34, type = "Fighter"},
-			},
-			protectee_x, protectee_y, staunch_commerce_assets
-		)
-		addGMMessage(staunch_freighters_message)
-		staunch_commerce = true
-	end
-	freighterCommerce()
-end
-function baskFreighterCommerce()
-	if bask_commerce then
-		removeBaskCommerce()
-	else
-		local bask_freighters_message = "Bask Commerce Assets:"
-		--Courier
-		local ship = courier()
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		--Work Wagon
-		ship = workWagon()
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 36, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 23, type = "Fighter"},
-			},
-			protectee_x, protectee_y, bask_commerce_assets
-		)
-		--Space Sedan
-		ship = spaceSedan()
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 63, type = "MT52 Hornet"},
-				{chance = 38, type = "MU52 Hornet"},
-				{chance = 21, type = "Fighter"},
-			},
-			protectee_x, protectee_y, bask_commerce_assets
-		)
-		--Omnibus
-		ship = omnibus()
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 47, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 16, type = "Fighter"},
-			},
-			protectee_x, protectee_y, bask_commerce_assets
-		)
-		--Fuel Freighter 5
-		ship = CpuShip():setTemplate("Fuel Freighter 5")
-		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 37, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 16, type = "Fighter"},
-			},
-			protectee_x, protectee_y, bask_commerce_assets
-		)
-		--Garbage Freighter 2
-		local ship = CpuShip():setTemplate("Garbage Freighter 2")
-		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		--Service Jonque
-		ship = serviceJonque()
-		identifyFreighter(ship,stationBask)
-		regionCommerceDestination(ship,stationBask)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(bask_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 38, type = "MT52 Hornet"},
-				{chance = 21, type = "MU52 Hornet"},
-				{chance = 12, type = "Fighter"},
-			},
-			protectee_x, protectee_y, bask_commerce_assets
-		)
-		addGMMessage(bask_freighters_message)
-		bask_commerce = true
-	end
-	freighterCommerce()
-end
-function tereshFreighterCommerce()
-	if teresh_commerce then
-		removeTereshCommerce()
-	else
-		local teresh_freighters_message = "Teresh Commerce Assets:"
-		--Courier
-		local ship = courier()
-		identifyFreighter(ship,stationTeresh)
-		regionCommerceDestination(ship,stationTeresh)
-		setCommerceFreighterStartPosition(ship)
-		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(teresh_commerce_assets,ship)
-		--Laden Lorry
-		ship = ladenLorry()
-		identifyFreighter(ship,stationTeresh)
-		regionCommerceDestination(ship,stationTeresh)
-		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(teresh_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 75, type = "MT52 Hornet"},
-				{chance = 55, type = "MU52 Hornet"},
-				{chance = 34, type = "Fighter"},
-			},
-			protectee_x, protectee_y, teresh_commerce_assets
-		)
-		addGMMessage(teresh_freighters_message)
-		teresh_commerce = true
-	end
-	freighterCommerce()
-end
-function lafrinaFreighterCommerce()
-	if lafrina_commerce then
-		removeLafrinaCommerce()
-	else
-		local lafrina_freighters_message = "Lafrina Commerce Assets:"
-		--Courier
-		local ship = courier()
-		identifyFreighter(ship,stationLafrina)
-		regionCommerceDestination(ship,stationLafrina)
-		setCommerceFreighterStartPosition(ship)
-		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(lafrina_commerce_assets,ship)
-		--Work Wagon
-		ship = workWagon()
-		identifyFreighter(ship,stationLafrina)
-		regionCommerceDestination(ship,stationLafrina)
-		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(lafrina_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 36, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 23, type = "Fighter"},
-			},
-			protectee_x, protectee_y, lafrina_commerce_assets
-		)
-		addGMMessage(lafrina_freighters_message)
-		lafrina_commerce = true
-	end
-	freighterCommerce()
-end
-function kentarFreighterCommerce()
-	if kentar_commerce then
-		removeKentarCommerce()
-	else
-		local kentar_freighters_message = "Kentar Commerce Assets:"
-		--Courier
-		local ship = courier()
-		identifyFreighter(ship,stationKentar)
-		regionCommerceDestination(ship,stationKentar)
-		setCommerceFreighterStartPosition(ship)
-		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(kentar_commerce_assets,ship)
-		--Work Wagon
-		ship = workWagon()
-		identifyFreighter(ship,stationKentar)
-		regionCommerceDestination(ship,stationKentar)
-		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(kentar_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 36, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 23, type = "Fighter"},
-			},
-			protectee_x, protectee_y, kentar_commerce_assets
-		)
-		--Space Sedan
-		ship = spaceSedan()
-		identifyFreighter(ship,stationKentar)
-		regionCommerceDestination(ship,stationKentar)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(kentar_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 63, type = "MT52 Hornet"},
-				{chance = 38, type = "MU52 Hornet"},
-				{chance = 21, type = "Fighter"},
-			},
-			protectee_x, protectee_y, kentar_commerce_assets
-		)
-		--Omnibus
-		ship = omnibus()
-		identifyFreighter(ship,stationKentar)
-		regionCommerceDestination(ship,stationKentar)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(kentar_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 47, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 16, type = "Fighter"},
-			},
-			protectee_x, protectee_y, kentar_commerce_assets
-		)
-		--Fuel Freighter 5
-		ship = CpuShip():setTemplate("Fuel Freighter 5")
-		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship,stationKentar)
-		regionCommerceDestination(ship,stationKentar)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(kentar_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 37, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 16, type = "Fighter"},
-			},
-			protectee_x, protectee_y, kentar_commerce_assets
-		)
-		addGMMessage(kentar_freighters_message)
-		kentar_commerce = true
-	end
-	freighterCommerce()
-end
-function icarusFreighterCommerce()
-	if icarus_commerce then
-		removeIcarusCommerce()
-	else
-		local icarus_freighters_message = "Icarus Commerce Assets:"
-		--Garbage Freighter 2
-		local ship = CpuShip():setTemplate("Garbage Freighter 2")
-		ship:setCommsScript(""):setCommsFunction(commsShip)
-		identifyFreighter(ship,stationIcarus)
-		regionCommerceDestination(ship,stationIcarus)
-		setCommerceFreighterStartPosition(ship)
-		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(icarus_commerce_assets,ship)
-		--Courier
-		ship = courier()
-		identifyFreighter(ship,stationIcarus)
-		regionCommerceDestination(ship,stationIcarus)
-		setCommerceFreighterStartPosition(ship)
-		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(icarus_commerce_assets,ship)
-		--Work Wagon
-		ship = workWagon()
-		identifyFreighter(ship,stationIcarus)
-		regionCommerceDestination(ship,stationIcarus)
-		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(icarus_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 36, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 23, type = "Fighter"},
-			},
-			protectee_x, protectee_y, icarus_commerce_assets
-		)
-		--Laden Lorry
-		ship = ladenLorry()
-		identifyFreighter(ship,stationIcarus)
-		regionCommerceDestination(ship,stationIcarus)
-		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
-		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(icarus_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 75, type = "MT52 Hornet"},
-				{chance = 55, type = "MU52 Hornet"},
-				{chance = 34, type = "Fighter"},
-			},
-			protectee_x, protectee_y, icarus_commerce_assets
-		)
-		addGMMessage(icarus_freighters_message)
-		icarus_commerce = true
-	end
-	freighterCommerce()
-end
-function removeGoodallCommerce()
-	for index,ship in ipairs(goodall_commerce_assets) do
-		ship:destroy()
-	end
-	goodall_commerce_assets = {}
-	goodall_commerce = false
-end
-function removeGliktonCommerce()
-	for index,ship in ipairs(glikton_commerce_assets) do
-		ship:destroy()
-	end
-	glikton_commerce_assets = {}
-	glikton_commerce = false
-end
-function removeStaunchCommerce()
-	for index,ship in ipairs(staunch_commerce_assets) do
-		ship:destroy()
-	end
-	staunch_commerce_assets = {}
-	staunch_commerce = false
-end
-function removeBaskCommerce()
-	for index, ship in ipairs(bask_commerce_assets) do
-		ship:destroy()
-	end
-	bask_commerce_assets = {}
-	bask_commerce = false
-end
-function removeTereshCommerce()
-	for index, ship in ipairs(teresh_commerce_assets) do
-		ship:destroy()
-	end
-	teresh_commerce_assets = {}
-	teresh_commerce = false
-end
-function removeLafrinaCommerce()
-	for index, ship in ipairs(lafrina_commerce_assets) do
-		ship:destroy()
-	end
-	lafrina_commerce_assets = {}
-	lafrina_commerce = false
-end
-function removeKentarCommerce()
-	for index, ship in ipairs(kentar_commerce_assets) do
-		ship:destroy()
-	end
-	kentar_commerce_assets = {}
-	kentar_commerce = false
-end
-function removeIcarusCommerce()
-	for index, ship in ipairs(icarus_commerce_assets) do
-		ship:destroy()
-	end
-	icarus_commerce_assets = {}
-	icarus_commerce = false
-end
-function skeletalFreighterCommerce()
-	if skeletal_commerce then
-		for index, ship in ipairs(skeletal_commerce_assets) do
-			ship:destroy()
-		end
-		skeletal_commerce_assets = {}
-		skeletal_commerce = false
-	else
-		local skeletal_freighters_message = "Skeletal Commerce Assets:"
-		--Space Sedan
-		local ship = spaceSedan()
-		identifyFreighter(ship)
-		skeletalDestination(ship)
-		setCommerceFreighterStartPosition(ship)
-		local protectee_x, protectee_y = ship:getPosition()
-		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(skeletal_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 63, type = "MT52 Hornet"},
-				{chance = 38, type = "MU52 Hornet"},
-				{chance = 21, type = "Fighter"},
-			},
-			protectee_x, protectee_y, skeletal_commerce_assets
-		)
-		--Omnibus
-		ship = omnibus()
-		identifyFreighter(ship)
-		skeletalDestination(ship)
-		setCommerceFreighterStartPosition(ship)
-		protectee_x, protectee_y = ship:getPosition()
-		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(skeletal_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 47, type = "MT52 Hornet"},
-				{chance = 28, type = "MU52 Hornet"},
-				{chance = 16, type = "Fighter"},
-			},
-			protectee_x, protectee_y, skeletal_commerce_assets
-		)
-		--Service Jonque
-		ship = serviceJonque()
-		identifyFreighter(ship)
-		skeletalDestination(ship)
-		setCommerceFreighterStartPosition(ship)
-		protectee_x, protectee_y = ship:getPosition()
-		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
-		table.insert(skeletal_commerce_assets,ship)
-		addCommerceFreighterEscorts(
-			ship,
-			{
-				{chance = 38, type = "MT52 Hornet"},
-				{chance = 21, type = "MU52 Hornet"},
-				{chance = 12, type = "Fighter"},
-			},
-			protectee_x, protectee_y, skeletal_commerce_assets
-		)
-		addGMMessage(skeletal_freighters_message)
-		skeletal_commerce = true
-	end
-	freighterCommerce()
-end
-function identifyFreighter(ship,region_station)
-	local ship_type = ship:getTypeName()
-	local ship_id = nil
-	if ship_type == "Space Sedan" then
-		if space_sedan_names == nil then
-			space_sedan_names = {}
-		end
-		if #space_sedan_names == 0 then
-			space_sedan_names = {
-				{name = "Bangles N Glitter",	faction = "CUF"},
-				{name = "Mauve Mynock",			faction = "Human Navy"},
-				{name = "Tartan Tram",			faction = "TSN"},
-				{name = "Stardust Deluxe",		faction = "Independent"},
-				{name = "Equitable Exit",		faction = "USN"},
-				{name = "Demure Departure",		faction = "Arlenians"},
-				{name = "Slam Door",			faction = "Kraylor"},
-				{name = "Hidey Hole",			faction = "Ktlitans"},
-				{name = "Bespoke Break",		faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(space_sedan_names)
-		ship:setFaction(ship_id.faction):setCallSign(ship_id.name)
-	elseif ship_type == "Omnibus" then
-		if omnibus_names == nil then
-			omnibus_names = {}
-		end
-		if #omnibus_names == 0 then
-			omnibus_names = {
-				{name = "Moya Munge",		faction = "CUF"},
-				{name = "Green Gwaihir",	faction = "Human Navy"},
-				{name = "Metropol",			faction = "TSN"},
-				{name = "Gillig",			faction = "Arlenians"},
-				{name = "Grech",			faction = "USN"},
-				{name = "Kamaz",			faction = "Independent"},
-				{name = "Hunting Hound",	faction = "Kraylor"},
-				{name = "Springing Spider",	faction = "Ktlitans"},
-				{name = "Bandwidth Bus",	faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(omnibus_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	elseif ship_type == "Service Jonque" then
-		if service_jonque_names == nil then
-			service_jonque_names = {}
-		end
-		if #service_jonque_names == 0 then
-			service_jonque_names = {
-				{name = "Knapheide",		faction = "CUF"},
-				{name = "Gator",			faction = "Human Navy"},
-				{name = "Parry",			faction = "TSN"},
-				{name = "Stahl",			faction = "Independent"},
-				{name = "Crane",			faction = "USN"},
-				{name = "Moran",			faction = "Arlenians"},
-				{name = "Marabunta",		faction = "Kraylor"},
-				{name = "Caterpillar",		faction = "Ktlitans"},
-				{name = "Red Robot",		faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(service_jonque_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	elseif ship_type == "Garbage Freighter 2" then
-		if garbage_2_names == nil then
-			garbage_2_names = {}
-		end
-		if #garbage_2_names == 0 then
-			garbage_2_names = {
-				{name = "Heil",				faction = "CUF"},
-				{name = "Transwest",		faction = "Human Navy"},
-				{name = "Qiufan",			faction = "TSN"},
-				{name = "Garwood",			faction = "Arlenians"},
-				{name = "Hino",				faction = "USN"},
-				{name = "Gareth",			faction = "Independent"},
-				{name = "Vital Vulture",	faction = "Kraylor"},
-				{name = "Mystery Maggot",	faction = "Ktlitans"},
-				{name = "Coy Collector",	faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(garbage_2_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	elseif ship_type == "Fuel Freighter 5" then
-		if fuel_5_names == nil then
-			fuel_5_names = {}
-		end
-		if #fuel_5_names == 0 then
-			fuel_5_names = {
-				{name = "Exxon",				faction = "CUF"},
-				{name = "Shell",				faction = "Human Navy"},
-				{name = "Enron",				faction = "TSN"},
-				{name = "WeiChai",				faction = "Independent"},
-				{name = "Bosch",				faction = "USN"},
-				{name = "Nikola",				faction = "Arlenians"},
-				{name = "Carnivorous Canary",	faction = "Kraylor"},
-				{name = "Gnarly Gnat",			faction = "Ktlitans"},
-				{name = "Electrasol",			faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(fuel_5_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	elseif ship_type == "Courier" then
-		if courier_names == nil then
-			courier_names = {}
-		end
-		if #courier_names == 0 then
-			courier_names = {
-				{name = "Porsche",			faction = "CUF"},
-				{name = "Razorback",		faction = "Human Navy"},
-				{name = "Orlyonok",			faction = "TSN"},
-				{name = "Benatar",			faction = "Arlenians"},
-				{name = "Jellyfish",		faction = "USN"},
-				{name = "Hecate",			faction = "Independent"},
-				{name = "Crazy Cougar",		faction = "Kraylor"},
-				{name = "Finnicky Flattie",	faction = "Ktlitans"},
-				{name = "Omni-Overclock",	faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(courier_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	elseif ship_type == "Work Wagon" then
-		if work_wagon_names == nil then
-			work_wagon_names = {}
-		end
-		if #work_wagon_names == 0 then
-			work_wagon_names = {
-				{name = "Mangled Metal",	faction = "CUF"},
-				{name = "Banshee",			faction = "Human Navy"},
-				{name = "Thing",			faction = "TSN"},
-				{name = "Torque",			faction = "Arlenians"},
-				{name = "Hulk",				faction = "USN"},
-				{name = "Forbid",			faction = "Independent"},
-				{name = "Red Rex",			faction = "Kraylor"},
-				{name = "Dusky Darwin",		faction = "Ktlitans"},
-				{name = "Scarred Steel",	faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(work_wagon_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	elseif ship_type == "Laden Lorry" then
-		if laden_lorry_names == nil then
-			laden_lorry_names = {}
-		end
-		if #laden_lorry_names == 0 then
-			laden_lorry_names = {
-				{name = "Lowboy",			faction = "Arlenians"},
-				{name = "Luton",			faction = "Human Navy"},
-				{name = "Reefer",			faction = "TSN"},
-				{name = "Convoy",			faction = "CUF"},
-				{name = "Hulk",				faction = "USN"},
-				{name = "Atlas",			faction = "Independent"},
-				{name = "Thing Thumb",		faction = "Kraylor"},
-				{name = "Whispy Web",		faction = "Ktlitans"},
-				{name = "Brown Bag",		faction = "Ghosts"},
-			}
-		end
-		ship_id = tableRemoveRandom(laden_lorry_names)
-		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
-	end
-	if region_station ~= nil then
-		local region_stations = getRegionStations(region_station)
-		local visitable_stations = 0
-		if #region_stations > 0 then
-			for _, station in ipairs(region_stations) do
-				if station ~= nil and station:isValid() and not station:isEnemy(ship) then
-					visitable_stations = visitable_stations + 1
-				end
-			end
-		end
-		if visitable_stations < 2 then
-			ship:setFaction(region_station:getFaction())
-		end
-	end
-end
-function skeletalDestination(ship)
-	local station_pool = {}
-	if #skeleton_stations > 0 then
-		for index, station in ipairs(skeleton_stations) do
-			if station ~= nil and station:isValid() then
-				if not station:isEnemy(ship) then
-					if ship.commerce_target ~= nil then
-						if station ~= ship.commerce_target then
-							table.insert(station_pool,station)
-						end
-					elseif ship.commerce_origin ~= nil then
-						if station ~= ship.commerce_origin then
-							table.insert(station_pool,station)
-						end
-					else
-						table.insert(station_pool,station)
-					end
-				else
-					if commerce_diagnostic then
-						print("station",station:getCallSign(),station:getFaction(),"is an enemy to",ship:getCallSign(),ship:getFaction())
-					end
-				end
-			end
-		end
-	else
-		if commerce_diagnostic then
-			print("skeletal stations is empty")
-		end
-	end
-	ship.commerce_target = tableSelectRandom(station_pool)
-	if ship.commerce_target == nil then
-		if commerce_diagnostic then
-			print("got nothing from station pool, assigning Icarus")
-		end
-		ship.commerce_target = stationIcarus
-		ship:setFaction(stationIcarus:getFaction())
-		if ship.escorts ~= nil then
-			for i,escort_ship in ipairs(ship.escorts) do
-				if escort_ship ~= nil and escort_ship:isValid() then
-					escort_ship:setFaction(stationIcarus:getFaction())
-					setBeamColor(escort_ship)
-				end
-			end
-		end
-	end
-	if ship.commerce_origin == nil then
-		ship.commerce_origin = tableSelectRandom(station_pool)
-		if commerce_diagnostic then
-			if ship.commerce_origin == nil then
-				print("ship commerce origin is nil")
-				if #station_pool > 0 then
-					for index, station in ipairs(station_pool) do
-						print("index:",index,"station:",station:getCallSign())
-					end
-				else
-					print("station pool is empty")
-				end
-			else
-				print("ship commerce origin:",ship.commerce_origin:getCallSign())
-			end
-		end
-		if ship.commerce_origin == nil then
-			ship.commerce_origin = stationIcarus
-		end
-	end
-end
-function getRegionStations(region_station)
-	local region_stations = {}
-	local primary_station = nil
-	if region_station == stationIcarus then
-		region_stations = icarusStations
-		if stationIcarus ~= nil and stationIcarus:isValid() then
-			primary_station = stationIcarus
-		end
-	elseif region_station == stationKentar then
-		region_stations = kentar_stations
-		if stationKentar ~= nil and stationKentar:isValid() then
-			primary_station = stationKentar
-		end
-	elseif region_station == stationLafrina then
-		region_stations = lafrina_stations
-		if stationLafrina ~= nil and stationLafrina:isValid() then
-			primary_station = stationLafrina
-		end
-	elseif region_station == stationTeresh then
-		region_stations = teresh_stations
-		if stationTeresh ~= nil and stationTeresh:isValid() then
-			primary_station = stationTeresh
-		end
-	elseif region_station == stationAstron then
-		--not enough stations to warrant commercial traffic
-		if stationAstron ~= nil and stationAstron:isValid() then
-			primary_station = stationAstron
-		end
-	elseif region_station == stationBask then
-		region_stations = bask_stations
-		if stationBask ~= nil and stationBask:isValid() then
-			primary_station = stationBask
-		end
-	elseif region_station == stationStaunch then
-		region_stations = staunch_stations
-		if stationStaunch ~= nil and stationStaunch:isValid() then
-			primary_station = stationStaunch
-		end
-	elseif region_station == stationGlikton then
-		region_stations = glikton_stations
-		if stationGlikton ~= nil and stationGlikton:isValid() then
-			primary_station = stationGlikton
-		end
-	elseif region_station == stationGoodall then
-		region_stations = goodall_stations
-		if stationGoodall ~= nil and stationGoodall:isValid() then
-			primary_station = stationGoodall
-		end
-	end
-	return region_stations, primary_station
-end
-function regionCommerceDestination(ship,region_station)
---	print("in region commerce destination:",ship:getCallSign(),region_station:getCallSign())
-	local station_pool = {}
-	local avoid_commerce = {
-		stationKeyhole23, stationHarriet, stationHelena, stationVilairre, stationRespite
-	}
-	local region_stations, primary_station = getRegionStations(region_station)
-	--handle jump corridor better
-	if region_stations ~= nil then
-		if #region_stations > 0 then
-			for index, station in ipairs(region_stations) do
-				if station ~= nil and station:isValid() then
-					if not station:isEnemy(ship) then
-						local avoid = false
-						if ship.commerce_target ~= nil then
-							if station ~= ship.commerce_target then
-								for _, avoid_station in pairs(avoid_commerce) do
-									if station == avoid_station then
-										avoid = true
-										break
-									end
-								end
-								if not avoid then
-									table.insert(station_pool,station)
-								end
-							end
-						elseif ship.commerce_origin ~= nil then
-							if station ~= ship.commerce_origin then
-								for _, avoid_station in pairs(avoid_commerce) do
-									if station == avoid_station then
-										avoid = true
-										break
-									end
-								end
-								if not avoid then
-									table.insert(station_pool,station)
-								end
-							end
-						else
-							for _, avoid_station in pairs(avoid_commerce) do
-								if station == avoid_station then
-									avoid = true
-									break
-								end
-							end
-							if not avoid then
-								table.insert(station_pool,station)
-							end
-						end
-					end
-				end
-			end
-		else
-			if commerce_diagnostic then
-				print("regional stations is empty")
-			end
-		end
-	else
-		if commerce_diagnostic then
-			print("regional stations is nil")
-		end
-	end
-	if primary_station ~= nil then
-		table.insert(station_pool,primary_station)
-	else
-		primary_station = stationIcarus
-	end
---	print("station pool count:",#station_pool)
-	ship.commerce_target = tableRemoveRandom(station_pool)
-	if ship.commerce_target == nil then
-		if commerce_diagnostic then
-			print("got nothing from station pool, assigning primary station:",primary_station:getCallSign())
-		end
-		ship.commerce_target = primary_station
-		ship:setFaction(primary_station:getFaction())
-		if ship.escorts ~= nil then
-			for i,escort_ship in ipairs(ship.escorts) do
-				if escort_ship ~= nil and escort_ship:isValid() then
-					escort_ship:setFaction(primary_station:getFaction())
-					setBeamColor(escort_ship)
-				end
-			end
-		end
-	end
-	if ship.commerce_origin == nil then
-		ship.commerce_origin = tableRemoveRandom(station_pool)
-		if commerce_diagnostic then
-			if ship.commerce_origin == nil then
-				print("ship commerce origin is nil")
-				if #station_pool > 0 then
-					for index, station in ipairs(station_pool) do
-						print("index:",index,"station:",station:getCallSign())
-					end
-				else
-					print("station pool is empty")
-				end
-			else
-				print("ship commerce origin:",ship.commerce_origin:getCallSign())
-			end
-		end
-		if ship.commerce_origin == nil then
-			ship.commerce_origin = primary_station
-		end
-	end
-end
---	freighter information for science database
-function addFreighters()
-	local freighter_db = queryScienceDatabase("Ships","Freighter")
-	if freighter_db == nil then
-		local ship_db = queryScienceDatabase("Ships")
-		ship_db:addEntry("Freighter")
-		freighter_db = queryScienceDatabase("Ships","Freighter")
-		freighter_db:setImage("radar/transport.png")
-		freighter_db:setLongDescription("Small, medium and large scale transport ships. These are the working ships that keep commerce going in any sector. They may carry personnel, goods, cargo, equipment, garbage, fuel, research material, etc.")
-	end
-	return freighter_db
-end
-function addFreighter(freighter_type,ship)
-	local freighter_db = addFreighters()
-	if freighter_type ~= nil then
-		if freighter_type == "Space Sedan" then
-			local space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
-			if space_sedan_db == nil then
-				freighter_db:addEntry("Space Sedan")
-				space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
-				genericFreighterScienceInfo(space_sedan_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 3"),ship)
-				space_sedan_db:setModelDataName("transport_1_3")
-				space_sedan_db:setLongDescription("The Space Sedan was built around a surplus Personnel Jump Freighter 3. It's designed to provide relatively low cost transportation primarily for people, but there is also a limited amount of cargo space available")
-			end
-		elseif freighter_type == "Omnibus" then
-			local omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
-			if omnibus_db == nil then
-				freighter_db:addEntry("Omnibus")
-				omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
-				genericFreighterScienceInfo(omnibus_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 5"),ship)
-				omnibus_db:setModelDataName("transport_1_5")
-				omnibus_db:setLongDescription("The Omnibus was designed from the Personnel Jump Freighter 5. It's made to transport large numbers of passengers of various types along with their luggage and any associated cargo")
-			end
-		elseif freighter_type == "Service Jonque" then
-			local service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
-			if service_jonque_db == nil then
-				freighter_db:addEntry("Service Jonque")
-				service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
-				genericFreighterScienceInfo(service_jonque_db,queryScienceDatabase("Ships","Corvette","Equipment Jump Freighter 4"),ship)
-				service_jonque_db:setModelDataName("transport_4_4")
-				service_jonque_db:setLongDescription("The Service Jonque is a modified Equipment Jump Freighter 4. It's designed to carry spare parts and equipment as well as the necessary repair personnel to where it's needed to repair stations and ships")
-			end
-		elseif freighter_type == "Courier" then
-			local courier_db = queryScienceDatabase("Ships","Freighter","Courier")
-			if courier_db == nil then
-				freighter_db:addEntry("Courier")
-				courier_db = queryScienceDatabase("Ships","Freighter","Courier")
-				genericFreighterScienceInfo(courier_db,queryScienceDatabase("Ships","Corvette","Personnel Freighter 1"),ship)
-				courier_db:setModelDataName("transport_1_1")
-				courier_db:setLongDescription("The Courier is a souped up Personnel Freighter 1. It's made to deliver people and messages fast. Very fast")
-			end
-		elseif freighter_type == "Work Wagon" then
-			local work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
-			if work_wagon_db == nil then
-				freighter_db:addEntry("Work Wagon")
-				work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
-				genericFreighterScienceInfo(work_wagon_db,queryScienceDatabase("Ships","Corvette","Equipment Freighter 2"),ship)
-				work_wagon_db:setModelDataName("transport_4_2")
-				work_wagon_db:setLongDescription("The Work Wagon is a conversion of an Equipment Freighter 2 designed to carry equipment and parts where they are needed for repair or construction.")
-			end
-		elseif freighter_type == "Laden Lorry" then
-			local laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
-			if laden_lorry_db == nil then
-				freighter_db:addEntry("Laden Lorry")
-				laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
-				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase("Ships","Corvette","Goods Freighter 3"),ship)
-				laden_lorry_db:setModelDataName("transport_2_3")
-				laden_lorry_db:setLongDescription("As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel.")
-			end
-		elseif freighter_type == "Physics Research" then
-			local physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
-			if physics_research_db == nil then
-				freighter_db:addEntry("Physics Research")
-				physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
-				genericFreighterScienceInfo(physics_research_db,queryScienceDatabase("Ships","Corvette","Garbage Freighter 3"),ship)
-				physics_research_db:setModelDataName("transport_3_3")
-				physics_research_db:setLongDescription("Conversion R Us cleaned up and converted excess freighter hulls into Physics Research vessels. The reduced weight improved the impulse speed and maneuverability.")
-			end
-		end
-	end
-end
-function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
-	specific_freighter_db:setImage("radar/transport.png")
-	specific_freighter_db:setKeyValue("Sub-class","Freighter")
-	specific_freighter_db:setKeyValue("Size",base_db:getKeyValue("Size"))
-	local shields = ship:getShieldCount()
-	if shields > 0 then
-		local shield_string = ""
-		for i=1,shields do
-			if shield_string == "" then
-				shield_string = string.format("%i",math.floor(ship:getShieldMax(i-1)))
-			else
-				shield_string = string.format("%s/%i",shield_string,math.floor(ship:getShieldMax(i-1)))
-			end
-		end
-		specific_freighter_db:setKeyValue("Shield",shield_string)
-	end
-	specific_freighter_db:setKeyValue("Hull",string.format("%i",math.floor(ship:getHullMax())))
-	specific_freighter_db:setKeyValue("Move speed",string.format("%.1f u/min",ship:getImpulseMaxSpeed()*60/1000))
-	specific_freighter_db:setKeyValue("Turn speed",string.format("%.1f deg/sec",ship:getRotationMaxSpeed()))
-	if ship:hasJumpDrive() then
-		local base_jump_range = base_db:getKeyValue("Jump range")
-		if base_jump_range ~= nil and base_jump_range ~= "" then
-			specific_freighter_db:setKeyValue("Jump range",base_jump_range)
-		else
-			specific_freighter_db:setKeyValue("Jump range","5 - 50 u")
-		end
-	end
-	if ship:hasWarpDrive() then
-		specific_freighter_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
-	end
-end
---	dynamic terrain support
-function mtExuariHugeOnClick(x,y)
-	if exuari_huge_clean_list == nil then
-		exuari_huge_clean_list = {}
-	end
-	Planet():setPosition(x + 13091, y + -3065):setPlanetRadius(3000):setPlanetCloudRadius(5200.00)
-	SpaceStation():setTemplate("Huge Station"):setFaction("Exuari"):setCallSign("Anaston"):setPosition(x + -2444, y + 1778)
-	BlackHole():setPosition(x + -6675, y + -12499)
-	BlackHole():setPosition(x + 4331, y + -15419)
-	Nebula():setPosition(x + -6205, y + 2261)
-	Nebula():setPosition(x + -15097, y + -1790)
-	Nebula():setPosition(x + -1944, y + 10890)
+function tknolgBase(x,y)
+    stationTknolg = SpaceStation():setTemplate("Medium Station"):setFaction(fleetSpawnFaction):setCallSign("Bio Adaptive Dev Lab"):setPosition(x + 19,y + -4):setCommsFunction(SwitchToGM)
 	local ship = nil
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("B47"):setPosition(x + -9952, y +  -87):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD6"):setPosition(x + 2593,y + 550):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("UTI177"):setPosition(x + -982, y +  -1086):orderStandGround()
+    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD4"):setPosition(x + -7645,y + 4904):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("S176"):setPosition(x + 3159, y +  4755):orderStandGround()
+    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD1"):setPosition(x + -4889,y + -7667):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("X45"):setPosition(x + -7260, y +  6863):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD3"):setPosition(x + 4927,y + 7659):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("Q43"):setPosition(x + -9251, y +  4669):orderStandGround():setTypeName("Missile Pod D4"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"large"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD5"):setPosition(x + -3185,y + -490):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("U38"):setPosition(x + -4643, y +  4243):orderStandGround():setTypeName("Missile Pod D1"):setHullMax(15):setHull(15):setRotationMaxSpeed(5.0):setShieldsMax(20.00):setShields(20.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
+    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD2"):setPosition(x + 7682,y + -4912):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
 	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("D41"):setPosition(x + -4948, y +  -328):orderStandGround():setTypeName("Missile Pod D2"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setWeaponStorageMax("HVLI", 400):setWeaponStorage("HVLI", 399):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
-	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("R36"):setPosition(x + -176, y +  740):setShortRangeRadarRange(6500):orderStandGround():setTypeName("Missile Pod S1"):setHullMax(55):setHull(55):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(1):setTubeSize(0,"small"):setWeaponStorageMax("EMP", 200):setWeaponStorage("EMP", 199):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
-	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("L32"):setPosition(x + -2471, y +  5040):setShortRangeRadarRange(4500):orderStandGround():setTypeName("Missile Pod TX16"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(4):setTubeSize(0,"large"):setWeaponTubeDirection(1, 270):setTubeSize(1,"large"):setTubeSize(2,"large"):setTubeSize(3,"large"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
-	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("Z34"):setPosition(x + 113, y +  3486):setShortRangeRadarRange(4500):orderStandGround():setTypeName("Missile Pod TI8"):setHullMax(35):setHull(35):setRotationMaxSpeed(5.0):setShieldsMax(50.00):setShields(50.00):setWeaponTubeCount(2):setWeaponTubeDirection(0, -90):setTubeSize(0,"large"):setWeaponTubeDirection(1, 90):setTubeSize(1,"large"):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 398):setBeamWeapon(0, 30, 0, 0, 1.5, 20.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 30, 60, 0, 1.5, 20.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 30, 120, 0, 1.5, 20.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 30, 180, 0, 1.5, 20.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 30, 240, 0, 1.5, 20.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 30, 300, 0, 1.5, 20.0):setBeamWeaponTurret(5, 0, 0, 0)
-	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Defense platform"):setCallSign("S30"):setPosition(x + -5121, y +  1864):setShortRangeRadarRange(7000):orderStandGround():setTypeName("Sniper Tower"):setRotationMaxSpeed(3.0):setBeamWeapon(0, 10, 0, 6000, 6.0, 6.0):setBeamWeaponTurret(0, 0, 0, 0):setBeamWeapon(1, 10, 90, 6000, 6.0, 6.0):setBeamWeaponTurret(1, 0, 0, 0):setBeamWeapon(2, 10, 180, 6000, 6.0, 6.0):setBeamWeaponTurret(2, 0, 0, 0):setBeamWeapon(3, 10, 270, 6000, 6.0, 6.0):setBeamWeaponTurret(3, 0, 0, 0):setBeamWeapon(4, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(4, 0, 0, 0):setBeamWeapon(5, 0, 0, 0, 0.0, 0.0):setBeamWeaponTurret(5, 0, 0, 0)
-	setBeamColor(ship)
-	ship = CpuShip():setFaction("Exuari"):setTemplate("Jump Carrier"):setCallSign("K28"):setPosition(x + -2810, y +  -861):setShortRangeRadarRange(10000):orderStandGround():setTypeName("Command Base"):setHullMax(300):setHull(300):setImpulseMaxSpeed(0.0,0):setRotationMaxSpeed(0.5):setJumpDrive(false):setShieldsMax(500.00):setShields(500.00):setWeaponTubeCount(4):setWeaponTubeDirection(1, 90):setWeaponTubeDirection(2, 180):setWeaponTubeDirection(3, 270):setWeaponStorageMax("Homing", 400):setWeaponStorage("Homing", 396):setBeamWeapon(0, 10, 45, 2000, 1.0, 5.0):setBeamWeaponTurret(0, 70, 45, 0):setBeamWeapon(1, 10, 135, 2000, 1.0, 5.0):setBeamWeaponTurret(1, 70, 135, 0):setBeamWeapon(2, 10, 225, 2000, 1.0, 5.0):setBeamWeaponTurret(2, 70, 225, 0):setBeamWeapon(3, 10, 315, 2000, 1.0, 5.0):setBeamWeaponTurret(3, 70, 315, 0)
-	Mine():setPosition(x + -11079, y + -1273)
-	Mine():setPosition(x + -1418, y + 14362)
-	Mine():setPosition(x + -5645, y + 12811)
-	Mine():setPosition(x + 1634, y + 11153)
-	Mine():setPosition(x + -16044, y + 1630)
-	Mine():setPosition(x + -18885, y + -1001)
-	Asteroid():setPosition(x + -14518, y + -3894):setSize(random(10,150))
-	Asteroid():setPosition(x + -4943, y + 8206):setSize(122)
-	Asteroid():setPosition(x + -5048, y + 11205):setSize(124)
-	Asteroid():setPosition(x + -16675, y + -632):setSize(115)
-	Asteroid():setPosition(x + -17570, y + -3421):setSize(122)
-	Asteroid():setPosition(x + -11782, y + 578):setSize(115)
-	Asteroid():setPosition(x + -13466, y + -1264):setSize(116)
-	Asteroid():setPosition(x + -5890, y + 3103):setSize(121)
-	Asteroid():setPosition(x + -14623, y + 1472):setSize(111)
-	Asteroid():setPosition(x + -8100, y + 5208):setSize(116)
-	Asteroid():setPosition(x + -9204, y + 1577):setSize(120)
-	Asteroid():setPosition(x + -5837, y + 420):setSize(129)
-	Asteroid():setPosition(x + -11940, y + -3210):setSize(120)
-	Asteroid():setPosition(x + -1202, y + -14229):setSize(755)
-	Asteroid():setPosition(x + -2996, y + 12521):setSize(125)
-	Asteroid():setPosition(x + -2680, y + 9259):setSize(127)
-	Asteroid():setPosition(x + -3522, y + 4260):setSize(125)
-	Asteroid():setPosition(x + 476, y + 9837):setSize(119)
-	Asteroid():setPosition(x + -523, y + 11995):setSize(116)
-	
-	Asteroid():setPosition(x + -218, y + -7228):setSize(500)
-	Asteroid():setPosition(x + 7767, y + 8915):setSize(500)
-	Asteroid():setPosition(x + -12940, y + 9259):setSize(500)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -1643,y + 8143)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -7179,y + 4590)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 1558,y + -8072)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -4587,y + -7123)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 4574,y + 7112)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -8029,y + -1666)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -837,y + -755)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 7877,y + 2223)
+    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 7092,y + -4552)
+    Mine():setPosition(x + 2165,y + 8839)
+    Mine():setPosition(x + 2625,y + 8715)
+    Mine():setPosition(x + 3077,y + 8566)
+    Mine():setPosition(x + 3522,y + 8395)
+    Mine():setPosition(x + -2085,y + 8849)
+    Mine():setPosition(x + -2999,y + 8581)
+    Mine():setPosition(x + -3443,y + 8411)
+    Mine():setPosition(x + -1619,y + 8947)
+    Mine():setPosition(x + -673,y + 9069)
+    Mine():setPosition(x + -1147,y + 9021)
+    Mine():setPosition(x + -2545,y + 8727)
+    Mine():setPosition(x + -197,y + 9093)
+    Mine():setPosition(x + 279,y + 9092)
+    Mine():setPosition(x + 1699,y + 8939)
+    Mine():setPosition(x + 1229,y + 9015)
+    Mine():setPosition(x + 755,y + 9066)
+    Mine():setPosition(x + -3879,y + 8219)
+    Mine():setPosition(x + -4305,y + 8003)
+    Mine():setPosition(x + -4717,y + 7766)
+    Mine():setPosition(x + -5117,y + 7508)
+    Mine():setPosition(x + 3482,y + -8420)
+    Mine():setPosition(x + 4342,y + -8012)
+    Mine():setPosition(x + -8381,y + 3498)
+    Mine():setPosition(x + -8551,y + 3054)
+    Mine():setPosition(x + -8701,y + 2601)
+    Mine():setPosition(x + 3036,y + -8589)
+    Mine():setPosition(x + 2122,y + -8858)
+    Mine():setPosition(x + 1656,y + -8956)
+    Mine():setPosition(x + 2583,y + -8735)
+    Mine():setPosition(x + 1186,y + -9029)
+    Mine():setPosition(x + 712,y + -9078)
+    Mine():setPosition(x + -241,y + -9100)
+    Mine():setPosition(x + -716,y + -9074)
+    Mine():setPosition(x + 236,y + -9101)
+    Mine():setPosition(x + -1191,y + -9023)
+    Mine():setPosition(x + -2127,y + -8848)
+    Mine():setPosition(x + -1661,y + -8948)
+    Mine():setPosition(x + -2587,y + -8723)
+    Mine():setPosition(x + -3483,y + -8403)
+    Mine():setPosition(x + -3039,y + -8575)
+    Mine():setPosition(x + -6261,y + -6590)
+    Mine():setPosition(x + -6597,y + -6252)
+    Mine():setPosition(x + -8205,y + -3902)
+    Mine():setPosition(x + -8397,y + -3466)
+    Mine():setPosition(x + -7213,y + -5527)
+    Mine():setPosition(x + -6915,y + -5897)
+    Mine():setPosition(x + -6567,y + 6276)
+    Mine():setPosition(x + -5875,y + 6930)
+    Mine():setPosition(x + -5503,y + 7228)
+    Mine():setPosition(x + -6229,y + 6612)
+    Mine():setPosition(x + -7493,y + -5140)
+    Mine():setPosition(x + -7751,y + -4740)
+    Mine():setPosition(x + -7989,y + -4327)
+    Mine():setPosition(x + 6299,y + 6582)
+    Mine():setPosition(x + 7252,y + 5518)
+    Mine():setPosition(x + 6953,y + 5889)
+    Mine():setPosition(x + 6635,y + 6244)
+    Mine():setPosition(x + 7531,y + 5132)
+    Mine():setPosition(x + 6268,y + -6620)
+    Mine():setPosition(x + 5913,y + -6938)
+    Mine():setPosition(x + 6605,y + -6284)
+    Mine():setPosition(x + 5542,y + -7237)
+    Mine():setPosition(x + 4755,y + -7774)
+    Mine():setPosition(x + 5156,y + -7516)
+    Mine():setPosition(x + 3917,y + -8227)
+    Mine():setPosition(x + -9079,y + -221)
+    Mine():setPosition(x + -9077,y + 256)
+    Mine():setPosition(x + -9055,y + -696)
+    Mine():setPosition(x + -9007,y + -1170)
+    Mine():setPosition(x + -8925,y + 1676)
+    Mine():setPosition(x + -9001,y + 1205)
+    Mine():setPosition(x + -8825,y + 2141)
+    Mine():setPosition(x + -9051,y + 731)
+    Mine():setPosition(x + -8713,y + -2568)
+    Mine():setPosition(x + -8835,y + -2107)
+    Mine():setPosition(x + -8933,y + -1641)
+    Mine():setPosition(x + -8567,y + -3021)
+    Mine():setPosition(x + 8971,y + 1633)
+    Mine():setPosition(x + 9044,y + 1162)
+    Mine():setPosition(x + 8873,y + 2099)
+    Mine():setPosition(x + 9093,y + 688)
+    Mine():setPosition(x + 8435,y + 3458)
+    Mine():setPosition(x + 8242,y + 3894)
+    Mine():setPosition(x + 7790,y + 4732)
+    Mine():setPosition(x + 8027,y + 4319)
+    Mine():setPosition(x + 8605,y + 3013)
+    Mine():setPosition(x + 8751,y + 2559)
+    Mine():setPosition(x + 9117,y + 212)
+    Mine():setPosition(x + 9090,y + -740)
+    Mine():setPosition(x + 9116,y + -264)
+    Mine():setPosition(x + 9039,y + -1214)
+    Mine():setPosition(x + 8963,y + -1684)
+    Mine():setPosition(x + 8863,y + -2150)
+    Mine():setPosition(x + 8418,y + -3507)
+    Mine():setPosition(x + 8590,y + -3062)
+    Mine():setPosition(x + 8738,y + -2610)
+end
+--	specialized functions to handle the mirror universe
+function skeletonToFaction(faction)
+	stationIcarus:setFaction(faction)
+	stationKentar:setFaction(faction)
+	stationAstron:setFaction(faction)
+	stationLafrina:setFaction(faction)
+	stationTeresh:setFaction(faction)
+	stationBask:setFaction(faction)
+end
+function convertToMirror()
+	mirrorUniverse = true
+	skeletonToFaction("Holy Terra")
+end
+function convertToNonMirror()
+	mirrorUniverse = false
+	skeletonToFaction("Human Navy")
+end
+-----------------------------------------------
+--	Initial Set Up > Start Region > Dynamic  --
+-----------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Dynamic		F	initialGMFunctions
+-- -Setup					F	initialSetUp
+-- -Region					F	setStartRegion
+-- Moveable Terrain			D	movableTerrainOne
+-- Clean Moveable Terrain	F	inline
+-- Base01					F	base01
+function setDynamicTerrain()
+	clearGMFunctions()
+	addGMFunction("-Main From Dynamic",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Region",setStartRegion)
+	local dynamic_sections = {	--more dynamic terrain to be added later
+		["One"] = movableTerrainOne,
+	}
+	if clean_list == nil then
+		if gm_click_mode == "moveable terrain" then
+			addGMFunction(">Moveable Terrain<",movableTerrainOne)
+		else
+			addGMFunction("Moveable Terrain",movableTerrainOne)
+		end
+	else
+		if gm_click_mode == "moveable terrain" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		end
+		addGMFunction("Clean Moveable Terrain",function()
+			for i,obj in ipairs(clean_list) do
+				obj:destroy()
+			end
+			clean_list = nil
+			setDynamicTerrain()
+		end)
+	end
+	if gm_click_mode == "base01" then
+		addGMFunction(">Base01<",base01)
+	else
+		addGMFunction("Base01",base01)
+	end
+end
+function base01()
+	if gm_click_mode == "base01" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "base01"
+		onGMClick(base01OnClick)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   Base 01\nGM click mode.",prev_mode))
+		end
+	end
+	setDynamicTerrain()
+end
+function base01OnClick(x,y)
+	local cx=x
+	local cy=y
+	local inner_ring_speed=180
+	local i_rad=5200
+	local i_1=15000
+	local i_2=math.sqrt(2)*i_1/2
+--	local increment = 10
+--	mineRingShim{dist=20000	,x=cx		,y=cy		,gap=3	,gap_size=20,speed=1800					,segments=6	,increment=increment}
+--	mineRingShim{dist=7000	,x=cx		,y=cy		,gap=12	,gap_size=30,speed=120 					,segments=8	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+--	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
+	createObjectCircle{radius=5000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
+	createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
+	leech(fleetSpawnFaction):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
+	leech(fleetSpawnFaction):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
+	leech(fleetSpawnFaction):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
+	leech(fleetSpawnFaction):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
+	Artifact():setPosition(cx+0,cy+0):setCallSign("Rift Scanner")
+end
+function movableTerrainOne()
+	if gm_click_mode == "moveable terrain" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "moveable terrain"
+		onGMClick(movableTerrainOneOnClick)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   moveable terrain\nGM click mode.",prev_mode))
+		end
+	end
+	setDynamicTerrain()
 end
 function movableTerrainOneOnClick(x,y)
 	if clean_list == nil then
@@ -5391,1225 +4638,7 @@ function movableTerrainOneOnClick(x,y)
 	table.insert(clean_list,Asteroid():setPosition(x + -590, -5274 + y):setSize(random(1,300) + 121))
 	table.insert(clean_list,Asteroid():setPosition(x + -358, -6340 + y):setSize(random(1,300) + 113))
 end
-function moveSelectedObjects()
-	if gm_click_mode == "move selected" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "move selected"
-		onGMClick(gmClickMoveSelected)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   move selected\nGM click mode.",prev_mode))
-		end
-	end
-	tweakTerrain()
-end
-function gmClickMoveSelected(x,y)
-	local object_list = getGMSelection()
-	if #object_list > 0 then
-		if #object_list > 1 then
-			local center_x = 0
-			local center_y = 0
-			local current_object_x, current_object_y = object_list[1]:getPosition()
-			for i=1,#object_list do
-				current_object_x, current_object_y = object_list[i]:getPosition()
-				center_x = center_x + current_object_x
-				center_y = center_y + current_object_y
-			end
-			center_x = center_x / #object_list
-			center_y = center_y / #object_list
-			for i=1,#object_list do
-				current_object_x, current_object_y = object_list[i]:getPosition()
-				current_object_x = current_object_x - center_x
-				current_object_y = current_object_y - center_y
-				object_list[i]:setPosition(x + current_object_x, y + current_object_y)
-			end
-		else
-			object_list[1]:setPosition(x,y)
-		end
-	else
-		gm_click_mode = nil
-		onGMClick(nil)
-		addGMMessage("Nothing selected. Move selected mode cancelled")
-	end
-end
-function explodeSelectedArtifact()
-	local objectList = getGMSelection()
-	if #objectList ~= 1 then
-		addGMMessage("You need to select an object. No action taken.")
-		return
-	end
-	local tempObject = objectList[1]
-	if not isObjectType(tempObject,"Artifact") then
-		addGMMessage("Only select an artifact since only artifacts explode. No action taken.")
-		return
-	end
-	tempObject:explode()
-end
-function pulseAsteroid()
-	local objectList = getGMSelection()
-	if #objectList ~= 1 then
-		addGMMessage("You need to select an object. No action taken.")
-		return
-	end
-	local tempObject = objectList[1]
-	if not isObjectType(tempObject,"Asteroid") then
-		addGMMessage("Only select an asteroid. No action taken.")
-		return
-	end
-	local selected_in_list = false
-	for i=1,#J4_to_L8_asteroids do
-		if tempObject == J4_to_L8_asteroids[i] then
-			selected_in_list = true
-			break
-		end
-	end
-	if selected_in_list then
-		if tempObject.original_size == nil then
-			addGMMessage("selected has a nil value where it should have an original_size. No action taken")
-			return
-		end
-		if tempObject.original_size < 120 then
-			tempObject.grow = true
-			tempObject.max_size = 300
-			tempObject.increment = (300 - tempObject.original_size)/10
-			plotPulse = growAsteroid
-		else
-			tempObject.shrink = true
-			tempObject.min_size = tempObject.original_size/2
-			tempObject.increment = (tempObject.original_size - (tempObject.original_size/2))/10
-			plotPulse = shrinkAsteroid
-		end
-		if pulse_asteroid_list == nil then
-			pulse_asteroid_list = {}
-		end
-		table.insert(pulse_asteroid_list,tempObject)
-	else
-		addGMMessage("Only asteroids in J4 to L8 can pulse. No action taken")
-		return
-	end
-end
-function growAsteroid(delta)
-	if pulse_asteroid_list ~= nil then
-		if #pulse_asteroid_list > 0 then
-			for i=1,#pulse_asteroid_list do
-				local ta = pulse_asteroid_list[i]
-				if ta ~= nil and ta:isValid() then
-					if ta.grow_size == nil then
-						ta.grow_size = ta.original_size
-					end
-					ta.grow_size = ta.grow_size + ta.increment
-					ta:setSize(ta.grow_size)
-					print(string.format("grow_size: %.1f, max_size: %.1f",ta.grow_size,ta.max_size))
-					if ta.grow_size >= ta.max_size then
-						--end of growth
-						print("end of growth")
-						resetPulsingAsteroid(ta)
-					end
-				end
-			end
-		end
-	end
-end
-function resetPulsingAsteroid(ta)
-	ta.grow = nil
-	ta.shrink = nil
-	ta.max_size = nil
-	ta.min_size = nil
-	ta.grow_size = nil
-	ta.shrink_size = nil
-	ta:setSize(ta.original_size)
-	for i=1,#pulse_asteroid_list do
-		if ta == pulse_asteroid_list[i] then
-			table.remove(pulse_asteroid_list,i)
-			break
-		end
-	end
-	print("done resetting")
-end
-function shrinkAsteroid(delta)
-	if pulse_asteroid_list ~= nil then
-		if #pulse_asteroid_list > 0 then
-			for i=1,#pulse_asteroid_list do
-				local ta = pulse_asteroid_list[i]
-				if ta ~= nil and ta:isValid() then
-					if ta.shrink_size == nil then
-						ta.shrink_size = ta.original_size
-					end
-					ta.shrink_size = ta.shrink_size - ta.increment
-					ta:setSize(ta.shrink_size)
-					print(string.format("shrink_size: %.1f, min_size: %.1f",ta.shrink_size,ta.min_size))
-					if ta.shrink_size <= ta.min_size then
-						--end of shrink
-						print("end of shrink")
-						resetPulsingAsteroid(ta)
-					end
-				end
-			end
-		end
-	end
-end
------------------------
---	Countdown Timer  --
------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM TIMER		F	initialGMFunctions
--- +DISPLAY: GM			D	GMTimerDisplay
--- +LENGTH: 5			D	GMTimerLength
--- +PURPOSE: TIMER		D	GMTimerPurpose
--- +ADD SECONDS			F	addSecondsToTimer		(only present after timer starts)
--- +DELETE SECONDS		F	deleteSecondsFromTimer	(only present after timer starts)
--- +CHANGE SPEED		F	changeTimerSpeed		(only present after timer starts)
--- SHOW CURRENT			F	inline					(only present after timer starts)
--- START TIMER			F	inline: toggles between START and STOP (related code in update)
-function countdownTimer()
-	clearGMFunctions()
-	addGMFunction("-Main from Timer",initialGMFunctions)
-	local timer_display = "+Display: GM"
-	if timer_display_helm then
-		timer_display = timer_display .. ",H"
-	end
-	if timer_display_weapons then
-		timer_display = timer_display .. ",W"
-	end
-	if timer_display_engineer then
-		timer_display = timer_display .. ",E"
-	end
-	if timer_display_science then
-		timer_display = timer_display .. ",S"
-	end
-	if timer_display_relay then
-		timer_display = timer_display .. ",R"
-	end
-	addGMFunction(timer_display,GMTimerDisplay)
-	addGMFunction(string.format("+Length: %i",timer_start_length),GMTimerLength)
-	addGMFunction(string.format("+Purpose: %s",timer_purpose),GMTimerPurpose)
-	addGMFunction(string.format("+Type: %s",timer_type),GMTimerType)
-	if timer_started then
-		addGMFunction("+Add Seconds",addSecondsToTimer)
-		addGMFunction("+Delete Seconds",deleteSecondsFromTimer)
-		addGMFunction("+Change Speed",changeTimerSpeed)
-		addGMFunction("Show Current",function()
-			local timer_status = timer_purpose
-			local timer_minutes = math.floor(timer_value / 60)
-			local timer_seconds = math.floor(timer_value % 60)
-			if timer_minutes <= 0 then
-				timer_status = string.format("%s %i",timer_status,timer_seconds)
-			else
-				timer_status = string.format("%s %i:%.2i",timer_status,timer_minutes,timer_seconds)
-			end
-			if timer_scale > 1 then
-				timer_status = string.format("%s\n(sped up: %.3f)",timer_status,timer_scale)
-			elseif timer_scale < 1 then
-				timer_status = string.format("%s\n(slowed: %.3f)",timer_status,timer_scale)
-			end
-			addGMMessage(timer_status)
-		end)
-		addGMFunction("Stop Timer", function()
-			timer_started = false
-			countdownTimer()
-		end)
-	else
-		addGMFunction("Start Timer", function()
-			startTimer()
-			countdownTimer()
-		end)
-	end
-end
-function startTimer()
-	timer_started = true
-end
-describeFunction("startTimer","starts the gm configured timer")
-function coloredSubspaceRift (x,y,destination_x,destination_y)
-	local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
-	local all_objs = {}
-	local number_in_ring = 20
-	local clockwise_objs=createObjectCircle{number = number_in_ring}
-	local a_c = {
-	--	red						green					blue
-	--	start	min	max	time	start	min	max	time	start	min	max	time
-		{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
-		{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
-		{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
-		{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
-		{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
-		{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
-		{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
-		{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
-		{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
-		{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
-		{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
-		{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
-		{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
-		{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
-		{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
-		{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
-		{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
-		{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
-		{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
-		{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
-	}
-	for i=1,#clockwise_objs do
-		if a_c[i] ~= nil then
-			update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
-		end
-	end
---		clockwise_objs[1]:setRadarTraceColor(0,255,0)
-	for i=#clockwise_objs,1,-1 do
-		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
-		update_system:addOwned(clockwise_objs[i],artifact)
-		table.insert(all_objs,clockwise_objs[i])
-	end
-	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
-	for i=#counterclockwise_objs,1,-1 do
-		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
-		update_system:addOwned(counterclockwise_objs[i],artifact)
-		table.insert(all_objs,counterclockwise_objs[i])
-	end
-	local update_data = {
-		all_objs = all_objs,
-		current_radius = 0,
-		max_radius = 3000,
-		max_time = 120,
-		destination_x = destination_x or 0,
-		destination_y = destination_y or 0,
-		update = function (self, obj, delta)
-			self.current_radius = extraMath.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
-			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
-			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
-			for i=#all_objs,1,-1 do
-				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
-			end
-			local x,y=obj:getPosition()
-			local objs = getObjectsInRadius(x,y,self.current_radius)
-			for i=#objs,1,-1 do
-				if isObjectType(objs[i],"PlayerSpaceship") or isObjectType(objs[i],"CpuShip") then
-					objs[i]:setPosition(self.destination_x,self.destination_y)
-				end
-			end
-		end,
-		edit = {
-			{name = "max_time", fixedAdjAmount=1},
-			{name = "destination_x", fixedAdjAmount=20000},
-			{name = "destination_y", fixedAdjAmount=20000}
-		}
-	}
-	update_system:addUpdate(artifact,"subspace rift",update_data)
-	return artifact
-end
---------------
---	Custom  --
---------------
--- Button Text			   FD*	Related Function(s)
--- -MAIN FROM END			F	initialGMFunctions
--- +SNIPPET					F	snippetButtons
--- +ONE-OFFS				F	oneOffs
--- +SCIENCE DB				F	scienceDatabase
--- +TRACTOR SOUND			F	tractorSound
--- 4K MINE RING				F	inline
--- SUBSPACE RIFT			F	inline
--- ***DANGER*** RUN DESC	F	mollyGuardLoadDescription
-function customButtons()
-	clearGMFunctions()
-	addGMFunction("-Main From Custom",initialGMFunctions)
-	addGMFunction("+Debug",debugButtons)
-	addGMFunction("+Snippet",snippetButtons)
-	addGMFunction("+One-Offs",oneOffs)
-	addGMFunction("+Gateway/Rifts",gatewayRifts)
-	addGMFunction("4k mine ring",singleObjectFunction(function (obj)
-		local x,y = obj:getPosition()
-			mineRingShim{x=x, y=y, dist=12000, segments=4, angle=0, gap_size=5, gap=1, speed=60}
-		end))	-- this probably wants to be done properly with a nice fancy UI but today is not the day
-	-- X&Y where pulled out of gateway_x and gateway_y, they should refer to the same var really
-	-- though when I get round to one of the next improvements to gateway this may need to change anyway
-	addGMFunction("contact gm",function ()
-		playerFleet:addCustomButton("Relay","gm contact","Contact HQ",function (player)
-			if not openGMComms(player) then
-				player:wrappedAddCustomMessage("Relay","gm contact fail","unable to complete calibration due to open comms window")
-			end
-		end)
-	end)
-	addGMFunction("***DANGER*** run desc",mollyGuardLoadDescription)
-end
-function gatewayRifts()
-	clearGMFunctions()
-	addGMFunction("-Main From Gateway/Rifts",initialGMFunctions)
-	addGMFunction("-Custom",customButtons)
-	addGMFunction("subspace rift",function () onGMClick(function (x,y)
-		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
-		local all_objs = {}
-		local number_in_ring = 20
-		local clockwise_objs=createObjectCircle{number = number_in_ring}
-		for i=#clockwise_objs,1,-1 do
-			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
-			update_system:addOwned(clockwise_objs[i],artifact)
-			table.insert(all_objs,clockwise_objs[i])
-		end
-		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
-		for i=#counterclockwise_objs,1,-1 do
-			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
-			update_system:addOwned(counterclockwise_objs[i],artifact)
-			table.insert(all_objs,counterclockwise_objs[i])
-		end
-		local update_data = {
-			all_objs = all_objs,
-			current_radius = 0,
-			max_radius = 3000,
-			max_time = 120,
-			update = function (self, obj, delta)
-				self.current_radius = extraMath.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
-				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
-				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
-				for i=#all_objs,1,-1 do
-					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
-				end
-				local x,y=obj:getPosition()
-				local objs = getObjectsInRadius(x,y,self.current_radius)
-				for i=#objs,1,-1 do
-					if isObjectType(objs[i],"PlayerSpaceship") then
-						local player_x,player_y = objs[i]:getPosition()
-						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
-						setCirclePos(objs[i],x,y,-angle,self.current_radius)
-					end
-				end
-			end,
-			edit = {{name = "max_time", fixedAdjAmount=1}} -- this really should have more edit controls but I'm feeling lazy
-		}
-		update_system:addUpdate(artifact,"subspace rift",update_data)
-	end)end)
-	addGMFunction("Colored Subspace Rift",function ()
-		onGMClick(function (x,y)
-			coloredSubspaceRift(x,y,playerSpawnX,playerSpawnY)
-		end)
-	end)
-	addGMFunction("gateway rift",function () gateway_rift=coloredSubspaceRift(59893,373681) end)
-	addGMFunction("set gateway exit", function ()
-		onGMClick(function (x,y)
-			if (gateway_rift ~= nil and gateway_rift:isValid()) then
-				local update = update_system:getUpdateNamed(gateway_rift,"subspace rift")
-				if update ~= nil then
-					update.destination_x = x
-					update.destination_y = y
-				end
-			end
-		end)
-	end)
-	addGMFunction("pending gateway defences",function ()
-		-- note one of the command bases probably wants to be changed to a science station (no name yet)
-		-- other one to a shipyard?
-		-- mines also kind of want tweaking for them (the rows of 8ish mines) - they arent symmetrical
-		local gateway_x = 59893
-		local gateway_y = 373681
-		local dist = 15000
-		-- note distances could use a little tweaking (talking 100s of units)
-		-- likewise callsigns could use some work to make some matching names
-		local ship = nil
-		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((170 )/360)*math.pi*2)*dist, gateway_y - math.cos(((170 )/360)*math.pi*2)*dist)
-		setBeamColor(ship)
-		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((190 )/360)*math.pi*2)*dist, gateway_y - math.cos(((190 )/360)*math.pi*2)*dist)
-		setBeamColor(ship)
-		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((290 )/360)*math.pi*2)*dist, gateway_y - math.cos(((290 )/360)*math.pi*2)*dist)
-		setBeamColor(ship)
-		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((310 )/360)*math.pi*2)*dist, gateway_y - math.cos(((310 )/360)*math.pi*2)*dist)
-		setBeamColor(ship)
-		dist = 19000
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((145 )/360)*math.pi*2)*dist, gateway_y - math.cos(((145 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((215 )/360)*math.pi*2)*dist, gateway_y - math.cos(((215 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((265 )/360)*math.pi*2)*dist, gateway_y - math.cos(((265 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((335 )/360)*math.pi*2)*dist, gateway_y - math.cos(((335 )/360)*math.pi*2)*dist)
-		dist = 23000
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((15  )/360)*math.pi*2)*dist, gateway_y - math.cos(((15  )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((135 )/360)*math.pi*2)*dist, gateway_y - math.cos(((135 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((225 )/360)*math.pi*2)*dist, gateway_y - math.cos(((225 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
-		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((345 )/360)*math.pi*2)*dist, gateway_y - math.cos(((345 )/360)*math.pi*2)*dist)
-	end)
-end
--------------------
---	End Session  --
--------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM END		F	initialGMFunctions
--- +REGION REPORT		F	regionReport
--- +FACTION VICTORY		F	endMission
-function endSession()
-	clearGMFunctions()
-	addGMFunction("-Main From End",initialGMFunctions)
-	addGMFunction("+Region Report",regionReport)
-	addGMFunction("+Faction Victory",endMission)
-end
---	Christmas stuff
-function carolSpawnSingle(stage,faction)
-	assert(type(stage)=="number",string.format("function carolSpawnSingle expected a number for the first argument, 'stage,' but got a %s instead",type(stage)))
-	assert(stage > 0 and stage <= 12,string.format("the first argument of carolSpawnSingle, 'stage,' must be between 1 and 12 inclusive. %s is invalid",stage))
-	local spawnFun={
-		carolStage1,	
-		carolStage2,
-		carolStage3,
-		carolStage4,
-		carolStage5,
-		carolStage6,
-		carolStage7,
-		carolStage8,
-		carolStage9,
-		carolStage10,
-		carolStage11,
-		carolStage12}
-	return spawnFun[stage](spawnFun)
-end
-function addChristmasArtifact(waypoints)
-	if #waypoints > 3 then
-		-- yuk yuk this probably should be reworked properly, but it works for this for now
-		local update_data = {
-			update = function (self, obj, delta)
-				local desiredDelta=self.desiredSpeed*delta
-				for i=0,10000 do
-					self.current=self.current+self.tickSize
-					if self.current+2>=#self.waypoints then
-						obj:destroy()
-						return
-					end
-					local px,py=obj:getPosition()
-					local x,y=extraMath.CubicInterpolate2DTable(self.waypoints,self.current)
-					if distance(px,py,x,y)>desiredDelta then
-						obj:setPosition(x,y)
-						return
-					end
-				end
-			end,
-			current = 1,
-			desiredSpeed=500,
-			tickSize=0.000001,
-			waypoints = waypoints
-		}
-			local texts={
-				"Threats to stop nightime life suppport and return the station to silence",	--silent night
-				"Religious text containing allusions to Satan's Claws",	
-				"Claims omnipresent observation, regardless of state of consciousness or moral state", --Santa claus is coming to town
-				"Audio message of numerous voices chanting ritualistically together",	--caroling
-				"Broken message threatening to slay the residents of the station",	--
-				"Message containing a threat to deck both crewman Hall and engineer Holly",	--Deck the halls
-				"Discussions about precious metal fashioned into cylindrical devices tuned to harmonious frequencies",	--silver bells
-				"The sound of cacaphonous striking of bulkheads by a small boy",	--little drummer boy
-				"A quest for a supernova by three highly ranked CUF officers",	--we three kings
-				"Monitor communications from supernatural public relations representatives",	--hark the herald angels
-				"Stealthily observe maternal unit interacting with aged seasonal magician",	--I saw mommy kissing Santa Clause
-				"Constrain desire for dentition reconstruction",	--All I want for Christmas is my two front teeth
-				"Matriarch devastated by encounter with lone horned beast with questionable flight qualities",	--grandma got run over by a reindeer
-				"Benign ruler inspects large food cargo set out for consumption",	--good king wenceslas
-				"Sleep induced on males with sunny dispositions",	--god rest ye merry gentlemen
-				"I have the decapitated beast's head with sundry herbs and spices",	--the boar's head carol
-			}
-			local art=Artifact():setDescription(texts[irandom(1,#texts)])
-		update_system:addUpdate(art,"xmas waypoints",update_data)
-	end
-end
-function christmasArtifact()
-	local xmasWaypoints={}
-	clearGMFunctions()
-	onGMClick(function (x,y)
-		if #xmasWaypoints == 0 then
-			table.insert(xmasWaypoints,{x=x,y=y})
-		end
-		table.insert(xmasWaypoints,{x=x,y=y})
-	end)
-	addGMFunction("done",function ()
-		table.insert(xmasWaypoints,xmasWaypoints[#xmasWaypoints])
-		addChristmasArtifact(xmasWaypoints)
-		onGMClick(nil)
-		customButtons()
-	end)
-end
--- consider single scanning ships
-function carolStage(stage)
-	-- this wants to be merged with subspace rift
-	local x=722333
-	local y=88284
-	local all_objs = {}
-	local number_in_ring = stage*4
-	local clockwise_objs=createObjectCircle{number = number_in_ring}
-	for i=#clockwise_objs,1,-1 do
-		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),10*stage,x,y,0)
-		table.insert(all_objs,clockwise_objs[i])
-	end
-	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
-	for i=#counterclockwise_objs,1,-1 do
-		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-10*stage,x,y,0)
-		table.insert(all_objs,counterclockwise_objs[i])
-	end
-	local update_data = {
-		all_objs = all_objs,
-		current_radius = 0,
-		state = "expanding",
-		yet_to_spawn = stage,
-		update = function (self, obj, delta)
-			local christmas = {
-				["red"] =		{r =	179,	g =	0,		b =	12},	
-				["green"] =		{r =	0,		g =	179,	b =	44},	
-				["gold"] =		{r =	255,	g =	215,	b =	0},		
-				["purple"] =	{r =	148,	g =	0,		b =	211},	
-			}
-			local distributed = {
-				"red",
-				"green",
-				"purple",
-				"green",
-				"red",
-				"gold",
-				"red",
-				"green",
-				"purple",
-				"green",
-				"red",
-				"gold",
-			}
-			local size_per_stage=250
-			local max_radius = stage*size_per_stage
-			if self.state == "expanding" then
-				local max_time = stage*5
-				self.current_radius = self.current_radius+delta*(max_radius/max_time)
-				if self.current_radius >= max_radius then
-					self.state = "compressing"
-				end
-			end
-			if self.state=="compressing" then
-				local max_time = stage*1
-				self.current_radius = self.current_radius-delta*(max_radius/max_time)
-				for i=12,1,-1 do
-					if i<=self.yet_to_spawn and self.current_radius < size_per_stage*i then
-						createObjectCircle{x = x, y = y, number = i, radius = size_per_stage * i-0.5, start_angle = random(0,360), callback=function() return carolSpawnSingle(i,"Human Navy"):orderRoaming():setFaction("Kraylor") end}
-						self.yet_to_spawn = i - 1
-						local start_angle=random(0,360)
-						for j=1,i*4 do
-							local angle=start_angle+((360)/(i*4)*j)
-							local sx,sy=vectorFromAngle(angle,size_per_stage*i)
-							local dx,dy=vectorFromAngle(angle,1)
-							local index = j%12
-							if index == 0 then
-								index = 12
-							end
-							local color = distributed[index]
-							local r = christmas[color].r
-							local g = christmas[color].g
-							local b = christmas[color].b
-							local art=Artifact():setPosition(x+sx,y+sy):setRadarTraceColor(r,g,b)
---						end
---						local tmp=createObjectCircle{number = i * 4, radius = size_per_stage * i, start_angle = random(0,360), x=x, y=y}
---						for j=#tmp,1,-1 do
---							tmp[j]:setCallSign(i) -- expand out?
---							local dx,dy=vectorFromAngleNorth
-							update_system:addTimeToLiveUpdate(art,10)
-							update_system:addLinear(art,dx,dy,200)
-						end
-					end
-				end
-				if self.current_radius < 0 then
-					obj:destroy()
-					destroyEEtable(all_objs)
-				end
-			end
-			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
-			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
-			for i=#all_objs,1,-1 do
-				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
-			end
-			local objs = getObjectsInRadius(x,y,self.current_radius)
-			for i=#objs,1,-1 do
-				if isObjectType(objs[i],"PlayerSpaceship") then
-					local player_x,player_y = objs[i]:getPosition()
-					local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
-					setCirclePos(objs[i],x,y,-angle,self.current_radius)
-				end
-			end
-		end
-	}
-	update_system:addUpdate(newPhonySpaceObject(),"carol",update_data)
-end
-function singleCPUShipFunction(fn)
-	return singleObjectFunction(function (obj)
-		if not isObjectType(obj,"CpuShip") then
-			addGMMessage("you must select one CPUship")
-			return
-		end
-		fn(obj)
-	end)
-end
-function GMmessageHackedStatus(ship)
-	-- it might be nice if there was logic to see if the systems we print exist
-	addGMMessage(
-		string.format(
-			"hacked amount\n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n" ..
-			"%s = %f \n",
-			"reactor",ship:getSystemHackedLevel("reactor"),
-			"beamweapons",ship:getSystemHackedLevel("beamweapons"),
-			"missilesystem",ship:getSystemHackedLevel("missilesystem"),
-			"maneuver",ship:getSystemHackedLevel("maneuver"),
-			"impulse",ship:getSystemHackedLevel("impulse"),
-			"warp",ship:getSystemHackedLevel("warp"),
-			"jumpdrive",ship:getSystemHackedLevel("jumpdrive"),
-			"frontshield",ship:getSystemHackedLevel("frontshield"),
-			"rearshield",ship:getSystemHackedLevel("rearshield")
-	))
-end
---	added as part of a mission where ships were "infected" by a station
---	causing shield degrade and energy bleed
-function shieldsDegrade()
-	local object_list = getGMSelection()
-	if #object_list ~= 1 then
-		addGMMessage("Need to a ship to decay shields on")
-		return
-	end
-	if object_list[1]:getShieldCount() == nil then
-		addGMMessage("target has no shield")
-		return
-	end
-	--addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
-	--								  obj			,total_time	,curve_x			,curve_y
-	--															 table of 4 numbers	 table of 4 numbers
-	update_system:addShieldDecayCurve(object_list[1],2*60*60	,{0,0.33,0.66,1}	,{1.0,0.5,0.4,0.1})
-end
-function shieldsRegen()
-	local object_list = getGMSelection()
-	if #object_list ~= 1 then
-		addGMMessage("Need to a ship to restore shields on")
-		return
-	end
-	if object_list[1]:getShieldCount() == nil then
-		addGMMessage("target has no shield")
-		return
-	end
-	--addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
-	--								  obj			,total_time	,curve_x			,curve_y
-	--															 table of 4 numbers	 table of 4 numbers
-	update_system:addShieldDecayCurve(object_list[1],60*60		,{0,0.33,0.66,1}	,{0.1,0.4,0.5,1.0})
-end
-function bleedEnergy()
-	local object_list = getGMSelection()
-	if #object_list ~= 1 then
-		addGMMessage("Need to a ship to decay energy on")
-		return
-	end
-	if object_list[1].getMaxEnergy == nil then
-		addGMMessage("target has no energy")
-		return
-	end
-	update_system:addEnergyDecayCurve(object_list[1],2*60*60,{0.0,0.33,0.66,1},{0.0,-0.4,-0.5,-1.0})
-end
-function restoreEnergy()
-	local object_list = getGMSelection()
-	if #object_list ~= 1 then
-		addGMMessage("Need to a ship to restore energy on")
-		return
-	end
-	if object_list[1].getMaxEnergy == nil then
-		addGMMessage("target has no energy")
-		return
-	end
-	update_system:addEnergyDecayCurve(object_list[1],60*60,{0.0,0.33,0.66,1},{-1.0,-0.5,-0.4,0.0})
-end
---	*											   *  --
---	**											  **  --
---	************************************************  --
---	****			Initial Set Up				****  --
---	************************************************  --
---	**											  **  --
---	*											   *  --
--------------------------------------
---	Initial Set Up > Start Region  --
--------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM REGION	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- +PLAYER SPAWN POINT	F	setDefaultPlayerSpawnPoint
--- +TERRAIN				F	changeTerrain
-function setStartRegion()
-	clearGMFunctions()
-	addGMFunction("-Main From Region",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Player Spawn Point",setDefaultPlayerSpawnPoint)
-	addGMFunction("+Terrain",changeTerrain)
-	addGMFunction("+Dynamic",setDynamicTerrain)
-end
-function setDynamicTerrain()
-	clearGMFunctions()
-	addGMFunction("-Main From Dynamic",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Region",setStartRegion)
-	local dynamic_sections = {
-		["One"] = movableTerrainOne,
-	}
-	if clean_list == nil then
-		if gm_click_mode == "moveable terrain" then
-			addGMFunction(">Moveable Terrain<",movableTerrainOne)
-		else
-			addGMFunction("Moveable Terrain",movableTerrainOne)
-		end
-	else
-		if gm_click_mode == "moveable terrain" then
-			gm_click_mode = nil
-			onGMClick(nil)
-		end
-		addGMFunction("Clean Moveable Terrain",function()
-			for i,obj in ipairs(clean_list) do
-				obj:destroy()
-			end
-			clean_list = nil
-			setDynamicTerrain()
-		end)
-	end
-	if gm_click_mode == "base01" then
-		addGMFunction(">Base01<",base01)
-	else
-		addGMFunction("Base01",base01)
-	end
-end
-function base01()
-	if gm_click_mode == "base01" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "base01"
-		onGMClick(base01OnClick)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   Base 01\nGM click mode.",prev_mode))
-		end
-	end
-	setDynamicTerrain()
-end
-function base01OnClick(x,y)
-	local cx=x
-	local cy=y
-	local inner_ring_speed=180
-	local i_rad=5200
-	local i_1=15000
-	local i_2=math.sqrt(2)*i_1/2
---	local increment = 10
---	mineRingShim{dist=20000	,x=cx		,y=cy		,gap=3	,gap_size=20,speed=1800					,segments=6	,increment=increment}
---	mineRingShim{dist=7000	,x=cx		,y=cy		,gap=12	,gap_size=30,speed=120 					,segments=8	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx		,y=cy+-i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx		,y=cy+ i_1	,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx+ i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx+-i_1	,y=cy		,gap=9	,gap_size=40,speed= inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+-i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx+-i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
---	mineRingShim{dist=i_rad ,x=cx+ i_2	,y=cy+ i_2	,gap=9	,gap_size=40,speed=-inner_ring_speed	,segments=2	,increment=increment}
-	createObjectCircle{radius=5000,x=cx	,y=cy	,number=4,callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
-	createObjectCircle{radius=i_1,x=cx	,y=cy	,number=8,	callback=function() return WarpJammer():setFaction(fleetSpawnFaction) end}
-	leech(fleetSpawnFaction):setPosition(cx+2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-1")
-	leech(fleetSpawnFaction):setPosition(cx+2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-2")
-	leech(fleetSpawnFaction):setPosition(cx-2000,cy+2000):setDescription("weapons satellite"):setCallSign("WP-3")
-	leech(fleetSpawnFaction):setPosition(cx-2000,cy-2000):setDescription("weapons satellite"):setCallSign("WP-4")
-	Artifact():setPosition(cx+0,cy+0):setCallSign("Rift Scanner")
-end
-function movableTerrainOne()
-	if gm_click_mode == "moveable terrain" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "moveable terrain"
-		onGMClick(movableTerrainOneOnClick)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   moveable terrain\nGM click mode.",prev_mode))
-		end
-	end
-	setDynamicTerrain()
-end
--------------------------------------
---	Initial Set Up > Player Ships  --
--------------------------------------
--- Button text		   FD*	Related function(s)
--- -MAIN				F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- +TWEAK PLAYER		F	tweakPlayerShip
--- +SPAWN				F	spawnPlayerShip
--- +TELEPORT PLAYERS	F	teleportPlayers
-function playerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Tweak player",tweakPlayerShip)
-	addGMFunction("+Spawn",spawnPlayerShip)
-	addGMFunction("+Filtered Spawn",filteredPlayerShipSpawn)
-	addGMFunction("+Teleport Players",teleportPlayers)
-end
-----------------------------------
---	Initial Set Up > Wormholes  --
-----------------------------------
--- Button Text			   FD*	Related Function(s)
--- -MAIN FROM WORMHOLE		F	initialGMFunctions
--- -SETUP					F	initialSetUp
--- +ICARUS TO DEFAULT		D	setIcarusWormholeExit
-function setWormholes()
-	clearGMFunctions()
-	addGMFunction("-Main From Wormhole",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Icarus to " .. wormholeIcarus.exit,setIcarusWormholeExit)
-end
-function setIcarusWormholeExit()
-	clearGMFunctions()
-	addGMFunction("-Wormhole",setWormholes)
-	for i,w_exit in ipairs(wormholeIcarus.exits) do
-		local button_label = w_exit.name
-		if button_label == wormholeIcarus.exit then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			wormholeIcarus.exit = w_exit.name
-			wormholeIcarus:setTargetPosition(w_exit.x,w_exit.y):onTeleportation(w_exit.tax)
-			setIcarusWormholeExit()
-		end)
-	end
-end
-function createRegionUponTeleportation(worm_hole)
-	local exit_region = nil
-	for i,w_exit in ipairs(worm_hole.exits) do
-		if w_exit.name == worm_hole.exit then
-			exit_region = w_exit.region_name
-			break
-		end
-	end
-	if exit_region ~= nil then
-		for i=1,#universe.available_regions do
-			local region = universe.available_regions[i]
-			if string.find(region.name,exit_region) then
-				if not universe:hasRegionSpawned(region) then
-					universe:spawnRegion(region)
-				end
-				break
-			end
-		end
-	end
-end
-function wormholeTax1(worm_hole,transportee)
-	createRegionUponTeleportation(worm_hole)
-	if transportee ~= nil then
-		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
-			for i,system in ipairs(system_list) do
-				if transportee:hasSystem(system) then
-					local adjust = random(.7,.95)
-					if transportee:getShieldsActive() then
-						adjust = math.min(1,adjust + .2)
-					end
-					transportee:setSystemHealth(system,transportee:getSystemHealth(system)*adjust)
-				end
-			end
-		end
-	end
-end
-function wormholeTax2(worm_hole,transportee)
-	createRegionUponTeleportation(worm_hole)
-	if transportee ~= nil then
-		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
-			local system_pool = {}
-			for i,system in ipairs(system_list) do
-				if transportee:hasSystem(system) then
-					table.insert(system_pool,system)
-				end
-			end
-			for i=1,3 do
-				local damage_system = tableRemoveRandom(system_pool)
-				transportee:setSystemHealth(damage_system,transportee:getSystemHealth(damage_system)*random(.2,.6))
-			end
-		end
-	end
-end
-function wormholeTax3(worm_hole,transportee)
-	createRegionUponTeleportation(worm_hole)
-	if transportee ~= nil then
-		if isObjectType(transportee,"PlayerSpaceship") then
-			transportee:setEnergyLevel(transportee:getEnergyLevel()/2)
-			transportee:commandSetAlertLevel("yellow")
-		end
-		if isObjectType(transportee,"PlayerSpaceship") or isObjectType(transportee,"CpuShip") then
-			local system_pool = {}
-			for i,system in ipairs(system_list) do
-				if transportee:hasSystem(system) then
-					table.insert(system_pool,system)
-				end
-			end
-			local damage_system = tableSelectRandom(system_pool)
-			local adjust = random(-.8,-.2)
-			if transportee:getShieldsActive() then
-				adjust = math.max(-.5,adjust)
-			end
-			transportee:setSystemHealth(damage_system,adjust)
-		end
-	end
-end
-------------------------------
---	Initial Set Up > Zones  --
-------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM ZONES		F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- +ADD ZONE			F	addZone
--- +DELETE ZONE			F	deleteZone (button only present if zones available to delete)
-function changeZones()
-	clearGMFunctions()
-	addGMFunction("-Main From Zones",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("+Add Zone",addZone)
-	if zone_list ~= nil and #zone_list > 0 then
-		addGMFunction("+Delete Zone",deleteZone)
-		addGMFunction("+Add Action to Zone",addActionToZone)
-		addGMFunction("+Del Action from Zone",deleteActionFromZone)
-	end
-end
---------------------------------------------------
---	Initial Set Up > Automated Station Warning  --
---------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -INITIAL				F	initialSetUp
--- WARNING ON*			*	inline
--- WARNING OFF			*	inline
--- SHIP TYPE ON*		*	inline
--- SHIP TYPE OFF		*	inline
--- +PROXIMITY 30U DFLT	D	setStationSensorRange
-function autoStationWarn()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Initial",initialSetUp)
-	local button_label = "Warning On"
-	if automated_station_danger_warning then
-		button_label = string.format("%s*",button_label)
-	end
-	addGMFunction(button_label, function()
-		automated_station_danger_warning = true
-		autoStationWarn()
-	end)
-	button_label = "Warning Off"
-	if not automated_station_danger_warning then
-		button_label = string.format("%s*",button_label)
-	end
-	addGMFunction(button_label, function()
-		automated_station_danger_warning = false
-		autoStationWarn()
-	end)
-	button_label = "Ship Type On"
-	if warning_includes_ship_type then
-		button_label = string.format("%s*",button_label)
-	end
-	addGMFunction(button_label, function()
-		warning_includes_ship_type = true
-		autoStationWarn()
-	end)
-	button_label = "Ship Type Off"
-	if not warning_includes_ship_type then
-		button_label = string.format("%s*",button_label)
-	end
-	addGMFunction(button_label, function()
-		warning_includes_ship_type = false
-		autoStationWarn()
-	end)
-	button_label = "+Proximity"
-	if server_sensor then
-		--local long_range_server = getLongRangeRadarRange()
-		local long_range_server = 30000
-		button_label = string.format("%s %iU Dflt",button_label,long_range_server/1000)
-	else
-		button_label = string.format("%s %iU",button_label,station_sensor_range/1000)
-	end
-	addGMFunction(button_label,setStationSensorRange)
-end
---	****************************************************************  --
---	****				Initial Set Up Start Region				****  --
---	****************************************************************  --
-----------------------------------------------------------
---	Initial Set Up > Start Region > Player Spawn Point  --
-----------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -FROM PLYR SPWN PT	F	setStartRegion
--- followed by all regions after that
-function setDefaultPlayerSpawnPoint()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-From Plyr Spwn Pt",setStartRegion)
-	local region_group_1 = {
-		"Icarus", "Kentar", "Lafrina", "Teresh", "Astron", "Bask"
-	}
-	for i=1,#universe.available_regions do
-		local region=universe.available_regions[i]
-		local has_been_created=universe:hasRegionSpawned(region)
-		local button_name=region.name
-		if startRegion==region.name then
-			button_name=button_name .. "*"
-		end
-		local found_in_group_1 = false
-		for _, group_1 in ipairs(region_group_1) do
-			if string.find(button_name,group_1) then
-				found_in_group_1 = true
-			end
-		end
-		if found_in_group_1 then
-			addGMFunction(button_name, function()
-				playerSpawnX=region.spawn_x
-				playerSpawnY=region.spawn_y
-				if not has_been_created then
-					universe:spawnRegion(region)
-				end
-				startRegion=region.name
-				setDefaultPlayerSpawnPoint()
-			end)
-		end
-	end
-	addGMFunction("+Other Regions",setDefaultPlayerSpawnPointsInOtherRegions)
-end
-function setDefaultPlayerSpawnPointsInOtherRegions()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Start Region",setStartRegion)
-	addGMFunction("-Player Spawn Point",setDefaultPlayerSpawnPoint)
-	local region_group_2 = {
-		"Eris", "Santa", "Riptide", "Staunch", "Glikton", "Goodall"
-	}
-	for i=1,#universe.available_regions do
-		local region=universe.available_regions[i]
-		local has_been_created=universe:hasRegionSpawned(region)
-		local button_name=region.name
-		if startRegion==region.name then
-			button_name=button_name .. "*"
-		end
-		local found_in_group_2 = false
-		for _, group_1 in ipairs(region_group_2) do
-			if string.find(button_name,group_1) then
-				found_in_group_2 = true
-			end
-		end
-		if found_in_group_2 then
-			addGMFunction(button_name, function()
-				playerSpawnX=region.spawn_x
-				playerSpawnY=region.spawn_y
-				if not has_been_created then
-					universe:spawnRegion(region)
-				end
-				startRegion=region.name
-				setDefaultPlayerSpawnPoint()
-			end)
-		end
-	end
-end
------------------------------------------------
---	Initial Set Up > Start Region > Terrain  --
------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -FROM TERRAIN	F	setStartRegion
--- followed by all regions after that
-function changeTerrain()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-From Terrain",setStartRegion)
-	for i=1,#universe.available_regions do
-		local region=universe.available_regions[i]
-		local has_been_created=universe:hasRegionSpawned(region)
-		if has_been_created then
-			addGMFunction(region.name .. "*",function ()
-				universe:removeRegion(region)
-				changeTerrain()
-			end)
-		else
-			addGMFunction(region.name,function ()
-				universe:spawnRegion(region)
-				changeTerrain()
-			end)
-		end
-	end
-	if kentar_moving_asteroids == nil then
-		addGMFunction("Add Kentar Whirlpool",function()
-			kentar_moving_asteroids = createKentarOrbitingAsteroids()
-			changeTerrain()
-		end)
-	else
-		addGMFunction("Del Kentar Whirlpool",function()
-			if kentar_moving_asteroids ~= nil then
-				for _,ka in pairs(kentar_moving_asteroids) do
-					ka:destroy()
-				end
-			end
-			kentar_moving_asteroids = nil
-			changeTerrain()
-		end)
-	end
-	if icarus_color then
-		if wormhole_tour then
-			addGMFunction("Del Wormhole Tour",function()
-				wormhole_tour = false
-				if wormhole_tour_stuff ~= nil then
-					for _, dw in pairs(wormhole_tour_stuff) do
-						dw:destroy()
-					end
-				end
-				changeTerrain()	
-			end)
-		else
-			addGMFunction("Add Wormhole tour",function()
-				wormhole_tour = true
-				wormhole_tour_stuff = wormholeTour()
-				changeTerrain()
-			end)
-		end
-	end
-	if stationTknolg == nil then
-		if gm_click_mode == "tknolg base" then
-			addGMFunction(">Tknolg Base<",placeTknolgBase)
-		else
-			addGMFunction("Tknolg Base",placeTknolgBase)
-		end
-	else
-		if gm_click_mode == "tknolg base" then
-			gm_click_mode = nil
-			onGMClick(nil)
-		end
-	end
-	if mirrorUniverse then
-		addGMFunction("To Non Mirror",function ()
-			convertToNonMirror()
-			changeTerrain()
-		end)
-	else
-		addGMFunction("To Mirror",function ()
-			convertToMirror()
-			changeTerrain()
-		end)
-	end
-end
---	specialized functions to handle the mirror universe
-function skeletonToFaction(faction)
-	stationIcarus:setFaction(faction)
-	stationKentar:setFaction(faction)
-	stationAstron:setFaction(faction)
-	stationLafrina:setFaction(faction)
-	stationTeresh:setFaction(faction)
-	stationBask:setFaction(faction)
-end
-function convertToMirror()
-	mirrorUniverse = true
-	skeletonToFaction("Holy Terra")
-end
-function convertToNonMirror()
-	mirrorUniverse = false
-	skeletonToFaction("Human Navy")
-end
+
 --	zone functions
 function squareZone(x,y,name)
 	local zone = Zone():setPoints(x+500,y+500,x-500,y+500,x-500,y-500,x+500,y-500)
@@ -6657,142 +4686,6 @@ function zoneSign(x,y,bearing,distance_to_base)
 	)
 	return zone_sign
 end
-function placeTknolgBase()
-	if gm_click_mode == "tknolg base" then
-		gm_click_mode = nil
-		onGMClick(nil)
-	else
-		local prev_mode = gm_click_mode
-		gm_click_mode = "tknolg base"
-		onGMClick(tknolgBase)
-		if prev_mode ~= nil then
-			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   tknolg base\nGM click mode.",prev_mode))
-		end
-	end
-	changeTerrain()
-end
-function tknolgBase(x,y)
-    stationTknolg = SpaceStation():setTemplate("Medium Station"):setFaction(fleetSpawnFaction):setCallSign("Bio Adaptive Dev Lab"):setPosition(x + 19,y + -4):setCommsFunction(SwitchToGM)
-	local ship = nil
-    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD6"):setPosition(x + 2593,y + 550):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(ship)
-    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD4"):setPosition(x + -7645,y + 4904):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(ship)
-    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD1"):setPosition(x + -4889,y + -7667):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(ship)
-    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD3"):setPosition(x + 4927,y + 7659):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(ship)
-    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD5"):setPosition(x + -3185,y + -490):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(ship)
-    ship = CpuShip():setFaction(fleetSpawnFaction):setTemplate("Defense platform"):setCallSign("AD2"):setPosition(x + 7682,y + -4912):orderRoaming():setCommsFunction(SwitchToGM):setCommsScript(""):setCommsFunction(commsStation)
-	setBeamColor(ship)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -1643,y + 8143)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -7179,y + 4590)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 1558,y + -8072)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -4587,y + -7123)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 4574,y + 7112)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -8029,y + -1666)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + -837,y + -755)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 7877,y + 2223)
-    WarpJammer():setFaction(fleetSpawnFaction):setPosition(x + 7092,y + -4552)
-    Mine():setPosition(x + 2165,y + 8839)
-    Mine():setPosition(x + 2625,y + 8715)
-    Mine():setPosition(x + 3077,y + 8566)
-    Mine():setPosition(x + 3522,y + 8395)
-    Mine():setPosition(x + -2085,y + 8849)
-    Mine():setPosition(x + -2999,y + 8581)
-    Mine():setPosition(x + -3443,y + 8411)
-    Mine():setPosition(x + -1619,y + 8947)
-    Mine():setPosition(x + -673,y + 9069)
-    Mine():setPosition(x + -1147,y + 9021)
-    Mine():setPosition(x + -2545,y + 8727)
-    Mine():setPosition(x + -197,y + 9093)
-    Mine():setPosition(x + 279,y + 9092)
-    Mine():setPosition(x + 1699,y + 8939)
-    Mine():setPosition(x + 1229,y + 9015)
-    Mine():setPosition(x + 755,y + 9066)
-    Mine():setPosition(x + -3879,y + 8219)
-    Mine():setPosition(x + -4305,y + 8003)
-    Mine():setPosition(x + -4717,y + 7766)
-    Mine():setPosition(x + -5117,y + 7508)
-    Mine():setPosition(x + 3482,y + -8420)
-    Mine():setPosition(x + 4342,y + -8012)
-    Mine():setPosition(x + -8381,y + 3498)
-    Mine():setPosition(x + -8551,y + 3054)
-    Mine():setPosition(x + -8701,y + 2601)
-    Mine():setPosition(x + 3036,y + -8589)
-    Mine():setPosition(x + 2122,y + -8858)
-    Mine():setPosition(x + 1656,y + -8956)
-    Mine():setPosition(x + 2583,y + -8735)
-    Mine():setPosition(x + 1186,y + -9029)
-    Mine():setPosition(x + 712,y + -9078)
-    Mine():setPosition(x + -241,y + -9100)
-    Mine():setPosition(x + -716,y + -9074)
-    Mine():setPosition(x + 236,y + -9101)
-    Mine():setPosition(x + -1191,y + -9023)
-    Mine():setPosition(x + -2127,y + -8848)
-    Mine():setPosition(x + -1661,y + -8948)
-    Mine():setPosition(x + -2587,y + -8723)
-    Mine():setPosition(x + -3483,y + -8403)
-    Mine():setPosition(x + -3039,y + -8575)
-    Mine():setPosition(x + -6261,y + -6590)
-    Mine():setPosition(x + -6597,y + -6252)
-    Mine():setPosition(x + -8205,y + -3902)
-    Mine():setPosition(x + -8397,y + -3466)
-    Mine():setPosition(x + -7213,y + -5527)
-    Mine():setPosition(x + -6915,y + -5897)
-    Mine():setPosition(x + -6567,y + 6276)
-    Mine():setPosition(x + -5875,y + 6930)
-    Mine():setPosition(x + -5503,y + 7228)
-    Mine():setPosition(x + -6229,y + 6612)
-    Mine():setPosition(x + -7493,y + -5140)
-    Mine():setPosition(x + -7751,y + -4740)
-    Mine():setPosition(x + -7989,y + -4327)
-    Mine():setPosition(x + 6299,y + 6582)
-    Mine():setPosition(x + 7252,y + 5518)
-    Mine():setPosition(x + 6953,y + 5889)
-    Mine():setPosition(x + 6635,y + 6244)
-    Mine():setPosition(x + 7531,y + 5132)
-    Mine():setPosition(x + 6268,y + -6620)
-    Mine():setPosition(x + 5913,y + -6938)
-    Mine():setPosition(x + 6605,y + -6284)
-    Mine():setPosition(x + 5542,y + -7237)
-    Mine():setPosition(x + 4755,y + -7774)
-    Mine():setPosition(x + 5156,y + -7516)
-    Mine():setPosition(x + 3917,y + -8227)
-    Mine():setPosition(x + -9079,y + -221)
-    Mine():setPosition(x + -9077,y + 256)
-    Mine():setPosition(x + -9055,y + -696)
-    Mine():setPosition(x + -9007,y + -1170)
-    Mine():setPosition(x + -8925,y + 1676)
-    Mine():setPosition(x + -9001,y + 1205)
-    Mine():setPosition(x + -8825,y + 2141)
-    Mine():setPosition(x + -9051,y + 731)
-    Mine():setPosition(x + -8713,y + -2568)
-    Mine():setPosition(x + -8835,y + -2107)
-    Mine():setPosition(x + -8933,y + -1641)
-    Mine():setPosition(x + -8567,y + -3021)
-    Mine():setPosition(x + 8971,y + 1633)
-    Mine():setPosition(x + 9044,y + 1162)
-    Mine():setPosition(x + 8873,y + 2099)
-    Mine():setPosition(x + 9093,y + 688)
-    Mine():setPosition(x + 8435,y + 3458)
-    Mine():setPosition(x + 8242,y + 3894)
-    Mine():setPosition(x + 7790,y + 4732)
-    Mine():setPosition(x + 8027,y + 4319)
-    Mine():setPosition(x + 8605,y + 3013)
-    Mine():setPosition(x + 8751,y + 2559)
-    Mine():setPosition(x + 9117,y + 212)
-    Mine():setPosition(x + 9090,y + -740)
-    Mine():setPosition(x + 9116,y + -264)
-    Mine():setPosition(x + 9039,y + -1214)
-    Mine():setPosition(x + 8963,y + -1684)
-    Mine():setPosition(x + 8863,y + -2150)
-    Mine():setPosition(x + 8418,y + -3507)
-    Mine():setPosition(x + 8590,y + -3062)
-    Mine():setPosition(x + 8738,y + -2610)
-end
-
 -- both these functions are ugly, the lack of a way to get
 -- EE to do this in engine is either my foolishness in being unable to figure it out
 -- or is a bug in EE
@@ -6825,14 +4718,16 @@ end
 ----------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player  --
 ----------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -PLAYER SHIP		F	playerShip
--- +ENGINEERING		F	tweakEngineering
--- +CARGO			F	changePlayerCargo
--- +REPUTATION		F	changePlayerReputation
--- +PLAYER MESSAGE	F	playerMessage
+-- Button Text		   FD*	Related Function(s)
+-- -Main Frm Twk Plyr	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- +By Console			F	tweakByConsole
+-- +PLAYER MESSAGE		F	playerMessage
+-- get hacked status	F	singleCPUShipFunction, GMmessageHackedStatus
+-- +Sensors				F	playerSensors
+-- +Boarders			F	setBoarders
+-- +Carrier				F	setPlayerCarrier
 function tweakPlayerShip()
 	clearGMFunctions()
 	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
@@ -6845,1228 +4740,129 @@ function tweakPlayerShip()
 	addGMFunction("+Boarders",setBoarders)
 	addGMFunction("+Carrier",setPlayerCarrier)
 end
-function tweakByConsole()
-	clearGMFunctions()
-	addGMFunction("-Main From Console",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak",tweakPlayerShip)
-	addGMFunction("+Engineering",tweakEngineering)
-	addGMFunction("+Relay",tweakRelay)
-	addGMFunction("+Helm",playerHelm)
-	addGMFunction("+Weapons",playerWeapons)
-end
-function setBoarders()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
-	addGMFunction("-From Boarders",tweakPlayerShip)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if boarder_intent == nil then
-			boarder_intent = "sabotage"
+function singleCPUShipFunction(fn)
+	return singleObjectFunction(function (obj)
+		if not isObjectType(obj,"CpuShip") then
+			addGMMessage("you must select one CPUship")
+			return
 		end
-		if boarder_entry == nil then
-			boarder_entry = "random"
-		end
-		if boarder_competence == nil then
-			boarder_competence = "medium"
-			boarder_success_chance = 50
-		end
-		if boarder_speed == nil then
-			boarder_speed = 60
-		end
-		addGMFunction(string.format("+Intent:%s",boarder_intent),setBoarderIntent)
-		addGMFunction(string.format("+Entry:%s",boarder_entry),setBoarderEntry)
-		addGMFunction(string.format("+Competence:%s",boarder_competence),setBoarderCompetence)
-		addGMFunction(string.format("+Speed:%s",boarder_speed),setBoarderSpeed)
-		addGMFunction(string.format("Board %s",p:getCallSign()),function()
-			if p.security_log == nil then
-				p.security_log = {}
-			end
-			if p.boarding == nil then
-				local boarder_entries = {}
-				if boarder_entry == "random" then
-					local possible_consoles = {
-						"Helms",
-						"Weapons",
-						"Engineering",
-						"Science",
-						"Relay",
-						"Tactical",
-						"Engineering+",
-						"Operations",
-						"Single",
-						"DamageControl",
-						"PowerManagement",
-						"Database",
-						"AltRelay",
-						"CommsOnly",
-						"ShipLog",
-					}
-					local consoles_in_use = {}
-					for i,console in ipairs(possible_consoles) do
-						if p:hasPlayerAtPosition(console) then
-							table.insert(consoles_in_use,console)
-						end
-					end
-					table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
-					if #consoles_in_use > 0 and random(1,100) < 50 then
-						table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
-						if #consoles_in_use > 0 and random(1,100) < 30 then
-							table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
-							if #consoles_in_use > 0 and random(1,100) < 25 then
-								table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
-								if #consoles_in_use > 0 and random(1,100) < 20 then
-									table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
-								end
-							end
-						end
-					end
-				else
-					table.insert(boarder_entries,boarder_entry)
-				end
-				p.boarder_entry_button_inform_security = {}
-				p.boarder_entry_button_activate_defenses = {}
-				p.boarder_entry_message = {}
-				local boarder_consoles = ""
-				for i,console in ipairs(boarder_entries) do
-					p.boarder_entry_button_inform_security[console] = string.format("boarder_entry_button_inform_security_%s",console)
-					p:addCustomButton(console,p.boarder_entry_button_inform_security[console],"Inform Security",function()
-						string.format("")
-						boarderInformSecurity(p,console)
-					end,35)
-					p.boarder_entry_button_activate_defenses[console] = string.format("boarder_entry_button_activate_defenses_%s",console)
-					p:addCustomButton(console,p.boarder_entry_button_activate_defenses[console],"Activate Defenses",function()
-						boarderActivateDefenses(p,console)
-					end,36)
-					p.boarder_entry_message[console] = string.format("boarder_entry_message_%s",console)
-					p:addCustomMessage(console,p.boarder_entry_message[console],string.format("INTRUDER ALERT\nInternal sensors have detected non-crew life forms entering %s. You may inform security, activate automated defenses or do nothing",p:getCallSign()))
-					if boarder_consoles == "" then
-						boarder_consoles = console
-					else
-						boarder_consoles = string.format("%s, %s",boarder_consoles,console)
-					end
-				end
-				p.boarding = {
-					entries = boarder_entries,
-					intent = boarder_intent,
-					chance = boarder_success_chance,
-					done = getScenarioTime() + boarder_speed + random(0,3),
-				}
-				table.insert(p.security_log,{board_time = getScenarioTime(), egress_time = p.boarding.done, entries = boarder_entries, intent = boarder_intent})
-				addGMMessage(string.format("Boarding has started on %s. Notification has gone to the following consoles:\n%s",p:getCallSign(),boarder_consoles))
-			else
-				addGMMessage(string.format("Boarding already in progress on %s",p:getCallSign()))
-			end
-			setBoarders()
-		end)
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function boarderActivateDefenses(p,console)
-	p.boarding.chance = p.boarding.chance - (5/#p.boarding.entries)
-	boarderRemoveButtons(p,console)
-end
-function boarderInformSecurity(p,console)
-	p.boarding.chance = p.boarding.chance - (10/#p.boarding.entries)
-	boarderRemoveButtons(p,console)
-end
-function boarderResult(p)
-	if p.boarding ~= nil then
-		if getScenarioTime() > p.boarding.done then
-			local board_roll = random(1,100) * p.security_morale
-			if board_roll < p.boarding.chance then
-				if p.boarding.intent == "sabotage" then
-					local possible_systems = {"reactor", "beamweapons", "missilesystem", "maneuver", "impulse", "warp", "jumpdrive", "frontshield", "rearshield"}
-					local sabotageable_systems = {}
-					for i,system in ipairs(possible_systems) do
-						if system == "beamweapons" then
-							if p:getBeamWeaponRange(0) > 1 then
-								table.insert(sabotageable_systems,system)
-							end
-						elseif system == "missilesystem" then
-							if p:getWeaponTubeCount() > 0 then
-								table.insert(sabotageable_systems,system)
-							end
-						elseif system == "warp" then
-							if p:hasWarpDrive() then
-								table.insert(sabotageable_systems,system)
-							end
-						elseif system == "jumpdrive" then
-							if p:hasJumpDrive() then
-								table.insert(sabotageable_systems,system)
-							end
-						elseif system == "rearshield" then
-							if p:getShieldCount() > 1 then
-								table.insert(sabotageable_systems,system)
-							end
-						else
-							table.insert(sabotageable_systems,system)
-						end
-					end
-					local system_to_sabotage = tableRemoveRandom(sabotageable_systems)
-					local damage_amount = .5
-					local morale_modifier = .95
-					p.security_log[#p.security_log].result = "success"
-					if (p.boarding.chance - board_roll) > 20 then
-						p.security_log[#p.security_log].result = "smashing success"
-						damage_amount = 1
-						morale_modifier = .9
-						if (p.boarding.chance - board_roll) > 40 then
-							damage_amount = 1.5
-							morale_modifier = .85
-							p.security_log[#p.security_log].result = "devastating success"
-						end
-					end
-					p.security_morale = p.security_morale * morale_modifier
-					p:setSystemHealth(system_to_sabotage,math.max(p:getSystemHealth(system_to_sabotage) - damage_amount,-1))
-					p.security_log[#p.security_log].result_desc = string.format("Boarding party sabotaged our %s",system_to_sabotage)
-				elseif p.boarding.intent == "information" then
-					p.security_log[#p.security_log].result = "success"
-					local morale_modifier = .95 
-					p.security_log[#p.security_log].result_desc = "From the forensic evidence left near our data access points, we believe the boarders obtained information from our systems."
-					if (p.boarding.chance - board_roll) > 20 then
-						morale_modifier = .9
-						p.security_log[#p.security_log].result = "smashing success"
-						p.security_log[#p.security_log].result_desc = "The intent of the boarders could not be determined."
-					end
-					p.security_morale = p.security_morale * morale_modifier
-				elseif p.boarding.intent == "benign" then
-					p.security_log[#p.security_log].result = "success"
-					if benign_successes == nil or #benign_successes < 1 then
-						benign_successes = {}
-						for i,benign in ipairs(benign_successes_source) do
-							table.insert(benign_successes,benign)
-						end
-					end
-					p.security_log[#p.security_log].result_desc = tableRemoveRandom(benign_successes)
-				end
-			else
-				local morale_modifier = 1.05
-				if board_roll - p.boarding.chance < 20 then
-					p.security_log[#p.security_log].result = "failure"
-					p.security_log[#p.security_log].result_desc = "The boarders were repelled."
-				else
-					p.security_log[#p.security_log].result = "severe failure"
-					p.security_log[#p.security_log].result_desc = "The boarders were easily repelled."
-					morale_modifier = 1.1
-				end
-				p.security_morale = math.min(1,p.security_morale * morale_modifier)
-			end
-			for i,console in ipairs(p.boarding.entries) do
-				boarderRemoveButtons(p,console)
-			end
-			
-			p.boarding = nil
-		end
-	end
-end
-function outClock(time_stamp)
-	if time_stamp == nil then
-		return "00:00:00.0"
-	end
-	if time_stamp >= 60 then
-		if time_stamp >= 3600 then
-			local hours = math.floor(time_stamp / 3600)
-			local minutes = math.floor((time_stamp - (hours * 3600)) / 60)
-			local seconds = time_stamp % 60
-			return string.format("%02d:%02d:%02.1f",hours,minutes,seconds)
-		else
-			local minutes = math.floor(time_stamp / 60)
-			local seconds = time_stamp % 60
-			return string.format("00:%02d:%02.1f",minutes,seconds)
-		end
-	else
-		return string.format("00:00:%02.1f",time_stamp)
-	end
-end
-function securityReport(p,console)
-	local list_out = ""
-	if p.security_log ~= nil and #p.security_log > 0 then
-		for i,log in ipairs(p.security_log) do
-			local report_item = string.format("%s: Sensors report intruders to",outClock(log.board_time))
-			if #log.entries > 1 then
-				for i,entry in ipairs(log.entries) do
-					if i == 1 then
-						report_item = string.format("%s consoles: %s",report_item,entry)
-					else
-						report_item = string.format("%s, %s",report_item,entry)
-					end
-				end
-				report_item = report_item .. "."
-			else
-				report_item = string.format("%s %s.",report_item,log.entries[1])
-			end
-			if getScenarioTime() > log.egress_time then
-				if log.result_desc ~= nil then
-					report_item = string.format("%s\n%s: %s",report_item,outClock(log.egress_time),log.result_desc)
-				else
-					report_item = string.format("%s\n%s: Sensors show intruders still aboard.",report_item,outClock(getScenarioTime()))
-				end
-			else
-				report_item = string.format("%s\n%s: Sensors show intruders still aboard.",report_item,outClock(getScenarioTime()))
-			end
-			if list_out == "" then
-				list_out = report_item
-			else
-				list_out = string.format("%s\n%s",list_out,report_item)
-			end
-		end
-	else
-		list_out = "No security incidents to report."
-	end
-	local out = string.format("%s\nSecurity morale: %.1f%%",list_out,p.security_morale * 100)
-	p.security_report_message = "security_report_message"
-	p:addCustomMessage(console,p.security_report_message,out)
-end
-function boarderRemoveButtons(p,console)
-	p:removeCustom(p.boarder_entry_button_inform_security[console])
-	p:removeCustom(p.boarder_entry_button_activate_defenses[console])
-	p:removeCustom(p.boarder_entry_message[console])
-end
-function setBoarderEntry()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
-	addGMFunction("-From Boarders",tweakPlayerShip)
-	addGMFunction("-From Entry",setBoarders)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local entry_point_setting = {
-			"random",
-			"Helms",
-			"Weapons",
-			"Engineering",
-			"Science",
-			"Relay",
-			"Tactical",
-			"Engineering+",
-			"Operations",
-			"Single",
-			"DamageControl",
-			"PowerManagement",
-			"Database",
-			"AltRelay",
-			"CommsOnly",
-			"ShipLog",
-		}
-		for i, entry in ipairs(entry_point_setting) do
-			if entry == "random" or p:hasPlayerAtPosition(entry) then
-				local button_label = string.format("Entry:%s",entry)
-				if boarder_entry == entry then
-					button_label = button_label .. "*"
-				end
-				addGMFunction(button_label,function()
-					boarder_entry = entry
-					setBoarderEntry()
-				end)
-			end
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function setBoarderSpeed()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
-	addGMFunction("-From Boarders",tweakPlayerShip)
-	addGMFunction("-From Speed",setBoarders)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local speed_settings = {
-			10,
-			30,
-			60,
-			90,
-			120,
-		}
-		for i,speed in ipairs(speed_settings) do
-			local button_label = string.format("Speed:%s",speed)
-			if boarder_speed == speed then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				boarder_speed = speed
-				setBoarderSpeed()
-			end)
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function setBoarderCompetence()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
-	addGMFunction("-From Boarders",tweakPlayerShip)
-	addGMFunction("-From Competence",setBoarders)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local competence_settings = {
-			{desc = "low",		rate = 30},
-			{desc = "medium",	rate = 50},
-			{desc = "high",		rate = 80},
-		}
-		for i,competence in ipairs(competence_settings) do
-			local button_label = string.format("Competence:%s",competence.desc)
-			if boarder_competence == competence.desc then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				boarder_competence = competence.desc
-				boarder_success_chance = competence.rate
-				setBoarderCompetence()
-			end)
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function setBoarderIntent()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Twk Plyr",initialGMFunctions)
-	addGMFunction("-From Boarders",tweakPlayerShip)
-	addGMFunction("-From Intent",setBoarders)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local intent_settings = {
-			"benign",
-			"sabotage",
-			"information",
-		}
-		for i, intent in ipairs(intent_settings) do
-			local button_label = string.format("Intent:%s",intent)
-			if boarder_intent == intent then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				boarder_intent = intent
-				setBoarderIntent()
-			end)
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function playerHelm()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Helm",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-By Console",tweakByConsole)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p:hasSystem("warp") then
-			addGMFunction(string.format("+Chg %s",p:getCallSign()),playerHelm)
-			addGMFunction(string.format("Warp %i+50=%i",p:getWarpSpeed(),p:getWarpSpeed()+50),function()
-				string.format("")
-				p:setWarpSpeed(p:getWarpSpeed()+50)
-				playerHelm()
-			end)
-			addGMFunction(string.format("Warp %i-50=%i",p:getWarpSpeed(),p:getWarpSpeed()-50),function()
-				string.format("")
-				p:setWarpSpeed(p:getWarpSpeed()-50)
-				playerHelm()
-			end)
-		else
-			addGMFunction(string.format("Jump %ik+10k=%i",math.floor(p:getJumpDriveCharge()/1000),math.floor(p:getJumpDriveCharge()/1000)+10),function()
-				string.format("")
-				p:setJumpDriveCharge(p:getJumpDriveCharge() + 10000)
-				playerHelm()
-			end)
-			addGMFunction(string.format("Jump %ik-10k=%i",math.floor(p:getJumpDriveCharge()/1000),math.floor(p:getJumpDriveCharge()/1000)-10),function()
-				string.format("")
-				p:setJumpDriveCharge(p:getJumpDriveCharge() - 10000)
-				playerHelm()
-			end)
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakByConsole()
-	end
-end
-function playerWeapons()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Weapons",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-By Console",tweakByConsole)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local button_label = ""
-		if p:getWeaponStorageMax("EMP") > 0 then
-			button_label = "EMP 3-4"
-			if p.trigger_missile ~= nil and p.trigger_missile["E3"] ~= nil then
-				button_label = "EMP 3-4*"
-			end
-			addGMFunction(button_label,function()
-				if p.trigger_missile ~= nil then
-					if p.trigger_missile["E3"] ~= nil then
-						p.trigger_missile["E3"] = nil
-						local trigger_count = 0
-						for trigger,blob in pairs(p.trigger_missile) do
-							if blob ~= nil then
-								trigger_count = trigger_count + 1
-							end
-						end
-						if trigger_count == 0 then
-							p.trigger_missile = nil
-						end
-					else
-						p.trigger_missile["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
-					end
-				else
-					p.trigger_missile = {}
-					p.trigger_missile["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
-				end
-				playerWeapons()
-			end)
-			button_label = "EMP 4-5"
-			if p.trigger_missile ~= nil and p.trigger_missile["E4"] ~= nil then
-				button_label = "EMP 4-5*"
-			end
-			addGMFunction(button_label,function()
-				if p.trigger_missile ~= nil then
-					if p.trigger_missile["E4"] ~= nil then
-						p.trigger_missile["E4"] = nil
-						local trigger_count = 0
-						for trigger,blob in pairs(p.trigger_missile) do
-							if blob ~= nil then
-								trigger_count = trigger_count + 1
-							end
-						end
-						if trigger_count == 0 then
-							p.trigger_missile = nil
-						end
-					else
-						p.trigger_missile["E4"] = {missile = "EMPMissile",	short = 4000, long = 5000,	button_label = "Trigger EMP 4-5u",	order = 2,	}
-					end
-				else
-					p.trigger_missile = {}
-					p.trigger_missile["E4"] = {missile = "EMPMissile",	short = 4000, long = 5000,	button_label = "Trigger EMP 4-5u",	order = 2,	}
-				end
-				playerWeapons()
-			end)
-		end
-		if p:getWeaponStorageMax("Nuke") > 0 then
-			local button_label = "Nuke 3-4"
-			if p.trigger_missile ~= nil and p.trigger_missile["N3"] ~= nil then
-				button_label = "Nuke 3-4*"
-			end
-			addGMFunction(button_label,function()
-				if p.trigger_missile ~= nil then
-					if p.trigger_missile["N3"] ~= nil then
-						p.trigger_missile["N3"] = nil
-						local trigger_count = 0
-						for trigger,blob in pairs(p.trigger_missile) do
-							if blob ~= nil then
-								trigger_count = trigger_count + 1
-							end
-						end
-						if trigger_count == 0 then
-							p.trigger_missile = nil
-						end
-					else
-						p.trigger_missile["N3"] = {missile = "Nuke",		short = 3000, long = 4000,	button_label = "Trigger Nuke 3-4u",	order = 3,	}
-					end
-				else
-					p.trigger_missile = {}
-					p.trigger_missile["N3"] = {missile = "Nuke",		short = 3000, long = 4000,	button_label = "Trigger Nuke 3-4u",	order = 3,	}
-				end
-				playerWeapons()
-			end)
-			button_label = "Nuke 4-5"
-			if p.trigger_missile ~= nil and p.trigger_missile["N4"] ~= nil then
-				button_label = "Nuke 4-5*"
-			end
-			addGMFunction(button_label,function()
-				if p.trigger_missile ~= nil then
-					if p.trigger_missile["N4"] ~= nil then
-						p.trigger_missile["N4"] = nil
-						local trigger_count = 0
-						for trigger,blob in pairs(p.trigger_missile) do
-							if blob ~= nil then
-								trigger_count = trigger_count + 1
-							end
-						end
-						if trigger_count == 0 then
-							p.trigger_missile = nil
-						end
-					else
-						p.trigger_missile["N4"] = {missile = "Nuke",		short = 4000, long = 5000,	button_label = "Trigger Nuke 4-5u",	order = 4,	}
-					end
-				else
-					p.trigger_missile = {}
-					p.trigger_missile["N4"] = {missile = "Nuke",		short = 4000, long = 5000,	button_label = "Trigger Nuke 4-5u",	order = 4,	}
-				end
-				playerWeapons()
-			end)
-		end
-		button_label = "Balance Shield"
-		if playerShipStats[p:getTypeName()].balance_shield then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			if playerShipStats[p:getTypeName()].balance_shield then
-				playerShipStats[p:getTypeName()].balance_shield = false
-			else
-				playerShipStats[p:getTypeName()].balance_shield = true
-			end
-			playerWeapons()
-		end)
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakByConsole()
-	end
-end
-function playerSensors()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Sensors",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction(string.format("%.1f LRS ^ -> %.1f",sensor_impact,sensor_impact + .1),function()
-		if sensor_impact + .1 > 2 then
-			addGMMessage("Maximum positive sensor impact reached: 2. No action taken")
-		else
-			sensor_impact = sensor_impact + .1
-		end
-		playerSensors()
-	end)
-	addGMFunction(string.format("%.1f LRS V -> %.1f",sensor_impact,sensor_impact - .1),function()
-		if sensor_impact - .1 < 0 then
-			addGMMessage("Minimum negative sensor impact reached: 0. No action taken")
-		else
-			sensor_impact = sensor_impact - .1
-		end
-		playerSensors()
+		fn(obj)
 	end)
 end
-function setPlayerCarrier()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Carrier",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	local p = playerShipSelected()
-	if p ~= nil then
-		local button_label = "Carrier N->Y"
-		if p.carrier ~= nil and p.carrier then
-			button_label = "Carrier Y->N"
-		end
-		addGMFunction(button_label,function()
-			if p.carrier ~= nil and p.carrier then
-				p.carrier = false
-			else
-				p.carrier = true
-			end
-			setPlayerCarrier()
-		end)
-		addGMFunction("+Ship Types",setCarrierShipTypes)
-		addGMFunction("+Ship Inventory",setCarrierShipInventory)
-		if p.carrier_ship_types ~= nil and p.carrier_ship_inventory ~= nil then
-			addGMFunction("+Carrier Ordnance",setCarrierOrdnance)
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
+function GMmessageHackedStatus(ship)
+	-- it might be nice if there was logic to see if the systems we print exist
+	addGMMessage(
+		string.format(
+			"hacked amount\n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n" ..
+			"%s = %f \n",
+			"reactor",ship:getSystemHackedLevel("reactor"),
+			"beamweapons",ship:getSystemHackedLevel("beamweapons"),
+			"missilesystem",ship:getSystemHackedLevel("missilesystem"),
+			"maneuver",ship:getSystemHackedLevel("maneuver"),
+			"impulse",ship:getSystemHackedLevel("impulse"),
+			"warp",ship:getSystemHackedLevel("warp"),
+			"jumpdrive",ship:getSystemHackedLevel("jumpdrive"),
+			"frontshield",ship:getSystemHackedLevel("frontshield"),
+			"rearshield",ship:getSystemHackedLevel("rearshield")
+	))
 end
-function setCarrierOrdnance()
+---------------------------------------------
+--	Initial Set Up > Player Ships > Spawn  --
+---------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- Ship Button Info		F	inline
+-- --Active Ships--		F	inline
+--		or
+-- --Scrapped Ships--	F	inline
+-- List of buttons with applicable ships
+-- --Active Ships--		F	inline
+--		or
+-- --Scrapped Ships--	F	inline
+function spawnPlayerShip()
 	clearGMFunctions()
-	addGMFunction("-Main Frm Carrier",initialGMFunctions)
+	addGMFunction("-Main",initialGMFunctions)
 --	addGMFunction("-Setup",initialSetUp)
 --	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Set Carrier",setPlayerCarrier)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.carrier_ship_inventory ~= nil or #p.carrier_ship_inventory == 0 then
-			local increment_ordnance = {}
-			local increment_ordnance_count = 0
-			for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
-				local current_reputation = p:getReputationPoints()
-				local temp_fighter_max_ordnance = {}
-				local temp_fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)
-				for i,missile_type in ipairs(missile_types) do
-					temp_fighter_max_ordnance[missile_type] = temp_fighter:getWeaponStorageMax(missile_type)
-				end
-				temp_fighter:destroy()
-				p:setReputationPoints(current_reputation)
-				for i,missile_type in ipairs(missile_types) do
-					if increment_ordnance[missile_type] == nil then
-						if temp_fighter_max_ordnance[missile_type] ~= nil then
-							increment_ordnance[missile_type] = temp_fighter_max_ordnance[missile_type]
-							increment_ordnance_count = increment_ordnance_count + 1
-						end
-					else
-						if temp_fighter_max_ordnance[missile_type] ~= nil then
-							increment_ordnance[missile_type] = increment_ordnance[missile_type] + temp_fighter_max_ordnance[missile_type]
-						end
-					end
-				end
-			end
-			if increment_ordnance_count > 0 then
-				addGMFunction("Add ordnance set",function()
-					for i,missile_type in ipairs(missile_types) do
-						if increment_ordnance[missile_type] ~= nil then
-							p:setWeaponStorageMax(missile_type,p:getWeaponStorageMax(missile_type) + increment_ordnance[missile_type])
-						end
-					end
-					setCarrierOrdnance()
-				end)
-				addGMFunction("Fill Ordnance",function()
-					for i,missile_type in ipairs(missile_types) do
-						p:setWeaponStorage(missile_type,p:getWeaponStorageMax(missile_type))
-					end
-				end)
-				for i,missile_type in ipairs(missile_types) do
-					if increment_ordnance[missile_type] ~= nil then
-						addGMFunction(string.format("%s +%i to %i",missile_type,increment_ordnance[missile_type],p:getWeaponStorageMax(missile_type)),function()
-							p:setWeaponStorageMax(missile_type,p:getWeaponStorageMax(missile_type) + increment_ordnance[missile_type])
-							setCarrierOrdnance()
-						end)
-					end
-				end
-			else
-				addGMMessage(string.format("Carrier %s's fighters have no ordnance restock requirements",p:getCallSign()))
-			end
-		else
-			addGMMessage("No ships in carrier inventory")
+	addGMFunction("Ship Button Info",function()
+		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump   W = Warp   B = Both   N = Neither\n and a number for the long range scan range.\n\nSwitch between active player ships and scrapped player ships by using the buttons labeled --Active Ships-- and --Scrapped Ships--")
+	end)
+	local sorted = {}
+	local active_ship_count = 0
+	for name, details in pairs(playerShipInfo) do
+		if details.active == "active" then
+			active_ship_count = active_ship_count + 1
 		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
+		table.insert(sorted,name) 
 	end
-end
-function setCarrierShipTypes()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Carrier",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Set Carrier",setPlayerCarrier)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.carrier_ship_types == nil then
-			p.carrier_ship_types = {}
-			for template,details in pairs(carrier_ship_types) do
-				p.carrier_ship_types[template] = {
-					carry = details.carry,
-					class = details.class,
-					create = details.create,
-				}
+	table.sort(sorted)
+	if active_player_ship then
+		if active_ship_count < 5 then
+			addGMFunction("-Setup",initialSetUp)
+		end
+		if active_ship_count < 6 then
+			addGMFunction("-Player Ship",playerShip)
+		end
+		addGMFunction("--Active Ships--",function()
+			active_player_ship = false
+			spawnPlayerShip()
+		end)
+		for _,name in pairs(sorted) do
+			if playerShipInfo[name]["active"] == "active" then
+				local strength = playerShipStats[playerShipInfo[name].typeName].strength
+				local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+				addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
+					playerShipInfo[name]["spawn"]()
+					playerShipInfo[name]["active"] = "inactive"
+					spawnPlayerShip()
+				end)
 			end
 		end
-		addGMFunction("+By Class",setCarryByClass)
+		addGMFunction("--Active Ships--",function()
+			active_player_ship = false
+			spawnPlayerShip()
+		end)
 	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function setCarryByClass()
-	local p = playerShipSelected()
-	if p ~= nil then
-		local dreadnought_count = 0
-		local dreadnought_carry_count = 0
-		local corvette_count = 0
-		local corvette_carry_count = 0
-		local frigate_count = 0
-		local frigate_carry_count = 0
-		local fighter_count = 0
-		local fighter_carry_count = 0
-		for template,detail in pairs(p.carrier_ship_types) do
-			if detail.class == "Dreadnought" then
-				dreadnought_count = dreadnought_count + 1
-				if detail.carry then
-					dreadnought_carry_count = dreadnought_carry_count + 1
-				end
-			end
-			if detail.class == "Corvette" then
-				corvette_count = corvette_count + 1
-				if detail.carry then
-					corvette_carry_count = corvette_carry_count + 1
-				end
-			end
-			if detail.class == "Frigate" then
-				frigate_count = frigate_count + 1
-				if detail.carry then
-					frigate_carry_count = frigate_carry_count + 1
-				end
-			end
-			if detail.class == "Starfighter" then
-				fighter_count = fighter_count + 1
-				if detail.carry then
-					fighter_carry_count = fighter_carry_count + 1
-				end
-			end
-		end
-		clearGMFunctions()
-		addGMFunction("-Main Frm Carrier",initialGMFunctions)
 		addGMFunction("-Setup",initialSetUp)
 		addGMFunction("-Player Ship",playerShip)
-		addGMFunction("-Tweak Player",tweakPlayerShip)
-		addGMFunction("-Set Carrier",setPlayerCarrier)
-		addGMFunction("-Ship Types",setCarrierShipTypes)
-		addGMFunction(string.format("+Dreadnought %i/%i",dreadnought_carry_count,dreadnought_count),function()
-			setCarryClassSpecified("Dreadnought")
+		addGMFunction("--Scrapped Ships--",function()
+			active_player_ship = true
+			spawnPlayerShip()
 		end)
-		addGMFunction(string.format("+Corvette %i/%i",corvette_carry_count,corvette_count),function()
-			setCarryClassSpecified("Corvette")
+		for _,name in pairs(sorted) do
+			if playerShipInfo[name]["active"] == "inactive" then
+				local strength = playerShipStats[playerShipInfo[name].typeName].strength
+				local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+				addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),playerShipInfo[name]["spawn"])
+			end
+		end
+		addGMFunction("--Scrapped Ships--",function()
+			active_player_ship = true
+			spawnPlayerShip()
 		end)
-		addGMFunction(string.format("+Frigate %i/%i",frigate_carry_count,frigate_count),function()
-			setCarryClassSpecified("Frigate")
-		end)
-		addGMFunction(string.format("+Starfighter %i/%i",fighter_carry_count,fighter_count),function()
-			setCarryClassSpecified("Starfighter")
-		end)
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
 	end
 end
-function setCarryClassSpecified(class)
-	local p = playerShipSelected()
-	if p ~= nil then
-		clearGMFunctions()
-		addGMFunction("-Carry By Class",setCarryByClass)
-		addGMFunction(string.format("All %ss",class),function()
-			for template,detail in pairs(p.carrier_ship_types) do
-				if detail.class == class then
-					detail.carry = true
-				end
-			end
-			setCarryClassSpecified(class)
-		end)
-		addGMFunction(string.format("No %ss",class),function()
-			for template,detail in pairs(p.carrier_ship_types) do
-				if detail.class == class then
-					detail.carry = false
-				end
-			end
-			setCarryClassSpecified(class)
-		end)
-		local specified_class_templates = {}
-		for template,detail in pairs(p.carrier_ship_types) do
-			if detail.class == class then
-				table.insert(specified_class_templates,{name = template, carry = detail.carry})
-			end
-		end
-		table.sort(specified_class_templates, function(a,b)
-			return a.name < b.name
-		end)
-		for i,ship in ipairs(specified_class_templates) do
-			local button_label = ship.name
-			if ship.carry then
-				button_label = string.format("%s*",button_label)
-			end
-			addGMFunction(button_label,function()
-				if ship.carry then
-					p.carrier_ship_types[ship.name].carry = false
-				else
-					p.carrier_ship_types[ship.name].carry = true
-				end
-				setCarryClassSpecified(class)
-			end)
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function setCarrierShipInventory()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Inventory",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Set Carrier",setPlayerCarrier)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.carrier_ship_inventory == nil then
-			p.carrier_ship_inventory = {}
-		end
-		if #p.carrier_ship_inventory > 0 then
-			addGMFunction(string.format("Show inventory %i",#p.carrier_ship_inventory),function()
-				showCarrierShipInventory(p)
-			end)
-		end
-		addGMFunction("+Add Ship",addShipToCarrierInventory)
-		addGMFunction("+Del Ship",deleteShipFromCarrierInventory)
-		addGMFunction("+Change Ship",changeShipInCarrierInventory)
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function showCarrierShipInventory()
-	local p = playerShipSelected()
-	if p ~= nil then
-		if #p.carrier_ship_inventory > 0 then
-			local out = string.format("Carrier inventory report (%i ship):",#p.carrier_ship_inventory)
-			if #p.carrier_ship_inventory > 1 then
-				out = string.format("Carrier inventory report (%i ships):",#p.carrier_ship_inventory)
-			end
-			for i,ship in ipairs(p.carrier_ship_inventory) do
-				out = string.format("%s\n%s %s Strength:%s State:%s",out,ship.name,ship.template,playerShipStats[ship.template].strength,ship.state)
-				if ship.state == "deployed" and (ship.ship == nil or not ship.ship:isValid()) then
-					out = string.format("%s (destroyed)",out)
-				end
-			end
-			addGMMessage(out)
-		else
-			addGMMessage("Inventory empty")
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function addShipToCarrierInventory()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Add Inv",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Carrier",setPlayerCarrier)
-	addGMFunction("-Inventory",setCarrierShipInventory)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.carrier_ship_types ~= nil then
-			local sorted_carrier_ship_types = {}
-			for template, details in pairs(p.carrier_ship_types) do
-				if details.carry then
-					table.insert(sorted_carrier_ship_types,{name = template, class = details.class})
-				end
-			end
-			table.sort(sorted_carrier_ship_types, function(a,b)
-				return a.name < b.name
-			end)
-			for i,ship in ipairs(sorted_carrier_ship_types) do
-				local button_label = ship.name
-				if #p.carrier_ship_inventory > 0 then
-					for j,carrier_ship in ipairs(p.carrier_ship_inventory) do
-						if carrier_ship.template == ship.name then
-							button_label = string.format("%s*",button_label)
-							break
-						end
-					end
-				end
-				addGMFunction(button_label,function()
-					local ship_name = tableRemoveRandom(carrier_ship_names[ship.name])
-					if ship_name == nil then
-						local class_pool = {}
-						for ship_type_name,ship_type_details in pairs(p.carrier_ship_types) do
-							if ship.class == ship_type_details.class then
-								if #carrier_ship_names[ship_type_name] > 0 then
-									table.insert(class_pool,ship_type_name)
-								end
-							end
-						end
-						local selected_template = tableRemoveRandom(class_pool)
-						ship_name = tableRemoveRandom(carrier_ship_names[selected_template])
-					end
-					table.insert(p.carrier_ship_inventory,{
-						class = ship.class, 
-						template = ship.name, 
-						name = ship_name, 
-						state = "aboard", 
-						launch_button = string.format("launch_%s",ship_name),
-						launch_time = carrier_class_launch_time[ship.class],
-					})
-					showCarrierShipInventory()
-				end)
-			end
-			if #sorted_carrier_ship_types == 0 then
-				addGMMessage("Before you can add ships to the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
-			end
-		else
-			addGMMessage("Before you can add ships to the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function deleteShipFromCarrierInventory()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Del Inv",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Carrier",setPlayerCarrier)
-	addGMFunction("-Inventory",setCarrierShipInventory)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.carrier_ship_types ~= nil then
-			if p.carrier_ship_inventory ~= nil and #p.carrier_ship_inventory > 0 then
-				for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
-					addGMFunction(string.format("Del %s",carrier_ship.name),function()
-						if carrier_ship.state ~= "aboard" then
-							if carrier_ship.ship ~= nil and carrier_ship.ship:isValid() then
-								addGMMessage(string.format("%s is not aboard and valid. No delete action taken",carrier_ship.name))
-							else
-								addGMMessage(string.format("%s deleted from carrier ship inventory",carrier_ship.name))
-								p.carrier_ship_inventory[i] = p.carrier_ship_inventory[#p.carrier_ship_inventory]
-								p.carrier_ship_inventory[#p.carrier_ship_inventory] = nil
-								setCarrierShipInventory()
-							end
-						else
-							addGMMessage(string.format("%s deleted from carrier ship inventory",carrier_ship.name))
-							p.carrier_ship_inventory[i] = p.carrier_ship_inventory[#p.carrier_ship_inventory]
-							p.carrier_ship_inventory[#p.carrier_ship_inventory] = nil
-							setCarrierShipInventory()
-						end
-					end)
-				end
-			else
-				addGMMessage("Before you can delete ships from the carrier's inventory, there has to be an inventory from which you can delete a ship")
-				setCarrierShipInventory()
-			end
-		else
-			addGMMessage("Before you can delete ships from the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
-			setCarrierShipInventory()
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function changeShipInCarrierInventory()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Change Inv",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Carrier",setPlayerCarrier)
-	addGMFunction("-Inventory",setCarrierShipInventory)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.carrier_ship_types ~= nil then
-			if p.carrier_ship_inventory ~= nil and #p.carrier_ship_inventory > 0 then
-				local change_choices_presented = 0
-				for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
-					local something_can_change = false
-					if carrier_ship.state == "aboard" then
-						if carrier_ship.max_health ~= nil then
-							something_can_change = true
-						elseif carrier_ship.max_ordnance ~= nil then
-							for i,missile_type in ipairs(missile_types) do
-								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
-									something_can_change = true
-								end
-							end
-						end
-					end
-					if something_can_change then
-						change_choices_presented = change_choices_presented + 1
-						addGMFunction(string.format("Change %s",carrier_ship.name),function()
-							changeSpecificShipInCarrierInventory(carrier_ship)
-						end)
-					end
-				end
-				if change_choices_presented == 0 then
-					addGMMessage("No carrier ship change options available at this time")
-					setCarrierShipInventory()
-				end
-			else
-				addGMMessage("Before you can change ships in the carrier's inventory, there has to be an inventory of ships")
-				setCarrierShipInventory()
-			end
-		else
-			addGMMessage("Before you can change ships in the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
-			setCarrierShipInventory()
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function changeSpecificShipInCarrierInventory(carrier_ship)
-	clearGMFunctions()
-	addGMFunction("-Main Frm Change Inv",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Carrier",setPlayerCarrier)
-	addGMFunction("-Inventory",setCarrierShipInventory)
-	addGMFunction("-Change Ship",changeShipInCarrierInventory)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if carrier_ship.state == "aboard" then
-			local change_options_presented = 0
-			if carrier_ship.max_health ~= nil then
-				change_options_presented = change_options_presented + 1
-				addGMFunction("Max health",function()
-					string.format("")
-					changeCarrierShipMaxHealth(carrier_ship)
-				end)
-			end
-			if carrier_ship.max_ordnance ~= nil then
-				change_options_presented = change_options_presented + 1
-				addGMFunction("Ordnance",function()
-					string.format("")
-					changeCarrierShipOrdnance(carrier_ship)
-				end)
-			end
-			--add rapid refit here
-			if change_options_presented == 0 then
-				addGMMessage(string.format("Nothing to change for %s",carrier_ship.name))
-			end
-			addGMFunction(string.format("%s report",carrier_ship.name),function()
-				carrierShipReport(carrier_ship)
-			end)
-		else
-			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
-			changeShipInCarrierInventory()
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function carrierShipReport(carrier_ship)
-	local out = string.format("Report on %s",carrier_ship.name)
-	local carrier_name = ""
-	local p = playerShipSelected()
-	if p ~= nil then
-		carrier_name = p:getCallSign()
-		out = string.format("%s - a ship in %s's inventory",out,carrier_name)
-	end
-	out = string.format("%s\nTemplate:%s Strength:%s",out,carrier_ship.template,playerShipStats[carrier_ship.template].strength)
-	if carrier_ship.max_health ~= nil then
-		out = string.format("%s\nMax health issues:",out)
-		local max_health_item_count = 0
-		for system,max_health in pairs(carrier_ship.max_health) do
-			out = string.format("%s\n    %s %.1f%%",out,system,max_health*100)
-			max_health_item_count = max_health_item_count + 1
-		end
-		if max_health_item_count == 0 then
-			out = string.format("%s None",out)
-		end
-	else
-		out = string.format("%s\nNo max health issues to report",out)
-	end
-	if carrier_ship.max_ordnance ~= nil then
-		out = string.format("%s\nOrdnance:",out)
-		for i,missile_type in ipairs(missile_types) do
-			if carrier_ship.max_ordnance[missile_type] ~= nil then
-				if carrier_name ~= "" then
-					out = string.format("%s\n    %s %i/%i    Carrier %s: %i/%i",out,missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type],carrier_name,p:getWeaponStorage(missile_type),p:getWeaponStorageMax(missile_type))
-				else
-					out = string.format("%s\n    %s %i/%i",out,missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type])
-				end
-			end
-		end
-	end
-	addGMMessage(out)
-end
-function changeCarrierShipMaxHealth(carrier_ship)
-	clearGMFunctions()
-	addGMFunction(string.format("-Change %s",carrier_ship.name),function()
-		changeSpecificShipInCarrierInventory(carrier_ship)
-	end)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if carrier_ship.state == "aboard" then
-			if carrier_ship.max_health ~= nil then
-				local max_health_item_count = 0
-				for system,ship_max_health in pairs(carrier_ship.max_health) do
-					max_health_item_count = max_health_item_count + 1
-					addGMFunction(string.format("%s %.1f%% Half",system,ship_max_health*100),function()
-						ship_max_health = ship_max_health + (1 - ship_max_health)/2
-						carrier_ship.max_health[system] = ship_max_health
-						changeCarrierShipMaxHealth(carrier_ship)
-					end)
-					addGMFunction(string.format("%s %.1f%% Fix",system,ship_max_health*100),function()
-						carrier_ship.max_health[system] = nil
-						changeCarrierShipMaxHealth(carrier_ship)
-					end)
-				end
-				if max_health_item_count == 0 then
-					addGMMessage(string.format("No max health changes available for %s",carrier_ship.name))
-				end
-			else
-				addGMMessage(string.format("No max health changes available for %s",carrier_ship.name))
-			end
-		else
-			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
-			changeShipInCarrierInventory()
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
-function changeCarrierShipOrdnance(carrier_ship)
-	clearGMFunctions()
-	addGMFunction(string.format("-Change %s",carrier_ship.name),function()
-		changeSpecificShipInCarrierInventory(carrier_ship)
-	end)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if carrier_ship.state == "aboard" then
-			if carrier_ship.max_ordnance ~= nil then
-				for i,missile_type in ipairs(missile_types) do
-					if carrier_ship.max_ordnance[missile_type] ~= nil and carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
-						addGMFunction(string.format("+1 %s %i/%i",missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type]),function()
-							if p:getWeaponStorage(missile_type) > 0 then
-								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
-									p:setWeaponStorage(missile_type,p:getWeaponStorage(missile_type)-1)
-									carrier_ship.ordnance_level[missile_type] = carrier_ship.ordnance_level[missile_type] + 1
-									changeCarrierShipOrdnance(carrier_ship)
-								else
-									addGMMessage(string.format("%s is already at maximum %s level",carrier_ship.name,missile_type))
-								end
-							else
-								addGMMessage(string.format("Carrier %s is out of %ss",p:getCallSign(),missile_type))
-							end
-						end)
-						addGMFunction(string.format("Max %s %i/%i",missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type]),function()
-							local adjustment_amount = carrier_ship.max_ordnance[missile_type] - carrier_ship.ordnance_level[missile_type]
-							if p:getWeaponStorage(missile_type) > adjustment_amount then
-								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
-									p:setWeaponStorage(missile_type,p:getWeaponStorage(missile_type) - adjustment_amount)
-									carrier_ship.ordnance_level[missile_type] = carrier_ship.max_ordnance[missile_type]
-									changeCarrierShipOrdnance(carrier_ship)
-								else
-									addGMMessage(string.format("%s is already at maximum %s level",carrier_ship.name,missile_type))
-								end
-							else
-								addGMMessage(string.format("Carrier %s only has %i %ss - not enough to maximize %s's stock",p:getCallSign(),p:getWeaponStorage(missile_type),missile_type,carrier_ship.name))
-							end
-						end)
-					end
-				end
-			end
-		else
-			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
-			changeShipInCarrierInventory()
-		end
-	else
-		addGMMessage("No player ship selected. No action taken.")
-		tweakPlayerShip()
-	end
-end
------------------------------------------------
---	Initial Set Up > Player Ships > Current  --
------------------------------------------------
--- Button Text	   FD*	Related Function(s)
--- -MAIN			F	initialGMFunctions
--- -SETUP			F	initialSetUp
--- -PLAYER SHIP		F	playerShip
--- Button to spawn each player ship name
-function makePlayerShipActive(ship_name)
-	assert(type(ship_name) == "string")
-	assert(type(playerShipInfo[ship_name]) == "table")
-	playerShipInfo[ship_name]["active"] = "active"
-end
+------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn  --
+------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- No FTL Filter			D	inline
+-- No Tractor Filter		D	inline
+-- No Mining Filter			D	inline
+-- No EPJAM Filter			D	inline
+-- No Patrol Probe Filter	D	inline
+-- No ProxScan Filter		D	inline
+-- +NRF NCF NSF NPF NLF		D	setCutFilter
+-- List ? Matches			D	filteredPlayerShipSpawnList
 function filteredPlayerShipSpawn()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -8476,441 +5272,6 @@ function filteredPlayerShipSpawn()
 	end
 	addGMFunction(string.format("List %i Matches",matching_player_ship_count),filteredPlayerShipSpawnList)
 end
-function setCutFilter()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	local button_label = "+Relative Strength"
-	if relative_strength_filter == "No RelStrength Filter" then
-		button_label = "+No RelStrength Filter"
-	elseif relative_strength_filter == "Less" then
-		button_label = string.format("%s < %i",button_label,relative_strength_cut)
-	elseif relative_strength_filter == "More" then
-		button_label = string.format("%s > %i",button_label,relative_strength_cut)
-	end
-	addGMFunction(button_label,setRelativeStrengthFilter)
-	button_label = "+Cargo Filter"
-	if cargo_filter == "No Cargo Filter" then
-		button_label = "+No Cargo Filter"
-	elseif cargo_filter == "Less" then
-		button_label = string.format("%s < %i",button_label,cargo_cut)
-	elseif cargo_filter == "More" then
-		button_label = string.format("%s > %i",button_label,cargo_cut)
-	end
-	addGMFunction(button_label,setCargoFilter)
-	button_label = "+Long Sensor Filter"
-	if long_sensor_filter == "No Long Sensor Filter" then
-		button_label = "+No Long Sensor Filter"
-	elseif long_sensor_filter == "Less" then
-		button_label = string.format("%s < %i",button_label,long_sensor_cut)
-	elseif long_sensor_filter == "More" then
-		button_label = string.format("%s > %i",button_label,long_sensor_cut)
-	end
-	addGMFunction(button_label,setLongSensorFilter)
-	button_label = "+Probe Filter"
-	if probe_filter == "No Probe Filter" then
-		button_label = "+No Probe Filter"
-	elseif probe_filter == "Less" then
-		button_label = string.format("%s < %i",button_label,probe_cut)
-	elseif probe_filter == "More" then
-		button_label = string.format("%s > %i",button_label,probe_cut)
-	end
-	addGMFunction(button_label,setProbeFilter)
-	button_label = "+Life Pod Filter"
-	if life_pod_filter == "No Life Pod Filter" then
-		button_label = "+No Life Pod Filter"
-	elseif life_pod_filter == "Less" then
-		button_label = string.format("%s < %i",button_label,life_pod_cut)
-	elseif life_pod_filter == "More" then
-		button_label = string.format("%s > %i",button_label,life_pod_cut)
-	end
-	addGMFunction(button_label,setLifePodFilter)
-end
-function setLifePodFilter()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	addGMFunction("-From Life Pod",setCutFilter)
-	local button_label = "No Life Pod Filter"
-	if life_pod_filter == "No Life Pod Filter" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		life_pod_filter = "No Life Pod Filter"
-		life_pod_label = "NLF"
-		setLifePodFilter()
-	end)
-	button_label = string.format("Less than %i",life_pod_cut)
-	if life_pod_filter == "Less" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		life_pod_filter = "Less"
-		life_pod_label = string.format("L<%i",life_pod_cut)
-		setLifePodFilter()
-	end)
-	button_label = string.format("More than %i",life_pod_cut)
-	if life_pod_filter == "More" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		life_pod_filter = "More"
-		life_pod_label = string.format("L>%i",life_pod_cut)
-		setLifePodFilter()
-	end)
-	if life_pod_cut > life_pod_min then
-		addGMFunction(string.format("Set cut to %i",life_pod_cut - 1),function()
-			life_pod_cut = life_pod_cut - 1
-			if life_pod_filter == "Less" then
-				life_pod_label = string.format("L<%i",life_pod_cut)
-			end
-			if life_pod_filter == "More" then
-				life_pod_label = string.format("L>%i",life_pod_cut)
-			end
-			setLifePodFilter()
-		end)
-	end
-	if life_pod_cut < life_pod_max then
-		addGMFunction(string.format("Set cut to %i",life_pod_cut + 1),function()
-			life_pod_cut = life_pod_cut + 1
-			if life_pod_filter == "Less" then
-				life_pod_label = string.format("L<%i",life_pod_cut)
-			end
-			if life_pod_filter == "More" then
-				life_pod_label = string.format("L>%i",life_pod_cut)
-			end
-			setLifePodFilter()
-		end)
-	end
-end
-function setProbeFilter()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	addGMFunction("-From Probe",setCutFilter)
-	local button_label = "No Probe Filter"
-	if probe_filter == "No Probe Filter" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		probe_filter = "No Probe Filter"
-		probe_label = "NPF"
-		setProbeFilter()
-	end)
-	button_label = string.format("Less than %i",probe_cut)
-	if probe_filter == "Less" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		probe_filter = "Less"
-		probe_label = string.format("P<%i",probe_cut)
-		setProbeFilter()
-	end)
-	button_label = string.format("More than %i",probe_cut)
-	if probe_filter == "More" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		probe_filter = "More"
-		probe_label = string.format("P>%i",probe_cut)
-		setProbeFilter()
-	end)
-	if probe_cut > probe_min then
-		addGMFunction(string.format("Set cut to %i",probe_cut - 1),function()
-			probe_cut = probe_cut - 1
-			if probe_filter == "Less" then
-				probe_label = string.format("P<%i",probe_cut)
-			end
-			if probe_filter == "More" then
-				probe_label = string.format("P>%i",probe_cut)
-			end
-			setProbeFilter()
-		end)
-	end
-	if probe_cut < probe_max then
-		addGMFunction(string.format("Set cut to %i",probe_cut + 1),function()
-			probe_cut = probe_cut + 1
-			if probe_filter == "Less" then
-				probe_label = string.format("P<%i",probe_cut)
-			end
-			if probe_filter == "More" then
-				probe_label = string.format("P>%i",probe_cut)
-			end
-			setProbeFilter()
-		end)
-	end
-end
-function setLongSensorFilter()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	addGMFunction("-From Long Sensor",setCutFilter)
-	local button_label = "No Long Sensor Filter"
-	if long_sensor_filter == "No Long Sensor Filter" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		long_sensor_filter = "No Long Sensor Filter"
-		long_sensor_label = "NSF"
-		setLongSensorFilter()
-	end)
-	button_label = string.format("Less than %i",long_sensor_cut)
-	if long_sensor_filter == "Less" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		long_sensor_filter = "Less"
-		long_sensor_label = string.format("S<%i",long_sensor_cut)
-		setLongSensorFilter()
-	end)
-	button_label = string.format("More than %i",long_sensor_cut)
-	if long_sensor_filter == "More" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		long_sensor_filter = "More"
-		long_sensor_label = string.format("S>%i",long_sensor_cut)
-		setLongSensorFilter()
-	end)
-	if long_sensor_cut > long_sensor_min then
-		addGMFunction(string.format("Set cut to %i",long_sensor_cut - 1),function()
-			long_sensor_cut = long_sensor_cut - 1
-			if long_sensor_filter == "Less" then
-				long_sensor_label = string.format("S<%i",long_sensor_cut)
-			end
-			if long_sensor_filter == "More" then
-				long_sensor_label = string.format("S>%i",long_sensor_cut)
-			end
-			setLongSensorFilter()
-		end)
-	end
-	if long_sensor_cut < long_sensor_max then
-		addGMFunction(string.format("Set cut to %i",long_sensor_cut + 1),function()
-			long_sensor_cut = long_sensor_cut + 1
-			if long_sensor_filter == "Less" then
-				long_sensor_label = string.format("S<%i",long_sensor_cut)
-			end
-			if long_sensor_filter == "More" then
-				long_sensor_label = string.format("S>%i",long_sensor_cut)
-			end
-			setLongSensorFilter()
-		end)
-	end
-end
-function setCargoFilter()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	addGMFunction("-From Cargo",setCutFilter)
-	local button_label = "No Cargo Filter"
-	if cargo_filter == "No Cargo Filter" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		cargo_filter = "No Cargo Filter"
-		cargo_label = "NCF"
-		setCargoFilter()
-	end)
-	button_label = string.format("Less than %i",cargo_cut)
-	if cargo_filter == "Less" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		cargo_filter = "Less"
-		cargo_label = string.format("C<%i",cargo_cut)
-		setCargoFilter()
-	end)
-	button_label = string.format("More than %i",cargo_cut)
-	if cargo_filter == "More" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		cargo_filter = "More"
-		cargo_label = string.format("C>%i",cargo_cut)
-		setCargoFilter()
-	end)
-	if cargo_cut > cargo_min then
-		addGMFunction(string.format("Set cut to %i",cargo_cut - 1),function()
-			cargo_cut = cargo_cut - 1
-			if cargo_filter == "Less" then
-				cargo_label = string.format("C<%i",cargo_cut)
-			end
-			if cargo_filter == "More" then
-				cargo_label = string.format("C>%i",cargo_cut)
-			end
-			setCargoFilter()
-		end)
-	end
-	if cargo_cut < cargo_max then
-		addGMFunction(string.format("Set cut to %i",cargo_cut + 1),function()
-			cargo_cut = cargo_cut + 1
-			if cargo_filter == "Less" then
-				cargo_label = string.format("C<%i",cargo_cut)
-			end
-			if cargo_filter == "More" then
-				cargo_label = string.format("C>%i",cargo_cut)
-			end
-			setCargoFilter()
-		end)
-	end
-end
-function setRelativeStrengthFilter()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	addGMFunction("-From Relative Strength",setCutFilter)
-	local button_label = "No RelStrength Filter"
-	if relative_strength_filter == "No RelStrength Filter" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		relative_strength_filter = "No RelStrength Filter"
-		relative_strength_label = "NRF"
-		setRelativeStrengthFilter()
-	end)
-	button_label = string.format("Less than %i",relative_strength_cut)
-	if relative_strength_filter == "Less" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		relative_strength_filter = "Less"
-		relative_strength_label = string.format("R<%i",relative_strength_cut)
-		setRelativeStrengthFilter()
-	end)
-	button_label = string.format("More than %i",relative_strength_cut)
-	if relative_strength_filter == "More" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		relative_strength_filter = "More"
-		relative_strength_label = string.format("R>%i",relative_strength_cut)
-		setRelativeStrengthFilter()
-	end)
-	if relative_strength_cut > relative_strength_min then
-		addGMFunction(string.format("Set cut to %i",relative_strength_cut - 1),function()
-			relative_strength_cut = relative_strength_cut - 1
-			if relative_strength_filter == "Less" then
-				relative_strength_label = string.format("R<%i",relative_strength_cut)
-			end
-			if relative_strength_filter == "More" then
-				relative_strength_label = string.format("R>%i",relative_strength_cut)
-			end
-			setRelativeStrengthFilter()
-		end)
-	end
-	if relative_strength_cut < relative_strength_max then
-		addGMFunction(string.format("Set cut to %i",relative_strength_cut + 1),function()
-			relative_strength_cut = relative_strength_cut + 1
-			if relative_strength_filter == "Less" then
-				relative_strength_label = string.format("R<%i",relative_strength_cut)
-			end
-			if relative_strength_filter == "More" then
-				relative_strength_label = string.format("R>%i",relative_strength_cut)
-			end
-			setRelativeStrengthFilter()
-		end)
-	end
-end
-function filteredPlayerShipSpawnList()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
-	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
-	local sorted = {}
-	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
-	table.sort(sorted)
-	local matching_player_ship_count = 0
-	for name,match in pairs(filteredPlayerShipNames) do
-		if filteredPlayerShipNames[name] == filter_count then
-			matching_player_ship_count = matching_player_ship_count + 1
-		end
-	end
-	if matching_player_ship_count == 0 then
-		if filter_count == 0 or matching_player_ship_count == 0 then
-			addGMMessage("No filter specified or no matching player ships found. Transferring you to the normal player ship spawn section")
-			spawnPlayerShip()
-		else
-			addGMMessage("No player ships matched your filter criteria. You need to change your selected filters and try again")
-			filteredPlayerShipSpawn()
-		end
-	else
-		for _,name in pairs(sorted) do
-			if filteredPlayerShipNames[name] ~= nil then
-				if filteredPlayerShipNames[name] == filter_count then
-					local strength = playerShipStats[playerShipInfo[name].typeName].strength
-					local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-					addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
-						playerShipInfo[name]["spawn"]()
-						playerShipInfo[name]["active"] = "inactive"
-						filteredPlayerShipSpawn()
-					end)
-				end
-			end
-		end
-	end
-end
-function spawnPlayerShip()
-	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
---	addGMFunction("-Setup",initialSetUp)
---	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("Ship Button Info",function()
-		addGMMessage("The player ship buttons have the following info before each name:\nrelative strength number,\nA letter describing the faster than light drive:\n   J = Jump   W = Warp   B = Both   N = Neither\n and a number for the long range scan range.\n\nSwitch between active player ships and scrapped player ships by using the buttons labeled --Active Ships-- and --Scrapped Ships--")
-	end)
-	local sorted = {}
-	local active_ship_count = 0
-	for name, details in pairs(playerShipInfo) do
-		if details.active == "active" then
-			active_ship_count = active_ship_count + 1
-		end
-		table.insert(sorted,name) 
-	end
-	table.sort(sorted)
-	if active_player_ship then
-		if active_ship_count < 5 then
-			addGMFunction("-Setup",initialSetUp)
-		end
-		if active_ship_count < 6 then
-			addGMFunction("-Player Ship",playerShip)
-		end
-		addGMFunction("--Active Ships--",function()
-			active_player_ship = false
-			spawnPlayerShip()
-		end)
-		for _,name in pairs(sorted) do
-			if playerShipInfo[name]["active"] == "active" then
-				local strength = playerShipStats[playerShipInfo[name].typeName].strength
-				local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-				addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
-					playerShipInfo[name]["spawn"]()
-					playerShipInfo[name]["active"] = "inactive"
-					spawnPlayerShip()
-				end)
-			end
-		end
-		addGMFunction("--Active Ships--",function()
-			active_player_ship = false
-			spawnPlayerShip()
-		end)
-	else
-		addGMFunction("-Setup",initialSetUp)
-		addGMFunction("-Player Ship",playerShip)
-		addGMFunction("--Scrapped Ships--",function()
-			active_player_ship = true
-			spawnPlayerShip()
-		end)
-		for _,name in pairs(sorted) do
-			if playerShipInfo[name]["active"] == "inactive" then
-				local strength = playerShipStats[playerShipInfo[name].typeName].strength
-				local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
-				addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name),playerShipInfo[name]["spawn"])
-			end
-		end
-		addGMFunction("--Scrapped Ships--",function()
-			active_player_ship = true
-			spawnPlayerShip()
-		end)
-	end
-end
 --------------------------------------------------------
 --	Initial Set Up > Player Ships > Teleport Players  --
 --------------------------------------------------------
@@ -8952,94 +5313,28 @@ end
 --	********************************************************************************  --
 --	****				Initial Set Up Player Ships Tweak Player				****  --
 --	********************************************************************************  --
-------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering  --
-------------------------------------------------------------------
+-----------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console  --
+-----------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
--- -MAIN				F	initialGMFunctions
+-- -Main From Console	F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- -PLAYER SHIP			F	playerShip
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +COOLANT				F	changePlayerCoolant
--- +REPAIR CREW			F	changePlayerRepairCrew
--- +MAX SYSTEM			F	changePlayerMaxSystem
--- +BEAM HEAT/ENERGY	F	changePlayerBeams
--- SHIELDS DEGRADE		F	shieldsDegrade
--- SHIELDS REGEN		F	shieldsRegen
--- BLEED ENERGY			F	bleedEnergy
--- RESTORE ENERGY		F	restoreEnergy
-function tweakEngineering()
+-- -Tweak				F	tweakPlayerShip
+-- +Engineering			F	tweakEngineering
+-- +Relay				F	tweakRelay
+-- +Helm				F	playerHelm
+-- +Weapons				F	playerWeapons
+function tweakByConsole()
 	clearGMFunctions()
-	addGMFunction("-Main Frm Engineer",initialGMFunctions)
+	addGMFunction("-Main From Console",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-By Console",tweakByConsole)
-	addGMFunction("+Coolant",changePlayerCoolant)
-	addGMFunction("+Repair Crew",changePlayerRepairCrew)
-	addGMFunction("+Max System",changePlayerMaxSystem)
-	addGMFunction("+Beam heat/energy",changePlayerBeams)
-	addGMFunction("+Degrade/Bleed",shieldEnergyDegradeBleed)
-end
-function shieldEnergyDegradeBleed()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Engineer",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-By Console",tweakByConsole)
-	addGMFunction("-Engineering",tweakEngineering)
-	addGMFunction("shields degrade",shieldsDegrade)
-	addGMFunction("shields regen",shieldsRegen)
-	addGMFunction("bleed energy",bleedEnergy)
-	addGMFunction("restore energy",restoreEnergy)
-end
-function playerShipSelected()
-	local selected_player = getPlayerShip(-1)
-	local object_list = getGMSelection()
-	local selected_matches_player = false
-	for i=1,#object_list do
-		local current_selected_object = object_list[i]
-		local players = getActivePlayerShips()
-		for pidx, p in ipairs(players) do
-			if p ~= nil and p:isValid() then
-				if p == current_selected_object then
-					selected_matches_player = true
-					selected_player = p
-					break
-				end
-			end
-		end
-		if selected_matches_player then
-			break
-		end
-	end
-	if selected_matches_player then
-		return selected_player
-	end
-	return nil
-end
-------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay  --
-------------------------------------------------------------------
--- -MAIN FRM TWK RLY	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -PLAYER SHIP			F	playerShip
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +CARGO				F	changePlayerCargo
--- +REPUTATION			F	changePlayerReputation
--- +WAYPOINT			F	addWaypoint
-function tweakRelay()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Twk Rly",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Player Ship",playerShip)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-By Console",tweakByConsole)
-	addGMFunction("+Cargo",changePlayerCargo)
-	addGMFunction("+Reputation",changePlayerReputation)
-	addGMFunction("+Waypoint",addWaypoint)
-	addGMFunction("+Specialty Probes",playerSpecialtyProbes)
+	addGMFunction("-Tweak",tweakPlayerShip)
+	addGMFunction("+Engineering",tweakEngineering)
+	addGMFunction("+Relay",tweakRelay)
+	addGMFunction("+Helm",playerHelm)
+	addGMFunction("+Weapons",playerWeapons)
 end
 ---------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Player Message  --
@@ -9061,376 +5356,627 @@ function playerMessage()
 	addGMFunction("+Ship Log Msg",playerShipLogMessage)
 	addGMFunction("+Hail Message",playerHailMessage)
 end
-----------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Console Message  --
-----------------------------------------------------------------------
--- Button text	   FD*	Related Function(s)
--- -MAIN FROM CNSL MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- +SELECT MSG OBJ		F	changeMessageObject
-function playerConsoleMessage()
-	clearGMFunctions()
-	addGMFunction("-Main From Cnsl Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	changeMessageObjectCaller = playerConsoleMessage
-	if message_object == nil then
-		addGMFunction("+Select Msg Obj",changeMessageObject)
-	else
-		addGMFunction("+Change Msg Obj",changeMessageObject)
-		local p = playerShipSelected()
-		if p ~= nil then
-			addGMFunction("+Send to console",sendPlayerConsoleMessage)
-		else
-			addGMFunction("+Select Player",playerConsoleMessage)
-		end
-	end
-end
-function changeMessageObject()
-	local object_list = getGMSelection()
-	if object_list ~= nil then
-		if #object_list == 1 then
-			message_object = object_list[1]
-			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nPlace message in unscanned description field.\nIf you are writing a message to be delivered as part of the victory or defeat main screen message, put up to four lines in the fields 'Unscanned description:,' 'Friend or Foe Description:,' 'Simple Scan Description:,' and/or 'Full Scan Description:.'",message_object:getSectorName()))
-			changeMessageObjectCaller()
-		else
-			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
-			changeMessageObjectCaller()
-		end
-	else
-		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
-		changeMessageObjectCaller()
-	end 
-end
------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Ship Log Message  --
------------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -MAIN FROM SHIP MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -PLAYER MESSAGE		F	playerMessage
--- +SRC:UNKNOWN			D	playerMessageSource
--- +SELECT MSG OBJ		D	changeMessageObject
--- +PSHIP:ALL			D	setPlayerShipMessageDestination
--- +COLOR:MAGENTA		D	setPlayerShipLogMessageColor
--- PREVIEW				F	inline
--- SEND					F	inline
-function playerShipLogMessage()
-	clearGMFunctions()
-	addGMFunction("-Main From Ship Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	if player_message_source == nil then
-		player_message_source = "Unknown"
-	end
-	if type(player_message_source) == "string" then
-		addGMFunction(string.format("+Src:%s",player_message_source),playerMessageSource)
-	else
-		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageSource)
-	end
-	changeMessageObjectCaller = playerShipLogMessage
-	if message_object == nil then
-		addGMFunction("+Select Msg Obj",changeMessageObject)
-	else
-		addGMFunction("+Change Msg Obj",changeMessageObject)
-	end
-	if player_ship_message_destination == nil then
-		player_ship_message_destination = "All"
-	end
-	local button_label = "+pShip"
-	if type(player_ship_message_destination) == "string" then
-		button_label = button_label .. ":All"
-	else
-		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
-	end
-	set_player_ship_message_destination_caller = playerShipLogMessage
-	addGMFunction(button_label,setPlayerShipMessageDestination)
-	addGMFunction(string.format("+Color:%s",color_list[player_ship_log_message_color]),setPlayerShipLogMessageColor)
-	addGMFunction("Preview",function()
-		local preview_message = "Clicking send will send the following message:"
-		if message_object ~= nil then
-			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
-			preview_message = preview_message .. "\nIdentified as coming from"
-			if type(player_message_source) == "string" then
-				if message_source_object ~= nil then
-					local source = message_source_object:getDescription()
-					if source ~= nil then
-						player_message_source = source
-					end
-				end
-				preview_message = string.format("%s\n%s",preview_message,player_message_source)
-			else
-				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
-			end
-			if type(player_ship_message_destination) == "string" then
-				preview_message = string.format("%s\nTo all player ship logs",preview_message)
-			else
-				preview_message = string.format("%s\nTo %s's ship log",preview_message,player_ship_message_destination:getCallSign())
-			end
-			preview_message = string.format("%s\nIn this color: %s",preview_message,color_list[player_ship_log_message_color])
-		else
-			preview_message = preview_message .. "\nno message because no message object has been selected"
-		end
-		addGMMessage(preview_message)
-	end)
-	addGMFunction("Send",function()
-		local ship_log_message = ""
-		if type(player_message_source) == "string" then
-			if message_source_object ~= nil then
-				local source = message_source_object:getDescription()
-				if source ~= nil then
-					player_message_source = source
-				end
-			end
-			ship_log_message = string.format("[%s] %s",player_message_source,message_object:getDescription())
-		else
-			ship_log_message = string.format("[%s in %s] %s",player_message_source:getCallSign(),player_message_source:getSectorName(),message_object:getDescription())
-		end
-		if type(player_ship_message_destination) == "string" then
-			local players = getActivePlayerShips()
-			for pidx, p in ipairs(players) do
-				if p ~= nil and p:isValid() then
-					p:addToShipLog(ship_log_message,player_ship_log_message_color)
-				end
-			end
-		else
-			player_ship_message_destination:addToShipLog(ship_log_message,player_ship_log_message_color)
-		end
-		local confirmation_message = string.format("Message...\n%s\nsent to\n",ship_log_message)
-		if type(player_ship_message_destination) == "string" then
-			confirmation_message = string.format("%sAll player ships colored in %s",confirmation_message,color_list[player_ship_log_message_color])
-		else
-			confirmation_message = string.format("%s%s colored in %s",confirmation_message,player_ship_message_destination:getCallSign(),color_list[player_ship_log_message_color])
-		end
-		addGMMessage(confirmation_message)
-	end)
-end
-function playerHailMessage()
-	clearGMFunctions()
-	addGMFunction("-Main From Hail Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	if player_message_source == nil or type(player_message_source) == "string" then
-		addGMFunction("+Source",playerMessageObjectSource)
-	else
-		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageObjectSource)
-	end
-	changeMessageObjectCaller = playerHailMessage
-	if message_object == nil then
-		addGMFunction("+Select Msg Obj",changeMessageObject)
-	else
-		addGMFunction("+Change Msg Obj",changeMessageObject)
-	end
-	if player_ship_message_destination == nil then
-		player_ship_message_destination = "All"
-	end
-	local button_label = "+pShip"
-	if type(player_ship_message_destination) == "string" then
-		button_label = button_label .. ":All"
-	else
-		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
-	end
-	set_player_ship_message_destination_caller = playerHailMessage
-	addGMFunction(button_label,setPlayerShipMessageDestination)
-	addGMFunction("Preview",function()
-		local preview_message = "Clicking send will send the following message:"
-		if message_object ~= nil then
-			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
-			preview_message = preview_message .. "\nIdentified as coming from"
-			if player_message_source == nil or type(player_message_source) == "string" then
-				preview_message = preview_message .. "\nNobody (message will not go out). You need to select a message source"
-			else
-				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
-			end
-			if type(player_ship_message_destination) == "string" then
-				preview_message = string.format("%s\nTo all player ships",preview_message)
-			else
-				preview_message = string.format("%s\nTo %s",preview_message,player_ship_message_destination:getCallSign())
-			end
-		else
-			preview_message = preview_message .. "\nNo message because no message object has been selected"
-		end
-		addGMMessage(preview_message)
-	end)
-	addGMFunction("Send",function()
-		local hail_message = ""
-		if player_message_source == nil or type(player_message_source) == "string" then
-			addGMMessage("You need to select a message source. No action taken")
-			return
-		else
-			hail_message = string.format("[Sector %s] %s",player_message_source:getSectorName(),message_object:getDescription())
-		end
-		if type(player_ship_message_destination) == "string" then
-			local players = getActivePlayerShips()
-			for pidx, p in ipairs(players) do
-				if p ~= nil and p:isValid() then
-					player_message_source:sendCommsMessage(p,hail_message)
-				end
-			end
-		else
-			player_message_source:sendCommsMessage(player_ship_message_destination,hail_message)
-		end
-		local confirmation_message = string.format("Message...\n%s\nsent to\n",hail_message)
-		if type(player_ship_message_destination) == "string" then
-			confirmation_message = string.format("%sAll player ships",confirmation_message)
-		else
-			confirmation_message = string.format("%s%s",confirmation_message,player_ship_message_destination:getCallSign())
-		end
-		addGMMessage(confirmation_message)
-	end)
-end
-function playerMessageObjectSource()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	addGMFunction("-Hail Message",playerHailMessage)
-	local stations_and_ships = {}
-	for _, station in pairs(regionStations) do
-		if station ~= nil and station:isValid() then
-			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
-		end
-	end
-	if region_ships ~= nil then
-		for _, ship in pairs(region_ships) do
-			if ship ~= nil and ship:isValid() then
-				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
-			end
-		end
-	end
-	for _, station in pairs(skeleton_stations) do
-		if station ~= nil and station:isValid() then
-			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
-		end
-	end
-	table.sort(stations_and_ships,function(a,b)
-		return a.name < b.name
-	end)
-	for _,item in ipairs(stations_and_ships) do
-		button_label = item.name
-		if type(player_message_source) == "table" and player_message_source == item.object then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			player_message_source = item.object
-			playerMessageObjectSource()
-		end)
-	end
-end
---	********************************************************************************************  --
---	****				Initial Set Up Player Ships Tweak Player Engineering				****  --
---	********************************************************************************************  --
--------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Engineering > Beam Heat/Energy  --
--------------------------------------------------------------------------------------
--- -MAIN				F	initialGMFunctions
+--------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Sensors  --
+--------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Sensors	F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- -PLAYER SHIP			F	playerShip
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -ENGINEERING			F	tweakEngineering
--- BEAM HEAT +			D	inline
--- BEAM HEAT -			D	inline
--- BEAM ENERGY +		D	inline
--- BEAM ENERGY - 		D	inline
-function changePlayerBeams()
+-- -Tweak Player		F	tweakPlayerShip
+-- ? LRS ^ -> ?			D	inline
+-- ? LRS v -> ?			D	inline
+function playerSensors()
 	clearGMFunctions()
-	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Main from Sensors",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Engineering",tweakEngineering)
-	local p = playerShipSelected()
-	local button_label = "Beam Heat +"
-	if p ~= nil then
-		button_label = string.format("%.2f Beam Heat +",p:getBeamWeaponHeatPerFire(0))
-	end
-	addGMFunction(button_label,function()
-		local p = playerShipSelected()
-		if p ~= nil then
-			if p:getBeamWeaponRange(0) > 0 then
-				local beam_index = 0
-				repeat
-					p:setBeamWeaponHeatPerFire(beam_index,p:getBeamWeaponHeatPerFire(beam_index)*1.2)
-					beam_index = beam_index + 1
-				until(p:getBeamWeaponRange(beam_index) < 1)
-			else
-				addGMMessage("Selected ship has no beams. No action taken")
-			end
+	addGMFunction(string.format("%.1f LRS ^ -> %.1f",sensor_impact,sensor_impact + .1),function()
+		if sensor_impact + .1 > 2 then
+			addGMMessage("Maximum positive sensor impact reached: 2. No action taken")
 		else
-			addGMMessage("No player ship selected. No action taken.")
+			sensor_impact = sensor_impact + .1
 		end
-		changePlayerBeams()
+		playerSensors()
 	end)
-	button_label = "Beam Heat -"
-	if p ~= nil then
-		button_label = string.format("%.2f Beam Heat -",p:getBeamWeaponHeatPerFire(0))
-	end
-	addGMFunction(button_label,function()
-		local p = playerShipSelected()
-		if p ~= nil then
-			if p:getBeamWeaponRange(0) > 0 then
-				local beam_index = 0
-				repeat
-					p:setBeamWeaponHeatPerFire(beam_index,p:getBeamWeaponHeatPerFire(beam_index)*.8)
-					beam_index = beam_index + 1
-				until(p:getBeamWeaponRange(beam_index) < 1)
-			else
-				addGMMessage("Selected ship has no beams. No action taken")
-			end
+	addGMFunction(string.format("%.1f LRS V -> %.1f",sensor_impact,sensor_impact - .1),function()
+		if sensor_impact - .1 < 0 then
+			addGMMessage("Minimum negative sensor impact reached: 0. No action taken")
 		else
-			addGMMessage("No player ship selected. No action taken.")
+			sensor_impact = sensor_impact - .1
 		end
-		changePlayerBeams()
-	end)
-	button_label = "Beam Energy +"
-	if p ~= nil then
-		button_label = string.format("%.2f Beam Energy +",p:getBeamWeaponEnergyPerFire(0))
-	end
-	addGMFunction(button_label,function()
-		local p = playerShipSelected()
-		if p ~= nil then
-			if p:getBeamWeaponRange(0) > 0 then
-				local beam_index = 0
-				repeat
-					p:setBeamWeaponEnergyPerFire(beam_index,p:getBeamWeaponEnergyPerFire(beam_index)*1.1)
-					beam_index = beam_index + 1
-				until(p:getBeamWeaponRange(beam_index) < 1)
-			else
-				addGMMessage("Selected ship has no beams. No action taken")
-			end
-		else
-			addGMMessage("No player ship selected. No action taken.")
-		end
-		changePlayerBeams()
-	end)
-	button_label = "Beam Energy -"
-	if p ~= nil then
-		button_label = string.format("%.2f Beam Energy -",p:getBeamWeaponEnergyPerFire(0))
-	end
-	addGMFunction(button_label,function()
-		local p = playerShipSelected()
-		if p ~= nil then
-			if p:getBeamWeaponRange(0) > 0 then
-				local beam_index = 0
-				repeat
-					p:setBeamWeaponEnergyPerFire(beam_index,p:getBeamWeaponEnergyPerFire(beam_index)*.9)
-					beam_index = beam_index + 1
-				until(p:getBeamWeaponRange(beam_index) < 1)
-			else
-				addGMMessage("Selected ship has no beams. No action taken")
-			end
-		else
-			addGMMessage("No player ship selected. No action taken.")
-		end
-		changePlayerBeams()
+		playerSensors()
 	end)
 end
+---------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Boarders  --
+---------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main 				F	initialGMFunctions
+-- -From Boarders		F	tweakPlayerShip
+-- +Intent:?			D	setBoarderIntent
+-- +Entry:?				D	setBoarderEntry
+-- +Competence:?		D	setBoarderCompetence
+-- +Speed:?				D	setBoarderSpeed
+-- Board ?				D	inline
+function setBoarders()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-From Boarders",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if boarder_intent == nil then
+			boarder_intent = "sabotage"
+		end
+		if boarder_entry == nil then
+			boarder_entry = "random"
+		end
+		if boarder_competence == nil then
+			boarder_competence = "medium"
+			boarder_success_chance = 50
+		end
+		if boarder_speed == nil then
+			boarder_speed = 60
+		end
+		addGMFunction(string.format("+Intent:%s",boarder_intent),setBoarderIntent)
+		addGMFunction(string.format("+Entry:%s",boarder_entry),setBoarderEntry)
+		addGMFunction(string.format("+Competence:%s",boarder_competence),setBoarderCompetence)
+		addGMFunction(string.format("+Speed:%s",boarder_speed),setBoarderSpeed)
+		addGMFunction(string.format("Board %s",p:getCallSign()),function()
+			if p.security_log == nil then
+				p.security_log = {}
+			end
+			if p.boarding == nil then
+				local boarder_entries = {}
+				if boarder_entry == "random" then
+					local possible_consoles = {
+						"Helms",
+						"Weapons",
+						"Engineering",
+						"Science",
+						"Relay",
+						"Tactical",
+						"Engineering+",
+						"Operations",
+						"Single",
+						"DamageControl",
+						"PowerManagement",
+						"Database",
+						"AltRelay",
+						"CommsOnly",
+						"ShipLog",
+					}
+					local consoles_in_use = {}
+					for i,console in ipairs(possible_consoles) do
+						if p:hasPlayerAtPosition(console) then
+							table.insert(consoles_in_use,console)
+						end
+					end
+					table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+					if #consoles_in_use > 0 and random(1,100) < 50 then
+						table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+						if #consoles_in_use > 0 and random(1,100) < 30 then
+							table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+							if #consoles_in_use > 0 and random(1,100) < 25 then
+								table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+								if #consoles_in_use > 0 and random(1,100) < 20 then
+									table.insert(boarder_entries,tableRemoveRandom(consoles_in_use))
+								end
+							end
+						end
+					end
+				else
+					table.insert(boarder_entries,boarder_entry)
+				end
+				p.boarder_entry_button_inform_security = {}
+				p.boarder_entry_button_activate_defenses = {}
+				p.boarder_entry_message = {}
+				local boarder_consoles = ""
+				for i,console in ipairs(boarder_entries) do
+					p.boarder_entry_button_inform_security[console] = string.format("boarder_entry_button_inform_security_%s",console)
+					p:addCustomButton(console,p.boarder_entry_button_inform_security[console],"Inform Security",function()
+						string.format("")
+						boarderInformSecurity(p,console)
+					end,35)
+					p.boarder_entry_button_activate_defenses[console] = string.format("boarder_entry_button_activate_defenses_%s",console)
+					p:addCustomButton(console,p.boarder_entry_button_activate_defenses[console],"Activate Defenses",function()
+						boarderActivateDefenses(p,console)
+					end,36)
+					p.boarder_entry_message[console] = string.format("boarder_entry_message_%s",console)
+					p:addCustomMessage(console,p.boarder_entry_message[console],string.format("INTRUDER ALERT\nInternal sensors have detected non-crew life forms entering %s. You may inform security, activate automated defenses or do nothing",p:getCallSign()))
+					if boarder_consoles == "" then
+						boarder_consoles = console
+					else
+						boarder_consoles = string.format("%s, %s",boarder_consoles,console)
+					end
+				end
+				p.boarding = {
+					entries = boarder_entries,
+					intent = boarder_intent,
+					chance = boarder_success_chance,
+					done = getScenarioTime() + boarder_speed + random(0,3),
+				}
+				table.insert(p.security_log,{board_time = getScenarioTime(), egress_time = p.boarding.done, entries = boarder_entries, intent = boarder_intent})
+				addGMMessage(string.format("Boarding has started on %s. Notification has gone to the following consoles:\n%s",p:getCallSign(),boarder_consoles))
+			else
+				addGMMessage(string.format("Boarding already in progress on %s",p:getCallSign()))
+			end
+			setBoarders()
+		end)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function boarderActivateDefenses(p,console)
+	p.boarding.chance = p.boarding.chance - (5/#p.boarding.entries)
+	boarderRemoveButtons(p,console)
+end
+function boarderInformSecurity(p,console)
+	p.boarding.chance = p.boarding.chance - (10/#p.boarding.entries)
+	boarderRemoveButtons(p,console)
+end
+function boarderResult(p)
+	if p.boarding ~= nil then
+		if getScenarioTime() > p.boarding.done then
+			local board_roll = random(1,100) * p.security_morale
+			if board_roll < p.boarding.chance then
+				if p.boarding.intent == "sabotage" then
+					local possible_systems = {"reactor", "beamweapons", "missilesystem", "maneuver", "impulse", "warp", "jumpdrive", "frontshield", "rearshield"}
+					local sabotageable_systems = {}
+					for i,system in ipairs(possible_systems) do
+						if system == "beamweapons" then
+							if p:getBeamWeaponRange(0) > 1 then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "missilesystem" then
+							if p:getWeaponTubeCount() > 0 then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "warp" then
+							if p:hasWarpDrive() then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "jumpdrive" then
+							if p:hasJumpDrive() then
+								table.insert(sabotageable_systems,system)
+							end
+						elseif system == "rearshield" then
+							if p:getShieldCount() > 1 then
+								table.insert(sabotageable_systems,system)
+							end
+						else
+							table.insert(sabotageable_systems,system)
+						end
+					end
+					local system_to_sabotage = tableRemoveRandom(sabotageable_systems)
+					local damage_amount = .5
+					local morale_modifier = .95
+					p.security_log[#p.security_log].result = "success"
+					if (p.boarding.chance - board_roll) > 20 then
+						p.security_log[#p.security_log].result = "smashing success"
+						damage_amount = 1
+						morale_modifier = .9
+						if (p.boarding.chance - board_roll) > 40 then
+							damage_amount = 1.5
+							morale_modifier = .85
+							p.security_log[#p.security_log].result = "devastating success"
+						end
+					end
+					p.security_morale = p.security_morale * morale_modifier
+					p:setSystemHealth(system_to_sabotage,math.max(p:getSystemHealth(system_to_sabotage) - damage_amount,-1))
+					p.security_log[#p.security_log].result_desc = string.format("Boarding party sabotaged our %s",system_to_sabotage)
+				elseif p.boarding.intent == "information" then
+					p.security_log[#p.security_log].result = "success"
+					local morale_modifier = .95 
+					p.security_log[#p.security_log].result_desc = "From the forensic evidence left near our data access points, we believe the boarders obtained information from our systems."
+					if (p.boarding.chance - board_roll) > 20 then
+						morale_modifier = .9
+						p.security_log[#p.security_log].result = "smashing success"
+						p.security_log[#p.security_log].result_desc = "The intent of the boarders could not be determined."
+					end
+					p.security_morale = p.security_morale * morale_modifier
+				elseif p.boarding.intent == "benign" then
+					p.security_log[#p.security_log].result = "success"
+					if benign_successes == nil or #benign_successes < 1 then
+						benign_successes = {}
+						for i,benign in ipairs(benign_successes_source) do
+							table.insert(benign_successes,benign)
+						end
+					end
+					p.security_log[#p.security_log].result_desc = tableRemoveRandom(benign_successes)
+				end
+			else
+				local morale_modifier = 1.05
+				if board_roll - p.boarding.chance < 20 then
+					p.security_log[#p.security_log].result = "failure"
+					p.security_log[#p.security_log].result_desc = "The boarders were repelled."
+				else
+					p.security_log[#p.security_log].result = "severe failure"
+					p.security_log[#p.security_log].result_desc = "The boarders were easily repelled."
+					morale_modifier = 1.1
+				end
+				p.security_morale = math.min(1,p.security_morale * morale_modifier)
+			end
+			for i,console in ipairs(p.boarding.entries) do
+				boarderRemoveButtons(p,console)
+			end
+			
+			p.boarding = nil
+		end
+	end
+end
+function outClock(time_stamp)
+	if time_stamp == nil then
+		return "00:00:00.0"
+	end
+	if time_stamp >= 60 then
+		if time_stamp >= 3600 then
+			local hours = math.floor(time_stamp / 3600)
+			local minutes = math.floor((time_stamp - (hours * 3600)) / 60)
+			local seconds = time_stamp % 60
+			return string.format("%02d:%02d:%02.1f",hours,minutes,seconds)
+		else
+			local minutes = math.floor(time_stamp / 60)
+			local seconds = time_stamp % 60
+			return string.format("00:%02d:%02.1f",minutes,seconds)
+		end
+	else
+		return string.format("00:00:%02.1f",time_stamp)
+	end
+end
+function securityReport(p,console)
+	local list_out = ""
+	if p.security_log ~= nil and #p.security_log > 0 then
+		for i,log in ipairs(p.security_log) do
+			local report_item = string.format("%s: Sensors report intruders to",outClock(log.board_time))
+			if #log.entries > 1 then
+				for i,entry in ipairs(log.entries) do
+					if i == 1 then
+						report_item = string.format("%s consoles: %s",report_item,entry)
+					else
+						report_item = string.format("%s, %s",report_item,entry)
+					end
+				end
+				report_item = report_item .. "."
+			else
+				report_item = string.format("%s %s.",report_item,log.entries[1])
+			end
+			if getScenarioTime() > log.egress_time then
+				if log.result_desc ~= nil then
+					report_item = string.format("%s\n%s: %s",report_item,outClock(log.egress_time),log.result_desc)
+				else
+					report_item = string.format("%s\n%s: Sensors show intruders still aboard.",report_item,outClock(getScenarioTime()))
+				end
+			else
+				report_item = string.format("%s\n%s: Sensors show intruders still aboard.",report_item,outClock(getScenarioTime()))
+			end
+			if list_out == "" then
+				list_out = report_item
+			else
+				list_out = string.format("%s\n%s",list_out,report_item)
+			end
+		end
+	else
+		list_out = "No security incidents to report."
+	end
+	local out = string.format("%s\nSecurity morale: %.1f%%",list_out,p.security_morale * 100)
+	p.security_report_message = "security_report_message"
+	p:addCustomMessage(console,p.security_report_message,out)
+end
+function boarderRemoveButtons(p,console)
+	p:removeCustom(p.boarder_entry_button_inform_security[console])
+	p:removeCustom(p.boarder_entry_button_activate_defenses[console])
+	p:removeCustom(p.boarder_entry_message[console])
+end
+--------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier  --
+--------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Carrier	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- Carrier ?			D	inline
+-- +Ship Types			F	setCarrierShipTypes
+-- +Ship Inventory		F	setCarrierShipInventory
+-- +Carrier Ordnance	F	setCarrierOrdnance
+function setPlayerCarrier()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Carrier",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local button_label = "Carrier N->Y"
+		if p.carrier ~= nil and p.carrier then
+			button_label = "Carrier Y->N"
+		end
+		addGMFunction(button_label,function()
+			if p.carrier ~= nil and p.carrier then
+				p.carrier = false
+			else
+				p.carrier = true
+			end
+			setPlayerCarrier()
+		end)
+		addGMFunction("+Ship Types",setCarrierShipTypes)
+		addGMFunction("+Ship Inventory",setCarrierShipInventory)
+		if p.carrier_ship_types ~= nil and p.carrier_ship_inventory ~= nil then
+			addGMFunction("+Carrier Ordnance",setCarrierOrdnance)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--	****************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player By Console				****  --
+--	****************************************************************************************  --
+----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Engineer  --
+----------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Engineer	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
+-- +COOLANT				F	changePlayerCoolant
+-- +REPAIR CREW			F	changePlayerRepairCrew
+-- +MAX SYSTEM			F	changePlayerMaxSystem
+-- +BEAM HEAT/ENERGY	F	changePlayerBeams
+-- +Degrade/Bleed		F	shieldEnergyDegradeBleed
+function tweakEngineering()
+	clearGMFunctions()
+	addGMFunction("-Main From Engineer",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	addGMFunction("+Coolant",changePlayerCoolant)
+	addGMFunction("+Repair Crew",changePlayerRepairCrew)
+	addGMFunction("+Max System",changePlayerMaxSystem)
+	addGMFunction("+Beam heat/energy",changePlayerBeams)
+	addGMFunction("+Degrade/Bleed",shieldEnergyDegradeBleed)
+end
+-------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Tweak Relay  --
+-------------------------------------------------------------------------------
+-- -MAIN FRM TWK RLY	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- +CARGO				F	changePlayerCargo
+-- +REPUTATION			F	changePlayerReputation
+-- +WAYPOINT			F	addWaypoint
+function tweakRelay()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Twk Rly",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	addGMFunction("+Cargo",changePlayerCargo)
+	addGMFunction("+Reputation",changePlayerReputation)
+	addGMFunction("+Waypoint",addWaypoint)
+	addGMFunction("+Specialty Probes",playerSpecialtyProbes)
+end
+------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Helm  --
+------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main From Helm	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
+-- Warp ?+50=?			D	inline
+-- Warp ?-50=?			D	inline
+-- Jump ?k+10k=?k		D	inline
+-- Jump ?k-10k=?k		D	inline
+function playerHelm()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Helm",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p:hasSystem("warp") then
+--			addGMFunction(string.format("+Chg %s",p:getCallSign()),playerHelm)
+			addGMFunction(string.format("Warp %i+50=%i",p:getWarpSpeed(),p:getWarpSpeed()+50),function()
+				string.format("")
+				p:setWarpSpeed(p:getWarpSpeed()+50)
+				playerHelm()
+			end)
+			addGMFunction(string.format("Warp %i-50=%i",p:getWarpSpeed(),p:getWarpSpeed()-50),function()
+				string.format("")
+				p:setWarpSpeed(p:getWarpSpeed()-50)
+				playerHelm()
+			end)
+		end
+		if p:hasSystem("jumpdrive") then
+			addGMFunction("Full Charge",function()
+				string.format("")
+				p:setJumpDriveCharge(p.max_jump_range)
+				playerHelm()
+			end)
+			addGMFunction(string.format("Jump %ik+10k=%ik",math.floor(p:getJumpDriveCharge()/1000),math.floor(p:getJumpDriveCharge()/1000)+10),function()
+				string.format("")
+				p:setJumpDriveCharge(p:getJumpDriveCharge() + 10000)
+				playerHelm()
+			end)
+			addGMFunction(string.format("Jump %ik-10k=%ik",math.floor(p:getJumpDriveCharge()/1000),math.floor(p:getJumpDriveCharge()/1000)-10),function()
+				string.format("")
+				p:setJumpDriveCharge(p:getJumpDriveCharge() - 10000)
+				playerHelm()
+			end)
+		end
+		if not p:hasSystem("warp") and not p:hasSystem("jumpdrive") then
+			addGMMessage("This player ship has neither warp nor jump, so there's nothing to change. No action taken")
+			tweakByConsole()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakByConsole()
+	end
+end
+---------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Weapons  --
+---------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main From Weapons	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
+-- EMP 3-4				*	inline
+-- EMP 4-5				*	inline
+-- Nuke 3-4				*	inline
+-- Nuke 4-5				*	inline
+-- Balance Shield		*	inline
+function playerWeapons()
+	clearGMFunctions()
+	addGMFunction("-Main from Weapons",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local button_label = ""
+		if p:getWeaponStorageMax("EMP") > 0 then
+			button_label = "EMP 3-4"
+			if p.trigger_missile ~= nil and p.trigger_missile["E3"] ~= nil then
+				button_label = "EMP 3-4*"
+			end
+			addGMFunction(button_label,function()
+				if p.trigger_missile ~= nil then
+					if p.trigger_missile["E3"] ~= nil then
+						p.trigger_missile["E3"] = nil
+						local trigger_count = 0
+						for trigger,blob in pairs(p.trigger_missile) do
+							if blob ~= nil then
+								trigger_count = trigger_count + 1
+							end
+						end
+						if trigger_count == 0 then
+							p.trigger_missile = nil
+						end
+					else
+						p.trigger_missile["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
+					end
+				else
+					p.trigger_missile = {}
+					p.trigger_missile["E3"] = {missile = "EMPMissile",	short = 3000, long = 4000,	button_label = "Trigger EMP 3-4u",	order = 1,	}
+				end
+				playerWeapons()
+			end)
+			button_label = "EMP 4-5"
+			if p.trigger_missile ~= nil and p.trigger_missile["E4"] ~= nil then
+				button_label = "EMP 4-5*"
+			end
+			addGMFunction(button_label,function()
+				if p.trigger_missile ~= nil then
+					if p.trigger_missile["E4"] ~= nil then
+						p.trigger_missile["E4"] = nil
+						local trigger_count = 0
+						for trigger,blob in pairs(p.trigger_missile) do
+							if blob ~= nil then
+								trigger_count = trigger_count + 1
+							end
+						end
+						if trigger_count == 0 then
+							p.trigger_missile = nil
+						end
+					else
+						p.trigger_missile["E4"] = {missile = "EMPMissile",	short = 4000, long = 5000,	button_label = "Trigger EMP 4-5u",	order = 2,	}
+					end
+				else
+					p.trigger_missile = {}
+					p.trigger_missile["E4"] = {missile = "EMPMissile",	short = 4000, long = 5000,	button_label = "Trigger EMP 4-5u",	order = 2,	}
+				end
+				playerWeapons()
+			end)
+		end
+		if p:getWeaponStorageMax("Nuke") > 0 then
+			local button_label = "Nuke 3-4"
+			if p.trigger_missile ~= nil and p.trigger_missile["N3"] ~= nil then
+				button_label = "Nuke 3-4*"
+			end
+			addGMFunction(button_label,function()
+				if p.trigger_missile ~= nil then
+					if p.trigger_missile["N3"] ~= nil then
+						p.trigger_missile["N3"] = nil
+						local trigger_count = 0
+						for trigger,blob in pairs(p.trigger_missile) do
+							if blob ~= nil then
+								trigger_count = trigger_count + 1
+							end
+						end
+						if trigger_count == 0 then
+							p.trigger_missile = nil
+						end
+					else
+						p.trigger_missile["N3"] = {missile = "Nuke",		short = 3000, long = 4000,	button_label = "Trigger Nuke 3-4u",	order = 3,	}
+					end
+				else
+					p.trigger_missile = {}
+					p.trigger_missile["N3"] = {missile = "Nuke",		short = 3000, long = 4000,	button_label = "Trigger Nuke 3-4u",	order = 3,	}
+				end
+				playerWeapons()
+			end)
+			button_label = "Nuke 4-5"
+			if p.trigger_missile ~= nil and p.trigger_missile["N4"] ~= nil then
+				button_label = "Nuke 4-5*"
+			end
+			addGMFunction(button_label,function()
+				if p.trigger_missile ~= nil then
+					if p.trigger_missile["N4"] ~= nil then
+						p.trigger_missile["N4"] = nil
+						local trigger_count = 0
+						for trigger,blob in pairs(p.trigger_missile) do
+							if blob ~= nil then
+								trigger_count = trigger_count + 1
+							end
+						end
+						if trigger_count == 0 then
+							p.trigger_missile = nil
+						end
+					else
+						p.trigger_missile["N4"] = {missile = "Nuke",		short = 4000, long = 5000,	button_label = "Trigger Nuke 4-5u",	order = 4,	}
+					end
+				else
+					p.trigger_missile = {}
+					p.trigger_missile["N4"] = {missile = "Nuke",		short = 4000, long = 5000,	button_label = "Trigger Nuke 4-5u",	order = 4,	}
+				end
+				playerWeapons()
+			end)
+		end
+		button_label = "Balance Shield"
+		if playerShipStats[p:getTypeName()].balance_shield then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			if playerShipStats[p:getTypeName()].balance_shield then
+				playerShipStats[p:getTypeName()].balance_shield = false
+			else
+				playerShipStats[p:getTypeName()].balance_shield = true
+			end
+			playerWeapons()
+		end)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakByConsole()
+	end
+end
+--	****************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player By Console Engineer				****  --
+--	****************************************************************************************************  --
 ----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Engineering > Coolant  --
 ----------------------------------------------------------------------------
@@ -9596,16 +6142,230 @@ function changePlayerMaxSystem()
 		addGMFunction("+Select Player",changePlayerMaxSystem)
 	end
 end
---	********************************************************************************************  --
---	****				Initial Set Up Player Ships Tweak Player Tweak Relay				****  --
---	********************************************************************************************  --
---------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo  --
---------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Engineering > Beam Heat/Energy  --
+--------------------------------------------------------------------------------------------------
+-- -MAIN				F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -ENGINEERING			F	tweakEngineering
+-- BEAM HEAT +			D	inline
+-- BEAM HEAT -			D	inline
+-- BEAM ENERGY +		D	inline
+-- BEAM ENERGY - 		D	inline
+function changePlayerBeams()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Engineering",tweakEngineering)
+	local p = playerShipSelected()
+	local button_label = "Beam Heat +"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Heat +",p:getBeamWeaponHeatPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponHeatPerFire(beam_index,p:getBeamWeaponHeatPerFire(beam_index)*1.2)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+	button_label = "Beam Heat -"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Heat -",p:getBeamWeaponHeatPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponHeatPerFire(beam_index,p:getBeamWeaponHeatPerFire(beam_index)*.8)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+	button_label = "Beam Energy +"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Energy +",p:getBeamWeaponEnergyPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponEnergyPerFire(beam_index,p:getBeamWeaponEnergyPerFire(beam_index)*1.1)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+	button_label = "Beam Energy -"
+	if p ~= nil then
+		button_label = string.format("%.2f Beam Energy -",p:getBeamWeaponEnergyPerFire(0))
+	end
+	addGMFunction(button_label,function()
+		local p = playerShipSelected()
+		if p ~= nil then
+			if p:getBeamWeaponRange(0) > 0 then
+				local beam_index = 0
+				repeat
+					p:setBeamWeaponEnergyPerFire(beam_index,p:getBeamWeaponEnergyPerFire(beam_index)*.9)
+					beam_index = beam_index + 1
+				until(p:getBeamWeaponRange(beam_index) < 1)
+			else
+				addGMMessage("Selected ship has no beams. No action taken")
+			end
+		else
+			addGMMessage("No player ship selected. No action taken.")
+		end
+		changePlayerBeams()
+	end)
+end
+-----------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Engineering > Degrade/Bleed  --
+-----------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Engineer	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
+-- -Engineering			F	tweakEngineering
+-- shields degrade		F	shieldsDegrade
+-- shields regen		F	shieldsRegen
+-- bleed energy			F	bleedEnergy
+-- restore energy		F	restoreEnergy
+function shieldEnergyDegradeBleed()
+	clearGMFunctions()
+	addGMFunction("-Main From Engineer",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	addGMFunction("-Engineering",tweakEngineering)
+	addGMFunction("shields degrade",shieldsDegrade)
+	addGMFunction("shields regen",shieldsRegen)
+	addGMFunction("bleed energy",bleedEnergy)
+	addGMFunction("restore energy",restoreEnergy)
+end
+--	added as part of a mission where ships were "infected" by a station
+--	causing shield degrade and energy bleed
+function shieldsDegrade()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to decay shields on")
+		return
+	end
+	if object_list[1]:getShieldCount() == nil then
+		addGMMessage("target has no shield")
+		return
+	end
+	--addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
+	--								  obj			,total_time	,curve_x			,curve_y
+	--															 table of 4 numbers	 table of 4 numbers
+	update_system:addShieldDecayCurve(object_list[1],2*60*60	,{0,0.33,0.66,1}	,{1.0,0.5,0.4,0.1})
+end
+function shieldsRegen()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to restore shields on")
+		return
+	end
+	if object_list[1]:getShieldCount() == nil then
+		addGMMessage("target has no shield")
+		return
+	end
+	--addShieldDecayCurve = function (self, obj, total_time, curve_x, curve_y)
+	--								  obj			,total_time	,curve_x			,curve_y
+	--															 table of 4 numbers	 table of 4 numbers
+	update_system:addShieldDecayCurve(object_list[1],60*60		,{0,0.33,0.66,1}	,{0.1,0.4,0.5,1.0})
+end
+function bleedEnergy()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to decay energy on")
+		return
+	end
+	if object_list[1].getMaxEnergy == nil then
+		addGMMessage("target has no energy")
+		return
+	end
+	update_system:addEnergyDecayCurve(object_list[1],2*60*60,{0.0,0.33,0.66,1},{0.0,-0.4,-0.5,-1.0})
+end
+function restoreEnergy()
+	local object_list = getGMSelection()
+	if #object_list ~= 1 then
+		addGMMessage("Need to a ship to restore energy on")
+		return
+	end
+	if object_list[1].getMaxEnergy == nil then
+		addGMMessage("target has no energy")
+		return
+	end
+	update_system:addEnergyDecayCurve(object_list[1],60*60,{0.0,0.33,0.66,1},{-1.0,-0.5,-0.4,0.0})
+end
+function playerShipSelected()
+	local selected_player = getPlayerShip(-1)
+	local object_list = getGMSelection()
+	local selected_matches_player = false
+	for i=1,#object_list do
+		local current_selected_object = object_list[i]
+		local players = getActivePlayerShips()
+		for pidx, p in ipairs(players) do
+			if p ~= nil and p:isValid() then
+				if p == current_selected_object then
+					selected_matches_player = true
+					selected_player = p
+					break
+				end
+			end
+		end
+		if selected_matches_player then
+			break
+		end
+	end
+	if selected_matches_player then
+		return selected_player
+	end
+	return nil
+end
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player By Console Relay				****  --
+--	************************************************************************************************  --
+---------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Relay > Cargo  --
+---------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM CARGO		F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- -TWEAK PLAYER		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
 -- +REMOVE CARGO		F	removeCargo
 -- +ADD MINERAL			F	addMineralCargo
 -- +ADD COMPONENT		F	addComponentCargo
@@ -9614,19 +6374,21 @@ function changePlayerCargo()
 	addGMFunction("-Main from Cargo",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	addGMFunction("-Tweak Relay",tweakRelay)
 	addGMFunction("+Remove Cargo",removeCargo)
 	addGMFunction("+Add Mineral",addMineralCargo)
 	addGMFunction("+Add Component",addComponentCargo)
 	addGMFunction("+Add Arbitrary",addArbitraryCargo)
 end
--------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Reputation  --
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Relay > Reputation  --
+--------------------------------------------------------------------------------------
 -- Button text	   FD*	Related Function(s)
 -- -MAIN FROM REP	F	initialGMFunctions
--- -SETUP			F	initialSetUp
 -- -TWEAK PLAYER	F	tweakPlayerShip
+-- -By Console		F	tweakByConsole
+-- -Tweak Relay		F	tweakRelay
 -- ADD ONE REP n	D	inline
 -- ADD FIVE REP n	D	inline
 -- ADD TEN REP n	D	inline
@@ -9636,8 +6398,8 @@ end
 function changePlayerReputation()
 	clearGMFunctions()
 	addGMFunction("-Main From Rep",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	addGMFunction("-Tweak Relay",tweakRelay)
 	local p = playerShipSelected()
 	if p ~= nil then
@@ -9677,21 +6439,24 @@ function changePlayerReputation()
 		tweakRelay()
 	end
 end
------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Waypoint  --
------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Relay > Waypoint  --
+------------------------------------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM WAYPOINT	F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- -PLAYER SHIP			F	playerShip
 -- -TWEAK PLAYER		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
 -- -TWEAK RELAY			F	tweakRelay
+-- Add Waypoint			D	inline
 function addWaypoint()
 	clearGMFunctions()
 	addGMFunction("-Main From Waypoint",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	addGMFunction("-Tweak Relay",tweakRelay)
 	if gm_click_mode == "add waypoint" then
 		addGMFunction(">Add Waypoint<",clickForWaypoint)
@@ -9738,12 +6503,27 @@ function gmClickZoneWaypoint(x,y)
 	end
 	addGMMessage(string.format("Waypoint added to:\n%s",player_list))
 end
+--------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > By Console > Relay > Specialty Probes  --
+--------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Specialty	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -By Console			F	tweakByConsole
+-- -TWEAK RELAY			F	tweakRelay
+-- +Fast Probes			F	playerFastProbes
+-- +Sensor Boost Probes	F	playerSensorBoostProbes
+-- +Warp Jammer Probes	F	playerWarpJammerProbes
+-- +Observatory Probes	F	playerObservatoryProbes
 function playerSpecialtyProbes()
 	clearGMFunctions()
-	addGMFunction("-Main From Specialty",initialGMFunctions)
+	addGMFunction("-Main from Specialty",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Player Ship",playerShip)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
 	addGMFunction("-Tweak Relay",tweakRelay)
 	addGMFunction("+Fast Probes",playerFastProbes)
 	addGMFunction("+Sensor Boost Probes",playerSensorBoostProbes)
@@ -10298,383 +7078,61 @@ function playerFastProbes()
 		addGMMessage("No players. No action taken")
 	end
 end
---	************************************************************************************************  --
---	****				Initial Set Up Player Ships Tweak Player Tweak Relay Cargo				****  --
---	************************************************************************************************  --
------------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Remove Cargo  --
------------------------------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -CARGO FROM DEL		F	changePlayerCargo
--- One button for each type of cargo in the selected player ship
-function removeCargo()
+--	****************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Message				****  --
+--	****************************************************************************************  --
+---------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Player Message > Console Message  --
+---------------------------------------------------------------------------------------
+-- Button text	   FD*	Related Function(s)
+-- -MAIN FROM CNSL MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -Player Message		F	playerMessage
+-- +SELECT MSG OBJ		F	changeMessageObject
+--		or
+-- +Change Msg Obj		F	changeMessageObject
+-- +Send to console		F	sendPlayerConsoleMessage
+--		or
+-- +Select Player		F	playerConsoleMessage
+function playerConsoleMessage()
 	clearGMFunctions()
-	addGMFunction("-Cargo From Del",changePlayerCargo)
-	local p = playerShipSelected()
-	if p ~= nil then
-		if p.goods ~= nil then
-			local cargo_found = false
-			for good, good_quantity in pairs(p.goods) do
-				if good_quantity > 0 then
-					cargo_found = true
-					addGMFunction(good,function()
-						p.goods[good] = p.goods[good] - 1
-						p.cargo = p.cargo + 1
-						addGMMessage(string.format("one %s removed",good))
-						removeCargo()
-					end)
-				end
-			end
-			if not cargo_found then
-				addGMMessage("selected player has no cargo to delete")
-				changePlayerCargo()
-			end
-		else
-			addGMMessage("selected player has no cargo to delete")
-			changePlayerCargo()
-		end
-	else
-		addGMMessage("No player selected. No action taken")
-		changePlayerCargo()
-	end
-end
-----------------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Mineral Cargo  --
-----------------------------------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -CARGO FROM ADD		F	changePlayerCargo
--- One button for each mineral cargo type
-function addMineralCargo()
-	clearGMFunctions()
-	addGMFunction("-Cargo From Add",changePlayerCargo)
-	local p = playerShipSelected()
-	if p ~= nil then
-		for _, good in pairs(mineralGoods) do
-			addGMFunction(good,function()
-				if p.cargo > 0 then
-					if p.goods == nil then
-						p.goods = {}
-					end
-					if p.goods[good] == nil then
-						p.goods[good] = 0
-					end
-					p.goods[good] = p.goods[good] + 1
-					p.cargo = p.cargo - 1
-					addGMMessage(string.format("one %s added",good))
-				else
-					addGMMessage("Insufficient cargo space")
-					changePlayerCargo()
-					return
-				end
-				addMineralCargo()			
-			end)
-		end
-	else
-		addGMMessage("No player selected. No action taken")
-		changePlayerCargo()
-	end
-end
-------------------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Component Cargo  --
-------------------------------------------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -CARGO FROM ADD		F	changePlayerCargo
--- One button for each component cargo type
-function addComponentCargo()
-	clearGMFunctions()
-	addGMFunction("-Cargo From Add",changePlayerCargo)
-	local p = playerShipSelected()
-	if p ~= nil then
-		for _, good in pairs(componentGoods) do
-			addGMFunction(good,function()
-				if p.cargo > 0 then
-					if p.goods == nil then
-						p.goods = {}
-					end
-					if p.goods[good] == nil then
-						p.goods[good] = 0
-					end
-					p.goods[good] = p.goods[good] + 1
-					p.cargo = p.cargo - 1
-					addGMMessage(string.format("one %s added",good))
-				else
-					addGMMessage("Insufficient cargo space")
-				end
-				addComponentCargo()			
-			end)
-		end
-	else
-		addGMMessage("No player selected. No action taken")
-	end
-end
-function addArbitraryCargo()
-	clearGMFunctions()
-	addGMFunction("-Main from Arbitrary",initialGMFunctions)
+	addGMFunction("-Main From Cnsl Msg",initialGMFunctions)
 	addGMFunction("-Setup",initialSetUp)
 	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Tweak Relay",tweakRelay)
-	addGMFunction("-Cargo From Arbitrary",changePlayerCargo)
-	if cargo_source_object == nil then
-		addGMFunction("+Sel Src Cargo Obj",changeCargoSourceObject)
+	addGMFunction("-Player Message",playerMessage)
+	changeMessageObjectCaller = playerConsoleMessage
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
 	else
-		if cargo_source_object:isValid() then
-			addGMFunction("+Chg Src Cargo Obj",changeCargoSourceObject)
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+		local p = playerShipSelected()
+		if p ~= nil then
+			addGMFunction("+Send to console",sendPlayerConsoleMessage)
 		else
-			addGMFunction("+Sel Src Cargo Obj",changeCargoSourceObject)
+			addGMFunction("+Select Player",playerConsoleMessage)
 		end
-	end
-	if player_to_get_cargo == nil then
-		addGMFunction("+Select Cargo Player",function()
-			local p = playerShipSelected()
-			if p ~= nil then
-				player_to_get_cargo = p
-			else
-				addGMMessage("No player selected. No action taken")
-			end
-			addArbitraryCargo()
-		end)
-	else
-		local button_label = "+Select Cargo Player"
-		if player_to_get_cargo:isValid() then
-			button_label = string.format("+Chg %s",player_to_get_cargo:getCallSign())
-		end
-		addGMFunction(button_label,function()
-			local p = playerShipSelected()
-			if p ~= nil then
-				player_to_get_cargo = p
-			else
-				addGMMessage("No player selected. No action taken")
-			end
-			addArbitraryCargo()
-		end)
-	end
-	if player_to_get_cargo ~= nil and player_to_get_cargo:isValid() and cargo_source_object ~= nil and cargo_source_object:isValid() then
-		addGMFunction("Test Selections",function()
-			local out = "Clicking the Add Cargo button will cause cargo of type"
-			addGMMessage(string.format("Clicking the Add Cargo button will cause cargo of type\n%s\nto be added to player ship\n%s",cargo_source_object:getDescription(),player_to_get_cargo:getCallSign()))
-			addArbitraryCargo()
-		end)
-		addGMFunction("Add Cargo",function()
-			local p = player_to_get_cargo
-			local good = cargo_source_object:getDescription()
-			if p.cargo > 0 then
-				if p.goods == nil then
-					p.goods = {}
-				end
-				if p.goods[good] == nil then
-					p.goods[good] = 0
-				end
-				p.goods[good] = p.goods[good] + 1
-				p.cargo = p.cargo - 1
-				addGMMessage(string.format("one %s added",good))
-			else
-				addGMMessage("Insufficient cargo space")
-			end
-		end)
 	end
 end
-function changeCargoSourceObject()
+function changeMessageObject()
 	local object_list = getGMSelection()
 	if object_list ~= nil then
 		if #object_list == 1 then
-			cargo_source_object = object_list[1]
-			local source = cargo_source_object:getDescription()
-			if source ~= nil then
-				player_cargo_name_source = source
-			end
-			addGMMessage(string.format("Object in %s selected to identify cargo name source.\nplace cargo name text in unscanned description field",cargo_source_object:getSectorName()))
+			message_object = object_list[1]
+			addGMMessage(string.format("Object in %s selected to pass messages to player console.\nPlace message in unscanned description field.\nIf you are writing a message to be delivered as part of the victory or defeat main screen message, put up to four lines in the fields 'Unscanned description:,' 'Friend or Foe Description:,' 'Simple Scan Description:,' and/or 'Full Scan Description:.'",message_object:getSectorName()))
+			changeMessageObjectCaller()
 		else
-			addGMMessage("Select only one object to use to identify cargo name source via its unscanned description field. No action taken")
+			addGMMessage("Select only one object to use to pass messages via its description field. No action taken")
+			changeMessageObjectCaller()
 		end
 	else
-		addGMMessage("Select an object to use to identify cargo name source via its unscanned description field. No action taken")
-	end 
-	addArbitraryCargo()
-end
---	************************************************************************************************  --
---	****				Initial Set Up Player Ships Tweak Player Ship Log Message				****  --
---	************************************************************************************************  --
-----------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source  --
-----------------------------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -MAIN FROM SHIP MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -PLAYER MESSAGE		F	playerMessage
--- -SHIP LOG MSG		F	playerShipLogMessage
--- UNKNOWN				*	inline
--- +INPUT				D*	inputMessageSource
--- List of stations and ships, inline function for each
-function playerMessageSource()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	addGMFunction("-Ship Log Msg",playerShipLogMessage)
-	local button_label = "Unknown"
-	if type(player_message_source) == "string" and player_message_source == "Unknown" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		player_message_source = "Unknown"
-		playerMessageSource()
-	end)
-	button_label = "+Input"
-	if type(player_message_source) == "string" and player_message_source ~= "Unknown" then
-		button_label = string.format("+%s*",player_message_source)
-	end
-	addGMFunction(button_label,inputMessageSource)
-	local stations_and_ships = {}
-	for _, station in pairs(regionStations) do
-		if station ~= nil and station:isValid() then
-			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
-		end
-	end
-	if region_ships ~= nil then
-		for _, ship in pairs(region_ships) do
-			if ship ~= nil and ship:isValid() then
-				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
-			end
-		end
-	end
-	for _, station in pairs(skeleton_stations) do
-		if station ~= nil and station:isValid() then
-			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
-		end
-	end
-	table.sort(stations_and_ships,function(a,b)
-		return a.name < b.name
-	end)
-	for _,item in ipairs(stations_and_ships) do
-		button_label = item.name
-		if type(player_message_source) == "table" and player_message_source == item.object then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			player_message_source = item.object
-			playerMessageSource()
-		end)
-	end
-end
-------------------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source > Input  --
-------------------------------------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -MAIN FROM SHIP MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -PLAYER MESSAGE		F	playerMessage
--- -SHIP LOG MSG		F	playerShipLogMessage
--- -MSG SOURCE			F	playerMessageSource
--- +SEL SRC MSG OBJ		D	changeMessageSourceObject
-function inputMessageSource()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Input Src",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	addGMFunction("-Ship Log Msg",playerShipLogMessage)
-	addGMFunction("-Msg Source",playerMessageSource)
-	if message_source_object == nil then
-		addGMFunction("+Sel Src Msg Obj",changeMessageSourceObject)
-	else
-		addGMFunction("+Chg Src Msg Obj",changeMessageSourceObject)
-	end
-end
-function changeMessageSourceObject()
-	local object_list = getGMSelection()
-	if object_list ~= nil then
-		if #object_list == 1 then
-			message_source_object = object_list[1]
-			local source = message_source_object:getDescription()
-			if source ~= nil then
-				player_message_source = source
-			end
-			addGMMessage(string.format("Object in %s selected to identify message source.\nplace message source text in description field",message_source_object:getSectorName()))
-		else
-			addGMMessage("Select only one object to use to identify message source via its description field. No action taken")
-		end
-	else
-		addGMMessage("Select an object to use to identify message source via its description field. No action taken")
+		addGMMessage("Select an object to use to pass messages via its description field. No action taken")
+		changeMessageObjectCaller()
 	end 
 end
--------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Color  --
--------------------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -MAIN FROM SHIP MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -PLAYER MESSAGE		F	playerMessage
--- -PLYR SHP LOG MSG	F	playerShipLogMessage
--- List of colors		D*	inline per color
-function setPlayerShipLogMessageColor()
-	clearGMFunctions()
-	addGMFunction("-Main From Ship Msg",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	addGMFunction("-Plyr Shp Log Msg",playerShipLogMessage)
-	for id, name in pairs(color_list) do
-		local button_label = name
-		if id == player_ship_log_message_color then
-			button_label = button_label .. "*"
-		end
-		addGMFunction(button_label,function()
-			player_ship_log_message_color = id
-			setPlayerShipLogMessageColor()
-		end)
-	end
-end
--------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Destination  --
--------------------------------------------------------------------------------------
--- Button text		   FD*	Related Function(s)
--- -MAIN FROM SHIP MSG	F	initialGMFunctions
--- -SETUP				F	initialSetUp
--- -TWEAK PLAYER		F	tweakPlayerShip
--- -PLAYER MESSAGE		F	playerMessage
--- -PLYR SHIP LOG MSG	F	playerShipLogMessage
--- ALL					*	inline
--- Player ship list		*	inline per ship
-function setPlayerShipMessageDestination()
-	clearGMFunctions()
-	addGMFunction("-Main Frm Msg Dstn",initialGMFunctions)
-	addGMFunction("-Setup",initialSetUp)
-	addGMFunction("-Tweak Player",tweakPlayerShip)
-	addGMFunction("-Player Message",playerMessage)
-	if set_player_ship_message_destination_caller == playerShipLogMessage then
-		addGMFunction("-Plyr Ship Log Msg",playerShipLogMessage)
-	else
-		addGMFunction("-Plyr Hail Msg",playerHailMessage)
-	end
-	local button_label = "All"
-	if type(player_ship_message_destination) == "string" then
-		button_label = button_label .. "*"
-	end
-	addGMFunction(button_label,function()
-		player_ship_message_destination = "All"
-		setPlayerShipMessageDestination()
-	end)
-	local players = getActivePlayerShips()
-	for pidx, p in ipairs(players) do
-		if p ~= nil and p:isValid() then
-			button_label = p:getCallSign()
-			if type(player_ship_message_destination) == "table" and p == player_ship_message_destination then
-				button_label = button_label .. "*"
-			end
-			addGMFunction(button_label,function()
-				player_ship_message_destination = p
-				setPlayerShipMessageDestination()
-			end)
-		end
-	end
-end
-----------------------------------------------------------------------------------------
---	Initial Set Up > Player Ships > Tweak Player > Console Message > Send to console  --
-----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Message > Console Message > Send to console  --
+--------------------------------------------------------------------------------------------------
 -- Button text		   FD*	Related Function(s)
 -- -MAIN FRM CONSOLE	F	initialGMFunctions
 -- -SETUP				F	initialSetUp
@@ -10835,6 +7293,1981 @@ function sendPlayerConsoleMessage()
 		sendPlayerConsoleMessage()
 	end)
 end
+----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Player Message > Ship Log Message  --
+----------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- +SRC:UNKNOWN			D	playerMessageSource
+-- +SELECT MSG OBJ		D	changeMessageObject
+-- +PSHIP:ALL			D	setPlayerShipMessageDestination
+-- +COLOR:MAGENTA		D	setPlayerShipLogMessageColor
+-- PREVIEW				F	inline
+-- SEND					F	inline
+function playerShipLogMessage()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if player_message_source == nil then
+		player_message_source = "Unknown"
+	end
+	if type(player_message_source) == "string" then
+		addGMFunction(string.format("+Src:%s",player_message_source),playerMessageSource)
+	else
+		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageSource)
+	end
+	changeMessageObjectCaller = playerShipLogMessage
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+	end
+	if player_ship_message_destination == nil then
+		player_ship_message_destination = "All"
+	end
+	local button_label = "+pShip"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. ":All"
+	else
+		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
+	end
+	set_player_ship_message_destination_caller = playerShipLogMessage
+	addGMFunction(button_label,setPlayerShipMessageDestination)
+	addGMFunction(string.format("+Color:%s",color_list[player_ship_log_message_color]),setPlayerShipLogMessageColor)
+	addGMFunction("Preview",function()
+		local preview_message = "Clicking send will send the following message:"
+		if message_object ~= nil then
+			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
+			preview_message = preview_message .. "\nIdentified as coming from"
+			if type(player_message_source) == "string" then
+				if message_source_object ~= nil then
+					local source = message_source_object:getDescription()
+					if source ~= nil then
+						player_message_source = source
+					end
+				end
+				preview_message = string.format("%s\n%s",preview_message,player_message_source)
+			else
+				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
+			end
+			if type(player_ship_message_destination) == "string" then
+				preview_message = string.format("%s\nTo all player ship logs",preview_message)
+			else
+				preview_message = string.format("%s\nTo %s's ship log",preview_message,player_ship_message_destination:getCallSign())
+			end
+			preview_message = string.format("%s\nIn this color: %s",preview_message,color_list[player_ship_log_message_color])
+		else
+			preview_message = preview_message .. "\nno message because no message object has been selected"
+		end
+		addGMMessage(preview_message)
+	end)
+	addGMFunction("Send",function()
+		local ship_log_message = ""
+		if type(player_message_source) == "string" then
+			if message_source_object ~= nil then
+				local source = message_source_object:getDescription()
+				if source ~= nil then
+					player_message_source = source
+				end
+			end
+			ship_log_message = string.format("[%s] %s",player_message_source,message_object:getDescription())
+		else
+			ship_log_message = string.format("[%s in %s] %s",player_message_source:getCallSign(),player_message_source:getSectorName(),message_object:getDescription())
+		end
+		if type(player_ship_message_destination) == "string" then
+			local players = getActivePlayerShips()
+			for pidx, p in ipairs(players) do
+				if p ~= nil and p:isValid() then
+					p:addToShipLog(ship_log_message,player_ship_log_message_color)
+				end
+			end
+		else
+			player_ship_message_destination:addToShipLog(ship_log_message,player_ship_log_message_color)
+		end
+		local confirmation_message = string.format("Message...\n%s\nsent to\n",ship_log_message)
+		if type(player_ship_message_destination) == "string" then
+			confirmation_message = string.format("%sAll player ships colored in %s",confirmation_message,color_list[player_ship_log_message_color])
+		else
+			confirmation_message = string.format("%s%s colored in %s",confirmation_message,player_ship_message_destination:getCallSign(),color_list[player_ship_log_message_color])
+		end
+		addGMMessage(confirmation_message)
+	end)
+end
+------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Player Message > Hail Message  --
+------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -Main from Hail Msg	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- +Source				F	playerMessageObjectSource
+--		or
+-- +Src:?				D	playerMessageObjectSource
+-- +Select Msg Obj		F	changeMessageObject
+--		or
+-- +Change Msg Obj		F	changeMessageObject
+-- +pShip:?				D	setPlayerShipMessageDestination
+-- Preview				F	inline
+-- Send					F	inline
+function playerHailMessage()
+	clearGMFunctions()
+	addGMFunction("-Main from Hail Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if player_message_source == nil or type(player_message_source) == "string" then
+		addGMFunction("+Source",playerMessageObjectSource)
+	else
+		addGMFunction(string.format("+Src:%s",player_message_source:getCallSign()),playerMessageObjectSource)
+	end
+	changeMessageObjectCaller = playerHailMessage
+	if message_object == nil then
+		addGMFunction("+Select Msg Obj",changeMessageObject)
+	else
+		addGMFunction("+Change Msg Obj",changeMessageObject)
+	end
+	if player_ship_message_destination == nil then
+		player_ship_message_destination = "All"
+	end
+	local button_label = "+pShip"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. ":All"
+	else
+		button_label = string.format("%s:%s",button_label,player_ship_message_destination:getCallSign())
+	end
+	set_player_ship_message_destination_caller = playerHailMessage
+	addGMFunction(button_label,setPlayerShipMessageDestination)
+	addGMFunction("Preview",function()
+		local preview_message = "Clicking send will send the following message:"
+		if message_object ~= nil then
+			preview_message = string.format("%s\n%s",preview_message,message_object:getDescription())
+			preview_message = preview_message .. "\nIdentified as coming from"
+			if player_message_source == nil or type(player_message_source) == "string" then
+				preview_message = preview_message .. "\nNobody (message will not go out). You need to select a message source"
+			else
+				preview_message = string.format("%s\n%s in sector %s",preview_message,player_message_source:getCallSign(),player_message_source:getSectorName())
+			end
+			if type(player_ship_message_destination) == "string" then
+				preview_message = string.format("%s\nTo all player ships",preview_message)
+			else
+				preview_message = string.format("%s\nTo %s",preview_message,player_ship_message_destination:getCallSign())
+			end
+		else
+			preview_message = preview_message .. "\nNo message because no message object has been selected"
+		end
+		addGMMessage(preview_message)
+	end)
+	addGMFunction("Send",function()
+		local hail_message = ""
+		if player_message_source == nil or type(player_message_source) == "string" then
+			addGMMessage("You need to select a message source. No action taken")
+			return
+		else
+			hail_message = string.format("[Sector %s] %s",player_message_source:getSectorName(),message_object:getDescription())
+		end
+		if type(player_ship_message_destination) == "string" then
+			local players = getActivePlayerShips()
+			for pidx, p in ipairs(players) do
+				if p ~= nil and p:isValid() then
+					player_message_source:sendCommsMessage(p,hail_message)
+				end
+			end
+		else
+			player_message_source:sendCommsMessage(player_ship_message_destination,hail_message)
+		end
+		local confirmation_message = string.format("Message...\n%s\nsent to\n",hail_message)
+		if type(player_ship_message_destination) == "string" then
+			confirmation_message = string.format("%sAll player ships",confirmation_message)
+		else
+			confirmation_message = string.format("%s%s",confirmation_message,player_ship_message_destination:getCallSign())
+		end
+		addGMMessage(confirmation_message)
+	end)
+end
+---------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Player Message > Hail Message > Source  --
+---------------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -Main from Msg Src	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -Hail Message		F	playerHailMessage
+-- List of buttons with stations and freighters in the area, selected marked with *
+function playerMessageObjectSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Hail Message",playerHailMessage)
+	local stations_and_ships = {}
+	for _, station in pairs(regionStations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	if region_ships ~= nil then
+		for _, ship in pairs(region_ships) do
+			if ship ~= nil and ship:isValid() then
+				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
+			end
+		end
+	end
+	for _, station in pairs(skeleton_stations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	table.sort(stations_and_ships,function(a,b)
+		return a.name < b.name
+	end)
+	for _,item in ipairs(stations_and_ships) do
+		button_label = item.name
+		if type(player_message_source) == "table" and player_message_source == item.object then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_message_source = item.object
+			playerMessageObjectSource()
+		end)
+	end
+end
+--	****************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Boarders				****  --
+--	****************************************************************************************  --
+------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Boarders > Intent  --
+------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main 				F	initialGMFunctions
+-- -Tweak Player Ship	F	tweakPlayerShip
+-- -Board from Intent	F	setBoarders
+-- Intent:benign		*	inline
+-- Intent:sabotage		*	inline
+-- Intent:information	*	inline
+function setBoarderIntent()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Player Ship",tweakPlayerShip)
+	addGMFunction("-Boarder from Intent",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local intent_settings = {
+			"benign",
+			"sabotage",
+			"information",
+		}
+		for i, intent in ipairs(intent_settings) do
+			local button_label = string.format("Intent:%s",intent)
+			if boarder_intent == intent then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				boarder_intent = intent
+				setBoarderIntent()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+-----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Boarders > Entry  --
+-----------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main 				F	initialGMFunctions
+-- -Tweak Player Ship	F	tweakPlayerShip
+-- -Board from Entry	F	setBoarders
+-- List of buttons with systems to choose for boarding access
+function setBoarderEntry()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Player Ship",tweakPlayerShip)
+	addGMFunction("-Board from Entry",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local entry_point_setting = {
+			"random",
+			"Helms",
+			"Weapons",
+			"Engineering",
+			"Science",
+			"Relay",
+			"Tactical",
+			"Engineering+",
+			"Operations",
+			"Single",
+			"DamageControl",
+			"PowerManagement",
+			"Database",
+			"AltRelay",
+			"CommsOnly",
+			"ShipLog",
+		}
+		for i, entry in ipairs(entry_point_setting) do
+			if entry == "random" or p:hasPlayerAtPosition(entry) then
+				local button_label = string.format("Entry:%s",entry)
+				if boarder_entry == entry then
+					button_label = button_label .. "*"
+				end
+				addGMFunction(button_label,function()
+					boarder_entry = entry
+					setBoarderEntry()
+				end)
+			end
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+----------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Boarders > Competence  --
+----------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main 					F	initialGMFunctions
+-- -Tweak Player Ship		F	tweakPlayerShip
+-- -Board from Competence	F	setBoarders
+-- Competence:low			*	inline
+-- Competence:medium		*	inline
+-- Competence:high			*	inline
+function setBoarderCompetence()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Player Ship",tweakPlayerShip)
+	addGMFunction("-Board from Competence",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local competence_settings = {
+			{desc = "low",		rate = 30},
+			{desc = "medium",	rate = 50},
+			{desc = "high",		rate = 80},
+		}
+		for i,competence in ipairs(competence_settings) do
+			local button_label = string.format("Competence:%s",competence.desc)
+			if boarder_competence == competence.desc then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				boarder_competence = competence.desc
+				boarder_success_chance = competence.rate
+				setBoarderCompetence()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+-----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Boarders > Speed  --
+-----------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main 				F	initialGMFunctions
+-- -Tweak Player Ship	F	tweakPlayerShip
+-- -Board from Speed	F	setBoarders
+-- List of speed choice buttons with * marking the current selection
+function setBoarderSpeed()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Tweak Player Ship",tweakPlayerShip)
+	addGMFunction("-Board from Speed",setBoarders)
+	local p = playerShipSelected()
+	if p ~= nil then
+		local speed_settings = {
+			10,
+			30,
+			60,
+			90,
+			120,
+		}
+		for i,speed in ipairs(speed_settings) do
+			local button_label = string.format("Speed:%s",speed)
+			if boarder_speed == speed then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				boarder_speed = speed
+				setBoarderSpeed()
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--	****************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Carrier				****  --
+--	****************************************************************************************  --
+-------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Ordnance  --
+-------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Ordnance	F	initialGMFunctions
+-- -Tweak Player		F	tweakPlayerShip
+-- -Set Carrier			F	setPlayerCarrier
+-- Add ordnance set		F	inline
+-- Fill ordnance		F	inline
+-- List of buttons for each type of ordnance
+function setCarrierOrdnance()
+	clearGMFunctions()
+	addGMFunction("-Main from Ordnance",initialGMFunctions)
+--	addGMFunction("-Setup",initialSetUp)
+--	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Set Carrier",setPlayerCarrier)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_inventory ~= nil or #p.carrier_ship_inventory == 0 then
+			local increment_ordnance = {}
+			local increment_ordnance_count = 0
+			for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+				local current_reputation = p:getReputationPoints()
+				local temp_fighter_max_ordnance = {}
+				local temp_fighter = carrier_ship_types[carrier_ship.template].create(carrier_ship.template)
+				for i,missile_type in ipairs(missile_types) do
+					temp_fighter_max_ordnance[missile_type] = temp_fighter:getWeaponStorageMax(missile_type)
+				end
+				temp_fighter:destroy()
+				p:setReputationPoints(current_reputation)
+				for i,missile_type in ipairs(missile_types) do
+					if increment_ordnance[missile_type] == nil then
+						if temp_fighter_max_ordnance[missile_type] ~= nil then
+							increment_ordnance[missile_type] = temp_fighter_max_ordnance[missile_type]
+							increment_ordnance_count = increment_ordnance_count + 1
+						end
+					else
+						if temp_fighter_max_ordnance[missile_type] ~= nil then
+							increment_ordnance[missile_type] = increment_ordnance[missile_type] + temp_fighter_max_ordnance[missile_type]
+						end
+					end
+				end
+			end
+			if increment_ordnance_count > 0 then
+				addGMFunction("Add ordnance set",function()
+					for i,missile_type in ipairs(missile_types) do
+						if increment_ordnance[missile_type] ~= nil then
+							p:setWeaponStorageMax(missile_type,p:getWeaponStorageMax(missile_type) + increment_ordnance[missile_type])
+						end
+					end
+					setCarrierOrdnance()
+				end)
+				addGMFunction("Fill Ordnance",function()
+					for i,missile_type in ipairs(missile_types) do
+						p:setWeaponStorage(missile_type,p:getWeaponStorageMax(missile_type))
+					end
+				end)
+				for i,missile_type in ipairs(missile_types) do
+					if increment_ordnance[missile_type] ~= nil then
+						addGMFunction(string.format("%s +%i to %i",missile_type,increment_ordnance[missile_type],p:getWeaponStorageMax(missile_type)),function()
+							p:setWeaponStorageMax(missile_type,p:getWeaponStorageMax(missile_type) + increment_ordnance[missile_type])
+							setCarrierOrdnance()
+						end)
+					end
+				end
+			else
+				addGMMessage(string.format("Carrier %s's fighters have no ordnance restock requirements",p:getCallSign()))
+			end
+		else
+			addGMMessage("No ships in carrier inventory")
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Ship Type  --
+--------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Ship Type	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Set Carrier			F	setPlayerCarrier
+-- +By Class			F	setCarryByClass
+function setCarrierShipTypes()
+	clearGMFunctions()
+	addGMFunction("-Main from Ship Type",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Set Carrier",setPlayerCarrier)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types == nil then
+			p.carrier_ship_types = {}
+			for template,details in pairs(carrier_ship_types) do
+				p.carrier_ship_types[template] = {
+					carry = details.carry,
+					class = details.class,
+					create = details.create,
+				}
+			end
+		end
+		addGMFunction("+By Class",setCarryByClass)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory  --
+--------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Inventory	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Set Carrier			F	setPlayerCarrier
+-- Show inventory ?		D	showCarrierShipInventory
+-- +Add Ship			F	addShipToCarrierInventory
+-- +Del Ship			F	deleteShipFromCarrierInventory
+-- +Change Ship			F	changeShipInCarrierInventory
+function setCarrierShipInventory()
+	clearGMFunctions()
+	addGMFunction("-Main from Inventory",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Set Carrier",setPlayerCarrier)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_inventory == nil then
+			p.carrier_ship_inventory = {}
+		end
+		if #p.carrier_ship_inventory > 0 then
+			addGMFunction(string.format("Show inventory %i",#p.carrier_ship_inventory),function()
+				showCarrierShipInventory(p)
+			end)
+		end
+		addGMFunction("+Add Ship",addShipToCarrierInventory)
+		addGMFunction("+Del Ship",deleteShipFromCarrierInventory)
+		addGMFunction("+Change Ship",changeShipInCarrierInventory)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function showCarrierShipInventory()
+	local p = playerShipSelected()
+	if p ~= nil then
+		if #p.carrier_ship_inventory > 0 then
+			local out = string.format("Carrier inventory report (%i ship):",#p.carrier_ship_inventory)
+			if #p.carrier_ship_inventory > 1 then
+				out = string.format("Carrier inventory report (%i ships):",#p.carrier_ship_inventory)
+			end
+			for i,ship in ipairs(p.carrier_ship_inventory) do
+				out = string.format("%s\n%s %s Strength:%s State:%s",out,ship.name,ship.template,playerShipStats[ship.template].strength,ship.state)
+				if ship.state == "deployed" and (ship.ship == nil or not ship.ship:isValid()) then
+					out = string.format("%s (destroyed)",out)
+				end
+			end
+			addGMMessage(out)
+		else
+			addGMMessage("Inventory empty")
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Carrier Ship Type				****  --
+--	************************************************************************************************  --
+-------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Ship Type > By Class  --
+-------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Class	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Set Carrier			F	setPlayerCarrier
+-- -Ship Types			F	setCarrierShipTypes
+-- +Dreadnought ?/?		D	setCarryClassSpecified
+-- +Corvette ?/?		D	setCarryClassSpecified
+-- +Frigate ?/?			D	setCarryClassSpecified
+-- +Starfighter ?/?		D	setCarryClassSpecified
+function setCarryByClass()
+	local p = playerShipSelected()
+	if p ~= nil then
+		local dreadnought_count = 0
+		local dreadnought_carry_count = 0
+		local corvette_count = 0
+		local corvette_carry_count = 0
+		local frigate_count = 0
+		local frigate_carry_count = 0
+		local fighter_count = 0
+		local fighter_carry_count = 0
+		for template,detail in pairs(p.carrier_ship_types) do
+			if detail.class == "Dreadnought" then
+				dreadnought_count = dreadnought_count + 1
+				if detail.carry then
+					dreadnought_carry_count = dreadnought_carry_count + 1
+				end
+			end
+			if detail.class == "Corvette" then
+				corvette_count = corvette_count + 1
+				if detail.carry then
+					corvette_carry_count = corvette_carry_count + 1
+				end
+			end
+			if detail.class == "Frigate" then
+				frigate_count = frigate_count + 1
+				if detail.carry then
+					frigate_carry_count = frigate_carry_count + 1
+				end
+			end
+			if detail.class == "Starfighter" then
+				fighter_count = fighter_count + 1
+				if detail.carry then
+					fighter_carry_count = fighter_carry_count + 1
+				end
+			end
+		end
+		clearGMFunctions()
+		addGMFunction("-Main from Class",initialGMFunctions)
+		addGMFunction("-Setup",initialSetUp)
+		addGMFunction("-Player Ship",playerShip)
+		addGMFunction("-Tweak Player",tweakPlayerShip)
+		addGMFunction("-Set Carrier",setPlayerCarrier)
+		addGMFunction("-Ship Types",setCarrierShipTypes)
+		addGMFunction(string.format("+Dreadnought %i/%i",dreadnought_carry_count,dreadnought_count),function()
+			setCarryClassSpecified("Dreadnought")
+		end)
+		addGMFunction(string.format("+Corvette %i/%i",corvette_carry_count,corvette_count),function()
+			setCarryClassSpecified("Corvette")
+		end)
+		addGMFunction(string.format("+Frigate %i/%i",frigate_carry_count,frigate_count),function()
+			setCarryClassSpecified("Frigate")
+		end)
+		addGMFunction(string.format("+Starfighter %i/%i",fighter_carry_count,fighter_count),function()
+			setCarryClassSpecified("Starfighter")
+		end)
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+-------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Ship Type > By Class > Set Class  --
+-------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Carry By Class		F	setCarryByClass
+-- All ?				D	inline
+-- No ?					D	inline
+-- List of buttons with ship templates, * marks currently selected
+function setCarryClassSpecified(class)
+	local p = playerShipSelected()
+	if p ~= nil then
+		clearGMFunctions()
+		addGMFunction("-Carry By Class",setCarryByClass)
+		addGMFunction(string.format("All %ss",class),function()
+			for template,detail in pairs(p.carrier_ship_types) do
+				if detail.class == class then
+					detail.carry = true
+				end
+			end
+			setCarryClassSpecified(class)
+		end)
+		addGMFunction(string.format("No %ss",class),function()
+			for template,detail in pairs(p.carrier_ship_types) do
+				if detail.class == class then
+					detail.carry = false
+				end
+			end
+			setCarryClassSpecified(class)
+		end)
+		local specified_class_templates = {}
+		for template,detail in pairs(p.carrier_ship_types) do
+			if detail.class == class then
+				table.insert(specified_class_templates,{name = template, carry = detail.carry})
+			end
+		end
+		table.sort(specified_class_templates, function(a,b)
+			return a.name < b.name
+		end)
+		for i,ship in ipairs(specified_class_templates) do
+			local button_label = ship.name
+			if ship.carry then
+				button_label = string.format("%s*",button_label)
+			end
+			addGMFunction(button_label,function()
+				if ship.carry then
+					p.carrier_ship_types[ship.name].carry = false
+				else
+					p.carrier_ship_types[ship.name].carry = true
+				end
+				setCarryClassSpecified(class)
+			end)
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Carrier Inventory				****  --
+--	************************************************************************************************  --
+------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory > Add Ship --
+------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Add Inv	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Carrier				F	setPlayerCarrier
+-- -Inventory			F	setCarrierShipInventory
+-- List of buttons with ship template names on them, current ones marked with *
+function addShipToCarrierInventory()
+	clearGMFunctions()
+	addGMFunction("-Main from Add Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types ~= nil then
+			local sorted_carrier_ship_types = {}
+			for template, details in pairs(p.carrier_ship_types) do
+				if details.carry then
+					table.insert(sorted_carrier_ship_types,{name = template, class = details.class})
+				end
+			end
+			table.sort(sorted_carrier_ship_types, function(a,b)
+				return a.name < b.name
+			end)
+			for i,ship in ipairs(sorted_carrier_ship_types) do
+				local button_label = ship.name
+				if #p.carrier_ship_inventory > 0 then
+					for j,carrier_ship in ipairs(p.carrier_ship_inventory) do
+						if carrier_ship.template == ship.name then
+							button_label = string.format("%s*",button_label)
+							break
+						end
+					end
+				end
+				addGMFunction(button_label,function()
+					local ship_name = tableRemoveRandom(carrier_ship_names[ship.name])
+					if ship_name == nil then
+						local class_pool = {}
+						for ship_type_name,ship_type_details in pairs(p.carrier_ship_types) do
+							if ship.class == ship_type_details.class then
+								if #carrier_ship_names[ship_type_name] > 0 then
+									table.insert(class_pool,ship_type_name)
+								end
+							end
+						end
+						local selected_template = tableRemoveRandom(class_pool)
+						ship_name = tableRemoveRandom(carrier_ship_names[selected_template])
+					end
+					table.insert(p.carrier_ship_inventory,{
+						class = ship.class, 
+						template = ship.name, 
+						name = ship_name, 
+						state = "aboard", 
+						launch_button = string.format("launch_%s",ship_name),
+						launch_time = carrier_class_launch_time[ship.class],
+					})
+					showCarrierShipInventory()
+				end)
+			end
+			if #sorted_carrier_ship_types == 0 then
+				addGMMessage("Before you can add ships to the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+			end
+		else
+			addGMMessage("Before you can add ships to the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+---------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory > Delete Ship --
+---------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Del Inv	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Carrier				F	setPlayerCarrier
+-- -Inventory			F	setCarrierShipInventory
+-- List of buttons with ship template names on them
+function deleteShipFromCarrierInventory()
+	clearGMFunctions()
+	addGMFunction("-Main from Del Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types ~= nil then
+			if p.carrier_ship_inventory ~= nil and #p.carrier_ship_inventory > 0 then
+				for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+					addGMFunction(string.format("Del %s",carrier_ship.name),function()
+						if carrier_ship.state ~= "aboard" then
+							if carrier_ship.ship ~= nil and carrier_ship.ship:isValid() then
+								addGMMessage(string.format("%s is not aboard and valid. No delete action taken",carrier_ship.name))
+							else
+								addGMMessage(string.format("%s deleted from carrier ship inventory",carrier_ship.name))
+								p.carrier_ship_inventory[i] = p.carrier_ship_inventory[#p.carrier_ship_inventory]
+								p.carrier_ship_inventory[#p.carrier_ship_inventory] = nil
+								setCarrierShipInventory()
+							end
+						else
+							addGMMessage(string.format("%s deleted from carrier ship inventory",carrier_ship.name))
+							p.carrier_ship_inventory[i] = p.carrier_ship_inventory[#p.carrier_ship_inventory]
+							p.carrier_ship_inventory[#p.carrier_ship_inventory] = nil
+							setCarrierShipInventory()
+						end
+					end)
+				end
+			else
+				addGMMessage("Before you can delete ships from the carrier's inventory, there has to be an inventory from which you can delete a ship")
+				setCarrierShipInventory()
+			end
+		else
+			addGMMessage("Before you can delete ships from the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+			setCarrierShipInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory > Change Ship  --
+----------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Chng Inv	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Carrier				F	setPlayerCarrier
+-- -Inventory			F	setCarrierShipInventory
+-- List of buttons with ship template names on them
+function changeShipInCarrierInventory()
+	clearGMFunctions()
+	addGMFunction("-Main from Chng Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.carrier_ship_types ~= nil then
+			if p.carrier_ship_inventory ~= nil and #p.carrier_ship_inventory > 0 then
+				local change_choices_presented = 0
+				for i,carrier_ship in ipairs(p.carrier_ship_inventory) do
+					local something_can_change = false
+					if carrier_ship.state == "aboard" then
+						if carrier_ship.max_health ~= nil then
+							something_can_change = true
+						elseif carrier_ship.max_ordnance ~= nil then
+							for i,missile_type in ipairs(missile_types) do
+								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+									something_can_change = true
+								end
+							end
+						end
+					end
+					if something_can_change then
+						change_choices_presented = change_choices_presented + 1
+						addGMFunction(string.format("Change %s",carrier_ship.name),function()
+							changeSpecificShipInCarrierInventory(carrier_ship)
+						end)
+					end
+				end
+				if change_choices_presented == 0 then
+					addGMMessage("No carrier ship change options available at this time")
+					setCarrierShipInventory()
+				end
+			else
+				addGMMessage("Before you can change ships in the carrier's inventory, there has to be an inventory of ships")
+				setCarrierShipInventory()
+			end
+		else
+			addGMMessage("Before you can change ships in the carrier's inventory, you must specify which ship types it can carry. That's the '+Ship Types' button")
+			setCarrierShipInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+---------------------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory > Change Ship > Change Specific Ship  --
+---------------------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Chng Inv	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -PLAYER SHIP			F	playerShip
+-- -Tweak Player		F	tweakPlayerShip
+-- -Carrier				F	setPlayerCarrier
+-- -Inventory			F	setCarrierShipInventory
+-- Max Health			F	changeCarrierShipMaxHealth
+-- Ordnance				F	changeCarrierShipOrdnance
+-- ? Report				D	carrierShipReport
+function changeSpecificShipInCarrierInventory(carrier_ship)
+	clearGMFunctions()
+	addGMFunction("-Main from Chng Inv",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Player Ship",playerShip)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Carrier",setPlayerCarrier)
+	addGMFunction("-Inventory",setCarrierShipInventory)
+	addGMFunction("-Change Ship",changeShipInCarrierInventory)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if carrier_ship.state == "aboard" then
+			local change_options_presented = 0
+			if carrier_ship.max_health ~= nil then
+				change_options_presented = change_options_presented + 1
+				addGMFunction("Max health",function()
+					string.format("")
+					changeCarrierShipMaxHealth(carrier_ship)
+				end)
+			end
+			if carrier_ship.max_ordnance ~= nil then
+				change_options_presented = change_options_presented + 1
+				addGMFunction("Ordnance",function()
+					string.format("")
+					changeCarrierShipOrdnance(carrier_ship)
+				end)
+			end
+			--add rapid refit here
+			if change_options_presented == 0 then
+				addGMMessage(string.format("Nothing to change for %s",carrier_ship.name))
+			end
+			addGMFunction(string.format("%s report",carrier_ship.name),function()
+				carrierShipReport(carrier_ship)
+			end)
+		else
+			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
+			changeShipInCarrierInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function carrierShipReport(carrier_ship)
+	local out = string.format("Report on %s",carrier_ship.name)
+	local carrier_name = ""
+	local p = playerShipSelected()
+	if p ~= nil then
+		carrier_name = p:getCallSign()
+		out = string.format("%s - a ship in %s's inventory",out,carrier_name)
+	end
+	out = string.format("%s\nTemplate:%s Strength:%s",out,carrier_ship.template,playerShipStats[carrier_ship.template].strength)
+	if carrier_ship.max_health ~= nil then
+		out = string.format("%s\nMax health issues:",out)
+		local max_health_item_count = 0
+		for system,max_health in pairs(carrier_ship.max_health) do
+			out = string.format("%s\n    %s %.1f%%",out,system,max_health*100)
+			max_health_item_count = max_health_item_count + 1
+		end
+		if max_health_item_count == 0 then
+			out = string.format("%s None",out)
+		end
+	else
+		out = string.format("%s\nNo max health issues to report",out)
+	end
+	if carrier_ship.max_ordnance ~= nil then
+		out = string.format("%s\nOrdnance:",out)
+		for i,missile_type in ipairs(missile_types) do
+			if carrier_ship.max_ordnance[missile_type] ~= nil then
+				if carrier_name ~= "" then
+					out = string.format("%s\n    %s %i/%i    Carrier %s: %i/%i",out,missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type],carrier_name,p:getWeaponStorage(missile_type),p:getWeaponStorageMax(missile_type))
+				else
+					out = string.format("%s\n    %s %i/%i",out,missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type])
+				end
+			end
+		end
+	end
+	addGMMessage(out)
+end
+--	************************************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Carrier Inventory Change Ship (Specific)				****  --
+--	************************************************************************************************************************  --
+----------------------------------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory > Change Ship > Change Specific Ship > Max Health  --
+----------------------------------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Change ?			D	changeSpecificShipInCarrierInventory
+-- ? ? Half	Health		D	inline
+-- ? ? Fix Health		D	inline
+function changeCarrierShipMaxHealth(carrier_ship)
+	clearGMFunctions()
+	addGMFunction(string.format("-Change %s",carrier_ship.name),function()
+		changeSpecificShipInCarrierInventory(carrier_ship)
+	end)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if carrier_ship.state == "aboard" then
+			if carrier_ship.max_health ~= nil then
+				local max_health_item_count = 0
+				for system,ship_max_health in pairs(carrier_ship.max_health) do
+					max_health_item_count = max_health_item_count + 1
+					addGMFunction(string.format("%s %.1f%% Half Health",system,ship_max_health*100),function()
+						ship_max_health = ship_max_health + (1 - ship_max_health)/2
+						carrier_ship.max_health[system] = ship_max_health
+						changeCarrierShipMaxHealth(carrier_ship)
+					end)
+					addGMFunction(string.format("%s %.1f%% Fix Health",system,ship_max_health*100),function()
+						carrier_ship.max_health[system] = nil
+						changeCarrierShipMaxHealth(carrier_ship)
+					end)
+				end
+				if max_health_item_count == 0 then
+					addGMMessage(string.format("No max health changes available for %s",carrier_ship.name))
+				end
+			else
+				addGMMessage(string.format("No max health changes available for %s",carrier_ship.name))
+			end
+		else
+			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
+			changeShipInCarrierInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+--------------------------------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Carrier > Inventory > Change Ship > Change Specific Ship > Ordnance  --
+--------------------------------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Change				F	changeSpecificShipInCarrierInventory
+-- +1 ? ?/?				D	inline
+-- Max ? ?/?			D	inline
+function changeCarrierShipOrdnance(carrier_ship)
+	clearGMFunctions()
+	addGMFunction(string.format("-Change %s",carrier_ship.name),function()
+		changeSpecificShipInCarrierInventory(carrier_ship)
+	end)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if carrier_ship.state == "aboard" then
+			if carrier_ship.max_ordnance ~= nil then
+				for i,missile_type in ipairs(missile_types) do
+					if carrier_ship.max_ordnance[missile_type] ~= nil and carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+						addGMFunction(string.format("+1 %s %i/%i",missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type]),function()
+							if p:getWeaponStorage(missile_type) > 0 then
+								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+									p:setWeaponStorage(missile_type,p:getWeaponStorage(missile_type)-1)
+									carrier_ship.ordnance_level[missile_type] = carrier_ship.ordnance_level[missile_type] + 1
+									changeCarrierShipOrdnance(carrier_ship)
+								else
+									addGMMessage(string.format("%s is already at maximum %s level",carrier_ship.name,missile_type))
+								end
+							else
+								addGMMessage(string.format("Carrier %s is out of %ss",p:getCallSign(),missile_type))
+							end
+						end)
+						addGMFunction(string.format("Max %s %i/%i",missile_type,carrier_ship.ordnance_level[missile_type],carrier_ship.max_ordnance[missile_type]),function()
+							local adjustment_amount = carrier_ship.max_ordnance[missile_type] - carrier_ship.ordnance_level[missile_type]
+							if p:getWeaponStorage(missile_type) > adjustment_amount then
+								if carrier_ship.ordnance_level[missile_type] < carrier_ship.max_ordnance[missile_type] then
+									p:setWeaponStorage(missile_type,p:getWeaponStorage(missile_type) - adjustment_amount)
+									carrier_ship.ordnance_level[missile_type] = carrier_ship.max_ordnance[missile_type]
+									changeCarrierShipOrdnance(carrier_ship)
+								else
+									addGMMessage(string.format("%s is already at maximum %s level",carrier_ship.name,missile_type))
+								end
+							else
+								addGMMessage(string.format("Carrier %s only has %i %ss - not enough to maximize %s's stock",p:getCallSign(),p:getWeaponStorage(missile_type),missile_type,carrier_ship.name))
+							end
+						end)
+					end
+				end
+			end
+		else
+			addGMMessage(string.format("Changes can only be made while %s is docked",carrier_ship.name))
+			changeShipInCarrierInventory()
+		end
+	else
+		addGMMessage("No player ship selected. No action taken.")
+		tweakPlayerShip()
+	end
+end
+function makePlayerShipActive(ship_name)
+	assert(type(ship_name) == "string")
+	assert(type(playerShipInfo[ship_name]) == "table")
+	playerShipInfo[ship_name]["active"] = "active"
+end
+--	********************************************************************************  --
+--	****				Initial Set Up Player Ships Filtered Spawn				****  --
+--	********************************************************************************  --
+-----------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > Set Cut Filters --
+-----------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -Set Filters				F	filteredPlayerShipSpawn
+-- +No RelStrength Filter	D	inline
+-- +No Cargo Filter			D	inline
+-- +No Long Sensor Filter	D	inline
+-- +No Probe Filter			D	inline
+-- +No Life Pod Filter		D	inline
+function setCutFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	local button_label = "+Relative Strength"
+	if relative_strength_filter == "No RelStrength Filter" then
+		button_label = "+No RelStrength Filter"
+	elseif relative_strength_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,relative_strength_cut)
+	elseif relative_strength_filter == "More" then
+		button_label = string.format("%s > %i",button_label,relative_strength_cut)
+	end
+	addGMFunction(button_label,setRelativeStrengthFilter)
+	button_label = "+Cargo Filter"
+	if cargo_filter == "No Cargo Filter" then
+		button_label = "+No Cargo Filter"
+	elseif cargo_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,cargo_cut)
+	elseif cargo_filter == "More" then
+		button_label = string.format("%s > %i",button_label,cargo_cut)
+	end
+	addGMFunction(button_label,setCargoFilter)
+	button_label = "+Long Sensor Filter"
+	if long_sensor_filter == "No Long Sensor Filter" then
+		button_label = "+No Long Sensor Filter"
+	elseif long_sensor_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,long_sensor_cut)
+	elseif long_sensor_filter == "More" then
+		button_label = string.format("%s > %i",button_label,long_sensor_cut)
+	end
+	addGMFunction(button_label,setLongSensorFilter)
+	button_label = "+Probe Filter"
+	if probe_filter == "No Probe Filter" then
+		button_label = "+No Probe Filter"
+	elseif probe_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,probe_cut)
+	elseif probe_filter == "More" then
+		button_label = string.format("%s > %i",button_label,probe_cut)
+	end
+	addGMFunction(button_label,setProbeFilter)
+	button_label = "+Life Pod Filter"
+	if life_pod_filter == "No Life Pod Filter" then
+		button_label = "+No Life Pod Filter"
+	elseif life_pod_filter == "Less" then
+		button_label = string.format("%s < %i",button_label,life_pod_cut)
+	elseif life_pod_filter == "More" then
+		button_label = string.format("%s > %i",button_label,life_pod_cut)
+	end
+	addGMFunction(button_label,setLifePodFilter)
+end
+---------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > List Matches  --
+---------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -MAIN				F	initialGMFunctions
+-- -Set Filters			F	filteredPlayerShipSpawn
+-- List of buttons with player ship names matching filter criteria
+function filteredPlayerShipSpawnList()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	local sorted = {}
+	for name in pairs(playerShipInfo) do table.insert(sorted,name) end
+	table.sort(sorted)
+	local matching_player_ship_count = 0
+	for name,match in pairs(filteredPlayerShipNames) do
+		if filteredPlayerShipNames[name] == filter_count then
+			matching_player_ship_count = matching_player_ship_count + 1
+		end
+	end
+	if matching_player_ship_count == 0 then
+		if filter_count == 0 or matching_player_ship_count == 0 then
+			addGMMessage("No filter specified or no matching player ships found. Transferring you to the normal player ship spawn section")
+			spawnPlayerShip()
+		else
+			addGMMessage("No player ships matched your filter criteria. You need to change your selected filters and try again")
+			filteredPlayerShipSpawn()
+		end
+	else
+		for _,name in pairs(sorted) do
+			if filteredPlayerShipNames[name] ~= nil then
+				if filteredPlayerShipNames[name] == filter_count then
+					local strength = playerShipStats[playerShipInfo[name].typeName].strength
+					local lrs = playerShipStats[playerShipInfo[name].typeName].long_range_radar / 1000
+					addGMFunction(string.format("%i%s%i %s",strength,playerShipInfo[name].ftl,lrs,name), function()
+						playerShipInfo[name]["spawn"]()
+						playerShipInfo[name]["active"] = "inactive"
+						filteredPlayerShipSpawn()
+					end)
+				end
+			end
+		end
+	end
+end
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Filtered Spawn Set Cut Filters				****  --
+--	************************************************************************************************  --
+--------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > Set Cut Filters > Relative Strength  --
+--------------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -Set Filters				F	filteredPlayerShipSpawn
+-- -From Relative Strength	F	setCutFilter
+-- No RelStrength Filter	*	inline
+-- Less than ?				*	inline
+-- More than ?				*	inline
+-- Set cut to ?				D	inline
+-- Set cut to ?				D	inline
+function setRelativeStrengthFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Relative Strength",setCutFilter)
+	local button_label = "No RelStrength Filter"
+	if relative_strength_filter == "No RelStrength Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "No RelStrength Filter"
+		relative_strength_label = "NRF"
+		setRelativeStrengthFilter()
+	end)
+	button_label = string.format("Less than %i",relative_strength_cut)
+	if relative_strength_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "Less"
+		relative_strength_label = string.format("R<%i",relative_strength_cut)
+		setRelativeStrengthFilter()
+	end)
+	button_label = string.format("More than %i",relative_strength_cut)
+	if relative_strength_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		relative_strength_filter = "More"
+		relative_strength_label = string.format("R>%i",relative_strength_cut)
+		setRelativeStrengthFilter()
+	end)
+	if relative_strength_cut > relative_strength_min then
+		addGMFunction(string.format("Set cut to %i",relative_strength_cut - 1),function()
+			relative_strength_cut = relative_strength_cut - 1
+			if relative_strength_filter == "Less" then
+				relative_strength_label = string.format("R<%i",relative_strength_cut)
+			end
+			if relative_strength_filter == "More" then
+				relative_strength_label = string.format("R>%i",relative_strength_cut)
+			end
+			setRelativeStrengthFilter()
+		end)
+	end
+	if relative_strength_cut < relative_strength_max then
+		addGMFunction(string.format("Set cut to %i",relative_strength_cut + 1),function()
+			relative_strength_cut = relative_strength_cut + 1
+			if relative_strength_filter == "Less" then
+				relative_strength_label = string.format("R<%i",relative_strength_cut)
+			end
+			if relative_strength_filter == "More" then
+				relative_strength_label = string.format("R>%i",relative_strength_cut)
+			end
+			setRelativeStrengthFilter()
+		end)
+	end
+end
+--------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > Set Cut Filters > Cargo  --
+--------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -Set Filters				F	filteredPlayerShipSpawn
+-- -From Cargo				F	setCutFilter
+-- No Cargo Filter			*	inline
+-- Less than ?				*	inline
+-- More than ?				*	inline
+-- Set cut to ?				D	inline
+-- Set cut to ?				D	inline
+function setCargoFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Cargo",setCutFilter)
+	local button_label = "No Cargo Filter"
+	if cargo_filter == "No Cargo Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "No Cargo Filter"
+		cargo_label = "NCF"
+		setCargoFilter()
+	end)
+	button_label = string.format("Less than %i",cargo_cut)
+	if cargo_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "Less"
+		cargo_label = string.format("C<%i",cargo_cut)
+		setCargoFilter()
+	end)
+	button_label = string.format("More than %i",cargo_cut)
+	if cargo_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		cargo_filter = "More"
+		cargo_label = string.format("C>%i",cargo_cut)
+		setCargoFilter()
+	end)
+	if cargo_cut > cargo_min then
+		addGMFunction(string.format("Set cut to %i",cargo_cut - 1),function()
+			cargo_cut = cargo_cut - 1
+			if cargo_filter == "Less" then
+				cargo_label = string.format("C<%i",cargo_cut)
+			end
+			if cargo_filter == "More" then
+				cargo_label = string.format("C>%i",cargo_cut)
+			end
+			setCargoFilter()
+		end)
+	end
+	if cargo_cut < cargo_max then
+		addGMFunction(string.format("Set cut to %i",cargo_cut + 1),function()
+			cargo_cut = cargo_cut + 1
+			if cargo_filter == "Less" then
+				cargo_label = string.format("C<%i",cargo_cut)
+			end
+			if cargo_filter == "More" then
+				cargo_label = string.format("C>%i",cargo_cut)
+			end
+			setCargoFilter()
+		end)
+	end
+end
+---------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > Set Cut Filters > Long Sensors  --
+---------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -Set Filters				F	filteredPlayerShipSpawn
+-- -From Long Sensor		F	setCutFilter
+-- No Long Sensor Filter	*	inline
+-- Less than ?				*	inline
+-- More than ?				*	inline
+-- Set cut to ?				D	inline
+-- Set cut to ?				D	inline
+function setLongSensorFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Long Sensor",setCutFilter)
+	local button_label = "No Long Sensor Filter"
+	if long_sensor_filter == "No Long Sensor Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "No Long Sensor Filter"
+		long_sensor_label = "NSF"
+		setLongSensorFilter()
+	end)
+	button_label = string.format("Less than %i",long_sensor_cut)
+	if long_sensor_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "Less"
+		long_sensor_label = string.format("S<%i",long_sensor_cut)
+		setLongSensorFilter()
+	end)
+	button_label = string.format("More than %i",long_sensor_cut)
+	if long_sensor_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		long_sensor_filter = "More"
+		long_sensor_label = string.format("S>%i",long_sensor_cut)
+		setLongSensorFilter()
+	end)
+	if long_sensor_cut > long_sensor_min then
+		addGMFunction(string.format("Set cut to %i",long_sensor_cut - 1),function()
+			long_sensor_cut = long_sensor_cut - 1
+			if long_sensor_filter == "Less" then
+				long_sensor_label = string.format("S<%i",long_sensor_cut)
+			end
+			if long_sensor_filter == "More" then
+				long_sensor_label = string.format("S>%i",long_sensor_cut)
+			end
+			setLongSensorFilter()
+		end)
+	end
+	if long_sensor_cut < long_sensor_max then
+		addGMFunction(string.format("Set cut to %i",long_sensor_cut + 1),function()
+			long_sensor_cut = long_sensor_cut + 1
+			if long_sensor_filter == "Less" then
+				long_sensor_label = string.format("S<%i",long_sensor_cut)
+			end
+			if long_sensor_filter == "More" then
+				long_sensor_label = string.format("S>%i",long_sensor_cut)
+			end
+			setLongSensorFilter()
+		end)
+	end
+end
+---------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > Set Cut Filters > Probes  --
+---------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -Set Filters				F	filteredPlayerShipSpawn
+-- -From Probe				F	setCutFilter
+-- No Probe Filter			*	inline
+-- Less than ?				*	inline
+-- More than ?				*	inline
+-- Set cut to ?				D	inline
+-- Set cut to ?				D	inline
+function setProbeFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Probe",setCutFilter)
+	local button_label = "No Probe Filter"
+	if probe_filter == "No Probe Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "No Probe Filter"
+		probe_label = "NPF"
+		setProbeFilter()
+	end)
+	button_label = string.format("Less than %i",probe_cut)
+	if probe_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "Less"
+		probe_label = string.format("P<%i",probe_cut)
+		setProbeFilter()
+	end)
+	button_label = string.format("More than %i",probe_cut)
+	if probe_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		probe_filter = "More"
+		probe_label = string.format("P>%i",probe_cut)
+		setProbeFilter()
+	end)
+	if probe_cut > probe_min then
+		addGMFunction(string.format("Set cut to %i",probe_cut - 1),function()
+			probe_cut = probe_cut - 1
+			if probe_filter == "Less" then
+				probe_label = string.format("P<%i",probe_cut)
+			end
+			if probe_filter == "More" then
+				probe_label = string.format("P>%i",probe_cut)
+			end
+			setProbeFilter()
+		end)
+	end
+	if probe_cut < probe_max then
+		addGMFunction(string.format("Set cut to %i",probe_cut + 1),function()
+			probe_cut = probe_cut + 1
+			if probe_filter == "Less" then
+				probe_label = string.format("P<%i",probe_cut)
+			end
+			if probe_filter == "More" then
+				probe_label = string.format("P>%i",probe_cut)
+			end
+			setProbeFilter()
+		end)
+	end
+end
+-----------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Filtered Spawn > Set Cut Filters > Life Pod  --
+-----------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -Set Filters				F	filteredPlayerShipSpawn
+-- -From Life Pod			F	setCutFilter
+-- No Life Pod Filter		*	inline
+-- Less than ?				*	inline
+-- More than ?				*	inline
+-- Set cut to ?				D	inline
+-- Set cut to ?				D	inline
+function setLifePodFilter()
+	clearGMFunctions()
+	addGMFunction("-Main",initialGMFunctions)
+	addGMFunction("-Set Filters",filteredPlayerShipSpawn)
+	addGMFunction("-From Life Pod",setCutFilter)
+	local button_label = "No Life Pod Filter"
+	if life_pod_filter == "No Life Pod Filter" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "No Life Pod Filter"
+		life_pod_label = "NLF"
+		setLifePodFilter()
+	end)
+	button_label = string.format("Less than %i",life_pod_cut)
+	if life_pod_filter == "Less" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "Less"
+		life_pod_label = string.format("L<%i",life_pod_cut)
+		setLifePodFilter()
+	end)
+	button_label = string.format("More than %i",life_pod_cut)
+	if life_pod_filter == "More" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		life_pod_filter = "More"
+		life_pod_label = string.format("L>%i",life_pod_cut)
+		setLifePodFilter()
+	end)
+	if life_pod_cut > life_pod_min then
+		addGMFunction(string.format("Set cut to %i",life_pod_cut - 1),function()
+			life_pod_cut = life_pod_cut - 1
+			if life_pod_filter == "Less" then
+				life_pod_label = string.format("L<%i",life_pod_cut)
+			end
+			if life_pod_filter == "More" then
+				life_pod_label = string.format("L>%i",life_pod_cut)
+			end
+			setLifePodFilter()
+		end)
+	end
+	if life_pod_cut < life_pod_max then
+		addGMFunction(string.format("Set cut to %i",life_pod_cut + 1),function()
+			life_pod_cut = life_pod_cut + 1
+			if life_pod_filter == "Less" then
+				life_pod_label = string.format("L<%i",life_pod_cut)
+			end
+			if life_pod_filter == "More" then
+				life_pod_label = string.format("L>%i",life_pod_cut)
+			end
+			setLifePodFilter()
+		end)
+	end
+end
+--	****************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player By Console Relay Cargo				****  --
+--	****************************************************************************************************  --
+-----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Remove Cargo  --
+-----------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -CARGO FROM DEL		F	changePlayerCargo
+-- One button for each type of cargo in the selected player ship
+function removeCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Del",changePlayerCargo)
+	local p = playerShipSelected()
+	if p ~= nil then
+		if p.goods ~= nil then
+			local cargo_found = false
+			for good, good_quantity in pairs(p.goods) do
+				if good_quantity > 0 then
+					cargo_found = true
+					addGMFunction(good,function()
+						p.goods[good] = p.goods[good] - 1
+						p.cargo = p.cargo + 1
+						addGMMessage(string.format("one %s removed",good))
+						removeCargo()
+					end)
+				end
+			end
+			if not cargo_found then
+				addGMMessage("selected player has no cargo to delete")
+				changePlayerCargo()
+			end
+		else
+			addGMMessage("selected player has no cargo to delete")
+			changePlayerCargo()
+		end
+	else
+		addGMMessage("No player selected. No action taken")
+		changePlayerCargo()
+	end
+end
+----------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Mineral Cargo  --
+----------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -CARGO FROM ADD		F	changePlayerCargo
+-- One button for each mineral cargo type
+function addMineralCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Add",changePlayerCargo)
+	local p = playerShipSelected()
+	if p ~= nil then
+		for _, good in pairs(mineralGoods) do
+			addGMFunction(good,function()
+				if p.cargo > 0 then
+					if p.goods == nil then
+						p.goods = {}
+					end
+					if p.goods[good] == nil then
+						p.goods[good] = 0
+					end
+					p.goods[good] = p.goods[good] + 1
+					p.cargo = p.cargo - 1
+					addGMMessage(string.format("one %s added",good))
+				else
+					addGMMessage("Insufficient cargo space")
+					changePlayerCargo()
+					return
+				end
+				addMineralCargo()			
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken")
+		changePlayerCargo()
+	end
+end
+------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Component Cargo  --
+------------------------------------------------------------------------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -CARGO FROM ADD		F	changePlayerCargo
+-- One button for each component cargo type
+function addComponentCargo()
+	clearGMFunctions()
+	addGMFunction("-Cargo From Add",changePlayerCargo)
+	local p = playerShipSelected()
+	if p ~= nil then
+		for _, good in pairs(componentGoods) do
+			addGMFunction(good,function()
+				if p.cargo > 0 then
+					if p.goods == nil then
+						p.goods = {}
+					end
+					if p.goods[good] == nil then
+						p.goods[good] = 0
+					end
+					p.goods[good] = p.goods[good] + 1
+					p.cargo = p.cargo - 1
+					addGMMessage(string.format("one %s added",good))
+				else
+					addGMMessage("Insufficient cargo space")
+				end
+				addComponentCargo()			
+			end)
+		end
+	else
+		addGMMessage("No player selected. No action taken")
+	end
+end
+------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Tweak Relay > Cargo > Add Arbitrary Cargo  --
+------------------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Arbitrary		F	changePlayerCargo
+-- -Setup					F	initialSetUp
+-- -Tweak Player			F	tweakPlayerShip
+-- -By Console				F	tweakByConsole
+-- -Tweak Relay				F	tweakRelay
+-- -Cargo from Arbitrary	F	changePlayerCargo
+-- +Sel Src Cargo Obj		F	changeCargoSourceObject
+-- 		or
+-- +Chg Src Cargo Obj		F	changeCargoSourceObject
+-- +Select Cargo Player		F	playerShipSelected
+--		or
+-- +Chg ?					D	playerShipSelected
+-- Test selections			F	inline
+-- Add Cargo				F	inline
+function addArbitraryCargo()
+	clearGMFunctions()
+	addGMFunction("-Main from Arbitrary",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-By Console",tweakByConsole)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	addGMFunction("-Cargo from Arbitrary",changePlayerCargo)
+	if cargo_source_object == nil then
+		addGMFunction("+Sel Src Cargo Obj",changeCargoSourceObject)
+	else
+		if cargo_source_object:isValid() then
+			addGMFunction("+Chg Src Cargo Obj",changeCargoSourceObject)
+		else
+			addGMFunction("+Sel Src Cargo Obj",changeCargoSourceObject)
+		end
+	end
+	if player_to_get_cargo == nil then
+		addGMFunction("+Select Cargo Player",function()
+			local p = playerShipSelected()
+			if p ~= nil then
+				player_to_get_cargo = p
+			else
+				addGMMessage("No player selected. No action taken")
+			end
+			addArbitraryCargo()
+		end)
+	else
+		local button_label = "+Select Cargo Player"
+		if player_to_get_cargo:isValid() then
+			button_label = string.format("+Chg %s",player_to_get_cargo:getCallSign())
+		end
+		addGMFunction(button_label,function()
+			local p = playerShipSelected()
+			if p ~= nil then
+				player_to_get_cargo = p
+			else
+				addGMMessage("No player selected. No action taken")
+			end
+			addArbitraryCargo()
+		end)
+	end
+	if player_to_get_cargo ~= nil and player_to_get_cargo:isValid() and cargo_source_object ~= nil and cargo_source_object:isValid() then
+		addGMFunction("Test Selections",function()
+			local out = "Clicking the Add Cargo button will cause cargo of type"
+			addGMMessage(string.format("Clicking the Add Cargo button will cause cargo of type\n%s\nto be added to player ship\n%s",cargo_source_object:getDescription(),player_to_get_cargo:getCallSign()))
+			addArbitraryCargo()
+		end)
+		addGMFunction("Add Cargo",function()
+			local p = player_to_get_cargo
+			local good = cargo_source_object:getDescription()
+			if p.cargo > 0 then
+				if p.goods == nil then
+					p.goods = {}
+				end
+				if p.goods[good] == nil then
+					p.goods[good] = 0
+				end
+				p.goods[good] = p.goods[good] + 1
+				p.cargo = p.cargo - 1
+				addGMMessage(string.format("one %s added",good))
+			else
+				addGMMessage("Insufficient cargo space")
+			end
+		end)
+	end
+end
+function changeCargoSourceObject()
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			cargo_source_object = object_list[1]
+			local source = cargo_source_object:getDescription()
+			if source ~= nil then
+				player_cargo_name_source = source
+			end
+			addGMMessage(string.format("Object in %s selected to identify cargo name source.\nplace cargo name text in unscanned description field",cargo_source_object:getSectorName()))
+		else
+			addGMMessage("Select only one object to use to identify cargo name source via its unscanned description field. No action taken")
+		end
+	else
+		addGMMessage("Select an object to use to identify cargo name source via its unscanned description field. No action taken")
+	end 
+	addArbitraryCargo()
+end
+--	************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player Ship Log Message				****  --
+--	************************************************************************************************  --
+----------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source  --
+----------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -SHIP LOG MSG		F	playerShipLogMessage
+-- UNKNOWN				*	inline
+-- +INPUT				D*	inputMessageSource
+-- List of stations and ships, inline function for each
+function playerMessageSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Ship Log Msg",playerShipLogMessage)
+	local button_label = "Unknown"
+	if type(player_message_source) == "string" and player_message_source == "Unknown" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		player_message_source = "Unknown"
+		playerMessageSource()
+	end)
+	button_label = "+Input"
+	if type(player_message_source) == "string" and player_message_source ~= "Unknown" then
+		button_label = string.format("+%s*",player_message_source)
+	end
+	addGMFunction(button_label,inputMessageSource)
+	local stations_and_ships = {}
+	for _, station in pairs(regionStations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	if region_ships ~= nil then
+		for _, ship in pairs(region_ships) do
+			if ship ~= nil and ship:isValid() then
+				table.insert(stations_and_ships,{object=ship,name=ship:getCallSign()})
+			end
+		end
+	end
+	for _, station in pairs(skeleton_stations) do
+		if station ~= nil and station:isValid() then
+			table.insert(stations_and_ships,{object=station,name=station:getCallSign()})
+		end
+	end
+	table.sort(stations_and_ships,function(a,b)
+		return a.name < b.name
+	end)
+	for _,item in ipairs(stations_and_ships) do
+		button_label = item.name
+		if type(player_message_source) == "table" and player_message_source == item.object then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_message_source = item.object
+			playerMessageSource()
+		end)
+	end
+end
+------------------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Message Source > Input  --
+------------------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -Main Frm Input Src	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -SHIP LOG MSG		F	playerShipLogMessage
+-- -MSG SOURCE			F	playerMessageSource
+-- +SEL SRC MSG OBJ		D	changeMessageSourceObject
+--		or
+-- +Chg Src Msg Obj		D	changeMessageSourceObject
+function inputMessageSource()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Input Src",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Ship Log Msg",playerShipLogMessage)
+	addGMFunction("-Msg Source",playerMessageSource)
+	if message_source_object == nil then
+		addGMFunction("+Sel Src Msg Obj",changeMessageSourceObject)
+	else
+		addGMFunction("+Chg Src Msg Obj",changeMessageSourceObject)
+	end
+end
+function changeMessageSourceObject()
+	local object_list = getGMSelection()
+	if object_list ~= nil then
+		if #object_list == 1 then
+			message_source_object = object_list[1]
+			local source = message_source_object:getDescription()
+			if source ~= nil then
+				player_message_source = source
+			end
+			addGMMessage(string.format("Object in %s selected to identify message source.\nplace message source text in unscanned description field",message_source_object:getSectorName()))
+		else
+			addGMMessage("Select only one object to use to identify message source via its description field. No action taken")
+		end
+	else
+		addGMMessage("Select an object to use to identify message source via its description field. No action taken")
+	end 
+end
+-------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Color  --
+-------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -PLYR SHP LOG MSG	F	playerShipLogMessage
+-- List of colors		*	inline per color
+function setPlayerShipLogMessageColor()
+	clearGMFunctions()
+	addGMFunction("-Main From Ship Msg",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	addGMFunction("-Plyr Shp Log Msg",playerShipLogMessage)
+	for id, name in pairs(color_list) do
+		local button_label = name
+		if id == player_ship_log_message_color then
+			button_label = button_label .. "*"
+		end
+		addGMFunction(button_label,function()
+			player_ship_log_message_color = id
+			setPlayerShipLogMessageColor()
+		end)
+	end
+end
+-------------------------------------------------------------------------------------
+--	Initial Set Up > Player Ships > Tweak Player > Ship Log Message > Destination  --
+-------------------------------------------------------------------------------------
+-- Button text		   FD*	Related Function(s)
+-- -MAIN FROM SHIP MSG	F	initialGMFunctions
+-- -SETUP				F	initialSetUp
+-- -TWEAK PLAYER		F	tweakPlayerShip
+-- -PLAYER MESSAGE		F	playerMessage
+-- -PLYR SHIP LOG MSG	F	playerShipLogMessage
+--		or
+-- -Plyr Hail Msg		F	playerHailMessage
+-- ALL					*	inline
+-- Player ship list		*	inline per ship
+function setPlayerShipMessageDestination()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Msg Dstn",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Player Message",playerMessage)
+	if set_player_ship_message_destination_caller == playerShipLogMessage then
+		addGMFunction("-Plyr Ship Log Msg",playerShipLogMessage)
+	else
+		addGMFunction("-Plyr Hail Msg",playerHailMessage)
+	end
+	local button_label = "All"
+	if type(player_ship_message_destination) == "string" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,function()
+		player_ship_message_destination = "All"
+		setPlayerShipMessageDestination()
+	end)
+	local players = getActivePlayerShips()
+	for pidx, p in ipairs(players) do
+		if p ~= nil and p:isValid() then
+			button_label = p:getCallSign()
+			if type(player_ship_message_destination) == "table" and p == player_ship_message_destination then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				player_ship_message_destination = p
+				setPlayerShipMessageDestination()
+			end)
+		end
+	end
+end
+--	************************************************************************************************************  --
+--	****				Initial Set Up Player Ships Tweak Player By Console Engineer Max System				****  --
+--	************************************************************************************************************  --
 ----------------------------------------------------------------------------
 --	Initial Set Up > Player Ships > Tweak Player > Max System  > Reactor  --
 ----------------------------------------------------------------------------
@@ -11161,7 +9594,8 @@ end
 -- -MAIN				F	initialGMFunctions
 -- -SETUP				F	initialSetUp
 -- -ZONES FROM DELETE	F	changeZones
--- Button for each existing zone
+-- Del ?				D	inline
+-- Select Next Zone		D	inline
 function deleteZone()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -11193,6 +9627,15 @@ function deleteZone()
 		changeZones()
 	end
 end
+---------------------------------------------------
+--	Initial Set Up > Zones > Add Action to Zone  --
+---------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -MAIN					F	initialGMFunctions
+-- -SETUP					F	initialSetUp
+-- -Zones from Add Action	F	changeZones
+-- +<zone name>				D	addActionToZoneFromList
+-- Select Next Zone			F	inline
 function addActionToZone()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -11218,6 +9661,12 @@ function addActionToZone()
 		changeZones()
 	end
 end
+----------------------------------------------------------------------------------
+--	Initial Set Up > Zones > Add Action to Zone > Add Action to Zone From List  --
+----------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Add action to zone		F	addActionToZone
+-- List of buttons with actions, * identifies selected action(s)
 function addActionToZoneFromList()
 	clearGMFunctions()
 	addGMFunction("-Add action to zone",addActionToZone)
@@ -11283,6 +9732,15 @@ function addActionToZoneFromList()
 		end)
 	end
 end
+--------------------------------------------------------
+--	Initial Set Up > Zones > Delete Action from Zone  --
+--------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main					F	initialGMFunctions
+-- -Setup					F	initialSetUp
+-- -Zones from del action	F	changeZones
+-- +<zone name>				D	deleteActionFromZoneFromList
+-- Select Next Zone			F	inline
 function deleteActionFromZone()
 	clearGMFunctions()
 	addGMFunction("-Main",initialGMFunctions)
@@ -11323,6 +9781,12 @@ function deleteActionFromZone()
 		changeZones()
 	end
 end
+---------------------------------------------------------------------------------------
+--	Initial Set Up > Zones > Delete Action from Zone > Delete action from zone list  --
+---------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Delete action from zone	F	deleteActionFromZone
+-- List of buttons showing actions that can be deleted from currently selected zone
 function deleteActionFromZoneFromList()
 	clearGMFunctions()
 	addGMFunction("-Delete action from zone",deleteActionFromZone)
@@ -11617,6 +10081,9 @@ function gmClickZonePolygon(x,y)
 	end
 	addZoneByClick()
 end
+--	****************************************************************************  --
+--	****				Initial Set Up Zones Add Zone Via Click				****  --
+--	****************************************************************************  --
 -----------------------------------------------------------------
 --	Initial Set Up > Zones > Add Zone > Via Click > Rectangle  --
 -----------------------------------------------------------------
@@ -11693,51 +10160,6 @@ function setZonePolygonPointMax()
 			setZonePolygonPointMax()
 		end)
 	end
-end
------------------------------------------------------------------------------------
---	Initial Set Up > Automated Station Warning > Set Warning Proximity Distance  --
------------------------------------------------------------------------------------
--- Button Text FD*	Related Function(s)
--- DEFAULT 30U	D	inline	
--- ZERO			F	inline
--- 5U			F	inline
--- 10U			F	inline
--- 20U			F	inline
--- 30U			F	inline
-function setStationSensorRange()
-	clearGMFunctions()
-	--local long_range_server = getLongRangeRadarRange()
-	local long_range_server = 30000
-	addGMFunction(string.format("Default %iU",long_range_server/1000),function()
-		station_sensor_range = long_range_server
-		server_sensor = true
-		autoStationWarn()
-	end)
-	addGMFunction("Zero",function()
-		station_sensor_range = 0
-		server_sensor = false
-		autoStationWarn()
-	end)
-	addGMFunction("5U",function()
-		station_sensor_range = 5000
-		server_sensor = false
-		autoStationWarn()
-	end)
-	addGMFunction("10U",function()
-		station_sensor_range = 10000
-		server_sensor = false
-		autoStationWarn()
-	end)
-	addGMFunction("20U",function()
-		station_sensor_range = 20000
-		server_sensor = false
-		autoStationWarn()
-	end)
-	addGMFunction("30U",function()
-		station_sensor_range = 30000
-		server_sensor = false
-		autoStationWarn()
-	end)
 end
 --	*												   *  --
 --	**												  **  --
@@ -11862,9 +10284,15 @@ end
 ------------------------------------------
 --	Spawn Ship(s) > Spawn Fighter Wing  --
 ------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Ftr Wing		F	initialGMFunctions
+-- -Spawn Ships				F	spawnGMShips
+-- +Type ?					D	inline
+-- +Count ?					D	inline
+-- Spawn Wing:?				D	inline
 function setFighterWing()
 	clearGMFunctions()
-	addGMFunction("-Main From Ftr Wing",initialGMFunctions)
+	addGMFunction("-Main from Ftr Wing",initialGMFunctions)
 	addGMFunction("-Spawn Ships",spawnGMShips)
 	if wing_type == nil then
 		wing_type = "MT52 Hornet"
@@ -12110,6 +10538,9 @@ function updatePlayerSoftTemplate(p)
 	end
 	p.initialCoolant = p:getMaxCoolant()
 end
+--	****************************************************************  --
+--	****				Spawn Ship(s) > Spawn Fleet				****  --
+--	****************************************************************  --
 --------------------------------------------
 --	Spawn Ship(s) > Spawn Fleet > Exuari  --
 --------------------------------------------
@@ -12232,15 +10663,15 @@ end
 -------------------------------------------------------------
 --  Spawn Ship(s) > Spawn Fleet > Relative Fleet Strength  --
 -------------------------------------------------------------
--- Button Text		   FD*	Related Function(s)
--- -MAIN FROM REL STR	F	initialGMFunctions
--- -FLEET SPAWN			F	spawnGMFleet		
--- .5					*	inline
--- 1*					*	inline		asterisk = current selection
--- 2					*	inline
--- 3					*	inline
--- 4					*	inline
--- 5					*	inline
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Rel Str		F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -Fleet Spawn				F	spawnGMFleet
+-- Switch to Fixed Strength	F	inline	
+-- Switch to Prebuilt		F	inline	
+-- 1/2						*	setFleetStrength/inline
+-- 1*						*	setFleetStrength/inline
+-- 2						*	setFleetStrength/inline
 function setGMFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Rel Str",initialGMFunctions)
@@ -12317,10 +10748,13 @@ end
 --------------------------------------------------------
 -- Button Text		   FD*	Related Function(s)
 -- -MAIN FROM FIX STR	F	initialGMFunctions
+-- -Fleet or Ship		F	spawnGMShips
 -- -FLEET SPAWN			F	spawnGMFleet
 -- -FIXED STRENGTH 250	D	spawnGMFleet
--- 250 - 50 = 200		D	inline
--- 250 + 50 = 250		D	inline
+-- Switch to Relative	F	inline/spawnGMFleet
+-- Switch to Prebuilt	F	inline/spawnGMFleet
+-- 250 - 50 = 200		D	inline/fixFleetStrength
+-- 250 + 50 = 250		D	inline/fixFleetStrength
 function setFixedFleetStrength()
 	clearGMFunctions()
 	addGMFunction("-Main from Fix Str",initialGMFunctions)
@@ -12353,6 +10787,22 @@ function fixFleetStrength(caller)
 		end)
 	end	
 end
+--------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet  --
+--------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Prebuilt		F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -FLEET SPAWN				F	spawnGMFleet
+-- Switch to Fixed Strength	F	inline/spawnGMFleet
+-- Switch to Relative		F	inline/spawnGMFleet
+-- +Shape ? ?				D	setPrebuiltFormationShape
+-- +Curated Formation		F	curatedPrebuiltFormation
+-- +Composition				F	setPrebuiltComposition
+-- +Spacing ?				D	setPrebuiltFormationSpacing
+-- Spawn Fleet				D	inline/spawnPrebuiltFleet
+--		or
+-- >Set Fleet Target<		F	setPrebuiltFleetTarget
 function setPrebuiltFleet()
 	clearGMFunctions()
 	addGMFunction("-Main from Prebuilt",initialGMFunctions)
@@ -12401,6 +10851,15 @@ function setPrebuiltFleet()
 		end
 	end
 end
+----------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Curated Formation  --
+----------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Curated		F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -FLEET SPAWN				F	spawnGMFleet
+-- -Prebuilt				F	setPrebuiltFleet
+-- Five buttons with leader, relative strength, followers. Dot delimiters indicate selected formation
 function curatedPrebuiltFormation(match_strength)
 	clearGMFunctions()
 	addGMFunction("-Main from Curated",initialGMFunctions)
@@ -12559,6 +11018,15 @@ function setPrebuiltFleetTarget()
 	end
 	setPrebuiltFleet()
 end
+--------------------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Curated Formation > Spacing  --
+--------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Spacing		F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -FLEET SPAWN				F	spawnGMFleet
+-- -Prebuilt				F	setPrebuiltFleet
+-- Five buttons with spacing options, * indicates selected option
 function setPrebuiltFormationSpacing()
 	clearGMFunctions()
 	addGMFunction("-Main from Spacing",initialGMFunctions)
@@ -12624,6 +11092,16 @@ function setPrebuiltFormationSpacing()
 		end
 	end
 end
+------------------------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Curated Formation > Composition  --
+------------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Composition	F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -FLEET SPAWN				F	spawnGMFleet
+-- -Prebuilt				F	setPrebuiltFleet
+-- +Lead:?					D	setPrebuiltLeader
+-- +Follow:?				D	setPrebuiltFollower
 function setPrebuiltComposition()
 	clearGMFunctions()
 	addGMFunction("-Main from Composition",initialGMFunctions)
@@ -12633,6 +11111,15 @@ function setPrebuiltComposition()
 	addGMFunction(string.format("+Lead:%s",prebuilt_leader),setPrebuiltLeader)
 	addGMFunction(string.format("+Follow:%s",prebuilt_follower),setPrebuiltFollower)
 end
+---------------------------------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Curated Formation > Composition > Follow  --
+---------------------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Follow		F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -FLEET SPAWN				F	spawnGMFleet
+-- -Prebuilt				F	setPrebuiltFleet
+-- List of buttons with follow template names, * = possible, ** = selected
 function setPrebuiltFollower()
 	clearGMFunctions()
 	addGMFunction("-Main from Follow",initialGMFunctions)
@@ -12669,6 +11156,15 @@ function setPrebuiltFollower()
 		end)
 	end
 end
+---------------------------------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Curated Formation > Composition > Follow  --
+---------------------------------------------------------------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Lead			F	initialGMFunctions
+-- -Fleet or Ship			F	spawnGMShips
+-- -FLEET SPAWN				F	spawnGMFleet
+-- -Prebuilt				F	setPrebuiltFleet
+-- List of buttons with lead template names, * = possible, ** = selected
 function setPrebuiltLeader()
 	clearGMFunctions()
 	addGMFunction("-Main from Lead",initialGMFunctions)
@@ -12705,6 +11201,19 @@ function setPrebuiltLeader()
 		end)
 	end
 end
+----------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape  --
+----------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- +V				F	setPrebuiltFormationCategoryV
+-- +A				F	setPrebuiltFormationCategoryA
+-- +Line			F	setPrebuiltFormationCategoryLine
+-- +M				F	setPrebuiltFormationCategoryM
+-- +W				F	setPrebuiltFormationCategoryW
+-- +X				F	setPrebuiltFormationCategoryX
+-- +H				F	setPrebuiltFormationCategoryH
+-- +*				F	setPrebuiltFormationCategorySplat
+-- +O				F	setPrebuiltFormationCategoryOh
 function setPrebuiltFormationShape()
 	clearGMFunctions()
 	addGMFunction("+V",setPrebuiltFormationCategoryV)
@@ -12717,6 +11226,17 @@ function setPrebuiltFormationShape()
 	addGMFunction("+*",setPrebuiltFormationCategorySplat)
 	addGMFunction("+O",setPrebuiltFormationCategoryOh)	
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > O  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- O				*	inline
+-- O2R				*	inline
+-- O3R				*	inline
+-- O4R				*	inline
+-- O5R				*	inline
+-- O6R				*	inline
+-- O7R				*	inline
 function setPrebuiltFormationCategoryOh()
 	clearGMFunctions()
 	local form_list = {"O","O2R","O3R","O4R","O5R","O6R","O7R"}
@@ -12731,6 +11251,13 @@ function setPrebuiltFormationCategoryOh()
 		end)
 	end
 end
+------------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > Splat  --
+------------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- *				*	inline
+-- *12				*	inline
+-- *18				*	inline
 function setPrebuiltFormationCategorySplat()
 	clearGMFunctions()
 	local form_list = {"*","*12","*18"}
@@ -12745,6 +11272,11 @@ function setPrebuiltFormationCategorySplat()
 		end)
 	end
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > H  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- H				*	inline
 function setPrebuiltFormationCategoryH()
 	clearGMFunctions()
 	local form_list = {"H"}
@@ -12759,6 +11291,18 @@ function setPrebuiltFormationCategoryH()
 		end)
 	end
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > X  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- X				*	inline
+-- X8				*	inline
+-- Xac				*	inline
+-- Xac8				*	inline
+-- X12				*	inline
+-- Xac12			*	inline
+-- X16				*	inline
+-- Xac16			*	inline
 function setPrebuiltFormationCategoryX()
 	clearGMFunctions()
 	local form_list = {"X","X8","Xac","Xac8","X12","Xac12","X16","Xac16"}
@@ -12773,6 +11317,14 @@ function setPrebuiltFormationCategoryX()
 		end)
 	end
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > W  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- W				*	inline
+-- W6				*	inline
+-- Wac				*	inline
+-- Wac6				*	inline
 function setPrebuiltFormationCategoryW()
 	clearGMFunctions()
 	local form_list = {"W","W6","Wac","Wac6"}
@@ -12787,6 +11339,14 @@ function setPrebuiltFormationCategoryW()
 		end)
 	end
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > M  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- M				*	inline
+-- M6				*	inline
+-- Mac				*	inline
+-- Mac6				*	inline
 function setPrebuiltFormationCategoryM()
 	clearGMFunctions()
 	local form_list = {"M","M6","Mac","Mac6"}
@@ -12801,6 +11361,18 @@ function setPrebuiltFormationCategoryM()
 		end)
 	end
 end
+-----------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > Line  --
+-----------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- /				*	inline
+-- /ac				*	inline
+-- -				*	inline
+-- -4				*	inline
+-- \				*	inline
+-- \ac				*	inline
+-- |				*	inline
+-- |4				*	inline
 function setPrebuiltFormationCategoryLine()
 	clearGMFunctions()
 	local form_list = {"/","/ac","-","-4","\\","\\ac","|","|4"}
@@ -12815,6 +11387,14 @@ function setPrebuiltFormationCategoryLine()
 		end)
 	end
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > A  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- A				*	inline
+-- A4				*	inline
+-- Aac				*	inline
+-- Aac4				*	inline
 function setPrebuiltFormationCategoryA()
 	clearGMFunctions()
 	local form_list = {"A","A4","Aac","Aac4"}
@@ -12829,6 +11409,14 @@ function setPrebuiltFormationCategoryA()
 		end)
 	end
 end
+--------------------------------------------------------------------
+--	Spawn Ship(s) > Spawn Fleet > Set Prebuilt Fleet > Shape > V  --
+--------------------------------------------------------------------
+-- Button Text     FD*	Related Function(s)
+-- V				*	inline
+-- V4				*	inline
+-- Vac				*	inline
+-- Vac4				*	inline
 function setPrebuiltFormationCategoryV()
 	clearGMFunctions()
 	local form_list = {"V","V4","Vac","Vac4"}
@@ -12850,6 +11438,9 @@ end
 -- -FROM COMPOSITION	F	inline
 -- +GROUP RANDOM		D	SetFleetGroupComposition
 -- +EXCLUDE				D	SetFleetExclusions
+-- selectivity: ?		D	inline
+-- Increase Pool: ?		D	inline
+-- Decrease Pool: ?		D	inline
 function setFleetComposition(caller)
 	clearGMFunctions()
 	addGMFunction("-From composition",function()
@@ -13588,9 +12179,9 @@ function setFleetSpawnAwayDistance()
 		setFleetSpawnAwayDistance()
 	end)
 end
----------------------------------------
+-------------------------------------------------------
 --	Spawn Ship(s) > Spawn fleet based on parameters  --
----------------------------------------
+-------------------------------------------------------
 function centerOfSelected(objectList)
 	local xSum = 0
 	local ySum = 0
@@ -15566,92 +14157,928 @@ end
 --------------------------------------------------------------------------------------------
 --	Additional enemy ships with some modifications from the original template parameters  --
 --------------------------------------------------------------------------------------------
-function phobosR2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function atlantisY42(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Phobos R2"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Phobos R2"].short_range_radar)
+	if ship_template["Atlantis Y42"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Atlantis Y42"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Phobos R2")
-	ship:setWeaponTubeDirection(0,0)	--straight tubes vs angled
-	ship:setWeaponTubeDirection(1,0)	
-	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
-	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
-	local phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
-	if phobos_r2_db == nil then
+	ship:setTypeName("Atlantis Y42")
+	ship:setShieldsMax(300,200,300,200)							--stronger shields (vs 200,200,200,200)
+	ship:setShields(300,200,300,200)					
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 3.5)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(2,	80,	  190,	1500,		6,		 8)	--narrower (vs 100)
+	ship:setBeamWeapon(3,	80,	  170,	1500,		6,		 8)	--extra (vs 3 beams)
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)
+	local atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+	if atlantis_y42_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Atlantis Y42")
+		atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
+			atlantis_y42_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock",
+			{
+				{key = "Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = " Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_1_upgraded"
+		)
+		--[[
+		atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
+		atlantis_y42_db:setKeyValue("Class","Corvette")
+		atlantis_y42_db:setKeyValue("Sub-class","Destroyer")
+		atlantis_y42_db:setKeyValue("Size","200")
+		atlantis_y42_db:setKeyValue("Shield","300/200/300/200")
+		atlantis_y42_db:setKeyValue("Hull","100")
+		atlantis_y42_db:setKeyValue("Move speed","3.9 U/min")
+		atlantis_y42_db:setKeyValue("Turn speed","15.0 deg/sec")
+		atlantis_y42_db:setKeyValue("Jump Range","5 - 50 U")
+		atlantis_y42_db:setKeyValue("Beam weapon -20:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Beam weapon 20:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Beam weapon 190:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Beam weapon 170:100","8.0 Dmg / 6.0 sec")
+		atlantis_y42_db:setKeyValue("Tube -90","10 sec")
+		atlantis_y42_db:setKeyValue(" Tube -90","10 sec")
+		atlantis_y42_db:setKeyValue("Tube 90","10 sec")
+		atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
+		atlantis_y42_db:setKeyValue("Storage Homing","4")
+		atlantis_y42_db:setKeyValue("Storage HVLI","20")
+		atlantis_y42_db:setImage("radar/dread.png")
+		--]]
+	end
+	return ship		
+end
+function barracuda(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Barracuda"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Barracuda"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Barracuda")
+	ship:setHullMax(200)			--stronger hull (vs 70)
+	ship:setHull(200)
+	ship:setShieldsMax(200,100,100)	--stronger shields (vs 50,40)
+	ship:setShields(200,100,100)
+	ship:setImpulseMaxSpeed(75)		--faster impulse (vs 60)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 10)
+	ship:setWeaponTubeCount(16)		--more (vs 2)
+	ship:setWeaponTubeDirection(0,   5):setTubeSize(0,  "small"):setTubeLoadTime(0,  8):setWeaponTubeExclusiveFor(0, "Homing")
+	ship:setWeaponTubeDirection(1,  -5):setTubeSize(1,  "small"):setTubeLoadTime(1,  8):setWeaponTubeExclusiveFor(1, "Homing")
+	ship:setWeaponTubeDirection(2,   0):setTubeSize(2,  "small"):setTubeLoadTime(2,  7):setWeaponTubeExclusiveFor(2, "Homing")
+	ship:setWeaponTubeDirection(3,   5):setTubeSize(3,  "small"):setTubeLoadTime(3,  6):setWeaponTubeExclusiveFor(3, "EMP")
+	ship:setWeaponTubeDirection(4,  -5):setTubeSize(4,  "small"):setTubeLoadTime(4,  6):setWeaponTubeExclusiveFor(4, "EMP")
+	ship:setWeaponTubeDirection(5,   0):setTubeSize(5,  "small"):setTubeLoadTime(5,  5):setWeaponTubeExclusiveFor(5, "EMP")
+	ship:setWeaponTubeDirection(6,   5):setTubeSize(6,  "small"):setTubeLoadTime(6,  9):setWeaponTubeExclusiveFor(6, "Nuke")
+	ship:setWeaponTubeDirection(7,  -5):setTubeSize(7,  "small"):setTubeLoadTime(7,  9):setWeaponTubeExclusiveFor(7, "Nuke")
+	ship:setWeaponTubeDirection(8,   0):setTubeSize(8,  "small"):setTubeLoadTime(8,  8):setWeaponTubeExclusiveFor(8, "Nuke")
+	ship:setWeaponTubeDirection(9,   5):setTubeSize(9,  "small"):setTubeLoadTime(9,  4):setWeaponTubeExclusiveFor(9, "HVLI")
+	ship:setWeaponTubeDirection(10, -5):setTubeSize(10, "small"):setTubeLoadTime(10, 4):setWeaponTubeExclusiveFor(10,"HVLI")
+	ship:setWeaponTubeDirection(11,  0):setTubeSize(11, "small"):setTubeLoadTime(11, 3):setWeaponTubeExclusiveFor(11,"HVLI")
+	ship:setWeaponTubeDirection(12,-10):setTubeSize(12, "small"):setTubeLoadTime(12, 5):setWeaponTubeExclusiveFor(12,"HVLI")
+	ship:setWeaponTubeDirection(13, 10):setTubeSize(13, "small"):setTubeLoadTime(13, 5):setWeaponTubeExclusiveFor(13,"HVLI")
+	ship:setWeaponTubeDirection(14,  0):setTubeSize(14,"medium"):setTubeLoadTime(14, 5):setWeaponTubeExclusiveFor(14,"Homing")
+	ship:setWeaponTubeDirection(15,  0):setTubeSize(15,"medium"):setTubeLoadTime(15,10):setWeaponTubeExclusiveFor(15,"Nuke")
+	ship:setWeaponStorageMax("Homing", 32)		--more (vs 6)
+	ship:setWeaponStorage("Homing",    32)
+	ship:setWeaponStorageMax("EMP",    20)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       20)
+	ship:setWeaponStorageMax("Nuke",   18)		--more (vs 0)
+	ship:setWeaponStorage("Nuke",      18)
+	ship:setWeaponStorageMax("HVLI",   55)		--more (vs 12)
+	ship:setWeaponStorage("HVLI",      55)
+	local barracuda_db = queryScienceDatabase("Ships","Frigate","Barracuda")
+	if barracuda_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Phobos R2")
-		phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+		frigate_db:addEntry("Barracuda")
+		barracuda_db = queryScienceDatabase("Ships","Frigate","Barracuda")
 		addShipToDatabase(
 			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			phobos_r2_db,	--modified ship database entry
+			barracuda_db,		--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but straight tubes instead of angled tubes",
+			"The Barracuda started off as a Phobos T3. It was given massive upgrades to shields, hull and missile weapons. The impulse systems were also upgraded. It's designed to spray missiles forth at a prodigious rate.\n\nIt barely qualifies as a frigate, it's more like a mini-corvette.",
 			{
-				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Small tubes 0", value = "7 sec / Homing, 8 sec / Nuke"},	--torpedo tube direction and load speed
+				{key = "Small tubes 5 & -5", value = "8 sec / Homing, 9 sec / Nuke"},	--torpedo tube direction and load speed
+				{key = "Small tube 0", value = "5 sec / EMP"},	--torpedo tube direction and load speed
+				{key = " Small tubes 5 & -5", value = "6 sec / EMP"},	--torpedo tube direction and load speed
+				{key = "  Small tube 0", value = "3 sec / HVLI"},	--torpedo tube direction and load speed
+				{key = "   Small tubes 5 & -5", value = "4 sec / HVLI"},	--torpedo tube direction and load speed
+				{key = "Small tubes 10 & -10", value = "5 sec / HVLI"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "5 sec / Homing"},	--torpedo tube direction and load speed
+				{key = " Tube 0", value = "10 sec / Nuke"},	--torpedo tube direction and load speed
+			},
+			nil,	--jump range
+			"AtlasHeavyFighterYellow"
+		)
+	end
+	return ship
+end
+function beastBreaker(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Beast Breaker"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Beast Breaker"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Beast Breaker")
+	ship:setShieldsMax(80,80)					--shields (vs none)
+	ship:setShields(80,80)
+	ship:setWeaponTubeCount(2)					--more (vs 1)
+	ship:setWeaponTubeDirection(1,180)
+	ship:setWeaponStorageMax("Homing",	5)		--more (vs none)
+	ship:setWeaponStorageMax("Mine",	3)		--more (vs none)
+	ship:setWeaponStorageMax("EMP",		3)		--more (vs none)
+	ship:setWeaponStorageMax("Nuke",	2)		--more (vs none)
+	ship:setWeaponStorage("Homing",		5)
+	ship:setWeaponStorage("Mine",		3)
+	ship:setWeaponStorage("EMP",		3)
+	ship:setWeaponStorage("Nuke",		2)
+	local beast_breaker_db = queryScienceDatabase("Ships","No class","Beast Breaker")
+	if beast_breaker_db == nil then
+		local breaker_db = queryScienceDatabase("Ships","No class")
+		breaker_db:addEntry("Beast Breaker")
+		beast_breaker_db = queryScienceDatabase("Ships","No Class","Beast Breaker")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No class","Ktlitan Breaker"),	--base ship database entry
+			beast_breaker_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Enhanced Breaker with shields and more missiles and an extra missile tube",
+			{
+				{key = "Tube 0", value = "13 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 180", value = "13 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,		--jump range
+			"sci_fi_alien_ship_2"
+		)
+	end
+	return ship
+end
+function broodMother(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
+		setBeamWeapon(0, 25, -15, 1000.0, 6.0, 8):
+		setBeamWeapon(1, 15, -45, 1500.0, 6.0, 4):
+		setBeamWeapon(2, 25, 15, 1000.0, 6.0, 8):
+		setBeamWeapon(3, 15, 45, 1500.0, 6.0, 4):
+		setBeamWeapon(4, 15, 80, 1300.0, 6.0, 4):
+		setBeamWeapon(5, 15, -80, 1300.0, 6.0, 4):
+		setBeamWeaponTurret(4, 45, 80, 3000.0, 6.0, 3):
+		setBeamWeaponTurret(5, 45, -80, 3000.0, 6.0, 3):
+		setWeaponTubeCount(6):
+		setTubeSize(0, "large"):
+		setTubeSize(1, "large"):
+		setTubeSize(2, "medium"):
+		setTubeSize(3, "medium"):
+		setTubeSize(4, "medium"):
+		setTubeSize(5, "medium"):
+		setWeaponTubeDirection(0, 80):
+		setWeaponTubeDirection(1, -80):
+		setWeaponTubeDirection(2, 100):
+		setWeaponTubeDirection(3, -100):
+		setWeaponTubeDirection(4, 190):
+		setWeaponTubeDirection(5, -190):
+		setWeaponStorage("Nuke", 8):
+		setWeaponStorage("EMP", 8):
+		setWeaponStorage("Mine", 4):
+		setWeaponStorage("Homing", 15):
+		setWeaponStorage("HVLI", 30):
+		setWeaponStorageMax("Nuke", 8):
+		setWeaponStorageMax("EMP", 8):
+		setWeaponStorageMax("Mine", 4):
+		setWeaponStorageMax("Homing", 15):
+		setWeaponStorageMax("HVLI", 30):
+		setWeaponTubeExclusiveFor(0,"EMP"):
+		weaponTubeAllowMissle(0, "Nuke"):
+		setWeaponTubeExclusiveFor(1, "EMP"):
+		weaponTubeAllowMissle(1, "Nuke"):
+		setWeaponTubeExclusiveFor(2, "HVLI"):
+		weaponTubeAllowMissle(2, "Homing"):
+		setWeaponTubeExclusiveFor(3, "HVLI"):
+		weaponTubeAllowMissle(3,"Homing"):
+		setWeaponTubeExclusiveFor(4,"Mine"):
+		setWeaponTubeExclusiveFor(5,"Mine"):
+		setTubeLoadTime(0, 10):
+		setTubeLoadTime(1, 10):
+		setTubeLoadTime(2, 10):
+		setTubeLoadTime(3, 10):
+		setTubeLoadTime(4, 20):
+		setTubeLoadTime(5, 20):
+		setHull(318):
+		setHullMax(318):
+		setShields(95, 153):
+		setShieldsMax(95, 153):
+		setEnergy(1388):
+		setMaxEnergy(1388):
+		setWarpDrive(true):
+		setCombatManeuver(150,150):
+		setImpulseMaxSpeed(40.0):
+		setRotationMaxSpeed(8):
+		setTypeName("Ktlitan Brood Mother"):
+		setDescriptions("Special type of Ktlitan warship", "Ktlitan Brood Mother is a subtype of Ktlitan Queen."):
+		setAI("default")
+	ship:onTakingDamage(npcShipDamage)
+	setBeamColor(ship)
+	local broodMotherDb = queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother")
+	if broodMotherDb == nil then
+		local parentDb = queryScienceDatabase("Ships", "No class")
+		parentDb:addEntry("Ktlitan Brood Mother")
+		local broodMotherDb = queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother")
+		addShipToDatabase(
+			queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother"),
+			broodMotherDb,
+			ship,
+			"Ktlitan Brood Mother is a subtype of Ktlitan Queen.",
+			nil,
+			nil,
+			"sci_fi_alien_ship_8"
+		)
+	end
+	return ship
+end
+function broom(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Broom"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Broom"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Broom")
+	ship:setImpulseMaxSpeed(73)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(9)					--more (vs 1)
+	ship:setWeaponTubeDirection(0, -30)				
+	ship:setWeaponTubeDirection(1,  30)				
+	ship:setWeaponTubeDirection(2, -15)				
+	ship:setWeaponTubeDirection(3,  15)				
+	ship:setWeaponTubeDirection(4,   0)				
+	ship:setWeaponTubeDirection(5, -10)				
+	ship:setWeaponTubeDirection(6,  10)				
+	ship:setWeaponTubeDirection(7,   0)				
+	ship:setWeaponTubeDirection(8,   0)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(3,"small")
+	ship:setTubeSize(4,"small")
+	ship:setTubeSize(8,"large")
+	ship:setTubeLoadTime(0, 15)
+	ship:setTubeLoadTime(1, 15)
+	ship:setTubeLoadTime(2, 16)
+	ship:setTubeLoadTime(3, 16)
+	ship:setTubeLoadTime(4, 17)
+	ship:setTubeLoadTime(5, 18)
+	ship:setTubeLoadTime(6, 18)
+	ship:setTubeLoadTime(7, 19)
+	ship:setTubeLoadTime(8, 20)
+	ship:setWeaponStorageMax("HVLI",   27)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      27)
+	local broom_db = queryScienceDatabase("Ships","Starfighter","Broom")
+	if broom_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Broom")
+		broom_db = queryScienceDatabase("Ships","Starfighter","Broom")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			broom_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Broom applies the technology gleaned from the Maniapak, namely the inclusion of several HVLI",
+			{
+				{key = "5 tubes -30 to 30", value = "Small: 15-17 sec"},	--torpedo tube direction and load speed
+				{key = "3 tubes -10 to 10", value = "18-19 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "20 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+	end
+	return ship
+end
+function brush(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Brush"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Brush"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Brush")
+	ship:setImpulseMaxSpeed(76)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(6)					--more (vs 1)
+	ship:setWeaponTubeDirection(0, -10)				
+	ship:setWeaponTubeDirection(1,  10)				
+	ship:setWeaponTubeDirection(2,   0)				
+	ship:setWeaponTubeDirection(3,  -5)				
+	ship:setWeaponTubeDirection(4,   5)				
+	ship:setWeaponTubeDirection(5,   0)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(5,"large")
+	ship:setTubeLoadTime(0, 15)
+	ship:setTubeLoadTime(1, 15)
+	ship:setTubeLoadTime(2, 16)
+	ship:setTubeLoadTime(3, 17)
+	ship:setTubeLoadTime(4, 17)
+	ship:setTubeLoadTime(5, 18)
+	ship:setWeaponStorageMax("HVLI",   24)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      24)
+	local brush_db = queryScienceDatabase("Ships","Starfighter","Brush")
+	if brush_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Brush")
+		brush_db = queryScienceDatabase("Ships","Starfighter","Brush")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			brush_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Brush applies the technology gleaned from the Maniapak, namely adapting it to HVLI",
+			{
+				{key = "3 tubes -10 to 10", value = "Small: 15-16 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -5", value = "17 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 5", value = "17 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "Large: 18 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+	end
+	return ship
+end
+function cucaracha(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Cucaracha"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Cucaracha"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Cucaracha")
+	ship:setShieldsMax(200, 50, 50, 50, 50, 50)		--stronger shields (vs 20)
+	ship:setShields(200, 50, 50, 50, 50, 50)					
+	ship:setHullMax(100)							--stronger hull (vs 50)
+	ship:setHull(100)
+	ship:setRotationMaxSpeed(20)					--faster maneuver (vs 10)
+	ship:setAcceleration(30)						--faster acceleration (vs 15)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	60,	    0,	1500,		6,		10)	--beam (vs none)
+	local cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+	if cucaracha_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Cucaracha")
+		cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Tug"),	--base ship database entry
+			cucaracha_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
+			nil,
+			nil,		--jump range
+			"space_tug"
+		)
+	end
+	return ship
+end
+function diva(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Diva"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Diva"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Diva")
+	ship:setImpulseMaxSpeed(35)				--faster impulse (vs 0)
+	ship:setRotationMaxSpeed(8)				--faster maneuver (vs 0)
+	ship:setAcceleration(5)					--faster acceleration (vs 0)
+	ship:setWeaponTubeDirection(1,180)		--rear (vs front)				
+	local diva_db = queryScienceDatabase("Ships","No class","Diva")
+	if diva_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No class")
+		no_class_db:addEntry("Diva")
+		diva_db = queryScienceDatabase("Ships","No class","Diva")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No class","Ktlitan Queen"),	--base ship database entry
+			diva_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Diva is a mobile version of the Ktlitan Queen with one tube pointed to the rear",
+			{
+				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
+				{key = "Tube 180", value = "15 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,		--jump range
+			"sci_fi_alien_ship_8"
+		)
+	end
+	return ship		
+end
+function dreadNoMore(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Dreadnought"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Dread No More"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Dread No More"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Dread No More")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(12)								--faster maneuver (vs 1.5)
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	25,	   -5,	1500,		7,		11)	--narrower (vs 90), more forward (vs dir -25), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(1,	25,	    5,	1500,		7,		11)	--narrower (vs 90), more forward (vs dir  25), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(2,	65,	  -45,	1200,		7,		11)	--narrower (vs 100), more forward (vs dir -60), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(3,	65,	   45,	1200,		7,		11)	--narrower (vs 100), more forward (vs dir  60), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(4,	20,	    0,	2000,		7,		11)	--narrower (vs 30), slower (vs 6), stronger (vs 8)
+	ship:setBeamWeapon(5,  100,	  180,	1200,		7,		11)	--slower (vs 6), stronger (vs 8)
+	local dread_no_more_db = queryScienceDatabase("Ships","Dreadnought","Dread No More")
+	if dread_no_more_db == nil then
+		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+		dreadnought_db:addEntry("Dread No More")
+		dread_no_more_db = queryScienceDatabase("Ships","Dreadnought","Dread No More")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Dreadnought","Dreadnought"),	--base ship database entry
+			dread_no_more_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Encounter the Dread No More and you will dread no more since you'll be dead, at least that's what the designers had in mind. The improvements over the base Dreadnought include faster impulse and maneuvering, a stronger hull and beams that do more damage.",
+			nil,
+			nil,		--jump range
+			"battleship_destroyer_1_upgraded"
+		)
+	end
+	return ship
+end
+function droneHeavy(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Heavy Drone"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Heavy Drone"].short_range_radar)
+	end
+	ship:setTypeName("Heavy Drone")
+	ship:setHullMax(40)					--stronger hull (vs 30)
+	ship:setHull(40)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,8)	--stronger (vs 6) beam
+	local drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+	if drone_heavy_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Heavy Drone")
+		drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			drone_heavy_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
+			nil,
+			nil,
+			"sci_fi_alien_ship_4"
+		)
+		--[[
+		drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
+		drone_heavy_db:setKeyValue("Class","No Class")
+		drone_heavy_db:setKeyValue("Sub-class","No Sub-Class")
+		drone_heavy_db:setKeyValue("Size","150")
+		drone_heavy_db:setKeyValue("Hull","40")
+		drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
+		drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
+		drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
+		drone_heavy_db:setImage("radar/ktlitan_drone.png")
+		--]]
+	end
+	return ship
+end
+function droneJacket(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Jacket Drone"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Jacket Drone"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Jacket Drone")
+	ship:setShieldsMax(20)				--stronger shields (vs none)
+	ship:setShields(20)
+	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	local drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+	if drone_jacket_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Jacket Drone")
+		drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			drone_jacket_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
+			nil,
+			nil,
+			"sci_fi_alien_ship_4"
+		)
+		--[[
+		drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
+		drone_jacket_db:setKeyValue("Class","No Class")
+		drone_jacket_db:setKeyValue("Sub-class","No Sub-Class")
+		drone_jacket_db:setKeyValue("Size","150")
+		drone_jacket_db:setKeyValue("Shield","20")
+		drone_jacket_db:setKeyValue("Hull","40")
+		drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
+		drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
+		drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
+		drone_jacket_db:setImage("radar/ktlitan_drone.png")
+		--]]
+	end
+	return ship
+end
+function droneLite(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Lite Drone"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Lite Drone"].short_range_radar)
+	end
+	ship:setTypeName("Lite Drone")
+	ship:setHullMax(20)					--weaker hull (vs 30)
+	ship:setHull(20)
+	ship:setImpulseMaxSpeed(130)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(20)		--faster maneuver (vs 10)
+	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
+	local drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+	if drone_lite_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Lite Drone")
+		drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			drone_lite_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
+			nil,
+			nil,
+			"sci_fi_alien_ship_4"
+		)
+		--[[
+		drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
+		drone_lite_db:setKeyValue("Class","No Class")
+		drone_lite_db:setKeyValue("Sub-class","No Sub-Class")
+		drone_lite_db:setKeyValue("Size","150")
+		drone_lite_db:setKeyValue("Hull","20")
+		drone_lite_db:setKeyValue("Move speed","7.8 U/min")
+		drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
+		drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
+		drone_lite_db:setImage("radar/ktlitan_drone.png")
+		--]]
+	end
+	return ship
+end
+function elaraP2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Elara P2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Elara P2"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Elara P2")
+	ship:setWarpDrive(true)			--warp drive (vs none)
+	ship:setWarpSpeed(800)
+	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
+	ship:setShields(70,40)
+	local elara_p2_db = queryScienceDatabase("Ships","Frigate","Elara P2")
+	if elara_p2_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Elara P2")
+		elara_p2_db = queryScienceDatabase("Ships","Frigate","Elara P2")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			elara_p2_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
 			},
 			nil,
 			"AtlasHeavyFighterYellow"
 		)
 		--[[
-		phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
-		phobos_r2_db:setKeyValue("Class","Frigate")
-		phobos_r2_db:setKeyValue("Sub-class","Cruiser")
-		phobos_r2_db:setKeyValue("Size","80")
-		phobos_r2_db:setKeyValue("Shield","50/40")
-		phobos_r2_db:setKeyValue("Hull","70")
-		phobos_r2_db:setKeyValue("Move speed","3.3 U/min")
-		phobos_r2_db:setKeyValue("Turn speed","15.0 deg/sec")
-		phobos_r2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
-		phobos_r2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
-		phobos_r2_db:setKeyValue("Tube 0","60 sec")
-		phobos_r2_db:setKeyValue("Storage Homing","6")
-		phobos_r2_db:setKeyValue("Storage HVLI","20")
-		phobos_r2_db:setImage("radar/cruiser.png")
+		elara_p2_db:setLongDescription("Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos")
+		elara_p2_db:setKeyValue("Class","Frigate")
+		elara_p2_db:setKeyValue("Sub-class","Cruiser")
+		elara_p2_db:setKeyValue("Size","80")
+		elara_p2_db:setKeyValue("Shield","70/40")
+		elara_p2_db:setKeyValue("Hull","70")
+		elara_p2_db:setKeyValue("Move speed","3.6 U/min")
+		elara_p2_db:setKeyValue("Turn speed","10.0 deg/sec")
+		elara_p2_db:setKeyValue("Warp Speed","48.0 U/min")
+		elara_p2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
+		elara_p2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
+		elara_p2_db:setKeyValue("Tube -1","60 sec")
+		elara_p2_db:setKeyValue("Tube 1","60 sec")
+		elara_p2_db:setKeyValue("Storage Homing","6")
+		elara_p2_db:setKeyValue("Storage HVLI","20")
+		elara_p2_db:setImage("radar/cruiser.png")
 		--]]
 	end
 	return ship
 end
-function hornetMV52(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function enforcer(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["MV52 Hornet"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["MV52 Hornet"].short_range_radar)
+	if ship_template["Enforcer"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Enforcer"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("MV52 Hornet")
---						 Arc, Dir, 	Rng, Cyc, Dmg
-	ship:setBeamWeapon(0, 30,	0, 1000, 4.0, 3.0)	--longer and stronger beam (vs 700 & 2)
-	ship:setRotationMaxSpeed(31)					--faster maneuver (vs 30)
-	ship:setImpulseMaxSpeed(130)					--faster impulse (vs 120)
-	local hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
-	if hornet_mv52_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("MV52 Hornet")
-		hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+	ship:setTypeName("Enforcer")
+	ship:setRadarTrace("ktlitan_destroyer.png")			--different radar trace
+	ship:setWarpDrive(true)										--warp (vs none)
+	ship:setWarpSpeed(600)
+	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
+	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 15)
+	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
+	ship:setShields(200,100,100)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	30,	    5,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
+	ship:setBeamWeapon(1,	30,	   -5,	1500,		6,		10)
+	ship:setBeamWeapon(2,	 0,	    0,	   0,		0,		 0)	--fewer (vs 4)
+	ship:setBeamWeapon(3,	 0,	    0,	   0,		0,		 0)
+	ship:setWeaponTubeCount(3)									--more (vs 0)
+	ship:setTubeSize(0,"large")									--large (vs normal)
+	ship:setWeaponTubeDirection(1,-15)				
+	ship:setWeaponTubeDirection(2, 15)	
+	ship:setTubeLoadTime(0,18)
+	ship:setTubeLoadTime(1,12)
+	ship:setTubeLoadTime(2,12)			
+	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
+	ship:setWeaponStorage("Homing", 18)
+	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+	if enforcer_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Enforcer")
+		enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
-			hornet_mv52_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+			enforcer_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
+			"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
+			{
+				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
+			},
 			nil,
-			nil,
-			"WespeScoutYellow"
+			"battleship_destroyer_3_upgraded"
 		)
 		--[[
-		hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
-		hornet_mv52_db:setKeyValue("Class","Starfighter")
-		hornet_mv52_db:setKeyValue("Sub-class","Interceptor")
-		hornet_mv52_db:setKeyValue("Size","30")
-		hornet_mv52_db:setKeyValue("Shield","20")
-		hornet_mv52_db:setKeyValue("Hull","30")
-		hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
-		hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
-		hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
-		hornet_mv52_db:setImage("radar/fighter.png")
+		enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
+		enforcer_db:setKeyValue("Class","Frigate")
+		enforcer_db:setKeyValue("Sub-class","High Punch")
+		enforcer_db:setKeyValue("Size","200")
+		enforcer_db:setKeyValue("Shield","200/100/100")
+		enforcer_db:setKeyValue("Hull","100")
+		enforcer_db:setKeyValue("Move speed","6.0 U/min")
+		enforcer_db:setKeyValue("Turn speed","20.0 deg/sec")
+		enforcer_db:setKeyValue("Warp Speed","36.0 U/min")
+		enforcer_db:setKeyValue("Beam weapon -15:30","10.0 Dmg / 6.0 sec")
+		enforcer_db:setKeyValue("Beam weapon 15:30","10.0 Dmg / 6.0 sec")
+		enforcer_db:setKeyValue("Large Tube 0","20 sec")
+		enforcer_db:setKeyValue("Tube -30","20 sec")
+		enforcer_db:setKeyValue("Tube 30","20 sec")
+		enforcer_db:setKeyValue("Storage Homing","18")
 		--]]
+		enforcer_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
+	end
+	return ship		
+end
+function enforcerV2(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Enforcer V2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Enforcer V2"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Enforcer V2")
+	ship:setRadarTrace("ktlitan_destroyer.png")			--different radar trace
+	ship:setWarpDrive(true)										--warp (vs none)
+	ship:setWarpSpeed(600)
+	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
+	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 15)
+	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
+	ship:setShields(200,100,100)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
+	ship:setHull(100)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	30,	    5,	1500,		6,		 8)	--narrower (vs 60), longer (vs 1000)
+	ship:setBeamWeapon(1,	30,	   -5,	1500,		6,		 8)
+	ship:setBeamWeapon(2,	30,	   10,	1300,		6,		10)	--forward (vs rear), longer (vs 1000), stronger (vs 8)
+	ship:setBeamWeapon(3,	30,	  -10,	1300,		6,		10)
+	ship:setWeaponTubeCount(3)									--more (vs 0)
+	ship:setTubeSize(0,"large")									--large (vs normal)
+	ship:setWeaponTubeDirection(1,-15)				
+	ship:setWeaponTubeDirection(2, 15)	
+	ship:setTubeLoadTime(0,18)
+	ship:setTubeLoadTime(1,12)
+	ship:setTubeLoadTime(2,12)			
+	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
+	ship:setWeaponStorage("Homing", 18)
+	local enforcer_v2_db = queryScienceDatabase("Ships","Frigate","Enforcer V2")
+	if enforcer_v2_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Enforcer V2")
+		enforcer_v2_db = queryScienceDatabase("Ships","Frigate","Enforcer V2")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+			enforcer_v2_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Enforcer V2 is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Strengthened beams.",
+			{
+				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
+			},
+			nil,
+			"battleship_destroyer_3_upgraded"
+		)
+		enforcer_v2_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
+	end
+	return ship		
+end
+function farco3(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Farco 3"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 3"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Farco 3")
+	ship:setShieldsMax(60, 40)									--stronger shields (vs 50, 40)
+	ship:setShields(60, 40)					
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	local farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
+	if farco_3_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 3")
+		farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			farco_3_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 3, the beams are longer and faster and the shields are slightly stronger.",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
+		)
+	end
+	return ship
+end
+function farco5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Farco 5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 5"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Farco 5")
+	ship:setShieldsMax(60, 40)				--stronger shields (vs 50, 40)
+	ship:setShields(60, 40)	
+	ship:setTubeLoadTime(0,30)				--faster (vs 60)
+	ship:setTubeLoadTime(0,30)				
+	local farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
+	if farco_5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 5")
+		farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			farco_5_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 5, the tubes load faster and the shields are slightly stronger.",
+			{
+				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
+		)
+	end
+	return ship
+end
+function farco8(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Farco 8"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 8"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Farco 8")
+	ship:setShieldsMax(80, 50)				--stronger shields (vs 50, 40)
+	ship:setShields(80, 50)	
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	ship:setTubeLoadTime(0,30)				--faster (vs 60)
+	ship:setTubeLoadTime(0,30)				
+	local farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
+	if farco_8_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 8")
+		farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			farco_8_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 8, the beams are longer and faster, the tubes load faster and the shields are stronger.",
+			{
+				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
+		)
+	end
+	return ship
+end
+function farco11(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Farco 11"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 11"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Farco 11")
+	ship:setShieldsMax(80, 50)				--stronger shields (vs 50, 40)
+	ship:setShields(80, 50)	
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 10)
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
+	local farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
+	if farco_11_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 11")
+		farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			farco_11_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 11, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam and the shields are stronger.",
+			{
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
+		)
+	end
+	return ship
+end
+function farco13(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Farco 13"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Farco 13"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Farco 13")
+	ship:setShieldsMax(90, 70)				--stronger shields (vs 50, 40)
+	ship:setShields(90, 70)	
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 10)
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
+	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
+	ship:setTubeLoadTime(0,30)				--faster (vs 60)
+	ship:setTubeLoadTime(1,30)				
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 6)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",30)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 30)
+	local farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
+	if farco_13_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Farco 13")
+		farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			farco_13_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 13, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam, the tubes load faster, there are more missiles and the shields are stronger.",
+			{
+				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
+		)
 	end
 	return ship
 end
@@ -15839,6 +15266,392 @@ function fiendG6(enemyFaction)
 	end
 	return ship
 end
+function foulFeeder(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Feeder"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Foul Feeder"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Foul Feeder"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Foul Feeder")
+	ship:setShieldsMax(80,40)					--shields (vs none)
+	ship:setShields(80,40)
+	ship:setWeaponTubeCount(4)					--more (vs none)
+	ship:setWeaponTubeDirection(1,90)
+	ship:setWeaponTubeDirection(2,-90)
+	ship:setWeaponTubeDirection(3,180)
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")
+	ship:setWeaponTubeExclusiveFor(2,"HVLI")
+	ship:setWeaponTubeExclusiveFor(3,"HVLI")
+	ship:weaponTubeAllowMissle(0,"Homing")
+	ship:weaponTubeAllowMissle(1,"Homing")
+	ship:weaponTubeAllowMissle(2,"Homing")
+	ship:weaponTubeAllowMissle(3,"Homing")
+	ship:setWeaponStorageMax("HVLI", 	6)		--more (vs none)
+	ship:setWeaponStorageMax("Homing", 6)		--more (vs none)
+	ship:setWeaponStorage("HVLI",		6)
+	ship:setWeaponStorage("Homing",	6)
+	ship:setTubeLoadTime(0, 12)
+	ship:setTubeLoadTime(1, 8)
+	ship:setTubeLoadTime(2, 8)
+	ship:setTubeLoadTime(3, 12)
+	local foul_feeder_db = queryScienceDatabase("Ships","No class","Foul Feeder")
+	if foul_feeder_db == nil then
+		local feeder_db = queryScienceDatabase("Ships","No class")
+		feeder_db:addEntry("Foul Feeder")
+		foul_feeder_db = queryScienceDatabase("Ships","No Class","Foul Feeder")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No class","Ktlitan Feeder"),	--base ship database entry
+			foul_feeder_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Enhanced Feeder with shields and tubes",
+			{
+				{key = "Tube 0", value = "12 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube -90", value = "8 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube 90", value = "8 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 180", value = "12 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,		--jump range
+			"sci_fi_alien_ship_5"
+		)
+	end
+	return ship
+end
+function gnat(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Gnat"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Gnat"].short_range_radar)
+	end
+	ship:setTypeName("Gnat")
+	ship:setHullMax(15)					--weaker hull (vs 30)
+	ship:setHull(15)
+	ship:setImpulseMaxSpeed(140)		--faster impulse (vs 120)
+	ship:setRotationMaxSpeed(25)		--faster maneuver (vs 10)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,   40,		0,	 600,		4,		 3)	--weaker (vs 6) beam
+	local gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+	if gnat_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("Gnat")
+		gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
+			gnat_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
+			nil,
+			nil,		--jump range
+			"sci_fi_alien_ship_4"
+		)
+	end
+	return ship
+end
+function gulper(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Gulper"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Gulper"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Gulper")
+	ship:setShieldsMax(300,200,300,200)							--different  shields (vs 450, 350, 150, 150, 350)
+	ship:setShields(300,200,300,200)					
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 3.5)
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(2,	80,	  190,	1500,		6,		 8)	--rear facing (vs forward), faster (vs 8), weaker (vs 11)
+	ship:setBeamWeapon(3,	80,	  170,	1500,		6,		 8)
+	ship:setWeaponTubeCount(6)									--more (vs 2)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")
+	ship:weaponTubeAllowMissle(0,"Homing")
+	ship:weaponTubeAllowMissle(1,"Homing")
+	ship:setWeaponTubeExclusiveFor(2,"EMP")
+	ship:setWeaponTubeExclusiveFor(3,"Nuke")
+	ship:setWeaponTubeExclusiveFor(4,"EMP")
+	ship:setWeaponTubeExclusiveFor(5,"Nuke")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(5,"large")
+	ship:setTubeLoadTime(2,8)					--faster (vs 10)
+	ship:setTubeLoadTime(4,12)					--slower (vs 10)
+	ship:setTubeLoadTime(5,14)					--slower (vs 10)
+	ship:setWeaponStorageMax("Homing",8)		--more (vs 4)
+	ship:setWeaponStorage("Homing", 8)
+	ship:setWeaponStorageMax("EMP",8)			--more (vs 2)
+	ship:setWeaponStorage("EMP", 8)
+	ship:setWeaponStorageMax("Nuke",5)			--more (vs 0)
+	ship:setWeaponStorage("Nuke", 5)
+	local gulper_db = queryScienceDatabase("Ships","Corvette","Gulper")
+	if gulper_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Gulper")
+		gulper_db = queryScienceDatabase("Ships","Corvette","Gulper")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
+			gulper_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Gulper resembles a Starhammer. It's faster, has fewer shield arcs, has two forward and two rear beam batteries, but most importantly, it has many more missiles of various sizes and load speeds",
+			{
+				{key = "Tube 0", value = "10 sec"},			--torpedo tube size, direction and load speed
+				{key = " Tube 0", value = "10 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small tube 0", value = "8 sec"},	--torpedo tube direction and load speed
+				{key = "  Tube 0", value = "10 sec"},		--torpedo tube size, direction and load speed
+				{key = "   Tube 0", value = "12 sec"},		--torpedo tube size, direction and load speed
+				{key = "Large tube 0", value = "14 sec"},	--torpedo tube size, direction and load speed
+			},
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
+		)
+	end
+	return ship		
+end
+function hornetMT55(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["MT55 Hornet"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["MT55 Hornet"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("MT55 Hornet")
+	ship:setRotationMaxSpeed(29)					--slower maneuver (vs 30)
+	ship:setImpulseMaxSpeed(135)					--faster impulse (vs 120)
+	ship:setAcceleration(40)						--faster acceleration (vs 25)
+	local hornet_mt55_db = queryScienceDatabase("Ships","Starfighter","MT55 Hornet")
+	if hornet_mt55_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("MT55 Hornet")
+		hornet_mt55_db = queryScienceDatabase("Ships","Starfighter","MT55 Hornet")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+			hornet_mt55_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The MT55 Hornet is similar to the 52 series Hornet models. Its speed is faster but it turns more slowly",
+			nil,
+			nil,
+			"WespeScoutYellow"
+		)
+	end
+	return ship
+end
+function hornetMU55(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MU52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["MU55 Hornet"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["MU55 Hornet"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("MU55 Hornet")
+	ship:setRotationMaxSpeed(29)					--slower maneuver (vs 30)
+	ship:setImpulseMaxSpeed(135)					--faster impulse (vs 120)
+	ship:setAcceleration(40)						--faster acceleration (vs 25)
+	ship:setWeaponTubeCount(1)						--more (vs 0)
+	ship:setTubeSize(0,"small")
+	ship:setTubeLoadTime(0,40)
+	ship:setWeaponStorageMax("Homing",6)			--more (vs 0)
+	ship:setWeaponStorage("Homing", 6)		
+	local hornet_mu55_db = queryScienceDatabase("Ships","Starfighter","MU55 Hornet")
+	if hornet_mu55_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("MU55 Hornet")
+		hornet_mu55_db = queryScienceDatabase("Ships","Starfighter","MU55 Hornet")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MU52 Hornet"),	--base ship database entry
+			hornet_mu55_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The MU55 Hornet is similar to the 52 series Hornet models. Its speed is faster but it turns more slowly. The MU55 comes equipped with a small homing missile tube",
+			{
+				{key = "Small Tube 0", value = "40 sec"},	--torpedo tube size, direction and load speed
+			},
+			nil,
+			"WespeScoutYellow"
+		)
+	end
+	return ship
+end
+function hornetMV52(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["MV52 Hornet"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["MV52 Hornet"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("MV52 Hornet")
+--						 Arc, Dir, 	Rng, Cyc, Dmg
+	ship:setBeamWeapon(0, 30,	0, 1000, 4.0, 3.0)	--longer and stronger beam (vs 700 & 2)
+	ship:setRotationMaxSpeed(31)					--faster maneuver (vs 30)
+	ship:setImpulseMaxSpeed(130)					--faster impulse (vs 120)
+	local hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+	if hornet_mv52_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("MV52 Hornet")
+		hornet_mv52_db = queryScienceDatabase("Ships","Starfighter","MV52 Hornet")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
+			hornet_mv52_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52",
+			nil,
+			nil,
+			"WespeScoutYellow"
+		)
+		--[[
+		hornet_mv52_db:setLongDescription("The MV52 Hornet is very similar to the MT52 and MU52 models. The beam does more damage than both of the other Hornet models, it's max impulse speed is faster than both of the other Hornet models, it turns faster than the MT52, but slower than the MU52")
+		hornet_mv52_db:setKeyValue("Class","Starfighter")
+		hornet_mv52_db:setKeyValue("Sub-class","Interceptor")
+		hornet_mv52_db:setKeyValue("Size","30")
+		hornet_mv52_db:setKeyValue("Shield","20")
+		hornet_mv52_db:setKeyValue("Hull","30")
+		hornet_mv52_db:setKeyValue("Move speed","7.8 U/min")
+		hornet_mv52_db:setKeyValue("Turn speed","31.0 deg/sec")
+		hornet_mv52_db:setKeyValue("Beam weapon 0:30","3.0 Dmg / 4.0 sec")
+		hornet_mv52_db:setImage("radar/fighter.png")
+		--]]
+	end
+	return ship
+end
+function hurricane(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Hurricane"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Hurricane"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Hurricane")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,40000)			
+	ship:setWeaponTubeCount(8)						--more (vs 3)
+	ship:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponTubeDirection(1,  0)				--forward (vs -90)
+	ship:setTubeSize(3,"large")						
+	ship:setWeaponTubeDirection(3,-90)
+	ship:setTubeSize(4,"small")
+	ship:setWeaponTubeExclusiveFor(4,"Homing")
+	ship:setWeaponTubeDirection(4,-15)
+	ship:setTubeSize(5,"small")
+	ship:setWeaponTubeExclusiveFor(5,"Homing")
+	ship:setWeaponTubeDirection(5, 15)
+	ship:setWeaponTubeExclusiveFor(6,"Homing")
+	ship:setWeaponTubeDirection(6,-30)
+	ship:setWeaponTubeExclusiveFor(7,"Homing")
+	ship:setWeaponTubeDirection(7, 30)
+	ship:setWeaponStorageMax("Homing",24)			--more (vs 5)
+	ship:setWeaponStorage("Homing", 24)
+	local hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+	if hurricane_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Hurricane")
+		hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
+			hurricane_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
+			{
+				{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
+				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
+			},
+			"5 - 40 U",		--jump range
+			"HeavyCorvetteRed"
+		)
+	end
+	return ship
+end
+function jade5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Jade 5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Jade 5"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Jade 5")
+	ship:setJumpDrive(true)
+	ship:setJumpDriveRange(5000,35000)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	local jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+	if jade_5_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Jade 5")
+		jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			jade_5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 35 U",		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+		--[[
+		jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
+		jade_5_db:setKeyValue("Class","Starfighter")
+		jade_5_db:setKeyValue("Sub-class","Gunship")
+		jade_5_db:setKeyValue("Size","80")
+		jade_5_db:setKeyValue("Shield","30")
+		jade_5_db:setKeyValue("Hull","50")
+		jade_5_db:setKeyValue("Move speed","4.8 U/min")
+		jade_5_db:setKeyValue("Turn speed","28.0 deg/sec")
+		jade_5_db:setKeyValue("Jump Range","5 - 35 U")
+		jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
+		jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		jade_5_db:setImage("radar/fighter.png")
+		--]]
+	end
+	return ship
+end
+function k2breaker(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["K2 Breaker"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["K2 Breaker"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("K2 Breaker")
+	ship:setHullMax(200)							--stronger hull (vs 120)
+	ship:setHull(200)
+	ship:setWeaponTubeCount(3)						--more (vs 1)
+	ship:setTubeSize(0,"large")						--large (vs normal)
+	ship:setWeaponTubeDirection(1,-30)				
+	ship:setWeaponTubeDirection(2, 30)
+	ship:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
+	ship:setWeaponStorageMax("Homing",16)			--more (vs 0)
+	ship:setWeaponStorage("Homing", 16)
+	ship:setWeaponStorageMax("HVLI",8)				--more (vs 5)
+	ship:setWeaponStorage("HVLI", 8)
+	local k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+	if k2_breaker_db == nil then
+		local no_class_db = queryScienceDatabase("Ships","No Class")
+		no_class_db:addEntry("K2 Breaker")
+		k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","No Class","Ktlitan Breaker"),	--base ship database entry
+			k2_breaker_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
+			{
+				{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
+			},
+			nil,
+			"sci_fi_alien_ship_2"
+		)
+	end
+	return ship
+end
 function k2fighter(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Fighter"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
@@ -15915,556 +15728,451 @@ function k3fighter(enemyFaction)
 	end
 	return ship
 end	
-function stalkerQ5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function loki(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Odin"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Stalker Q5"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Stalker Q5"].short_range_radar)
+	if ship_template["Loki"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Loki"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Stalker Q5")
-	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
-	ship:setShields(50,50)
-	ship:setHullMax(45)				--weaker hull (vs 50)
-	ship:setHull(45)
-	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
-	local stalker_q5_db = queryScienceDatabase("Ships","Frigate","Stalker Q5")
-	if stalker_q5_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Stalker Q5")
-		stalker_q5_db = queryScienceDatabase("Ships","Frigate","Stalker Q5")
+	ship:setTypeName("Loki")
+	ship:setImpulseMaxSpeed(1)				--faster impulse (vs 0)
+	ship:setRotationMaxSpeed(2)				--faster maneuver (vs 1)
+	ship:setAcceleration(5)					--faster acceleration (vs 0)
+	for n=0,15 do
+		if n % 4 == 0 then
+			ship:setTubeSize(n,"small")		--smaller (vs large)
+			ship:setTubeLoadTime(n,2.5)		--faster (vs 3)
+		end
+		if n % 4 == 1 then
+			ship:setTubeSize(n,"medium")	--smaller (vs large)
+		end
+		if n % 4 == 2 then
+			ship:setTubeSize(n,"medium")	--smaller (vs large)
+			ship:setTubeLoadTime(n,3.5)		--slower (vs 3)
+		end
+	end
+	local loki_db = queryScienceDatabase("Ships","Dreadnought","Loki")
+	if loki_db == nil then
+		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+		dreadnought_db:addEntry("Loki")
+		loki_db = queryScienceDatabase("Ships","Dreadnought","Loki")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Stalker Q7"),	--base ship database entry
-			stalker_q5_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Dreadnought","Odin"),	--base ship database entry
+			loki_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed",
-			nil,
-			nil,		--jump range
-			"small_frigate_3"
+			"The Loki is a modified version of the Odin",
+			{
+				{key = "Small Tube 0", value = "2.5 sec"},	--torpedo tube size, direction and load speed
+				{key = "Tube 22.5", value = "3 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 45", value = "3.5 sec"},		--torpedo tube size, direction and load speed
+				{key = "Large Tube 67.5", value = "3 sec"},	--torpedo tube size, direction and load speed
+				{key = "Small Tube 90", value = "2.5 sec"},	--torpedo tube size, direction and load speed
+				{key = "Tube 112.5", value = "3 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 135", value = "3.5 sec"},		--torpedo tube size, direction and load speed
+				{key = "Large Tube 157.5", value = "3 sec"},--torpedo tube size, direction and load speed
+				{key = "Small Tube 180", value = "2.5 sec"},	--torpedo tube size, direction and load speed
+				{key = "Tube 202.5", value = "3 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 225", value = "3.5 sec"},		--torpedo tube size, direction and load speed
+				{key = "Large Tube 247.5", value = "3 sec"},--torpedo tube size, direction and load speed
+				{key = "Small Tube 270", value = "2.5 sec"},	--torpedo tube size, direction and load speed
+				{key = "Tube 292.5", value = "3 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 315", value = "3.5 sec"},		--torpedo tube size, direction and load speed
+				{key = "Large Tube 337.5", value = "3 sec"},--torpedo tube size, direction and load speed
+			},
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
 		)
-		--[[
-		stalker_q5_db:setLongDescription("The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed")
-		stalker_q5_db:setKeyValue("Class","Frigate")
-		stalker_q5_db:setKeyValue("Sub-class","Cruiser: Strike Ship")
-		stalker_q5_db:setKeyValue("Size","80")
-		stalker_q5_db:setKeyValue("Shield","50/50")
-		stalker_q5_db:setKeyValue("Hull","45")
-		stalker_q5_db:setKeyValue("Move speed","4.2 U/min")
-		stalker_q5_db:setKeyValue("Turn speed","15.0 deg/sec")
-		stalker_q5_db:setKeyValue("Warp Speed","42.0 U/min")
-		stalker_q5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
-		stalker_q5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
-		stalker_q5_db:setImage("radar/cruiser.png")
-		--]]
 	end
-	return ship
+	return ship		
 end
-function stalkerR5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Stalker R5"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Stalker R5"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Stalker R5")
-	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
-	ship:setShields(50,50)
-	ship:setHullMax(45)				--weaker hull (vs 50)
-	ship:setHull(45)
-	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
-	local stalker_r5_db = queryScienceDatabase("Ships","Frigate","Stalker R5")
-	if stalker_r5_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Stalker R5")
-		stalker_r5_db = queryScienceDatabase("Ships","Frigate","Stalker R5")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Stalker R7"),	--base ship database entry
-			stalker_r5_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed",
-			nil,
-			nil,		--jump range
-			"small_frigate_3"
-		)
-		--[[
-		stalker_r5_db:setLongDescription("The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed")
-		stalker_r5_db:setKeyValue("Class","Frigate")
-		stalker_r5_db:setKeyValue("Sub-class","Cruiser: Strike Ship")
-		stalker_r5_db:setKeyValue("Size","80")
-		stalker_r5_db:setKeyValue("Shield","50/50")
-		stalker_r5_db:setKeyValue("Hull","45")
-		stalker_r5_db:setKeyValue("Move speed","4.2 U/min")
-		stalker_r5_db:setKeyValue("Turn speed","15.0 deg/sec")
-		stalker_r5_db:setKeyValue("Jump Range","5 - 50 U")
-		stalker_r5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
-		stalker_r5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
-		stalker_r5_db:setImage("radar/cruiser.png")
-		--]]
-	end
-	return ship
-end
-function waddle5(enemyFaction)
+function maniapak(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Waddle 5"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Waddle 5"].short_range_radar)
+	if ship_template["Maniapak"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Maniapak"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Waddle 5")
+	ship:setTypeName("Maniapak")
+	ship:setRadarTrace("exuari_fighter.png")			--different radar trace
+	ship:setImpulseMaxSpeed(70)					--slower impulse (vs 80)
+	ship:setWeaponTubeCount(9)					--more (vs 1)
+	ship:setWeaponTubeDirection(0,  0)				
+	ship:setWeaponTubeDirection(1,-10)				
+	ship:setWeaponTubeDirection(2, 10)				
+	ship:setWeaponTubeDirection(3,  0)				
+	ship:setWeaponTubeDirection(4,-12)				
+	ship:setWeaponTubeDirection(5, 12)				
+	ship:setWeaponTubeDirection(6,  0)				
+	ship:setWeaponTubeDirection(7,-15)				
+	ship:setWeaponTubeDirection(8, 15)				
+	ship:setTubeSize(0,"small")
+	ship:setTubeSize(1,"small")
+	ship:setTubeSize(2,"small")
+	ship:setTubeSize(6,"large")
+	ship:setTubeSize(7,"large")
+	ship:setTubeSize(8,"large")
+	ship:setTubeLoadTime(0,15)
+	ship:setTubeLoadTime(1,16)
+	ship:setTubeLoadTime(2,17)
+	ship:setTubeLoadTime(3,18)
+	ship:setTubeLoadTime(4,19)
+	ship:setTubeLoadTime(5,20)
+	ship:setTubeLoadTime(6,21)
+	ship:setTubeLoadTime(7,22)
+	ship:setTubeLoadTime(8,23)
+	ship:setWeaponStorageMax("Homing", 27)		--more (vs 0)
+	ship:setWeaponStorage("Homing",    27)
+	ship:setWeaponStorageMax("EMP",    18)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       18)
+	ship:setWeaponStorageMax("Nuke",   27)		--more (vs 0)
+	ship:setWeaponStorage("Nuke",      27)
+	ship:setWeaponStorageMax("HVLI",   36)		--more (vs 4)
+	ship:setWeaponStorage("HVLI",      36)
+	local maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
+	if maniapak_db == nil then
+		local fighter_db = queryScienceDatabase("Ships","Starfighter")
+		fighter_db:addEntry("Maniapak")
+		maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			maniapak_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Maniapak is an extreme modification of an Adder MK5 and a Blade. A maniacal designer was tasked with packing as many missiles as possible in this tiny starfighter frame. This record has yet to be beaten. Unfortunately, this ship is often a danger to friends as well as foes.",
+			{
+				{key = "Small Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube -10", value = "16 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small Tube 10", value = "17 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 0", value = "18 Sec"},
+				{key = "Tube -12", value = "19 sec"},
+				{key = "Tube 12", value = "20 sec"},
+				{key = "Large Tube 0", value = "21 sec"},
+				{key = "Large Tube -15", value = "22 sec"},
+				{key = "Large Tube 15", value = "23 sec"},
+				{key = "Missile Storage", value = "H:27 E:18 N:27 L:36"},
+			},
+			nil,
+			"AdlerLongRangeScoutYellow"
+		)
+		maniapak_db:setImage("radar/exuari_fighter.png")		--override default radar image
+	end
+	return ship		
+end
+function mikado(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Mikado"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Mikado"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setShieldsMax(120,120)					--stronger (vs 30,30)
+	ship:setShields(120,120)					
+	ship:setHullMax(80)							--stronger hull (vs 50)
+	ship:setHull(80)
+	ship:setRotationMaxSpeed(15)				--faster maneuver (vs 6)
+	ship:setTypeName("Mikado")
+	ship:setRadarTrace("missile_cruiser.png")	--different radar trace
+	ship:setWeaponTubeCount(16)					--more (vs 5)
+	ship:setWeaponTubeDirection(0, -72):setTubeSize(0,  "large"):setTubeLoadTime(0, 15):setWeaponTubeExclusiveFor(0, "HVLI")
+	ship:setWeaponTubeDirection(1, -79):setTubeSize(1, "medium"):setTubeLoadTime(1, 10):setWeaponTubeExclusiveFor(1, "HVLI"):weaponTubeAllowMissle(1, "Homing")
+	ship:setWeaponTubeDirection(2, -85):setTubeSize(2,  "small"):setTubeLoadTime(2,  5):setWeaponTubeExclusiveFor(2, "HVLI"):weaponTubeAllowMissle(2,   "Nuke")
+	ship:setWeaponTubeDirection(3, -90):setTubeSize(3,  "large"):setTubeLoadTime(3, 16):setWeaponTubeExclusiveFor(3, "HVLI"):weaponTubeAllowMissle(3, "Homing")
+	ship:setWeaponTubeDirection(4, -90):setTubeSize(4, "medium"):setTubeLoadTime(4, 11):setWeaponTubeExclusiveFor(4, "HVLI"):weaponTubeAllowMissle(4, "Homing"):weaponTubeAllowMissle(4, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(5, -95):setTubeSize(5,  "small"):setTubeLoadTime(5,  6):setWeaponTubeExclusiveFor(5, "HVLI"):weaponTubeAllowMissle(5,   "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(6,-101):setTubeSize(6, "medium"):setTubeLoadTime(6, 12):setWeaponTubeExclusiveFor(6, "HVLI"):weaponTubeAllowMissle(6,   "Nuke")
+	ship:setWeaponTubeDirection(7,-108):setTubeSize(7,  "small"):setTubeLoadTime(7,  7):setWeaponTubeExclusiveFor(7, "HVLI"):weaponTubeAllowMissle(7, "Homing"):weaponTubeAllowMissle(7, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(8,  72):setTubeSize(8,  "small"):setTubeLoadTime(8,  7):setWeaponTubeExclusiveFor(8, "HVLI"):weaponTubeAllowMissle(8, "Homing"):weaponTubeAllowMissle(8, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(9,  79):setTubeSize(9, "medium"):setTubeLoadTime(9, 12):setWeaponTubeExclusiveFor(9, "HVLI"):weaponTubeAllowMissle(9,   "Nuke")
+	ship:setWeaponTubeDirection(10, 85):setTubeSize(10, "small"):setTubeLoadTime(10, 6):setWeaponTubeExclusiveFor(10,"HVLI"):weaponTubeAllowMissle(10,  "Nuke"):weaponTubeAllowMissle(10, "EMP")
+	ship:setWeaponTubeDirection(11, 90):setTubeSize(11, "large"):setTubeLoadTime(11,16):setWeaponTubeExclusiveFor(11,"HVLI"):weaponTubeAllowMissle(11,"Homing")
+	ship:setWeaponTubeDirection(12, 90):setTubeSize(12,"medium"):setTubeLoadTime(12,11):setWeaponTubeExclusiveFor(12,"HVLI"):weaponTubeAllowMissle(12,"Homing"):weaponTubeAllowMissle(12,"Nuke"):weaponTubeAllowMissle(5,  "EMP")
+	ship:setWeaponTubeDirection(13, 95):setTubeSize(13, "small"):setTubeLoadTime(13, 5):setWeaponTubeExclusiveFor(13,"HVLI"):weaponTubeAllowMissle(13,  "Nuke")
+	ship:setWeaponTubeDirection(14,101):setTubeSize(14,"medium"):setTubeLoadTime(14,10):setWeaponTubeExclusiveFor(14,"HVLI"):weaponTubeAllowMissle(14,"Homing")
+	ship:setWeaponTubeDirection(15,108):setTubeSize(15, "large"):setTubeLoadTime(15,15):setWeaponTubeExclusiveFor(15,"HVLI")
+	ship:setWeaponStorageMax("Homing", 32)		--more (vs 15)
+	ship:setWeaponStorage("Homing",    32)
+	ship:setWeaponStorageMax("EMP",    20)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       20)
+	ship:setWeaponStorageMax("Nuke",   30)		--more (vs 0)
+	ship:setWeaponStorage("Nuke",      30)
+	ship:setWeaponStorageMax("HVLI",   48)		--more (vs 15)
+	ship:setWeaponStorage("HVLI",      48)
+	local mikado_db = queryScienceDatabase("Ships","Frigate","Mikado")
+	if mikado_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Mikado")
+		mikado_db = queryScienceDatabase("Ships","Frigate","Mikado")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
+			mikado_db,		--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Mikado is a beefed up heavy artillery cruiser bristling with missile tubes and stuffed with missiles. It may move slow, but it's nimble for a missile ship.",
+			{
+				{key = "Large tube -72 & 108", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -79 & 101", value = "10 sec"},		--torpedo tube direction and load speed
+				{key = "Small Tube -85 & 95", value = "5 sec"},	--torpedo tube direction and load speed
+				{key = "Large Tube -90 & 90", value = "16 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -90 & 90", value = "11 sec"},		--torpedo tube direction and load speed
+				{key = "Small Tube -95 & 85", value = "6 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -101 & 79", value = "12 sec"},		--torpedo tube direction and load speed
+				{key = "Small Tube -108 & 72", value = "7 sec"},	--torpedo tube direction and load speed
+			},
+			nil,	--jump range
+			"HeavyCorvetteYellow"
+		)
+		mikado_db:setImage("radar/missile_cruiser.png")		--override default radar image
+	end
+	return ship
+end
+function munemi(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Flash"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Munemi"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Munemi"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Munemi")
 	ship:setWarpDrive(true)
---				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	local waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
-	if waddle_5_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Waddle 5")
-		waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+	ship:setWarpSpeed(650)
+	ship:setTubeSize(1,"small")
+	ship:setWeaponTubeExclusiveFor(1,"EMP")
+	ship:setWeaponStorageMax("Homing", 12)		--more (vs 6)
+	ship:setWeaponStorage("Homing",    12)
+	ship:setWeaponStorageMax("EMP",    4)		--more (vs 0)
+	ship:setWeaponStorage("EMP",       4)
+	ship:setWeaponStorageMax("Nuke",   4)		--more (vs 2)
+	ship:setWeaponStorage("Nuke",      4)
+	local munemi_db = queryScienceDatabase("Ships","Frigate","Munemi")
+	if munemi_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Munemi")
+		munemi_db = queryScienceDatabase("Ships","Frigate","Munemi")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			waddle_5_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Exuari","Flash"),	--base ship database entry
+			munemi_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5",
+			"The Munemi is loosely based on the Flash, but with a warp drive, twice the missiles and a stock of small EMPs",
 			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
+				{key = "Small Tube 0", value = "15 sec"},	--torpedo tube size, direction and load speed
+				{key = " Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
 			},
-			nil,		--jump range
-			"AdlerLongRangeScoutYellow"
+			nil,
+			"small_frigate_2"
 		)
-		--[[
-		waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
-		waddle_5_db:setKeyValue("Class","Starfighter")
-		waddle_5_db:setKeyValue("Sub-class","Gunship")
-		waddle_5_db:setKeyValue("Size","80")
-		waddle_5_db:setKeyValue("Shield","30")
-		waddle_5_db:setKeyValue("Hull","50")
-		waddle_5_db:setKeyValue("Move speed","4.8 U/min")
-		waddle_5_db:setKeyValue("Turn speed","28.0 deg/sec")
-		waddle_5_db:setKeyValue("Warp Speed","60.0 U/min")
-		waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		waddle_5_db:setImage("radar/fighter.png")
-		--]]
 	end
-	return ship
+	return ship		
 end
-function jade5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function nirvanaR8(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Nirvana R5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Jade 5"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Jade 5"].short_range_radar)
+	if ship_template["Nirvana R8"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Nirvana R8"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Jade 5")
-	ship:setJumpDrive(true)
-	ship:setJumpDriveRange(5000,35000)
---				   Index,  Arc,	  Dir, Range, Cycle,	Damage
-	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
-	local jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
-	if jade_5_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Jade 5")
-		jade_5_db = queryScienceDatabase("Ships","Starfighter","Jade 5")
+	ship:setTypeName("Nirvana R8")
+	ship:setHullMax(100)			--stronger hull (vs 70)
+	ship:setHull(100)
+	ship:setShieldsMax(80,40,40)	--stronger shields (vs 50,40)
+	ship:setShields(80,40,40)
+	ship:setImpulseMaxSpeed(95)		--faster impulse (vs 70)
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	20,	  0,	 1500,	   3,	1)	--narrower (vs 90), straight (vs -15), longer (vs 1200)
+	ship:setBeamWeapon(1,	40,	  0,	 1000,	   4,	6)	--narrower (vs 90), straight (vs 15), shorter (vs 1200), slower (vs 3), stronger (vs 1)
+	ship:setBeamWeapon(2,	90,	  0,	  800,	   5,	8)	--straight (vs 50), shorter (vs 1200), slower (vs 3), stronger (vs 1)
+	ship:setBeamWeapon(3,  180,	  0,	  700,	   5,	12)	--wider (vs 90), straight (vs -50), shorter (vs 1200), slower (vs 3), stronger (vs 1)
+	ship:setBeamWeapon(4,  270,	  0,	  600,	   5,	20)	
+	local nirvana_r8_db = queryScienceDatabase("Ships","Frigate","Nirvana R8")
+	if nirvana_r8_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Nirvana R8")
+		nirvana_r8_db = queryScienceDatabase("Ships","Frigate","Nirvana R8")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			jade_5_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Frigate","Nirvana R5"),	--base ship database entry
+			nirvana_r8_db,		--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			"5 - 35 U",		--jump range
-			"AdlerLongRangeScoutYellow"
+			"The Nirvana R8 departs from the normal Nirvana design with an improved hull, impulse engine, three shield arcs and a radical change to the beam arrangement. In addition to warding off fighters, the 'Rate' as it's come to be known has beams more powerful as their range shortens. You don't want to let the Rate get too close to you.",
+			nil,
+			nil,	--jump range
+			"small_frigate_5"
 		)
-		--[[
-		jade_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added jump drives to them to produce the Jade 5")
-		jade_5_db:setKeyValue("Class","Starfighter")
-		jade_5_db:setKeyValue("Sub-class","Gunship")
-		jade_5_db:setKeyValue("Size","80")
-		jade_5_db:setKeyValue("Shield","30")
-		jade_5_db:setKeyValue("Hull","50")
-		jade_5_db:setKeyValue("Move speed","4.8 U/min")
-		jade_5_db:setKeyValue("Turn speed","28.0 deg/sec")
-		jade_5_db:setKeyValue("Jump Range","5 - 35 U")
-		jade_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
-		jade_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
-		jade_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
-		jade_5_db:setImage("radar/fighter.png")
-		--]]
 	end
 	return ship
 end
-function droneLite(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Lite Drone"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Lite Drone"].short_range_radar)
-	end
-	ship:setTypeName("Lite Drone")
-	ship:setHullMax(20)					--weaker hull (vs 30)
-	ship:setHull(20)
-	ship:setImpulseMaxSpeed(130)		--faster impulse (vs 120)
-	ship:setRotationMaxSpeed(20)		--faster maneuver (vs 10)
-	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
-	local drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
-	if drone_lite_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Lite Drone")
-		drone_lite_db = queryScienceDatabase("Ships","No Class","Lite Drone")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			drone_lite_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed",
-			nil,
-			nil,
-			"sci_fi_alien_ship_4"
-		)
-		--[[
-		drone_lite_db:setLongDescription("The light drone was pieced together from scavenged parts of various damaged Ktlitan drones. Compared to the Ktlitan drone, the lite drone has a weaker hull, and a weaker beam, but a faster turn and impulse speed")
-		drone_lite_db:setKeyValue("Class","No Class")
-		drone_lite_db:setKeyValue("Sub-class","No Sub-Class")
-		drone_lite_db:setKeyValue("Size","150")
-		drone_lite_db:setKeyValue("Hull","20")
-		drone_lite_db:setKeyValue("Move speed","7.8 U/min")
-		drone_lite_db:setKeyValue("Turn speed","20 deg/sec")
-		drone_lite_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-		drone_lite_db:setImage("radar/ktlitan_drone.png")
-		--]]
-	end
-	return ship
-end
-function droneHeavy(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Heavy Drone"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Heavy Drone"].short_range_radar)
-	end
-	ship:setTypeName("Heavy Drone")
-	ship:setHullMax(40)					--stronger hull (vs 30)
-	ship:setHull(40)
-	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
-	ship:setBeamWeapon(0,40,0,600,4,8)	--stronger (vs 6) beam
-	local drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
-	if drone_heavy_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Heavy Drone")
-		drone_heavy_db = queryScienceDatabase("Ships","No Class","Heavy Drone")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			drone_heavy_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower",
-			nil,
-			nil,
-			"sci_fi_alien_ship_4"
-		)
-		--[[
-		drone_heavy_db:setLongDescription("The heavy drone has a stronger hull and a stronger beam than the normal Ktlitan Drone, but it also moves slower")
-		drone_heavy_db:setKeyValue("Class","No Class")
-		drone_heavy_db:setKeyValue("Sub-class","No Sub-Class")
-		drone_heavy_db:setKeyValue("Size","150")
-		drone_heavy_db:setKeyValue("Hull","40")
-		drone_heavy_db:setKeyValue("Move speed","6.6 U/min")
-		drone_heavy_db:setKeyValue("Turn speed","10 deg/sec")
-		drone_heavy_db:setKeyValue("Beam weapon 0:40","8.0 Dmg / 4.0 sec")
-		drone_heavy_db:setImage("radar/ktlitan_drone.png")
-		--]]
-	end
-	return ship
-end
-function droneJacket(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Jacket Drone"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Jacket Drone"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Jacket Drone")
-	ship:setShieldsMax(20)				--stronger shields (vs none)
-	ship:setShields(20)
-	ship:setImpulseMaxSpeed(110)		--slower impulse (vs 120)
-	ship:setBeamWeapon(0,40,0,600,4,4)	--weaker (vs 6) beam
-	local drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
-	if drone_jacket_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Jacket Drone")
-		drone_jacket_db = queryScienceDatabase("Ships","No Class","Jacket Drone")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			drone_jacket_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield",
-			nil,
-			nil,
-			"sci_fi_alien_ship_4"
-		)
-		--[[
-		drone_jacket_db:setLongDescription("The Jacket Drone is a Ktlitan Drone with a shield. It's also slightly slower and has a slightly weaker beam due to the energy requirements of the added shield")
-		drone_jacket_db:setKeyValue("Class","No Class")
-		drone_jacket_db:setKeyValue("Sub-class","No Sub-Class")
-		drone_jacket_db:setKeyValue("Size","150")
-		drone_jacket_db:setKeyValue("Shield","20")
-		drone_jacket_db:setKeyValue("Hull","40")
-		drone_jacket_db:setKeyValue("Move speed","6.6 U/min")
-		drone_jacket_db:setKeyValue("Turn speed","10 deg/sec")
-		drone_jacket_db:setKeyValue("Beam weapon 0:40","4.0 Dmg / 4.0 sec")
-		drone_jacket_db:setImage("radar/ktlitan_drone.png")
-		--]]
-	end
-	return ship
-end
-function elaraP2(enemyFaction)
+function phobosR2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Elara P2"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Elara P2"].short_range_radar)
+	if ship_template["Phobos R2"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Phobos R2"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Elara P2")
-	ship:setWarpDrive(true)			--warp drive (vs none)
-	ship:setWarpSpeed(800)
-	ship:setShieldsMax(70,40)		--stronger front shield (vs 50,40)
-	ship:setShields(70,40)
-	local elara_p2_db = queryScienceDatabase("Ships","Frigate","Elara P2")
-	if elara_p2_db == nil then
+	ship:setTypeName("Phobos R2")
+	ship:setWeaponTubeDirection(0,0)	--straight tubes vs angled
+	ship:setWeaponTubeDirection(1,0)	
+	ship:setImpulseMaxSpeed(55)			--slower impulse (vs 60)
+	ship:setRotationMaxSpeed(15)		--faster maneuver (vs 10)
+	local phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
+	if phobos_r2_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Elara P2")
-		elara_p2_db = queryScienceDatabase("Ships","Frigate","Elara P2")
+		frigate_db:addEntry("Phobos R2")
+		phobos_r2_db = queryScienceDatabase("Ships","Frigate","Phobos R2")
 		addShipToDatabase(
 			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			elara_p2_db,	--modified ship database entry
+			phobos_r2_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos",
+			"The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but straight tubes instead of angled tubes",
 			{
-				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 0", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},	--torpedo tube direction and load speed
 			},
 			nil,
 			"AtlasHeavyFighterYellow"
 		)
 		--[[
-		elara_p2_db:setLongDescription("Inspired by the Phobos T3, the Elara P2 is nearly identical. With the addition of a warp drive and stronger front shields, the Elara P2 poses a greater threat than the Phobos")
-		elara_p2_db:setKeyValue("Class","Frigate")
-		elara_p2_db:setKeyValue("Sub-class","Cruiser")
-		elara_p2_db:setKeyValue("Size","80")
-		elara_p2_db:setKeyValue("Shield","70/40")
-		elara_p2_db:setKeyValue("Hull","70")
-		elara_p2_db:setKeyValue("Move speed","3.6 U/min")
-		elara_p2_db:setKeyValue("Turn speed","10.0 deg/sec")
-		elara_p2_db:setKeyValue("Warp Speed","48.0 U/min")
-		elara_p2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
-		elara_p2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
-		elara_p2_db:setKeyValue("Tube -1","60 sec")
-		elara_p2_db:setKeyValue("Tube 1","60 sec")
-		elara_p2_db:setKeyValue("Storage Homing","6")
-		elara_p2_db:setKeyValue("Storage HVLI","20")
-		elara_p2_db:setImage("radar/cruiser.png")
+		phobos_r2_db:setLongDescription("The Phobos R2 model is very similar to the Phobos T3. It's got a faster turn speed, but only one missile tube")
+		phobos_r2_db:setKeyValue("Class","Frigate")
+		phobos_r2_db:setKeyValue("Sub-class","Cruiser")
+		phobos_r2_db:setKeyValue("Size","80")
+		phobos_r2_db:setKeyValue("Shield","50/40")
+		phobos_r2_db:setKeyValue("Hull","70")
+		phobos_r2_db:setKeyValue("Move speed","3.3 U/min")
+		phobos_r2_db:setKeyValue("Turn speed","15.0 deg/sec")
+		phobos_r2_db:setKeyValue("Beam weapon -15:90","6.0 Dmg / 8.0 sec")
+		phobos_r2_db:setKeyValue("Beam weapon 15:90","6.0 Dmg / 8.0 sec")
+		phobos_r2_db:setKeyValue("Tube 0","60 sec")
+		phobos_r2_db:setKeyValue("Storage Homing","6")
+		phobos_r2_db:setKeyValue("Storage HVLI","20")
+		phobos_r2_db:setImage("radar/cruiser.png")
 		--]]
 	end
 	return ship
 end
-function wzLindworm(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function phobosT4(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["WZ-Lindworm"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["WZ-Lindworm"].short_range_radar)
+	if ship_template["Phobos T4"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Phobos T4"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("WZ-Lindworm")
-	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
-	ship:setWeaponStorage("Nuke",2)
-	ship:setWeaponStorageMax("Homing",4)	--more homing (vs 1)
-	ship:setWeaponStorage("Homing",4)
-	ship:setWeaponStorageMax("HVLI",12)		--more HVLI (vs 6)
-	ship:setWeaponStorage("HVLI",12)
-	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
-	ship:setHullMax(45)						--weaker hull (vs 50)
-	ship:setHull(45)
-	local wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
-	if wz_lindworm_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("WZ-Lindworm")
-		wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","WX-Lindworm"),	--base ship database entry
-			wz_lindworm_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.",
-			{
-				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil,
-			"LindwurmFighterYellow"
-		)
-		--[[
-		wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
-		wz_lindworm_db:setKeyValue("Class","Starfighter")
-		wz_lindworm_db:setKeyValue("Sub-class","Bomber")
-		wz_lindworm_db:setKeyValue("Size","30")
-		wz_lindworm_db:setKeyValue("Shield","20")
-		wz_lindworm_db:setKeyValue("Hull","45")
-		wz_lindworm_db:setKeyValue("Move speed","3.0 U/min")
-		wz_lindworm_db:setKeyValue("Turn speed","12 deg/sec")
-		wz_lindworm_db:setKeyValue("Small tube 0","15 sec")
-		wz_lindworm_db:setKeyValue("Small tube 1","15 sec")
-		wz_lindworm_db:setKeyValue("Small tube -1","15 sec")
-		wz_lindworm_db:setKeyValue("Storage Homing","4")
-		wz_lindworm_db:setKeyValue("Storage Nuke","2")
-		wz_lindworm_db:setKeyValue("Storage HVLI","12")
-		wz_lindworm_db:setImage("radar/fighter.png")
-		--]]
-	end
-	return ship
-end
-function tempest(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Tempest"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Tempest"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Tempest")
-	ship:setWeaponTubeCount(10)						--four more tubes (vs 6)
-	ship:setWeaponTubeDirection(0, -88)				--5 per side
-	ship:setWeaponTubeDirection(1, -89)				--slight angle spread
-	ship:setWeaponTubeDirection(3,  88)				--3 for HVLI each side
-	ship:setWeaponTubeDirection(4,  89)				--2 for homing and nuke each side
-	ship:setWeaponTubeDirection(6, -91)				
-	ship:setWeaponTubeDirection(7, -92)				
-	ship:setWeaponTubeDirection(8,  91)				
-	ship:setWeaponTubeDirection(9,  92)				
-	ship:setWeaponTubeExclusiveFor(7,"HVLI")
-	ship:setWeaponTubeExclusiveFor(9,"HVLI")
-	ship:setWeaponStorageMax("Homing",16)			--more (vs 6)
-	ship:setWeaponStorage("Homing", 16)				
-	ship:setWeaponStorageMax("Nuke",8)				--more (vs 0)
-	ship:setWeaponStorage("Nuke", 8)				
-	ship:setWeaponStorageMax("HVLI",34)				--more (vs 20)
-	ship:setWeaponStorage("HVLI", 34)
-	local tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
-	if tempest_db == nil then
+	ship:setTypeName("Phobos T4")
+	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 10)
+	ship:setShieldsMax(80,30)									--stronger shields (vs 50,40)
+	ship:setShields(80,30)					
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	  -15,	1500,		6,		6)	--longer (vs 1200), faster (vs 8)
+	ship:setBeamWeapon(1,	90,	   15,	1500,		6,		6)	
+	local phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
+	if phobos_t4_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Tempest")
-		tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+		frigate_db:addEntry("Phobos T4")
+		phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Piranha F12"),	--base ship database entry
-			tempest_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
+			phobos_t4_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!",
+			"The Phobos T4 makes some simple improvements on the Phobos T3: faster maneuver, stronger front shields, though weaker rear shields and longer and faster beam weapons",
 			{
-				{key = "Large tube -88", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -89", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Large tube -90", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Large tube 88", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 89", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Large tube 90", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -91", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Tube -92", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
 			},
-			nil,
+			nil,		--jump range
+			"AtlasHeavyFighterYellow"
+		)
+	end
+	return ship
+end
+function piranhaF10(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12.M"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Piranha F10"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Piranha F10"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Piranha F10")
+	ship:setHullMax(50)						--weaker hull (vs 70)
+	ship:setHull(50)
+	ship:setShieldsMax(50, 50)				--stronger shields (vs 30, 30)
+	ship:setShields(50, 50)					
+	ship:setRotationMaxSpeed(10)			--faster maneuver (vs 6)
+	ship:setTubeSize(0,"small")				--small (vs large)
+	ship:setTubeSize(3,"small")
+	ship:setTubeLoadTime(0,10)				--faster (vs 15)
+	ship:setTubeLoadTime(3,10)
+	ship:setTubeLoadTime(1,20)				--slower (vs 15)
+	ship:setTubeLoadTime(4,20)
+	ship:weaponTubeAllowMissle(2,"Homing")	--allow large homing missiles
+	ship:weaponTubeAllowMissle(5,"Homing")
+	ship:setWeaponStorageMax("HVLI",  20)	--more (vs 10)
+	ship:setWeaponStorage("HVLI",     20)		
+	ship:setWeaponStorageMax("Homing",10)	--more (vs 4)
+	ship:setWeaponStorage("Homing",   10)		
+	ship:setWeaponStorageMax("Nuke",   6)	--more (vs 2)
+	ship:setWeaponStorage("Nuke",      6)		
+	local piranha_f10_db = queryScienceDatabase("Ships","Frigate","Piranha F10")
+	if piranha_f10_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Piranha F10")
+		piranha_f10_db = queryScienceDatabase("Ships","Frigate","Piranha F10")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Piranha F12.M"),	--base ship database entry
+			piranha_f10_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Piranha F10 borrows design aspects from the F8, F12 and F12.M. Internal bulkheads were removed, missile loading mechanisms tweaked and two large tubes replaced with two small tubes to make room for more missiles. This resulted in a weaker hull, varying missile load speeds and improved maneuverability. The shield generators received an upgrade",
+			{
+				{key = "Small tube -90", value = "10 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube -90", value = "20 sec"},			--torpedo tube size, direction and load speed
+				{key = "Large tube -90", value = "15 sec"},		--torpedo tube size, direction and load speed
+				{key = "Small tube 90", value = "10 sec"},		--torpedo tube size, direction and load speed
+				{key = "Tube 90", value = "20 sec"},			--torpedo tube size, direction and load speed
+				{key = "Large tube 90", value = "15 sec"},		--torpedo tube size, direction and load speed
+			},
+			nil,		--jump range
 			"HeavyCorvetteRed"
 		)
-		--[[
-		tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
-		tempest_db:setKeyValue("Class","Frigate")
-		tempest_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
-		tempest_db:setKeyValue("Size","80")
-		tempest_db:setKeyValue("Shield","30/30")
-		tempest_db:setKeyValue("Hull","70")
-		tempest_db:setKeyValue("Move speed","2.4 U/min")
-		tempest_db:setKeyValue("Turn speed","6.0 deg/sec")
-		tempest_db:setKeyValue("Large Tube -88","15 sec")
-		tempest_db:setKeyValue("Tube -89","15 sec")
-		tempest_db:setKeyValue("Large Tube -90","15 sec")
-		tempest_db:setKeyValue("Large Tube 88","15 sec")
-		tempest_db:setKeyValue("Tube 89","15 sec")
-		tempest_db:setKeyValue("Large Tube 90","15 sec")
-		tempest_db:setKeyValue("Tube -91","15 sec")
-		tempest_db:setKeyValue("Tube -92","15 sec")
-		tempest_db:setKeyValue("Tube 91","15 sec")
-		tempest_db:setKeyValue("Tube 92","15 sec")
-		tempest_db:setKeyValue("Storage Homing","16")
-		tempest_db:setKeyValue("Storage Nuke","8")
-		tempest_db:setKeyValue("Storage HVLI","34")
-		tempest_db:setImage("radar/piranha.png")
-		--]]
 	end
 	return ship
 end
-function enforcer(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function prador(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Enforcer"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Enforcer"].short_range_radar)
+	if ship_template["Prador"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Prador"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Enforcer")
-	ship:setRadarTrace("ktlitan_destroyer.png")			--different radar trace
-	ship:setWarpDrive(true)										--warp (vs none)
-	ship:setWarpSpeed(600)
-	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
-	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 15)
-	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
-	ship:setShields(200,100,100)					
+	ship:setTypeName("Prador")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
 	ship:setHullMax(100)										--stronger hull (vs 70)
 	ship:setHull(100)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	30,	    5,	1500,		6,		10)	--narrower (vs 60), longer (vs 1000), stronger (vs 8)
-	ship:setBeamWeapon(1,	30,	   -5,	1500,		6,		10)
-	ship:setBeamWeapon(2,	 0,	    0,	   0,		0,		 0)	--fewer (vs 4)
-	ship:setBeamWeapon(3,	 0,	    0,	   0,		0,		 0)
-	ship:setWeaponTubeCount(3)									--more (vs 0)
-	ship:setTubeSize(0,"large")									--large (vs normal)
-	ship:setWeaponTubeDirection(1,-15)				
-	ship:setWeaponTubeDirection(2, 15)	
-	ship:setTubeLoadTime(0,18)
-	ship:setTubeLoadTime(1,12)
-	ship:setTubeLoadTime(2,12)			
-	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
-	ship:setWeaponStorage("Homing", 18)
-	local enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
-	if enforcer_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Enforcer")
-		enforcer_db = queryScienceDatabase("Ships","Frigate","Enforcer")
+	ship:setBeamWeapon(0,	60,	  -15,	2500,		6,		 8)	--stronger beams, broader coverage
+	ship:setBeamWeapon(1,	60,	  -45,	2500,		6,		 8)
+	ship:setBeamWeapon(2,	60,	   15,	2500,		6,		 8)
+	ship:setBeamWeapon(3,	60,	   45,	2500,		6,		 8)
+	ship:setBeamWeapon(4,	60,	  -75,	2500,		6,		 8)
+	ship:setBeamWeapon(5,	60,	 -105,	2500,		6,		 8)
+	ship:setBeamWeapon(6,	60,	   75,	2500,		6,		 8)
+	ship:setBeamWeapon(7,	60,	  105,	2500,		6,		 8)
+	ship:setBeamWeapon(8,	60,	 -135,	2500,		6,		 8)
+	ship:setBeamWeapon(9,	60,	 -165,	2500,		6,		 8)
+	ship:setBeamWeapon(10,	60,	  135,	2500,		6,		 8)
+	ship:setBeamWeapon(11,	60,	  165,	2500,		6,		 8)
+	local prador_db = queryScienceDatabase("Ships","Dreadnought","Prador")
+	if prador_db == nil then
+		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
+		dreadnought_db:addEntry("Prador")
+		prador_db = queryScienceDatabase("Ships","Dreadnought","Prador")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
-			enforcer_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
+			prador_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and strengthened front beams.",
-			{
-				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
-			},
+			"The Prador improves on the Battlestation model by increasing the impulse speed, strengthening the hull and realigning the beam weapons",
 			nil,
-			"battleship_destroyer_3_upgraded"
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
 		)
-		--[[
-		enforcer_db:setLongDescription("The Enforcer is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Removed rear facing beams and stengthened front beams.")
-		enforcer_db:setKeyValue("Class","Frigate")
-		enforcer_db:setKeyValue("Sub-class","High Punch")
-		enforcer_db:setKeyValue("Size","200")
-		enforcer_db:setKeyValue("Shield","200/100/100")
-		enforcer_db:setKeyValue("Hull","100")
-		enforcer_db:setKeyValue("Move speed","6.0 U/min")
-		enforcer_db:setKeyValue("Turn speed","20.0 deg/sec")
-		enforcer_db:setKeyValue("Warp Speed","36.0 U/min")
-		enforcer_db:setKeyValue("Beam weapon -15:30","10.0 Dmg / 6.0 sec")
-		enforcer_db:setKeyValue("Beam weapon 15:30","10.0 Dmg / 6.0 sec")
-		enforcer_db:setKeyValue("Large Tube 0","20 sec")
-		enforcer_db:setKeyValue("Tube -30","20 sec")
-		enforcer_db:setKeyValue("Tube 30","20 sec")
-		enforcer_db:setKeyValue("Storage Homing","18")
-		--]]
-		enforcer_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
 	end
-	return ship		
+	return ship
 end
 function predator(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
@@ -16556,759 +16264,6 @@ function predator(enemyFaction)
 	end
 	return ship		
 end
-function atlantisY42(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Atlantis X23"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Atlantis Y42"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Atlantis Y42"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Atlantis Y42")
-	ship:setShieldsMax(300,200,300,200)							--stronger shields (vs 200,200,200,200)
-	ship:setShields(300,200,300,200)					
-	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 30)
-	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 3.5)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(2,	80,	  190,	1500,		6,		 8)	--narrower (vs 100)
-	ship:setBeamWeapon(3,	80,	  170,	1500,		6,		 8)	--extra (vs 3 beams)
-	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
-	ship:setWeaponStorage("Homing", 16)
-	local atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
-	if atlantis_y42_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Atlantis Y42")
-		atlantis_y42_db = queryScienceDatabase("Ships","Corvette","Atlantis Y42")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Atlantis X23"),	--base ship database entry
-			atlantis_y42_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock",
-			{
-				{key = "Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = " Tube -90", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = " Tube 90", value = "10 sec"},	--torpedo tube direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"battleship_destroyer_1_upgraded"
-		)
-		--[[
-		atlantis_y42_db:setLongDescription("The Atlantis Y42 improves on the Atlantis X23 with stronger shields, faster impulse and turn speeds, an extra beam in back and a larger missile stock")
-		atlantis_y42_db:setKeyValue("Class","Corvette")
-		atlantis_y42_db:setKeyValue("Sub-class","Destroyer")
-		atlantis_y42_db:setKeyValue("Size","200")
-		atlantis_y42_db:setKeyValue("Shield","300/200/300/200")
-		atlantis_y42_db:setKeyValue("Hull","100")
-		atlantis_y42_db:setKeyValue("Move speed","3.9 U/min")
-		atlantis_y42_db:setKeyValue("Turn speed","15.0 deg/sec")
-		atlantis_y42_db:setKeyValue("Jump Range","5 - 50 U")
-		atlantis_y42_db:setKeyValue("Beam weapon -20:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Beam weapon 20:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Beam weapon 190:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Beam weapon 170:100","8.0 Dmg / 6.0 sec")
-		atlantis_y42_db:setKeyValue("Tube -90","10 sec")
-		atlantis_y42_db:setKeyValue(" Tube -90","10 sec")
-		atlantis_y42_db:setKeyValue("Tube 90","10 sec")
-		atlantis_y42_db:setKeyValue(" Tube 90","10 sec")
-		atlantis_y42_db:setKeyValue("Storage Homing","4")
-		atlantis_y42_db:setKeyValue("Storage HVLI","20")
-		atlantis_y42_db:setImage("radar/dread.png")
-		--]]
-	end
-	return ship		
-end
-function starhammerV(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Starhammer V"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Starhammer V"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Starhammer V")
-	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 35)
-	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
-	ship:setShieldsMax(450, 350, 250, 250, 350)					--stronger shields (vs 450, 350, 150, 150, 350)
-	ship:setShields(450, 350, 250, 250, 350)					
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
-	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
-	ship:setWeaponStorage("Homing", 16)		
-	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
-	ship:setWeaponStorage("HVLI", 36)
-	local starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
-	if starhammer_v_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Starhammer V")
-		starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
-			starhammer_v_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.",
-			{
-				{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"battleship_destroyer_4_upgraded"
-		)
-		--[[
-		starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
-		starhammer_v_db:setKeyValue("Class","Corvette")
-		starhammer_v_db:setKeyValue("Sub-class","Destroyer")
-		starhammer_v_db:setKeyValue("Size","200")
-		starhammer_v_db:setKeyValue("Shield","450/350/250/250/350")
-		starhammer_v_db:setKeyValue("Hull","200")
-		starhammer_v_db:setKeyValue("Move speed","3.9 U/min")
-		starhammer_v_db:setKeyValue("Turn speed","15.0 deg/sec")
-		starhammer_v_db:setKeyValue("Jump Range","5 - 50 U")
-		starhammer_v_db:setKeyValue("Beam weapon -10:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon 10:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon -20:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon 20:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Beam weapon 180:60","11.0 Dmg / 8.0 sec")
-		starhammer_v_db:setKeyValue("Tube 0","10 sec")
-		starhammer_v_db:setKeyValue(" Tube 0","10 sec")
-		starhammer_v_db:setKeyValue("Storage Homing","16")
-		starhammer_v_db:setKeyValue("Storage EMP","2")
-		starhammer_v_db:setKeyValue("Storage HVLI","36")
-		starhammer_v_db:setImage("radar/dread.png")
-		--]]
-	end
-	return ship		
-end
-function tyr(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Tyr"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Tyr"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Tyr")
-	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
-	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
-	ship:setShieldsMax(400, 300, 300, 400, 300, 300)			--stronger shields (vs 300, 300, 300, 300, 300)
-	ship:setShields(400, 300, 300, 400, 300, 300)					
-	ship:setHullMax(100)										--stronger hull (vs 70)
-	ship:setHull(100)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	90,	  -60,	2500,		6,		 8)	--stronger beams, broader coverage
-	ship:setBeamWeapon(1,	90,	 -120,	2500,		6,		 8)
-	ship:setBeamWeapon(2,	90,	   60,	2500,		6,		 8)
-	ship:setBeamWeapon(3,	90,	  120,	2500,		6,		 8)
-	ship:setBeamWeapon(4,	90,	  -60,	2500,		6,		 8)
-	ship:setBeamWeapon(5,	90,	 -120,	2500,		6,		 8)
-	ship:setBeamWeapon(6,	90,	   60,	2500,		6,		 8)
-	ship:setBeamWeapon(7,	90,	  120,	2500,		6,		 8)
-	ship:setBeamWeapon(8,	90,	  -60,	2500,		6,		 8)
-	ship:setBeamWeapon(9,	90,	 -120,	2500,		6,		 8)
-	ship:setBeamWeapon(10,	90,	   60,	2500,		6,		 8)
-	ship:setBeamWeapon(11,	90,	  120,	2500,		6,		 8)
-	local tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
-	if tyr_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Dreadnought")
-		corvette_db:addEntry("Tyr")
-		tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
-			tyr_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
-			nil,
-			"5 - 50 U",		--jump range
-			"Ender Battlecruiser"
-		)
-		--[[
-		tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
-		tyr_db:setKeyValue("Class","Dreadnought")
-		tyr_db:setKeyValue("Sub-class","Assault")
-		tyr_db:setKeyValue("Size","200")
-		tyr_db:setKeyValue("Shield","400/300/300/400/300/300")
-		tyr_db:setKeyValue("Hull","100")
-		tyr_db:setKeyValue("Move speed","3.0 U/min")
-		tyr_db:setKeyValue("Turn speed","10.0 deg/sec")
-		tyr_db:setKeyValue("Jump Range","5 - 50 U")
-		tyr_db:setKeyValue("Beam weapon -60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("Beam weapon -120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("Beam weapon 60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon -60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon -120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon 60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue(" Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon -60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
-		tyr_db:setImage("radar/battleship.png")
-		--]]
-	end
-	return ship
-end
-function gnat(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Drone"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Gnat"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Gnat"].short_range_radar)
-	end
-	ship:setTypeName("Gnat")
-	ship:setHullMax(15)					--weaker hull (vs 30)
-	ship:setHull(15)
-	ship:setImpulseMaxSpeed(140)		--faster impulse (vs 120)
-	ship:setRotationMaxSpeed(25)		--faster maneuver (vs 10)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,   40,		0,	 600,		4,		 3)	--weaker (vs 6) beam
-	local gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
-	if gnat_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Gnat")
-		gnat_db = queryScienceDatabase("Ships","No Class","Gnat")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Drone"),	--base ship database entry
-			gnat_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Gnat is a nimbler version of the Ktlitan Drone. It's got half the hull, but it moves and turns faster",
-			nil,
-			nil,		--jump range
-			"sci_fi_alien_ship_4"
-		)
-	end
-	return ship
-end
-function cucaracha(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Tug"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Cucaracha"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Cucaracha"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Cucaracha")
-	ship:setShieldsMax(200, 50, 50, 50, 50, 50)		--stronger shields (vs 20)
-	ship:setShields(200, 50, 50, 50, 50, 50)					
-	ship:setHullMax(100)							--stronger hull (vs 50)
-	ship:setHull(100)
-	ship:setRotationMaxSpeed(20)					--faster maneuver (vs 10)
-	ship:setAcceleration(30)						--faster acceleration (vs 15)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	60,	    0,	1500,		6,		10)	--beam (vs none)
-	local cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
-	if cucaracha_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("Cucaracha")
-		cucaracha_db = queryScienceDatabase("Ships","No Class","Cucaracha")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Tug"),	--base ship database entry
-			cucaracha_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Cucaracha is a quick ship built around the Tug model with heavy shields and a heavy beam designed to be difficult to squash",
-			nil,
-			nil,		--jump range
-			"space_tug"
-		)
-	end
-	return ship
-end
-function starhammerIII(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Starhammer III"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Starhammer III"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Starhammer III")
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
-	ship:setTubeSize(0,"large")
-	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
-	ship:setWeaponStorage("Homing", 16)		
-	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
-	ship:setWeaponStorage("HVLI", 36)
-	local starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
-	if starhammer_iii_db == nil then
-		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Starhammer III")
-		starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
-			starhammer_iii_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
-			{
-				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"battleship_destroyer_4_upgraded"
-		)
-	end
-	return ship
-end
-function k2breaker(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["K2 Breaker"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["K2 Breaker"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("K2 Breaker")
-	ship:setHullMax(200)							--stronger hull (vs 120)
-	ship:setHull(200)
-	ship:setWeaponTubeCount(3)						--more (vs 1)
-	ship:setTubeSize(0,"large")						--large (vs normal)
-	ship:setWeaponTubeDirection(1,-30)				
-	ship:setWeaponTubeDirection(2, 30)
-	ship:setWeaponTubeExclusiveFor(0,"HVLI")		--only HVLI (vs any)
-	ship:setWeaponStorageMax("Homing",16)			--more (vs 0)
-	ship:setWeaponStorage("Homing", 16)
-	ship:setWeaponStorageMax("HVLI",8)				--more (vs 5)
-	ship:setWeaponStorage("HVLI", 8)
-	local k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
-	if k2_breaker_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No Class")
-		no_class_db:addEntry("K2 Breaker")
-		k2_breaker_db = queryScienceDatabase("Ships","No Class","K2 Breaker")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No Class","Ktlitan Breaker"),	--base ship database entry
-			k2_breaker_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The K2 Breaker designers took the Ktlitan Breaker and beefed up the hull, added two bracketing tubes, enlarged the center tube and added more missiles to shoot. Should be good for a couple of enemy ships",
-			{
-				{key = "Large tube 0", value = "13 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -30", value = "13 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 30", value = "13 sec"},		--torpedo tube direction and load speed
-			},
-			nil,
-			"sci_fi_alien_ship_2"
-		)
-	end
-	return ship
-end
-function hurricane(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Hurricane"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Hurricane"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Hurricane")
-	ship:setJumpDrive(true)
-	ship:setJumpDriveRange(5000,40000)			
-	ship:setWeaponTubeCount(8)						--more (vs 3)
-	ship:setWeaponTubeExclusiveFor(1,"HVLI")		--only HVLI (vs any)
-	ship:setWeaponTubeDirection(1,  0)				--forward (vs -90)
-	ship:setTubeSize(3,"large")						
-	ship:setWeaponTubeDirection(3,-90)
-	ship:setTubeSize(4,"small")
-	ship:setWeaponTubeExclusiveFor(4,"Homing")
-	ship:setWeaponTubeDirection(4,-15)
-	ship:setTubeSize(5,"small")
-	ship:setWeaponTubeExclusiveFor(5,"Homing")
-	ship:setWeaponTubeDirection(5, 15)
-	ship:setWeaponTubeExclusiveFor(6,"Homing")
-	ship:setWeaponTubeDirection(6,-30)
-	ship:setWeaponTubeExclusiveFor(7,"Homing")
-	ship:setWeaponTubeDirection(7, 30)
-	ship:setWeaponStorageMax("Homing",24)			--more (vs 5)
-	ship:setWeaponStorage("Homing", 24)
-	local hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
-	if hurricane_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Hurricane")
-		hurricane_db = queryScienceDatabase("Ships","Frigate","Hurricane")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Piranha F8"),	--base ship database entry
-			hurricane_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Hurricane is designed to jump in and shower the target with missiles. It is based on the Piranha F8, but with a jump drive, five more tubes in various directions and sizes and lots more missiles to shoot",
-			{
-				{key = "Large tube 0", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "12 sec"},			--torpedo tube direction and load speed
-				{key = "Large tube 90", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Large tube -90", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube -15", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Small tube 15", value = "12 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -30", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 30", value = "12 sec"},		--torpedo tube direction and load speed
-			},
-			"5 - 40 U",		--jump range
-			"HeavyCorvetteRed"
-		)
-	end
-	return ship
-end
-function phobosT4(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Phobos T4"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Phobos T4"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Phobos T4")
-	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 10)
-	ship:setShieldsMax(80,30)									--stronger shields (vs 50,40)
-	ship:setShields(80,30)					
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	90,	  -15,	1500,		6,		6)	--longer (vs 1200), faster (vs 8)
-	ship:setBeamWeapon(1,	90,	   15,	1500,		6,		6)	
-	local phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
-	if phobos_t4_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Phobos T4")
-		phobos_t4_db = queryScienceDatabase("Ships","Frigate","Phobos T4")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			phobos_t4_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Phobos T4 makes some simple improvements on the Phobos T3: faster maneuver, stronger front shields, though weaker rear shields and longer and faster beam weapons",
-			{
-				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AtlasHeavyFighterYellow"
-		)
-	end
-	return ship
-end
-function whirlwind(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Whirlwind"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Whirlwind"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Whirlwind")
-	ship:setWeaponTubeCount(9)					--more (vs 5)
-	ship:setWeaponTubeDirection(0,-90)			--3 left, 3 right, 3 front (vs 5 front)	
-	ship:setWeaponTubeDirection(1,-92)				
-	ship:setWeaponTubeDirection(2,-88)				
-	ship:setWeaponTubeDirection(3, 90)				
-	ship:setWeaponTubeDirection(4, 92)				
-	ship:setWeaponTubeDirection(5, 88)				
-	ship:setWeaponTubeDirection(6,  0)				
-	ship:setWeaponTubeDirection(7,  2)				
-	ship:setWeaponTubeDirection(8, -2)				
-	ship:setWeaponStorageMax("Homing",36)						--more (vs 15)
-	ship:setWeaponStorage("Homing", 36)		
-	ship:setWeaponStorageMax("HVLI",36)							--more (vs 15)
-	ship:setWeaponStorage("HVLI", 36)
-	local whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
-	if whirlwind_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Whirlwind")
-		whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
-			whirlwind_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Whirlwind, another heavy artillery cruiser, takes the Storm and adds tubes and missiles. It's as if the Storm swallowed a Pirahna and grew gills. Expect to see missiles, lots of missiles",
-			{
-				{key = "Tube -90", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -92", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -88", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube  90", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube  92", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube  88", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube   0", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube   2", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube  -2", value = "15 sec"},	--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"HeavyCorvetteYellow"
-		)
-	end
-	return ship
-end
-function farco3(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Farco 3"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Farco 3"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Farco 3")
-	ship:setShieldsMax(60, 40)									--stronger shields (vs 50, 40)
-	ship:setShields(60, 40)					
---				   Index,  Arc,	Dir,	Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
-	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
-	local farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
-	if farco_3_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Farco 3")
-		farco_3_db = queryScienceDatabase("Ships","Frigate","Farco 3")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			farco_3_db,		--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 3, the beams are longer and faster and the shields are slightly stronger.",
-			{
-				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AtlasHeavyFighterYellow"
-		)
-	end
-	return ship
-end
-function farco5(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Farco 5"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Farco 5"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Farco 5")
-	ship:setShieldsMax(60, 40)				--stronger shields (vs 50, 40)
-	ship:setShields(60, 40)	
-	ship:setTubeLoadTime(0,30)				--faster (vs 60)
-	ship:setTubeLoadTime(0,30)				
-	local farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
-	if farco_5_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Farco 5")
-		farco_5_db = queryScienceDatabase("Ships","Frigate","Farco 5")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			farco_5_db,		--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 5, the tubes load faster and the shields are slightly stronger.",
-			{
-				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AtlasHeavyFighterYellow"
-		)
-	end
-	return ship
-end
-function farco8(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Farco 8"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Farco 8"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Farco 8")
-	ship:setShieldsMax(80, 50)				--stronger shields (vs 50, 40)
-	ship:setShields(80, 50)	
---				   Index,  Arc,	Dir,	Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
-	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
-	ship:setTubeLoadTime(0,30)				--faster (vs 60)
-	ship:setTubeLoadTime(0,30)				
-	local farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
-	if farco_8_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Farco 8")
-		farco_8_db = queryScienceDatabase("Ships","Frigate","Farco 8")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			farco_8_db,		--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 8, the beams are longer and faster, the tubes load faster and the shields are stronger.",
-			{
-				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AtlasHeavyFighterYellow"
-		)
-	end
-	return ship
-end
-function farco11(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Farco 11"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Farco 11"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Farco 11")
-	ship:setShieldsMax(80, 50)				--stronger shields (vs 50, 40)
-	ship:setShields(80, 50)	
-	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 10)
---				   Index,  Arc,	Dir,	Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
-	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
-	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
-	local farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
-	if farco_11_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Farco 11")
-		farco_11_db = queryScienceDatabase("Ships","Frigate","Farco 11")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			farco_11_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 11, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam and the shields are stronger.",
-			{
-				{key = "Tube -1", value = "60 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "60 sec"},		--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AtlasHeavyFighterYellow"
-		)
-	end
-	return ship
-end
-function farco13(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Farco 13"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Farco 13"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Farco 13")
-	ship:setShieldsMax(90, 70)				--stronger shields (vs 50, 40)
-	ship:setShields(90, 70)	
-	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 10)
---				   Index,  Arc,	Dir,	Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	90,	-15,	 1500,	5.0,	6.0)	--longer (vs 1200), faster (vs 8)
-	ship:setBeamWeapon(1,	90,	 15,	 1500,	5.0,	6.0)
-	ship:setBeamWeapon(2,	20,	  0,	 1800,	5.0,	4.0)	--additional sniping beam
-	ship:setTubeLoadTime(0,30)				--faster (vs 60)
-	ship:setTubeLoadTime(1,30)				
-	ship:setWeaponStorageMax("Homing",16)						--more (vs 6)
-	ship:setWeaponStorage("Homing", 16)		
-	ship:setWeaponStorageMax("HVLI",30)							--more (vs 20)
-	ship:setWeaponStorage("HVLI", 30)
-	local farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
-	if farco_13_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Farco 13")
-		farco_13_db = queryScienceDatabase("Ships","Frigate","Farco 13")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			farco_13_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Farco models are evolutionary changes to the Phobos T3. In the case of the Farco 13, the maneuver speed is faster, the beams are longer and faster, there's an added longer sniping beam, the tubes load faster, there are more missiles and the shields are stronger.",
-			{
-				{key = "Tube -1", value = "30 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 1", value = "30 sec"},		--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AtlasHeavyFighterYellow"
-		)
-	end
-	return ship
-end
-function hornetMT55(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MT52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["MT55 Hornet"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["MT55 Hornet"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("MT55 Hornet")
-	ship:setRotationMaxSpeed(29)					--slower maneuver (vs 30)
-	ship:setImpulseMaxSpeed(135)					--faster impulse (vs 120)
-	ship:setAcceleration(40)						--faster acceleration (vs 25)
-	local hornet_mt55_db = queryScienceDatabase("Ships","Starfighter","MT55 Hornet")
-	if hornet_mt55_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("MT55 Hornet")
-		hornet_mt55_db = queryScienceDatabase("Ships","Starfighter","MT55 Hornet")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","MT52 Hornet"),	--base ship database entry
-			hornet_mt55_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The MT55 Hornet is similar to the 52 series Hornet models. Its speed is faster but it turns more slowly",
-			nil,
-			nil,
-			"WespeScoutYellow"
-		)
-	end
-	return ship
-end
-function hornetMU55(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("MU52 Hornet"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["MU55 Hornet"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["MU55 Hornet"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("MU55 Hornet")
-	ship:setRotationMaxSpeed(29)					--slower maneuver (vs 30)
-	ship:setImpulseMaxSpeed(135)					--faster impulse (vs 120)
-	ship:setAcceleration(40)						--faster acceleration (vs 25)
-	ship:setWeaponTubeCount(1)						--more (vs 0)
-	ship:setTubeSize(0,"small")
-	ship:setTubeLoadTime(0,40)
-	ship:setWeaponStorageMax("Homing",6)			--more (vs 0)
-	ship:setWeaponStorage("Homing", 6)		
-	local hornet_mu55_db = queryScienceDatabase("Ships","Starfighter","MU55 Hornet")
-	if hornet_mu55_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("MU55 Hornet")
-		hornet_mu55_db = queryScienceDatabase("Ships","Starfighter","MU55 Hornet")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","MU52 Hornet"),	--base ship database entry
-			hornet_mu55_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The MU55 Hornet is similar to the 52 series Hornet models. Its speed is faster but it turns more slowly. The MU55 comes equipped with a small homing missile tube",
-			{
-				{key = "Small Tube 0", value = "40 sec"},	--torpedo tube size, direction and load speed
-			},
-			nil,
-			"WespeScoutYellow"
-		)
-	end
-	return ship
-end
-function piranhaF10(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12.M"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Piranha F10"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Piranha F10"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Piranha F10")
-	ship:setHullMax(50)						--weaker hull (vs 70)
-	ship:setHull(50)
-	ship:setShieldsMax(50, 50)				--stronger shields (vs 30, 30)
-	ship:setShields(50, 50)					
-	ship:setRotationMaxSpeed(10)			--faster maneuver (vs 6)
-	ship:setTubeSize(0,"small")				--small (vs large)
-	ship:setTubeSize(3,"small")
-	ship:setTubeLoadTime(0,10)				--faster (vs 15)
-	ship:setTubeLoadTime(3,10)
-	ship:setTubeLoadTime(1,20)				--slower (vs 15)
-	ship:setTubeLoadTime(4,20)
-	ship:weaponTubeAllowMissle(2,"Homing")	--allow large homing missiles
-	ship:weaponTubeAllowMissle(5,"Homing")
-	ship:setWeaponStorageMax("HVLI",  20)	--more (vs 10)
-	ship:setWeaponStorage("HVLI",     20)		
-	ship:setWeaponStorageMax("Homing",10)	--more (vs 4)
-	ship:setWeaponStorage("Homing",   10)		
-	ship:setWeaponStorageMax("Nuke",   6)	--more (vs 2)
-	ship:setWeaponStorage("Nuke",      6)		
-	local piranha_f10_db = queryScienceDatabase("Ships","Frigate","Piranha F10")
-	if piranha_f10_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Piranha F10")
-		piranha_f10_db = queryScienceDatabase("Ships","Frigate","Piranha F10")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Piranha F12.M"),	--base ship database entry
-			piranha_f10_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Piranha F10 borrows design aspects from the F8, F12 and F12.M. Internal bulkheads were removed, missile loading mechanisms tweaked and two large tubes replaced with two small tubes to make room for more missiles. This resulted in a weaker hull, varying missile load speeds and improved maneuverability. The shield generators received an upgrade",
-			{
-				{key = "Small tube -90", value = "10 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube -90", value = "20 sec"},			--torpedo tube size, direction and load speed
-				{key = "Large tube -90", value = "15 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small tube 90", value = "10 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 90", value = "20 sec"},			--torpedo tube size, direction and load speed
-				{key = "Large tube 90", value = "15 sec"},		--torpedo tube size, direction and load speed
-			},
-			nil,		--jump range
-			"HeavyCorvetteRed"
-		)
-	end
-	return ship
-end
 function predatorV2(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F8"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
@@ -17387,360 +16342,215 @@ function predatorV2(enemyFaction)
 	end
 	return ship		
 end
-function enforcerV2(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function shepherd(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Fighter"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Enforcer V2"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Enforcer V2"].short_range_radar)
+	if ship_template["Shepherd"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Shepherd"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Enforcer V2")
-	ship:setRadarTrace("ktlitan_destroyer.png")			--different radar trace
-	ship:setWarpDrive(true)										--warp (vs none)
-	ship:setWarpSpeed(600)
-	ship:setImpulseMaxSpeed(100)								--faster impulse (vs 60)
-	ship:setRotationMaxSpeed(20)								--faster maneuver (vs 15)
-	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
-	ship:setShields(200,100,100)					
-	ship:setHullMax(100)										--stronger hull (vs 70)
-	ship:setHull(100)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	30,	    5,	1500,		6,		 8)	--narrower (vs 60), longer (vs 1000)
-	ship:setBeamWeapon(1,	30,	   -5,	1500,		6,		 8)
-	ship:setBeamWeapon(2,	30,	   10,	1300,		6,		10)	--forward (vs rear), longer (vs 1000), stronger (vs 8)
-	ship:setBeamWeapon(3,	30,	  -10,	1300,		6,		10)
-	ship:setWeaponTubeCount(3)									--more (vs 0)
-	ship:setTubeSize(0,"large")									--large (vs normal)
-	ship:setWeaponTubeDirection(1,-15)				
-	ship:setWeaponTubeDirection(2, 15)	
-	ship:setTubeLoadTime(0,18)
-	ship:setTubeLoadTime(1,12)
-	ship:setTubeLoadTime(2,12)			
-	ship:setWeaponStorageMax("Homing",18)						--more (vs 0)
-	ship:setWeaponStorage("Homing", 18)
-	local enforcer_v2_db = queryScienceDatabase("Ships","Frigate","Enforcer V2")
-	if enforcer_v2_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Enforcer V2")
-		enforcer_v2_db = queryScienceDatabase("Ships","Frigate","Enforcer V2")
+	ship:setTypeName("Shepherd")
+--				   Index,  Arc,	Dir,	Range, Cycle,	Damage
+	ship:setBeamWeapon(0,	10,	  0,	 3000,	   4,	4)	--narrower (vs 60), longer (vs 1000)
+	local shepherd_db = queryScienceDatabase("Ships","Starfighter","Shepherd")
+	if shepherd_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Shepherd")
+		shepherd_db = queryScienceDatabase("Ships","Starfighter","Shepherd")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
-			enforcer_v2_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Exuari","Dagger"),	--base ship database entry
+			shepherd_db,		--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Enforcer V2 is a highly modified Blockade Runner. A warp drive was added and impulse engines boosted along with turning speed. Three missile tubes were added to shoot homing missiles, large ones straight ahead. Stronger shields and hull. Strengthened beams.",
-			{
-				{key = "Large tube 0", value = "18 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -15", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Tube 15", value = "12 sec"},		--torpedo tube direction and load speed
-			},
+			"The Shepherd is a Fighter with a long narrow beam. Tactical recommendation: hack the impulse engines",
 			nil,
-			"battleship_destroyer_3_upgraded"
+			nil,	--jump range
+			"small_fighter_1"
 		)
-		enforcer_v2_db:setImage("radar/ktlitan_destroyer.png")		--override default radar image
 	end
-	return ship		
+	return ship
 end
-function gulper(enemyFaction)
+function stalkerQ5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker Q7"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Stalker Q5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Stalker Q5"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Stalker Q5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	local stalker_q5_db = queryScienceDatabase("Ships","Frigate","Stalker Q5")
+	if stalker_q5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Stalker Q5")
+		stalker_q5_db = queryScienceDatabase("Ships","Frigate","Stalker Q5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Stalker Q7"),	--base ship database entry
+			stalker_q5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed",
+			nil,
+			nil,		--jump range
+			"small_frigate_3"
+		)
+		--[[
+		stalker_q5_db:setLongDescription("The stalker Q5 predates the Stalker Q7. Like the Q7, the Q5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the Q7, the Q5 has weaker shields and hull, but a faster turn speed")
+		stalker_q5_db:setKeyValue("Class","Frigate")
+		stalker_q5_db:setKeyValue("Sub-class","Cruiser: Strike Ship")
+		stalker_q5_db:setKeyValue("Size","80")
+		stalker_q5_db:setKeyValue("Shield","50/50")
+		stalker_q5_db:setKeyValue("Hull","45")
+		stalker_q5_db:setKeyValue("Move speed","4.2 U/min")
+		stalker_q5_db:setKeyValue("Turn speed","15.0 deg/sec")
+		stalker_q5_db:setKeyValue("Warp Speed","42.0 U/min")
+		stalker_q5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
+		stalker_q5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
+		stalker_q5_db:setImage("radar/cruiser.png")
+		--]]
+	end
+	return ship
+end
+function stalkerR5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Stalker R7"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Stalker R5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Stalker R5"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Stalker R5")
+	ship:setShieldsMax(50,50)		--weaker shields (vs 80,30,30,30)
+	ship:setShields(50,50)
+	ship:setHullMax(45)				--weaker hull (vs 50)
+	ship:setHull(45)
+	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 12)
+	local stalker_r5_db = queryScienceDatabase("Ships","Frigate","Stalker R5")
+	if stalker_r5_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Stalker R5")
+		stalker_r5_db = queryScienceDatabase("Ships","Frigate","Stalker R5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Stalker R7"),	--base ship database entry
+			stalker_r5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed",
+			nil,
+			nil,		--jump range
+			"small_frigate_3"
+		)
+		--[[
+		stalker_r5_db:setLongDescription("The stalker R5 predates the Stalker R7. Like the R7, the R5 is designed to swoop into battle, deal damage quickly and retreat. Compared to the R7, the R5 has weaker shields and hull, but a faster turn speed")
+		stalker_r5_db:setKeyValue("Class","Frigate")
+		stalker_r5_db:setKeyValue("Sub-class","Cruiser: Strike Ship")
+		stalker_r5_db:setKeyValue("Size","80")
+		stalker_r5_db:setKeyValue("Shield","50/50")
+		stalker_r5_db:setKeyValue("Hull","45")
+		stalker_r5_db:setKeyValue("Move speed","4.2 U/min")
+		stalker_r5_db:setKeyValue("Turn speed","15.0 deg/sec")
+		stalker_r5_db:setKeyValue("Jump Range","5 - 50 U")
+		stalker_r5_db:setKeyValue("Beam weapon -5:40","6.0 Dmg / 6.0 sec")
+		stalker_r5_db:setKeyValue("Beam weapon 5:40","6.0 Dmg / 6.0 sec")
+		stalker_r5_db:setImage("radar/cruiser.png")
+		--]]
+	end
+	return ship
+end
+function starhammerIII(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Gulper"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Gulper"].short_range_radar)
+	if ship_template["Starhammer III"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Starhammer III"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Gulper")
-	ship:setShieldsMax(300,200,300,200)							--different  shields (vs 450, 350, 150, 150, 350)
-	ship:setShields(300,200,300,200)					
-	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 30)
-	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 3.5)
+	ship:setTypeName("Starhammer III")
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(2,	80,	  190,	1500,		6,		 8)	--rear facing (vs forward), faster (vs 8), weaker (vs 11)
-	ship:setBeamWeapon(3,	80,	  170,	1500,		6,		 8)
-	ship:setWeaponTubeCount(6)									--more (vs 2)
-	ship:setWeaponTubeExclusiveFor(0,"HVLI")
-	ship:setWeaponTubeExclusiveFor(1,"HVLI")
-	ship:weaponTubeAllowMissle(0,"Homing")
-	ship:weaponTubeAllowMissle(1,"Homing")
-	ship:setWeaponTubeExclusiveFor(2,"EMP")
-	ship:setWeaponTubeExclusiveFor(3,"Nuke")
-	ship:setWeaponTubeExclusiveFor(4,"EMP")
-	ship:setWeaponTubeExclusiveFor(5,"Nuke")
-	ship:setTubeSize(2,"small")
-	ship:setTubeSize(5,"large")
-	ship:setTubeLoadTime(2,8)					--faster (vs 10)
-	ship:setTubeLoadTime(4,12)					--slower (vs 10)
-	ship:setTubeLoadTime(5,14)					--slower (vs 10)
-	ship:setWeaponStorageMax("Homing",8)		--more (vs 4)
-	ship:setWeaponStorage("Homing", 8)
-	ship:setWeaponStorageMax("EMP",8)			--more (vs 2)
-	ship:setWeaponStorage("EMP", 8)
-	ship:setWeaponStorageMax("Nuke",5)			--more (vs 0)
-	ship:setWeaponStorage("Nuke", 5)
-	local gulper_db = queryScienceDatabase("Ships","Corvette","Gulper")
-	if gulper_db == nil then
+	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
+	ship:setTubeSize(0,"large")
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 36)
+	local starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
+	if starhammer_iii_db == nil then
 		local corvette_db = queryScienceDatabase("Ships","Corvette")
-		corvette_db:addEntry("Gulper")
-		gulper_db = queryScienceDatabase("Ships","Corvette","Gulper")
+		corvette_db:addEntry("Starhammer III")
+		starhammer_iii_db = queryScienceDatabase("Ships","Corvette","Starhammer III")
 		addShipToDatabase(
 			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
-			gulper_db,	--modified ship database entry
+			starhammer_iii_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Gulper resembles a Starhammer. It's faster, has fewer shield arcs, has two forward and two rear beam batteries, but most importantly, it has many more missiles of various sizes and load speeds",
+			"The designers of the Starhammer III took the Starhammer II and added a rear facing beam, enlarged one of the missile tubes and added more missiles to fire",
 			{
-				{key = "Tube 0", value = "10 sec"},			--torpedo tube size, direction and load speed
-				{key = " Tube 0", value = "10 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small tube 0", value = "8 sec"},	--torpedo tube direction and load speed
-				{key = "  Tube 0", value = "10 sec"},		--torpedo tube size, direction and load speed
-				{key = "   Tube 0", value = "12 sec"},		--torpedo tube size, direction and load speed
-				{key = "Large tube 0", value = "14 sec"},	--torpedo tube size, direction and load speed
+				{key = "Large tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 0", value = "10 sec"},			--torpedo tube direction and load speed
 			},
 			"5 - 50 U",		--jump range
 			"battleship_destroyer_4_upgraded"
 		)
 	end
-	return ship		
-end
-function diva(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Diva"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Diva"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Diva")
-	ship:setImpulseMaxSpeed(35)				--faster impulse (vs 0)
-	ship:setRotationMaxSpeed(8)				--faster maneuver (vs 0)
-	ship:setAcceleration(5)					--faster acceleration (vs 0)
-	ship:setWeaponTubeDirection(1,180)		--rear (vs front)				
-	local diva_db = queryScienceDatabase("Ships","No class","Diva")
-	if diva_db == nil then
-		local no_class_db = queryScienceDatabase("Ships","No class")
-		no_class_db:addEntry("Diva")
-		diva_db = queryScienceDatabase("Ships","No class","Diva")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No class","Ktlitan Queen"),	--base ship database entry
-			diva_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Diva is a mobile version of the Ktlitan Queen with one tube pointed to the rear",
-			{
-				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
-				{key = "Tube 180", value = "15 sec"},		--torpedo tube size, direction and load speed
-			},
-			nil,		--jump range
-			"sci_fi_alien_ship_8"
-		)
-	end
-	return ship		
-end
-function loki(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Odin"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Loki"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Loki"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Loki")
-	ship:setImpulseMaxSpeed(1)				--faster impulse (vs 0)
-	ship:setRotationMaxSpeed(2)				--faster maneuver (vs 1)
-	ship:setAcceleration(5)					--faster acceleration (vs 0)
-	for n=0,15 do
-		if n % 4 == 0 then
-			ship:setTubeSize(n,"small")		--smaller (vs large)
-			ship:setTubeLoadTime(n,2.5)		--faster (vs 3)
-		end
-		if n % 4 == 1 then
-			ship:setTubeSize(n,"medium")	--smaller (vs large)
-		end
-		if n % 4 == 2 then
-			ship:setTubeSize(n,"medium")	--smaller (vs large)
-			ship:setTubeLoadTime(n,3.5)		--slower (vs 3)
-		end
-	end
-	local loki_db = queryScienceDatabase("Ships","Dreadnought","Loki")
-	if loki_db == nil then
-		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
-		dreadnought_db:addEntry("Loki")
-		loki_db = queryScienceDatabase("Ships","Dreadnought","Loki")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Dreadnought","Odin"),	--base ship database entry
-			loki_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Loki is a modified version of the Odin",
-			{
-				{key = "Small Tube 0", value = "2.5 sec"},	--torpedo tube size, direction and load speed
-				{key = "Tube 22.5", value = "3 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 45", value = "3.5 sec"},		--torpedo tube size, direction and load speed
-				{key = "Large Tube 67.5", value = "3 sec"},	--torpedo tube size, direction and load speed
-				{key = "Small Tube 90", value = "2.5 sec"},	--torpedo tube size, direction and load speed
-				{key = "Tube 112.5", value = "3 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 135", value = "3.5 sec"},		--torpedo tube size, direction and load speed
-				{key = "Large Tube 157.5", value = "3 sec"},--torpedo tube size, direction and load speed
-				{key = "Small Tube 180", value = "2.5 sec"},	--torpedo tube size, direction and load speed
-				{key = "Tube 202.5", value = "3 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 225", value = "3.5 sec"},		--torpedo tube size, direction and load speed
-				{key = "Large Tube 247.5", value = "3 sec"},--torpedo tube size, direction and load speed
-				{key = "Small Tube 270", value = "2.5 sec"},	--torpedo tube size, direction and load speed
-				{key = "Tube 292.5", value = "3 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 315", value = "3.5 sec"},		--torpedo tube size, direction and load speed
-				{key = "Large Tube 337.5", value = "3 sec"},--torpedo tube size, direction and load speed
-			},
-			"5 - 50 U",		--jump range
-			"Ender Battlecruiser"
-		)
-	end
-	return ship		
-end
-function munemi(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Flash"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Munemi"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Munemi"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Munemi")
-	ship:setWarpDrive(true)
-	ship:setWarpSpeed(650)
-	ship:setTubeSize(1,"small")
-	ship:setWeaponTubeExclusiveFor(1,"EMP")
-	ship:setWeaponStorageMax("Homing", 12)		--more (vs 6)
-	ship:setWeaponStorage("Homing",    12)
-	ship:setWeaponStorageMax("EMP",    4)		--more (vs 0)
-	ship:setWeaponStorage("EMP",       4)
-	ship:setWeaponStorageMax("Nuke",   4)		--more (vs 2)
-	ship:setWeaponStorage("Nuke",      4)
-	local munemi_db = queryScienceDatabase("Ships","Frigate","Munemi")
-	if munemi_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Munemi")
-		munemi_db = queryScienceDatabase("Ships","Frigate","Munemi")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Exuari","Flash"),	--base ship database entry
-			munemi_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Munemi is loosely based on the Flash, but with a warp drive, twice the missiles and a stock of small EMPs",
-			{
-				{key = "Tube 0", value = "15 sec"},			--torpedo tube size, direction and load speed
-				{key = "Small Tube 0", value = "15 sec"},	--torpedo tube size, direction and load speed
-				{key = " Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
-			},
-			nil,
-			"small_frigate_2"
-		)
-	end
-	return ship		
-end
-function maniapak(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Maniapak"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Maniapak"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Maniapak")
-	ship:setRadarTrace("exuari_fighter.png")			--different radar trace
-	ship:setImpulseMaxSpeed(70)					--slower impulse (vs 80)
-	ship:setWeaponTubeCount(9)					--more (vs 1)
-	ship:setWeaponTubeDirection(0,  0)				
-	ship:setWeaponTubeDirection(1,-10)				
-	ship:setWeaponTubeDirection(2, 10)				
-	ship:setWeaponTubeDirection(3,  0)				
-	ship:setWeaponTubeDirection(4,-12)				
-	ship:setWeaponTubeDirection(5, 12)				
-	ship:setWeaponTubeDirection(6,  0)				
-	ship:setWeaponTubeDirection(7,-15)				
-	ship:setWeaponTubeDirection(8, 15)				
-	ship:setTubeSize(0,"small")
-	ship:setTubeSize(1,"small")
-	ship:setTubeSize(2,"small")
-	ship:setTubeSize(6,"large")
-	ship:setTubeSize(7,"large")
-	ship:setTubeSize(8,"large")
-	ship:setTubeLoadTime(0,15)
-	ship:setTubeLoadTime(1,16)
-	ship:setTubeLoadTime(2,17)
-	ship:setTubeLoadTime(3,18)
-	ship:setTubeLoadTime(4,19)
-	ship:setTubeLoadTime(5,20)
-	ship:setTubeLoadTime(6,21)
-	ship:setTubeLoadTime(7,22)
-	ship:setTubeLoadTime(8,23)
-	ship:setWeaponStorageMax("Homing", 27)		--more (vs 0)
-	ship:setWeaponStorage("Homing",    27)
-	ship:setWeaponStorageMax("EMP",    18)		--more (vs 0)
-	ship:setWeaponStorage("EMP",       18)
-	ship:setWeaponStorageMax("Nuke",   27)		--more (vs 0)
-	ship:setWeaponStorage("Nuke",      27)
-	ship:setWeaponStorageMax("HVLI",   36)		--more (vs 4)
-	ship:setWeaponStorage("HVLI",      36)
-	local maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
-	if maniapak_db == nil then
-		local fighter_db = queryScienceDatabase("Ships","Starfighter")
-		fighter_db:addEntry("Maniapak")
-		maniapak_db = queryScienceDatabase("Ships","Starfighter","Maniapak")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			maniapak_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Maniapak is an extreme modification of an Adder MK5 and a Blade. A maniacal designer was tasked with packing as many missiles as possible in this tiny starfighter frame. This record has yet to be beaten. Unfortunately, this ship is often a danger to friends as well as foes.",
-			{
-				{key = "Small Tube 0", value = "15 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small Tube -10", value = "16 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small Tube 10", value = "17 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 0", value = "18 Sec"},
-				{key = "Tube -12", value = "19 sec"},
-				{key = "Tube 12", value = "20 sec"},
-				{key = "Large Tube 0", value = "21 sec"},
-				{key = "Large Tube -15", value = "22 sec"},
-				{key = "Large Tube 15", value = "23 sec"},
-				{key = "Missile Storage", value = "H:27 E:18 N:27 L:36"},
-			},
-			nil,
-			"AdlerLongRangeScoutYellow"
-		)
-		maniapak_db:setImage("radar/exuari_fighter.png")		--override default radar image
-	end
-	return ship		
-end
-function prador(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Prador"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Prador"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Prador")
-	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
-	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
-	ship:setHullMax(100)										--stronger hull (vs 70)
-	ship:setHull(100)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	60,	  -15,	2500,		6,		 8)	--stronger beams, broader coverage
-	ship:setBeamWeapon(1,	60,	  -45,	2500,		6,		 8)
-	ship:setBeamWeapon(2,	60,	   15,	2500,		6,		 8)
-	ship:setBeamWeapon(3,	60,	   45,	2500,		6,		 8)
-	ship:setBeamWeapon(4,	60,	  -75,	2500,		6,		 8)
-	ship:setBeamWeapon(5,	60,	 -105,	2500,		6,		 8)
-	ship:setBeamWeapon(6,	60,	   75,	2500,		6,		 8)
-	ship:setBeamWeapon(7,	60,	  105,	2500,		6,		 8)
-	ship:setBeamWeapon(8,	60,	 -135,	2500,		6,		 8)
-	ship:setBeamWeapon(9,	60,	 -165,	2500,		6,		 8)
-	ship:setBeamWeapon(10,	60,	  135,	2500,		6,		 8)
-	ship:setBeamWeapon(11,	60,	  165,	2500,		6,		 8)
-	local prador_db = queryScienceDatabase("Ships","Dreadnought","Prador")
-	if prador_db == nil then
-		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
-		dreadnought_db:addEntry("Prador")
-		prador_db = queryScienceDatabase("Ships","Dreadnought","Prador")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
-			prador_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Prador improves on the Battlestation model by increasing the impulse speed, strengthening the hull and realigning the beam weapons",
-			nil,
-			"5 - 50 U",		--jump range
-			"Ender Battlecruiser"
-		)
-	end
 	return ship
+end
+function starhammerV(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Starhammer II"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Starhammer V"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Starhammer V"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Starhammer V")
+	ship:setImpulseMaxSpeed(65)									--faster impulse (vs 35)
+	ship:setRotationMaxSpeed(15)								--faster maneuver (vs 6)
+	ship:setShieldsMax(450, 350, 250, 250, 350)					--stronger shields (vs 450, 350, 150, 150, 350)
+	ship:setShields(450, 350, 250, 250, 350)					
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(4,	60,	  180,	1500,		8,		11)	--extra rear facing beam
+	ship:setWeaponStorageMax("Homing",16)						--more (vs 4)
+	ship:setWeaponStorage("Homing", 16)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 20)
+	ship:setWeaponStorage("HVLI", 36)
+	local starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+	if starhammer_v_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Corvette")
+		corvette_db:addEntry("Starhammer V")
+		starhammer_v_db = queryScienceDatabase("Ships","Corvette","Starhammer V")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Corvette","Starhammer II"),	--base ship database entry
+			starhammer_v_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.",
+			{
+				{key = "Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+				{key = " Tube 0", value = "10 sec"},	--torpedo tube direction and load speed
+			},
+			"5 - 50 U",		--jump range
+			"battleship_destroyer_4_upgraded"
+		)
+		--[[
+		starhammer_v_db:setLongDescription("The Starhammer V recognizes common modifications made in the field to the Starhammer II: stronger shields, faster impulse and turning speeds, additional rear beam and more missiles to shoot. These changes make the Starhammer V a force to be reckoned with.")
+		starhammer_v_db:setKeyValue("Class","Corvette")
+		starhammer_v_db:setKeyValue("Sub-class","Destroyer")
+		starhammer_v_db:setKeyValue("Size","200")
+		starhammer_v_db:setKeyValue("Shield","450/350/250/250/350")
+		starhammer_v_db:setKeyValue("Hull","200")
+		starhammer_v_db:setKeyValue("Move speed","3.9 U/min")
+		starhammer_v_db:setKeyValue("Turn speed","15.0 deg/sec")
+		starhammer_v_db:setKeyValue("Jump Range","5 - 50 U")
+		starhammer_v_db:setKeyValue("Beam weapon -10:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon 10:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon -20:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon 20:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Beam weapon 180:60","11.0 Dmg / 8.0 sec")
+		starhammer_v_db:setKeyValue("Tube 0","10 sec")
+		starhammer_v_db:setKeyValue(" Tube 0","10 sec")
+		starhammer_v_db:setKeyValue("Storage Homing","16")
+		starhammer_v_db:setKeyValue("Storage EMP","2")
+		starhammer_v_db:setKeyValue("Storage HVLI","36")
+		starhammer_v_db:setImage("radar/dread.png")
+		--]]
+	end
+	return ship		
 end
 function strongarm(enemyFaction)
 	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
@@ -17796,258 +16606,37 @@ function strongarm(enemyFaction)
 	end
 	return ship
 end
-function dreadNoMore(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Dreadnought"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function supervisor(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Dread No More"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Dread No More"].short_range_radar)
+	if ship_template["Supervisor"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Supervisor"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Dread No More")
-	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
-	ship:setRotationMaxSpeed(12)								--faster maneuver (vs 1.5)
+	ship:setTypeName("Supervisor")
+	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
+	ship:setShields(200,100,100)					
 	ship:setHullMax(100)										--stronger hull (vs 70)
 	ship:setHull(100)
+	ship:setRotationMaxSpeed(30)								--faster maneuver (vs 15)
 --				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	25,	   -5,	1500,		7,		11)	--narrower (vs 90), more forward (vs dir -25), slower (vs 6), stronger (vs 8)
-	ship:setBeamWeapon(1,	25,	    5,	1500,		7,		11)	--narrower (vs 90), more forward (vs dir  25), slower (vs 6), stronger (vs 8)
-	ship:setBeamWeapon(2,	65,	  -45,	1200,		7,		11)	--narrower (vs 100), more forward (vs dir -60), slower (vs 6), stronger (vs 8)
-	ship:setBeamWeapon(3,	65,	   45,	1200,		7,		11)	--narrower (vs 100), more forward (vs dir  60), slower (vs 6), stronger (vs 8)
-	ship:setBeamWeapon(4,	20,	    0,	2000,		7,		11)	--narrower (vs 30), slower (vs 6), stronger (vs 8)
-	ship:setBeamWeapon(5,  100,	  180,	1200,		7,		11)	--slower (vs 6), stronger (vs 8)
-	local dread_no_more_db = queryScienceDatabase("Ships","Dreadnought","Dread No More")
-	if dread_no_more_db == nil then
-		local dreadnought_db = queryScienceDatabase("Ships","Dreadnought")
-		dreadnought_db:addEntry("Dread No More")
-		dread_no_more_db = queryScienceDatabase("Ships","Dreadnought","Dread No More")
+	ship:setBeamWeapon(0,	60,	   15,	1000,		6,		 8)	--change sides (vs -15)
+	ship:setBeamWeapon(1,	60,	  -15,	1000,		6,		 8) --change sides (vs 15)
+	ship:setBeamWeapon(2,  120,	  120,	1000,		6,		 8)	--broadside to rear (vs rear), wider (vs 25)
+	ship:setBeamWeapon(3,  120,	 -120,	1000,		6,		 8)
+	local supervisor_db = queryScienceDatabase("Ships","Frigate","Supervisor")
+	if supervisor_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Supervisor")
+		supervisor_db = queryScienceDatabase("Ships","Frigate","Supervisor")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Dreadnought","Dreadnought"),	--base ship database entry
-			dread_no_more_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
+			supervisor_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"Encounter the Dread No More and you will dread no more since you'll be dead, at least that's what the designers had in mind. The improvements over the base Dreadnought include faster impulse and maneuvering, a stronger hull and beams that do more damage.",
-			nil,
-			nil,		--jump range
-			"battleship_destroyer_1_upgraded"
-		)
-	end
-	return ship
-end
-function tsarina(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
-		setBeamWeapon(0, 90, -15, 1000.0, 6.0, 10):
-		setBeamWeapon(1, 90, -45, 1000.0, 6.0, 10):
-		setBeamWeapon(3, 90, 15, 1000.0, 6.0, 10):
-		setBeamWeapon(4, 90, 45, 1000.0, 6.0, 10):
-		setTubeSize(0, "small"):
-		setTubeSize(1, "small"):
-		setWeaponStorage("Nuke", 0):
-		setWeaponStorage("EMP", 0):
-		setWeaponStorage("Homing", 0):
-		setWeaponStorage("HVLI", 100):
-		setHull(300):
-		setShields(100, 50, 50):
-		setAI("default"):  -- note it's a change from fighter AI. with slower impulse speed this works better as a "snake" for the tail to attack as well.
-		setTypeName("Ktlitan Tsarina"):
-		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable.  " ..
-			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
-			"Once the leading Tsarina is destroyed, the formation is broken.")
-	ship:setRotationMaxSpeed(2 * ship:getRotationMaxSpeed())
-	setBeamColor(ship)
-	ship:onTakingDamage(npcShipDamage)
-
-	--- note: for now, the snake formation is implemented as a Kosai's One-Off
-
-	local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
-	if tsarinaDb == nil then
-		local parentDb = queryScienceDatabase("Ships", "No class")
-		parentDb:addEntry("Ktlitan Tsarina")
-		local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
-		addShipToDatabase(
-			queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina"),
-			tsarinaDb,
-			ship,
-			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable. " ..
-			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
-			"Once the leading Tsarina is destroyed, the formation is broken.",
-			nil,
-			nil,
-			"sci_fi_alien_ship_8"
-		)
-	end
-
-	return ship
-end
-function beastBreaker(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Breaker"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Beast Breaker"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Beast Breaker"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Beast Breaker")
-	ship:setShieldsMax(80,80)					--shields (vs none)
-	ship:setShields(80,80)
-	ship:setWeaponTubeCount(2)					--more (vs 1)
-	ship:setWeaponTubeDirection(1,180)
-	ship:setWeaponStorageMax("Homing",	5)		--more (vs none)
-	ship:setWeaponStorageMax("Mine",	3)		--more (vs none)
-	ship:setWeaponStorageMax("EMP",		3)		--more (vs none)
-	ship:setWeaponStorageMax("Nuke",	2)		--more (vs none)
-	ship:setWeaponStorage("Homing",		5)
-	ship:setWeaponStorage("Mine",		3)
-	ship:setWeaponStorage("EMP",		3)
-	ship:setWeaponStorage("Nuke",		2)
-	local beast_breaker_db = queryScienceDatabase("Ships","No class","Beast Breaker")
-	if beast_breaker_db == nil then
-		local breaker_db = queryScienceDatabase("Ships","No class")
-		breaker_db:addEntry("Beast Breaker")
-		beast_breaker_db = queryScienceDatabase("Ships","No Class","Beast Breaker")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No class","Ktlitan Breaker"),	--base ship database entry
-			beast_breaker_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Enhanced Breaker with shields and more missiles and an extra missile tube",
-			{
-				{key = "Tube 0", value = "13 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 180", value = "13 sec"},		--torpedo tube size, direction and load speed
-			},
-			nil,		--jump range
-			"sci_fi_alien_ship_2"
-		)
-	end
-	return ship
-end
-function foulFeeder(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Feeder"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Foul Feeder"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Foul Feeder"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Foul Feeder")
-	ship:setShieldsMax(80,40)					--shields (vs none)
-	ship:setShields(80,40)
-	ship:setWeaponTubeCount(4)					--more (vs none)
-	ship:setWeaponTubeDirection(1,90)
-	ship:setWeaponTubeDirection(2,-90)
-	ship:setWeaponTubeDirection(3,180)
-	ship:setTubeSize(1,"small")
-	ship:setTubeSize(2,"small")
-	ship:setWeaponTubeExclusiveFor(0,"HVLI")
-	ship:setWeaponTubeExclusiveFor(1,"HVLI")
-	ship:setWeaponTubeExclusiveFor(2,"HVLI")
-	ship:setWeaponTubeExclusiveFor(3,"HVLI")
-	ship:weaponTubeAllowMissle(0,"Homing")
-	ship:weaponTubeAllowMissle(1,"Homing")
-	ship:weaponTubeAllowMissle(2,"Homing")
-	ship:weaponTubeAllowMissle(3,"Homing")
-	ship:setWeaponStorageMax("HVLI", 	6)		--more (vs none)
-	ship:setWeaponStorageMax("Homing", 6)		--more (vs none)
-	ship:setWeaponStorage("HVLI",		6)
-	ship:setWeaponStorage("Homing",	6)
-	ship:setTubeLoadTime(0, 12)
-	ship:setTubeLoadTime(1, 8)
-	ship:setTubeLoadTime(2, 8)
-	ship:setTubeLoadTime(3, 12)
-	local foul_feeder_db = queryScienceDatabase("Ships","No class","Foul Feeder")
-	if foul_feeder_db == nil then
-		local feeder_db = queryScienceDatabase("Ships","No class")
-		feeder_db:addEntry("Foul Feeder")
-		foul_feeder_db = queryScienceDatabase("Ships","No Class","Foul Feeder")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","No class","Ktlitan Feeder"),	--base ship database entry
-			foul_feeder_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"Enhanced Feeder with shields and tubes",
-			{
-				{key = "Tube 0", value = "12 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small Tube -90", value = "8 sec"},		--torpedo tube size, direction and load speed
-				{key = "Small Tube 90", value = "8 sec"},		--torpedo tube size, direction and load speed
-				{key = "Tube 180", value = "12 sec"},		--torpedo tube size, direction and load speed
-			},
-			nil,		--jump range
-			"sci_fi_alien_ship_5"
-		)
-	end
-	return ship
-end
-function broodMother(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
-		setBeamWeapon(0, 25, -15, 1000.0, 6.0, 8):
-		setBeamWeapon(1, 15, -45, 1500.0, 6.0, 4):
-		setBeamWeapon(2, 25, 15, 1000.0, 6.0, 8):
-		setBeamWeapon(3, 15, 45, 1500.0, 6.0, 4):
-		setBeamWeapon(4, 15, 80, 1300.0, 6.0, 4):
-		setBeamWeapon(5, 15, -80, 1300.0, 6.0, 4):
-		setBeamWeaponTurret(4, 45, 80, 3000.0, 6.0, 3):
-		setBeamWeaponTurret(5, 45, -80, 3000.0, 6.0, 3):
-		setWeaponTubeCount(6):
-		setTubeSize(0, "large"):
-		setTubeSize(1, "large"):
-		setTubeSize(2, "medium"):
-		setTubeSize(3, "medium"):
-		setTubeSize(4, "medium"):
-		setTubeSize(5, "medium"):
-		setWeaponTubeDirection(0, 80):
-		setWeaponTubeDirection(1, -80):
-		setWeaponTubeDirection(2, 100):
-		setWeaponTubeDirection(3, -100):
-		setWeaponTubeDirection(4, 190):
-		setWeaponTubeDirection(5, -190):
-		setWeaponStorage("Nuke", 8):
-		setWeaponStorage("EMP", 8):
-		setWeaponStorage("Mine", 4):
-		setWeaponStorage("Homing", 15):
-		setWeaponStorage("HVLI", 30):
-		setWeaponStorageMax("Nuke", 8):
-		setWeaponStorageMax("EMP", 8):
-		setWeaponStorageMax("Mine", 4):
-		setWeaponStorageMax("Homing", 15):
-		setWeaponStorageMax("HVLI", 30):
-		setWeaponTubeExclusiveFor(0,"EMP"):
-		weaponTubeAllowMissle(0, "Nuke"):
-		setWeaponTubeExclusiveFor(1, "EMP"):
-		weaponTubeAllowMissle(1, "Nuke"):
-		setWeaponTubeExclusiveFor(2, "HVLI"):
-		weaponTubeAllowMissle(2, "Homing"):
-		setWeaponTubeExclusiveFor(3, "HVLI"):
-		weaponTubeAllowMissle(3,"Homing"):
-		setWeaponTubeExclusiveFor(4,"Mine"):
-		setWeaponTubeExclusiveFor(5,"Mine"):
-		setTubeLoadTime(0, 10):
-		setTubeLoadTime(1, 10):
-		setTubeLoadTime(2, 10):
-		setTubeLoadTime(3, 10):
-		setTubeLoadTime(4, 20):
-		setTubeLoadTime(5, 20):
-		setHull(318):
-		setHullMax(318):
-		setShields(95, 153):
-		setShieldsMax(95, 153):
-		setEnergy(1388):
-		setMaxEnergy(1388):
-		setWarpDrive(true):
-		setCombatManeuver(150,150):
-		setImpulseMaxSpeed(40.0):
-		setRotationMaxSpeed(8):
-		setTypeName("Ktlitan Brood Mother"):
-		setDescriptions("Special type of Ktlitan warship", "Ktlitan Brood Mother is a subtype of Ktlitan Queen."):
-		setAI("default")
-	ship:onTakingDamage(npcShipDamage)
-	setBeamColor(ship)
-	local broodMotherDb = queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother")
-	if broodMotherDb == nil then
-		local parentDb = queryScienceDatabase("Ships", "No class")
-		parentDb:addEntry("Ktlitan Brood Mother")
-		local broodMotherDb = queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother")
-		addShipToDatabase(
-			queryScienceDatabase("Ships", "No class", "Ktlitan Brood Mother"),
-			broodMotherDb,
-			ship,
-			"Ktlitan Brood Mother is a subtype of Ktlitan Queen.",
-			nil,
-			nil,
-			"sci_fi_alien_ship_8"
+			"Black operations took control of an undisclosed shipyard and tweaked the Blockade Runner into the Supervisor. They strenghtened the shields and hull and realigned the beams",
+			nil,	--torpedo tubes
+			nil,	--jump range
+			"battleship_destroyer_3_upgraded"
 		)
 	end
 	return ship
@@ -18125,211 +16714,80 @@ function sweeper(enemyFaction)
 	end
 	return ship
 end
-function broom(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function tempest(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Piranha F12"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Broom"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Broom"].short_range_radar)
+	if ship_template["Tempest"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Tempest"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Broom")
-	ship:setImpulseMaxSpeed(73)					--slower impulse (vs 80)
-	ship:setWeaponTubeCount(9)					--more (vs 1)
-	ship:setWeaponTubeDirection(0, -30)				
-	ship:setWeaponTubeDirection(1,  30)				
-	ship:setWeaponTubeDirection(2, -15)				
-	ship:setWeaponTubeDirection(3,  15)				
-	ship:setWeaponTubeDirection(4,   0)				
-	ship:setWeaponTubeDirection(5, -10)				
-	ship:setWeaponTubeDirection(6,  10)				
-	ship:setWeaponTubeDirection(7,   0)				
-	ship:setWeaponTubeDirection(8,   0)				
-	ship:setTubeSize(0,"small")
-	ship:setTubeSize(1,"small")
-	ship:setTubeSize(2,"small")
-	ship:setTubeSize(3,"small")
-	ship:setTubeSize(4,"small")
-	ship:setTubeSize(8,"large")
-	ship:setTubeLoadTime(0, 15)
-	ship:setTubeLoadTime(1, 15)
-	ship:setTubeLoadTime(2, 16)
-	ship:setTubeLoadTime(3, 16)
-	ship:setTubeLoadTime(4, 17)
-	ship:setTubeLoadTime(5, 18)
-	ship:setTubeLoadTime(6, 18)
-	ship:setTubeLoadTime(7, 19)
-	ship:setTubeLoadTime(8, 20)
-	ship:setWeaponStorageMax("HVLI",   27)		--more (vs 4)
-	ship:setWeaponStorage("HVLI",      27)
-	local broom_db = queryScienceDatabase("Ships","Starfighter","Broom")
-	if broom_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Broom")
-		broom_db = queryScienceDatabase("Ships","Starfighter","Broom")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			broom_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Broom applies the technology gleaned from the Maniapak, namely the inclusion of several HVLI",
-			{
-				{key = "5 tubes -30 to 30", value = "Small: 15-17 sec"},	--torpedo tube direction and load speed
-				{key = "3 tubes -10 to 10", value = "18-19 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "20 sec"},	--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AdlerLongRangeScoutYellow"
-		)
-	end
-	return ship
-end
-function brush(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Brush"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Brush"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Brush")
-	ship:setImpulseMaxSpeed(76)					--slower impulse (vs 80)
-	ship:setWeaponTubeCount(6)					--more (vs 1)
-	ship:setWeaponTubeDirection(0, -10)				
-	ship:setWeaponTubeDirection(1,  10)				
-	ship:setWeaponTubeDirection(2,   0)				
-	ship:setWeaponTubeDirection(3,  -5)				
-	ship:setWeaponTubeDirection(4,   5)				
-	ship:setWeaponTubeDirection(5,   0)				
-	ship:setTubeSize(0,"small")
-	ship:setTubeSize(1,"small")
-	ship:setTubeSize(2,"small")
-	ship:setTubeSize(5,"large")
-	ship:setTubeLoadTime(0, 15)
-	ship:setTubeLoadTime(1, 15)
-	ship:setTubeLoadTime(2, 16)
-	ship:setTubeLoadTime(3, 17)
-	ship:setTubeLoadTime(4, 17)
-	ship:setTubeLoadTime(5, 18)
-	ship:setWeaponStorageMax("HVLI",   24)		--more (vs 4)
-	ship:setWeaponStorage("HVLI",      24)
-	local brush_db = queryScienceDatabase("Ships","Starfighter","Brush")
-	if brush_db == nil then
-		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Brush")
-		brush_db = queryScienceDatabase("Ships","Starfighter","Brush")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
-			brush_db,	--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Brush applies the technology gleaned from the Maniapak, namely adapting it to HVLI",
-			{
-				{key = "3 tubes -10 to 10", value = "Small: 15-16 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -5", value = "17 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 5", value = "17 sec"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "Large: 18 sec"},	--torpedo tube direction and load speed
-			},
-			nil,		--jump range
-			"AdlerLongRangeScoutYellow"
-		)
-	end
-	return ship
-end
-function supervisor(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Blockade Runner"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Supervisor"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Supervisor"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Supervisor")
-	ship:setShieldsMax(200,100,100)								--stronger shields (vs 100,150)
-	ship:setShields(200,100,100)					
-	ship:setHullMax(100)										--stronger hull (vs 70)
-	ship:setHull(100)
-	ship:setRotationMaxSpeed(30)								--faster maneuver (vs 15)
---				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
-	ship:setBeamWeapon(0,	60,	   15,	1000,		6,		 8)	--change sides (vs -15)
-	ship:setBeamWeapon(1,	60,	  -15,	1000,		6,		 8) --change sides (vs 15)
-	ship:setBeamWeapon(2,  120,	  120,	1000,		6,		 8)	--broadside to rear (vs rear), wider (vs 25)
-	ship:setBeamWeapon(3,  120,	 -120,	1000,		6,		 8)
-	local supervisor_db = queryScienceDatabase("Ships","Frigate","Supervisor")
-	if supervisor_db == nil then
+	ship:setTypeName("Tempest")
+	ship:setWeaponTubeCount(10)						--four more tubes (vs 6)
+	ship:setWeaponTubeDirection(0, -88)				--5 per side
+	ship:setWeaponTubeDirection(1, -89)				--slight angle spread
+	ship:setWeaponTubeDirection(3,  88)				--3 for HVLI each side
+	ship:setWeaponTubeDirection(4,  89)				--2 for homing and nuke each side
+	ship:setWeaponTubeDirection(6, -91)				
+	ship:setWeaponTubeDirection(7, -92)				
+	ship:setWeaponTubeDirection(8,  91)				
+	ship:setWeaponTubeDirection(9,  92)				
+	ship:setWeaponTubeExclusiveFor(7,"HVLI")
+	ship:setWeaponTubeExclusiveFor(9,"HVLI")
+	ship:setWeaponStorageMax("Homing",16)			--more (vs 6)
+	ship:setWeaponStorage("Homing", 16)				
+	ship:setWeaponStorageMax("Nuke",8)				--more (vs 0)
+	ship:setWeaponStorage("Nuke", 8)				
+	ship:setWeaponStorageMax("HVLI",34)				--more (vs 20)
+	ship:setWeaponStorage("HVLI", 34)
+	local tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
+	if tempest_db == nil then
 		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Supervisor")
-		supervisor_db = queryScienceDatabase("Ships","Frigate","Supervisor")
+		frigate_db:addEntry("Tempest")
+		tempest_db = queryScienceDatabase("Ships","Frigate","Tempest")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Blockade Runner"),	--base ship database entry
-			supervisor_db,	--modified ship database entry
+			queryScienceDatabase("Ships","Frigate","Piranha F12"),	--base ship database entry
+			tempest_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"Black operations took control of an undisclosed shipyard and tweaked the Blockade Runner into the Supervisor. They strenghtened the shields and hull and realigned the beams",
-			nil,	--torpedo tubes
-			nil,	--jump range
-			"battleship_destroyer_3_upgraded"
-		)
-	end
-	return ship
-end
-function mikado(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
-	setBeamColor(ship)
-	if ship_template["Mikado"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Mikado"].short_range_radar)
-	end
-	ship:onTakingDamage(npcShipDamage)
-	ship:setShieldsMax(120,120)					--stronger (vs 30,30)
-	ship:setShields(120,120)					
-	ship:setHullMax(80)							--stronger hull (vs 50)
-	ship:setHull(80)
-	ship:setRotationMaxSpeed(15)				--faster maneuver (vs 6)
-	ship:setTypeName("Mikado")
-	ship:setRadarTrace("missile_cruiser.png")	--different radar trace
-	ship:setWeaponTubeCount(16)					--more (vs 5)
-	ship:setWeaponTubeDirection(0, -72):setTubeSize(0,  "large"):setTubeLoadTime(0, 15):setWeaponTubeExclusiveFor(0, "HVLI")
-	ship:setWeaponTubeDirection(1, -79):setTubeSize(1, "medium"):setTubeLoadTime(1, 10):setWeaponTubeExclusiveFor(1, "HVLI"):weaponTubeAllowMissle(1, "Homing")
-	ship:setWeaponTubeDirection(2, -85):setTubeSize(2,  "small"):setTubeLoadTime(2,  5):setWeaponTubeExclusiveFor(2, "HVLI"):weaponTubeAllowMissle(2,   "Nuke")
-	ship:setWeaponTubeDirection(3, -90):setTubeSize(3,  "large"):setTubeLoadTime(3, 16):setWeaponTubeExclusiveFor(3, "HVLI"):weaponTubeAllowMissle(3, "Homing")
-	ship:setWeaponTubeDirection(4, -90):setTubeSize(4, "medium"):setTubeLoadTime(4, 11):setWeaponTubeExclusiveFor(4, "HVLI"):weaponTubeAllowMissle(4, "Homing"):weaponTubeAllowMissle(4, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
-	ship:setWeaponTubeDirection(5, -95):setTubeSize(5,  "small"):setTubeLoadTime(5,  6):setWeaponTubeExclusiveFor(5, "HVLI"):weaponTubeAllowMissle(5,   "Nuke"):weaponTubeAllowMissle(5,  "EMP")
-	ship:setWeaponTubeDirection(6,-101):setTubeSize(6, "medium"):setTubeLoadTime(6, 12):setWeaponTubeExclusiveFor(6, "HVLI"):weaponTubeAllowMissle(6,   "Nuke")
-	ship:setWeaponTubeDirection(7,-108):setTubeSize(7,  "small"):setTubeLoadTime(7,  7):setWeaponTubeExclusiveFor(7, "HVLI"):weaponTubeAllowMissle(7, "Homing"):weaponTubeAllowMissle(7, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
-	ship:setWeaponTubeDirection(8,  72):setTubeSize(8,  "small"):setTubeLoadTime(8,  7):setWeaponTubeExclusiveFor(8, "HVLI"):weaponTubeAllowMissle(8, "Homing"):weaponTubeAllowMissle(8, "Nuke"):weaponTubeAllowMissle(5,  "EMP")
-	ship:setWeaponTubeDirection(9,  79):setTubeSize(9, "medium"):setTubeLoadTime(9, 12):setWeaponTubeExclusiveFor(9, "HVLI"):weaponTubeAllowMissle(9,   "Nuke")
-	ship:setWeaponTubeDirection(10, 85):setTubeSize(10, "small"):setTubeLoadTime(10, 6):setWeaponTubeExclusiveFor(10,"HVLI"):weaponTubeAllowMissle(10,  "Nuke"):weaponTubeAllowMissle(10, "EMP")
-	ship:setWeaponTubeDirection(11, 90):setTubeSize(11, "large"):setTubeLoadTime(11,16):setWeaponTubeExclusiveFor(11,"HVLI"):weaponTubeAllowMissle(11,"Homing")
-	ship:setWeaponTubeDirection(12, 90):setTubeSize(12,"medium"):setTubeLoadTime(12,11):setWeaponTubeExclusiveFor(12,"HVLI"):weaponTubeAllowMissle(12,"Homing"):weaponTubeAllowMissle(12,"Nuke"):weaponTubeAllowMissle(5,  "EMP")
-	ship:setWeaponTubeDirection(13, 95):setTubeSize(13, "small"):setTubeLoadTime(13, 5):setWeaponTubeExclusiveFor(13,"HVLI"):weaponTubeAllowMissle(13,  "Nuke")
-	ship:setWeaponTubeDirection(14,101):setTubeSize(14,"medium"):setTubeLoadTime(14,10):setWeaponTubeExclusiveFor(14,"HVLI"):weaponTubeAllowMissle(14,"Homing")
-	ship:setWeaponTubeDirection(15,108):setTubeSize(15, "large"):setTubeLoadTime(15,15):setWeaponTubeExclusiveFor(15,"HVLI")
-	ship:setWeaponStorageMax("Homing", 32)		--more (vs 15)
-	ship:setWeaponStorage("Homing",    32)
-	ship:setWeaponStorageMax("EMP",    20)		--more (vs 0)
-	ship:setWeaponStorage("EMP",       20)
-	ship:setWeaponStorageMax("Nuke",   30)		--more (vs 0)
-	ship:setWeaponStorage("Nuke",      30)
-	ship:setWeaponStorageMax("HVLI",   48)		--more (vs 15)
-	ship:setWeaponStorage("HVLI",      48)
-	local mikado_db = queryScienceDatabase("Ships","Frigate","Mikado")
-	if mikado_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Mikado")
-		mikado_db = queryScienceDatabase("Ships","Frigate","Mikado")
-		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
-			mikado_db,		--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Mikado is a beefed up heavy artillery cruiser bristling with missile tubes and stuffed with missiles. It may move slow, but it's nimble for a missile ship.",
+			"Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!",
 			{
-				{key = "Large tube -72 & 108", value = "15 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -79 & 101", value = "10 sec"},		--torpedo tube direction and load speed
-				{key = "Small Tube -85 & 95", value = "5 sec"},	--torpedo tube direction and load speed
-				{key = "Large Tube -90 & 90", value = "16 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -90 & 90", value = "11 sec"},		--torpedo tube direction and load speed
-				{key = "Small Tube -95 & 85", value = "6 sec"},	--torpedo tube direction and load speed
-				{key = "Tube -101 & 79", value = "12 sec"},		--torpedo tube direction and load speed
-				{key = "Small Tube -108 & 72", value = "7 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube -88", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -89", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube -90", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Large tube 88", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube 89", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Large tube 90", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -91", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube -92", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 91", value = "15 sec"},		--torpedo tube direction and load speed
+				{key = "Tube 92", value = "15 sec"},		--torpedo tube direction and load speed
 			},
-			nil,	--jump range
-			"HeavyCorvetteYellow"
+			nil,
+			"HeavyCorvetteRed"
 		)
-		mikado_db:setImage("radar/missile_cruiser.png")		--override default radar image
+		--[[
+		tempest_db:setLongDescription("Loosely based on the Piranha F12 model, the Tempest adds four more broadside tubes (two on each side), more HVLIs, more Homing missiles and 8 Nukes. The Tempest can strike fear into the hearts of your enemies. Get yourself one today!")
+		tempest_db:setKeyValue("Class","Frigate")
+		tempest_db:setKeyValue("Sub-class","Cruiser: Light Artillery")
+		tempest_db:setKeyValue("Size","80")
+		tempest_db:setKeyValue("Shield","30/30")
+		tempest_db:setKeyValue("Hull","70")
+		tempest_db:setKeyValue("Move speed","2.4 U/min")
+		tempest_db:setKeyValue("Turn speed","6.0 deg/sec")
+		tempest_db:setKeyValue("Large Tube -88","15 sec")
+		tempest_db:setKeyValue("Tube -89","15 sec")
+		tempest_db:setKeyValue("Large Tube -90","15 sec")
+		tempest_db:setKeyValue("Large Tube 88","15 sec")
+		tempest_db:setKeyValue("Tube 89","15 sec")
+		tempest_db:setKeyValue("Large Tube 90","15 sec")
+		tempest_db:setKeyValue("Tube -91","15 sec")
+		tempest_db:setKeyValue("Tube -92","15 sec")
+		tempest_db:setKeyValue("Tube 91","15 sec")
+		tempest_db:setKeyValue("Tube 92","15 sec")
+		tempest_db:setKeyValue("Storage Homing","16")
+		tempest_db:setKeyValue("Storage Nuke","8")
+		tempest_db:setKeyValue("Storage HVLI","34")
+		tempest_db:setImage("radar/piranha.png")
+		--]]
 	end
 	return ship
 end
@@ -18360,132 +16818,265 @@ function touchy(enemyFaction)
 	end
 	return ship
 end
-function barracuda(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Phobos T3"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function tsarina(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Ktlitan Queen"):
+		setBeamWeapon(0, 90, -15, 1000.0, 6.0, 10):
+		setBeamWeapon(1, 90, -45, 1000.0, 6.0, 10):
+		setBeamWeapon(3, 90, 15, 1000.0, 6.0, 10):
+		setBeamWeapon(4, 90, 45, 1000.0, 6.0, 10):
+		setTubeSize(0, "small"):
+		setTubeSize(1, "small"):
+		setWeaponStorage("Nuke", 0):
+		setWeaponStorage("EMP", 0):
+		setWeaponStorage("Homing", 0):
+		setWeaponStorage("HVLI", 100):
+		setHull(300):
+		setShields(100, 50, 50):
+		setAI("default"):  -- note it's a change from fighter AI. with slower impulse speed this works better as a "snake" for the tail to attack as well.
+		setTypeName("Ktlitan Tsarina"):
+		setDescriptions("Undiscovered type of Ktlitan warship", "Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable.  " ..
+			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
+			"Once the leading Tsarina is destroyed, the formation is broken.")
+	ship:setRotationMaxSpeed(2 * ship:getRotationMaxSpeed())
 	setBeamColor(ship)
-	if ship_template["Barracuda"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Barracuda"].short_range_radar)
-	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Barracuda")
-	ship:setHullMax(200)			--stronger hull (vs 70)
-	ship:setHull(200)
-	ship:setShieldsMax(200,100,100)	--stronger shields (vs 50,40)
-	ship:setShields(200,100,100)
-	ship:setImpulseMaxSpeed(75)		--faster impulse (vs 60)
-	ship:setRotationMaxSpeed(15)	--faster maneuver (vs 10)
-	ship:setWeaponTubeCount(16)		--more (vs 2)
-	ship:setWeaponTubeDirection(0,   5):setTubeSize(0,  "small"):setTubeLoadTime(0,  8):setWeaponTubeExclusiveFor(0, "Homing")
-	ship:setWeaponTubeDirection(1,  -5):setTubeSize(1,  "small"):setTubeLoadTime(1,  8):setWeaponTubeExclusiveFor(1, "Homing")
-	ship:setWeaponTubeDirection(2,   0):setTubeSize(2,  "small"):setTubeLoadTime(2,  7):setWeaponTubeExclusiveFor(2, "Homing")
-	ship:setWeaponTubeDirection(3,   5):setTubeSize(3,  "small"):setTubeLoadTime(3,  6):setWeaponTubeExclusiveFor(3, "EMP")
-	ship:setWeaponTubeDirection(4,  -5):setTubeSize(4,  "small"):setTubeLoadTime(4,  6):setWeaponTubeExclusiveFor(4, "EMP")
-	ship:setWeaponTubeDirection(5,   0):setTubeSize(5,  "small"):setTubeLoadTime(5,  5):setWeaponTubeExclusiveFor(5, "EMP")
-	ship:setWeaponTubeDirection(6,   5):setTubeSize(6,  "small"):setTubeLoadTime(6,  9):setWeaponTubeExclusiveFor(6, "Nuke")
-	ship:setWeaponTubeDirection(7,  -5):setTubeSize(7,  "small"):setTubeLoadTime(7,  9):setWeaponTubeExclusiveFor(7, "Nuke")
-	ship:setWeaponTubeDirection(8,   0):setTubeSize(8,  "small"):setTubeLoadTime(8,  8):setWeaponTubeExclusiveFor(8, "Nuke")
-	ship:setWeaponTubeDirection(9,   5):setTubeSize(9,  "small"):setTubeLoadTime(9,  4):setWeaponTubeExclusiveFor(9, "HVLI")
-	ship:setWeaponTubeDirection(10, -5):setTubeSize(10, "small"):setTubeLoadTime(10, 4):setWeaponTubeExclusiveFor(10,"HVLI")
-	ship:setWeaponTubeDirection(11,  0):setTubeSize(11, "small"):setTubeLoadTime(11, 3):setWeaponTubeExclusiveFor(11,"HVLI")
-	ship:setWeaponTubeDirection(12,-10):setTubeSize(12, "small"):setTubeLoadTime(12, 5):setWeaponTubeExclusiveFor(12,"HVLI")
-	ship:setWeaponTubeDirection(13, 10):setTubeSize(13, "small"):setTubeLoadTime(13, 5):setWeaponTubeExclusiveFor(13,"HVLI")
-	ship:setWeaponTubeDirection(14,  0):setTubeSize(14,"medium"):setTubeLoadTime(14, 5):setWeaponTubeExclusiveFor(14,"Homing")
-	ship:setWeaponTubeDirection(15,  0):setTubeSize(15,"medium"):setTubeLoadTime(15,10):setWeaponTubeExclusiveFor(15,"Nuke")
-	ship:setWeaponStorageMax("Homing", 32)		--more (vs 6)
-	ship:setWeaponStorage("Homing",    32)
-	ship:setWeaponStorageMax("EMP",    20)		--more (vs 0)
-	ship:setWeaponStorage("EMP",       20)
-	ship:setWeaponStorageMax("Nuke",   18)		--more (vs 0)
-	ship:setWeaponStorage("Nuke",      18)
-	ship:setWeaponStorageMax("HVLI",   55)		--more (vs 12)
-	ship:setWeaponStorage("HVLI",      55)
-	local barracuda_db = queryScienceDatabase("Ships","Frigate","Barracuda")
-	if barracuda_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Barracuda")
-		barracuda_db = queryScienceDatabase("Ships","Frigate","Barracuda")
+
+	--- note: for now, the snake formation is implemented as a Kosai's One-Off
+
+	local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
+	if tsarinaDb == nil then
+		local parentDb = queryScienceDatabase("Ships", "No class")
+		parentDb:addEntry("Ktlitan Tsarina")
+		local tsarinaDb = queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Phobos T3"),	--base ship database entry
-			barracuda_db,		--modified ship database entry
-			ship,			--ship just created, long description on the next line
-			"The Barracuda started off as a Phobos T3. It was given massive upgrades to shields, hull and missile weapons. The impulse systems were also upgraded. It's designed to spray missiles forth at a prodigious rate.\n\nIt barely qualifies as a frigate, it's more like a mini-corvette.",
-			{
-				{key = "Small tubes 0", value = "7 sec / Homing, 8 sec / Nuke"},	--torpedo tube direction and load speed
-				{key = "Small tubes 5 & -5", value = "8 sec / Homing, 9 sec / Nuke"},	--torpedo tube direction and load speed
-				{key = "Small tube 0", value = "5 sec / EMP"},	--torpedo tube direction and load speed
-				{key = " Small tubes 5 & -5", value = "6 sec / EMP"},	--torpedo tube direction and load speed
-				{key = "  Small tube 0", value = "3 sec / HVLI"},	--torpedo tube direction and load speed
-				{key = "   Small tubes 5 & -5", value = "4 sec / HVLI"},	--torpedo tube direction and load speed
-				{key = "Small tubes 10 & -10", value = "5 sec / HVLI"},	--torpedo tube direction and load speed
-				{key = "Tube 0", value = "5 sec / Homing"},	--torpedo tube direction and load speed
-				{key = " Tube 0", value = "10 sec / Nuke"},	--torpedo tube direction and load speed
-			},
-			nil,	--jump range
-			"AtlasHeavyFighterYellow"
+			queryScienceDatabase("Ships", "No class", "Ktlitan Tsarina"),
+			tsarinaDb,
+			ship,
+			"Ktlitan Tsarina is a subtype of Ktlitan Queen. It's twice as agile and durable. " ..
+			"It focuses on using beams and dumbfire weapons. Prefers to lead smaller vessels in a \"snake\" formation which significantly boosts their agility and speed." ..
+			"Once the leading Tsarina is destroyed, the formation is broken.",
+			nil,
+			nil,
+			"sci_fi_alien_ship_8"
 		)
 	end
+
 	return ship
 end
-function nirvanaR8(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Nirvana R5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function tyr(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Battlestation"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Nirvana R8"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Nirvana R8"].short_range_radar)
+	if ship_template["Tyr"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Tyr"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Nirvana R8")
-	ship:setHullMax(100)			--stronger hull (vs 70)
+	ship:setTypeName("Tyr")
+	ship:setImpulseMaxSpeed(50)									--faster impulse (vs 30)
+	ship:setRotationMaxSpeed(10)								--faster maneuver (vs 1.5)
+	ship:setShieldsMax(400, 300, 300, 400, 300, 300)			--stronger shields (vs 300, 300, 300, 300, 300)
+	ship:setShields(400, 300, 300, 400, 300, 300)					
+	ship:setHullMax(100)										--stronger hull (vs 70)
 	ship:setHull(100)
-	ship:setShieldsMax(80,40,40)	--stronger shields (vs 50,40)
-	ship:setShields(80,40,40)
-	ship:setImpulseMaxSpeed(95)		--faster impulse (vs 70)
---				   Index,  Arc,	Dir,	Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	20,	  0,	 1500,	   3,	1)	--narrower (vs 90), straight (vs -15), longer (vs 1200)
-	ship:setBeamWeapon(1,	40,	  0,	 1000,	   4,	6)	--narrower (vs 90), straight (vs 15), shorter (vs 1200), slower (vs 3), stronger (vs 1)
-	ship:setBeamWeapon(2,	90,	  0,	  800,	   5,	8)	--straight (vs 50), shorter (vs 1200), slower (vs 3), stronger (vs 1)
-	ship:setBeamWeapon(3,  180,	  0,	  700,	   5,	12)	--wider (vs 90), straight (vs -50), shorter (vs 1200), slower (vs 3), stronger (vs 1)
-	ship:setBeamWeapon(4,  270,	  0,	  600,	   5,	20)	
-	local nirvana_r8_db = queryScienceDatabase("Ships","Frigate","Nirvana R8")
-	if nirvana_r8_db == nil then
-		local frigate_db = queryScienceDatabase("Ships","Frigate")
-		frigate_db:addEntry("Nirvana R8")
-		nirvana_r8_db = queryScienceDatabase("Ships","Frigate","Nirvana R8")
+--				   Index,  Arc,	  Dir, Range,	Cycle,	Damage
+	ship:setBeamWeapon(0,	90,	  -60,	2500,		6,		 8)	--stronger beams, broader coverage
+	ship:setBeamWeapon(1,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(2,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(3,	90,	  120,	2500,		6,		 8)
+	ship:setBeamWeapon(4,	90,	  -60,	2500,		6,		 8)
+	ship:setBeamWeapon(5,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(6,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(7,	90,	  120,	2500,		6,		 8)
+	ship:setBeamWeapon(8,	90,	  -60,	2500,		6,		 8)
+	ship:setBeamWeapon(9,	90,	 -120,	2500,		6,		 8)
+	ship:setBeamWeapon(10,	90,	   60,	2500,		6,		 8)
+	ship:setBeamWeapon(11,	90,	  120,	2500,		6,		 8)
+	local tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
+	if tyr_db == nil then
+		local corvette_db = queryScienceDatabase("Ships","Dreadnought")
+		corvette_db:addEntry("Tyr")
+		tyr_db = queryScienceDatabase("Ships","Dreadnought","Tyr")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Frigate","Nirvana R5"),	--base ship database entry
-			nirvana_r8_db,		--modified ship database entry
+			queryScienceDatabase("Ships","Dreadnought","Battlestation"),	--base ship database entry
+			tyr_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Nirvana R8 departs from the normal Nirvana design with an improved hull, impulse engine, three shield arcs and a radical change to the beam arrangement. In addition to warding off fighters, the 'Rate' as it's come to be known has beams more powerful as their range shortens. You don't want to let the Rate get too close to you.",
+			"The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could",
 			nil,
-			nil,	--jump range
-			"small_frigate_5"
+			"5 - 50 U",		--jump range
+			"Ender Battlecruiser"
+		)
+		--[[
+		tyr_db:setLongDescription("The Tyr is the shipyard's answer to admiral konstatz' casual statement that the Battlestation model was too slow to be effective. The shipyards improved on the Battlestation by fitting the Tyr with more than twice the impulse speed and more than six times the turn speed. They threw in stronger shields and hull and wider beam coverage just to show that they could")
+		tyr_db:setKeyValue("Class","Dreadnought")
+		tyr_db:setKeyValue("Sub-class","Assault")
+		tyr_db:setKeyValue("Size","200")
+		tyr_db:setKeyValue("Shield","400/300/300/400/300/300")
+		tyr_db:setKeyValue("Hull","100")
+		tyr_db:setKeyValue("Move speed","3.0 U/min")
+		tyr_db:setKeyValue("Turn speed","10.0 deg/sec")
+		tyr_db:setKeyValue("Jump Range","5 - 50 U")
+		tyr_db:setKeyValue("Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue(" Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon -60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon -120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon 60:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setKeyValue("  Beam weapon 120:90","8.0 Dmg / 6.0 sec")
+		tyr_db:setImage("radar/battleship.png")
+		--]]
+	end
+	return ship
+end
+function waddle5(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Adder MK5"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Waddle 5"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Waddle 5"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Waddle 5")
+	ship:setWarpDrive(true)
+--				   Index,  Arc,	  Dir, Range, Cycle,	Damage
+	ship:setBeamWeapon(2,	70,	  -30,	 600,	5.0,	2.0)	--adjust beam direction to match starboard side (vs -35)
+	local waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+	if waddle_5_db == nil then
+		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
+		starfighter_db:addEntry("Waddle 5")
+		waddle_5_db = queryScienceDatabase("Ships","Starfighter","Waddle 5")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Starfighter","Adder MK5"),	--base ship database entry
+			waddle_5_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"AdlerLongRangeScoutYellow"
+		)
+		--[[
+		waddle_5_db:setLongDescription("Conversions R Us purchased a number of Adder MK 5 ships at auction and added warp drives to them to produce the Waddle 5")
+		waddle_5_db:setKeyValue("Class","Starfighter")
+		waddle_5_db:setKeyValue("Sub-class","Gunship")
+		waddle_5_db:setKeyValue("Size","80")
+		waddle_5_db:setKeyValue("Shield","30")
+		waddle_5_db:setKeyValue("Hull","50")
+		waddle_5_db:setKeyValue("Move speed","4.8 U/min")
+		waddle_5_db:setKeyValue("Turn speed","28.0 deg/sec")
+		waddle_5_db:setKeyValue("Warp Speed","60.0 U/min")
+		waddle_5_db:setKeyValue("Beam weapon 0:35","2.0 Dmg / 5.0 sec")
+		waddle_5_db:setKeyValue("Beam weapon 30:70","2.0 Dmg / 5.0 sec")
+		waddle_5_db:setKeyValue("Beam weapon -35:70","2.0 Dmg / 5.0 sec")
+		waddle_5_db:setImage("radar/fighter.png")
+		--]]
+	end
+	return ship
+end
+function whirlwind(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Storm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+	setBeamColor(ship)
+	if ship_template["Whirlwind"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["Whirlwind"].short_range_radar)
+	end
+	ship:onTakingDamage(npcShipDamage)
+	ship:setTypeName("Whirlwind")
+	ship:setWeaponTubeCount(9)					--more (vs 5)
+	ship:setWeaponTubeDirection(0,-90)			--3 left, 3 right, 3 front (vs 5 front)	
+	ship:setWeaponTubeDirection(1,-92)				
+	ship:setWeaponTubeDirection(2,-88)				
+	ship:setWeaponTubeDirection(3, 90)				
+	ship:setWeaponTubeDirection(4, 92)				
+	ship:setWeaponTubeDirection(5, 88)				
+	ship:setWeaponTubeDirection(6,  0)				
+	ship:setWeaponTubeDirection(7,  2)				
+	ship:setWeaponTubeDirection(8, -2)				
+	ship:setWeaponStorageMax("Homing",36)						--more (vs 15)
+	ship:setWeaponStorage("Homing", 36)		
+	ship:setWeaponStorageMax("HVLI",36)							--more (vs 15)
+	ship:setWeaponStorage("HVLI", 36)
+	local whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
+	if whirlwind_db == nil then
+		local frigate_db = queryScienceDatabase("Ships","Frigate")
+		frigate_db:addEntry("Whirlwind")
+		whirlwind_db = queryScienceDatabase("Ships","Frigate","Whirlwind")
+		addShipToDatabase(
+			queryScienceDatabase("Ships","Frigate","Storm"),	--base ship database entry
+			whirlwind_db,	--modified ship database entry
+			ship,			--ship just created, long description on the next line
+			"The Whirlwind, another heavy artillery cruiser, takes the Storm and adds tubes and missiles. It's as if the Storm swallowed a Pirahna and grew gills. Expect to see missiles, lots of missiles",
+			{
+				{key = "Tube -90", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -92", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube -88", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube  90", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube  92", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube  88", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube   0", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube   2", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Tube  -2", value = "15 sec"},	--torpedo tube direction and load speed
+			},
+			nil,		--jump range
+			"HeavyCorvetteYellow"
 		)
 	end
 	return ship
 end
-function shepherd(enemyFaction)
-	local ship = CpuShip():setFaction(enemyFaction):setTemplate("Fighter"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
+function wzLindworm(enemyFaction)
+	local ship = CpuShip():setFaction(enemyFaction):setTemplate("WX-Lindworm"):orderRoaming():setCommsScript(""):setCommsFunction(commsShip)
 	setBeamColor(ship)
-	if ship_template["Shepherd"].short_range_radar ~= nil then
-		ship:setShortRangeRadarRange(ship_template["Shepherd"].short_range_radar)
+	if ship_template["WZ-Lindworm"].short_range_radar ~= nil then
+		ship:setShortRangeRadarRange(ship_template["WZ-Lindworm"].short_range_radar)
 	end
 	ship:onTakingDamage(npcShipDamage)
-	ship:setTypeName("Shepherd")
---				   Index,  Arc,	Dir,	Range, Cycle,	Damage
-	ship:setBeamWeapon(0,	10,	  0,	 3000,	   4,	4)	--narrower (vs 60), longer (vs 1000)
-	local shepherd_db = queryScienceDatabase("Ships","Starfighter","Shepherd")
-	if shepherd_db == nil then
+	ship:setTypeName("WZ-Lindworm")
+	ship:setWeaponStorageMax("Nuke",2)		--more nukes (vs 0)
+	ship:setWeaponStorage("Nuke",2)
+	ship:setWeaponStorageMax("Homing",4)	--more homing (vs 1)
+	ship:setWeaponStorage("Homing",4)
+	ship:setWeaponStorageMax("HVLI",12)		--more HVLI (vs 6)
+	ship:setWeaponStorage("HVLI",12)
+	ship:setRotationMaxSpeed(12)			--slower maneuver (vs 15)
+	ship:setHullMax(45)						--weaker hull (vs 50)
+	ship:setHull(45)
+	local wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
+	if wz_lindworm_db == nil then
 		local starfighter_db = queryScienceDatabase("Ships","Starfighter")
-		starfighter_db:addEntry("Shepherd")
-		shepherd_db = queryScienceDatabase("Ships","Starfighter","Shepherd")
+		starfighter_db:addEntry("WZ-Lindworm")
+		wz_lindworm_db = queryScienceDatabase("Ships","Starfighter","WZ-Lindworm")
 		addShipToDatabase(
-			queryScienceDatabase("Ships","Exuari","Dagger"),	--base ship database entry
-			shepherd_db,		--modified ship database entry
+			queryScienceDatabase("Ships","Starfighter","WX-Lindworm"),	--base ship database entry
+			wz_lindworm_db,	--modified ship database entry
 			ship,			--ship just created, long description on the next line
-			"The Shepherd is a Fighter with a long narrow beam. Tactical recommendation: hack the impulse engines",
+			"The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.",
+			{
+				{key = "Small tube 0", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube 1", value = "15 sec"},	--torpedo tube direction and load speed
+				{key = "Small tube -1", value = "15 sec"},	--torpedo tube direction and load speed
+			},
 			nil,
-			nil,	--jump range
-			"small_fighter_1"
+			"LindwurmFighterYellow"
 		)
+		--[[
+		wz_lindworm_db:setLongDescription("The WZ-Lindworm is essentially the stock WX-Lindworm with more HVLIs, more homing missiles and added nukes. They had to remove some of the armor to get the additional missiles to fit, so the hull is weaker. Also, the WZ turns a little more slowly than the WX. This little bomber packs quite a whallop.")
+		wz_lindworm_db:setKeyValue("Class","Starfighter")
+		wz_lindworm_db:setKeyValue("Sub-class","Bomber")
+		wz_lindworm_db:setKeyValue("Size","30")
+		wz_lindworm_db:setKeyValue("Shield","20")
+		wz_lindworm_db:setKeyValue("Hull","45")
+		wz_lindworm_db:setKeyValue("Move speed","3.0 U/min")
+		wz_lindworm_db:setKeyValue("Turn speed","12 deg/sec")
+		wz_lindworm_db:setKeyValue("Small tube 0","15 sec")
+		wz_lindworm_db:setKeyValue("Small tube 1","15 sec")
+		wz_lindworm_db:setKeyValue("Small tube -1","15 sec")
+		wz_lindworm_db:setKeyValue("Storage Homing","4")
+		wz_lindworm_db:setKeyValue("Storage Nuke","2")
+		wz_lindworm_db:setKeyValue("Storage HVLI","12")
+		wz_lindworm_db:setImage("radar/fighter.png")
+		--]]
 	end
 	return ship
 end
@@ -22697,6 +21288,22 @@ function setArtifactGravitationalSignature()
 		end)
 	end
 end
+------------------------------------
+--	Artifacts > Explode Selected  --
+------------------------------------
+function explodeSelectedArtifact()
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMMessage("You need to select an object. No action taken.")
+		return
+	end
+	local tempObject = objectList[1]
+	if not isObjectType(tempObject,"Artifact") then
+		addGMMessage("Only select an artifact since only artifacts explode. No action taken.")
+		return
+	end
+	tempObject:explode()
+end
 --	************************************************************  --
 --	****				Artifacts Drop Points				****  --
 --	************************************************************  --
@@ -23349,6 +21956,12 @@ function podCreation(originx, originy, vectorx, vectory)
 	local podCallSign = string.format("Pod%i%s",artifactNumber,randomSuffix)
 	local pod = Artifact():setPosition(originx+vectorx,originy+vectory):setScanningParameters(1,1):setRadarSignatureInfo(1,.5,0):setModel("ammo_box"):setDescriptions("Escape Pod",string.format("Escape Pod %s, life forms detected",podCallSign)):setCallSign(podCallSign)
 	pod:onPickUp(podPickupProcess)
+	pod.blink_colors = {
+		{r = 255,	g = 0,		b = 0},		--red
+		{r = 173,	g = 216,	b = 230},	--blue
+	}
+	pod.blink_index = 1
+	table.insert(blinking_artifacts,pod)
 	escapePodList[podCallSign] = pod
 	table.insert(rendezvousPoints,pod)
 	local players = getActivePlayerShips()
@@ -23487,6 +22100,12 @@ function marineCreation(originx, originy, vectorx, vectory, associatedObjectName
 	marinePoint:onPickUp(marinePointPickupProcess)
 	marinePoint.action = dropOrExtractAction
 	marinePoint.associatedObjectName = associatedObjectName
+	marinePoint.blink_colors = {
+		{r = 0,		g = 255,	b = 0},	--green
+		{r = 255,	g = 255,	b = 0},	--yellow
+	}
+	marinePoint.blink_index = 1
+	table.insert(blinking_artifacts,marinePoint)
 	marinePointList[marineCallSign] = marinePoint
 	--table.insert(marinePointList,marinePoint)
 	table.insert(rendezvousPoints,marinePoint)
@@ -23859,6 +22478,12 @@ function engineerCreation(originx, originy, vectorx, vectory, associatedObjectNa
 	engineerPoint.action = dropOrExtractAction
 	engineerPoint.associatedObjectName = associatedObjectName
 	engineerPointList[engineerCallSign] = engineerPoint
+	engineerPoint.blink_colors = {
+		{r = 0,		g = 255,	b = 0},	--green
+		{r = 255,	g = 165,	b = 0},	--orange
+	}
+	engineerPoint.blink_index = 1
+	table.insert(blinking_artifacts,engineerPoint)
 	table.insert(rendezvousPoints,engineerPoint)
 	local players = getActivePlayerShips()
 	for pidx, p in ipairs(players) do
@@ -24231,6 +22856,12 @@ function medicCreation(originx, originy, vectorx, vectory, associatedObjectName)
 	medicPoint.associatedObjectName = associatedObjectName
 	medicPoint.initial_rotation = medicPoint:getRotation()
 	medicPointList[medicCallSign] = medicPoint
+	medicPoint.blink_colors = {
+		{r = 0,		g = 255,	b = 0},		--green
+		{r = 177,	g = 156,	b = 217},	--light purple
+	}
+	medicPoint.blink_index = 1
+	table.insert(blinking_artifacts,medicPoint)
 	table.insert(rendezvousPoints,medicPoint)
 	local players = getActivePlayerShips()
 	for pidx, p in ipairs(players) do
@@ -26855,6 +25486,110 @@ function asteroidsNebulae()	--not just asteroids and nebulae, includes planets a
 		end
 	end	
 end
+function pulseAsteroid()
+	--written for one mission, not generalized for all asteroids
+	local objectList = getGMSelection()
+	if #objectList ~= 1 then
+		addGMMessage("You need to select an object. No action taken.")
+		return
+	end
+	local tempObject = objectList[1]
+	if not isObjectType(tempObject,"Asteroid") then
+		addGMMessage("Only select an asteroid. No action taken.")
+		return
+	end
+	local selected_in_list = false
+	for i=1,#J4_to_L8_asteroids do
+		if tempObject == J4_to_L8_asteroids[i] then
+			selected_in_list = true
+			break
+		end
+	end
+	if selected_in_list then
+		if tempObject.original_size == nil then
+			addGMMessage("selected has a nil value where it should have an original_size. No action taken")
+			return
+		end
+		if tempObject.original_size < 120 then
+			tempObject.grow = true
+			tempObject.max_size = 300
+			tempObject.increment = (300 - tempObject.original_size)/10
+			plotPulse = growAsteroid
+		else
+			tempObject.shrink = true
+			tempObject.min_size = tempObject.original_size/2
+			tempObject.increment = (tempObject.original_size - (tempObject.original_size/2))/10
+			plotPulse = shrinkAsteroid
+		end
+		if pulse_asteroid_list == nil then
+			pulse_asteroid_list = {}
+		end
+		table.insert(pulse_asteroid_list,tempObject)
+	else
+		addGMMessage("Only asteroids in J4 to L8 can pulse. No action taken")
+		return
+	end
+end
+function growAsteroid(delta)
+	if pulse_asteroid_list ~= nil then
+		if #pulse_asteroid_list > 0 then
+			for i=1,#pulse_asteroid_list do
+				local ta = pulse_asteroid_list[i]
+				if ta ~= nil and ta:isValid() then
+					if ta.grow_size == nil then
+						ta.grow_size = ta.original_size
+					end
+					ta.grow_size = ta.grow_size + ta.increment
+					ta:setSize(ta.grow_size)
+					print(string.format("grow_size: %.1f, max_size: %.1f",ta.grow_size,ta.max_size))
+					if ta.grow_size >= ta.max_size then
+						--end of growth
+						print("end of growth")
+						resetPulsingAsteroid(ta)
+					end
+				end
+			end
+		end
+	end
+end
+function resetPulsingAsteroid(ta)
+	ta.grow = nil
+	ta.shrink = nil
+	ta.max_size = nil
+	ta.min_size = nil
+	ta.grow_size = nil
+	ta.shrink_size = nil
+	ta:setSize(ta.original_size)
+	for i=1,#pulse_asteroid_list do
+		if ta == pulse_asteroid_list[i] then
+			table.remove(pulse_asteroid_list,i)
+			break
+		end
+	end
+	print("done resetting")
+end
+function shrinkAsteroid(delta)
+	if pulse_asteroid_list ~= nil then
+		if #pulse_asteroid_list > 0 then
+			for i=1,#pulse_asteroid_list do
+				local ta = pulse_asteroid_list[i]
+				if ta ~= nil and ta:isValid() then
+					if ta.shrink_size == nil then
+						ta.shrink_size = ta.original_size
+					end
+					ta.shrink_size = ta.shrink_size - ta.increment
+					ta:setSize(ta.shrink_size)
+					print(string.format("shrink_size: %.1f, min_size: %.1f",ta.shrink_size,ta.min_size))
+					if ta.shrink_size <= ta.min_size then
+						--end of shrink
+						print("end of shrink")
+						resetPulsingAsteroid(ta)
+					end
+				end
+			end
+		end
+	end
+end
 -----------------------------------------
 --	Tweak Terrain > Faction Relations  --
 -----------------------------------------
@@ -27343,6 +26078,52 @@ function mineBlobSize()
 		mineBlobSize()
 	end)
 end
+-------------------------------------
+--	Tweak Terrain > Move Selected  --
+-------------------------------------
+function moveSelectedObjects()
+	if gm_click_mode == "move selected" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "move selected"
+		onGMClick(gmClickMoveSelected)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   move selected\nGM click mode.",prev_mode))
+		end
+	end
+	tweakTerrain()
+end
+function gmClickMoveSelected(x,y)
+	local object_list = getGMSelection()
+	if #object_list > 0 then
+		if #object_list > 1 then
+			local center_x = 0
+			local center_y = 0
+			local current_object_x, current_object_y = object_list[1]:getPosition()
+			for i=1,#object_list do
+				current_object_x, current_object_y = object_list[i]:getPosition()
+				center_x = center_x + current_object_x
+				center_y = center_y + current_object_y
+			end
+			center_x = center_x / #object_list
+			center_y = center_y / #object_list
+			for i=1,#object_list do
+				current_object_x, current_object_y = object_list[i]:getPosition()
+				current_object_x = current_object_x - center_x
+				current_object_y = current_object_y - center_y
+				object_list[i]:setPosition(x + current_object_x, y + current_object_y)
+			end
+		else
+			object_list[1]:setPosition(x,y)
+		end
+	else
+		gm_click_mode = nil
+		onGMClick(nil)
+		addGMMessage("Nothing selected. Move selected mode cancelled")
+	end
+end
 ------------------------------
 --	Tweak Terrain > Probes  --
 ------------------------------
@@ -27527,6 +26308,1349 @@ function gmClickDivertProbe(x,y)
 		end
 	end
 	tweakProbes()
+end
+--------------------------------
+--	Tweak Terrain > Commerce  --
+--------------------------------
+-- Button Text		   FD*	Related Function(s)
+-- -Main from Commerce	F	initialGMFunctions
+-- -Tweak Terrain		F	tweakTerrain
+-- List of buttons with region names where commerce is set up, 
+function freighterCommerce()
+	clearGMFunctions()
+	addGMFunction("-Main from Commerce",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	local commerce_regions = {
+		{name = "Skeletal", status = skeletal_commerce,	func = skeletalFreighterCommerce},
+		{name = "Icarus",	status = icarus_commerce,	color = icarus_color,	func = icarusFreighterCommerce},
+		{name = "Kentar",	status = kentar_commerce,	color = kentar_color,	func = kentarFreighterCommerce},
+		{name = "Teresh",	status = teresh_commerce,	color = teresh_color,	func = tereshFreighterCommerce},
+		{name = "Lafrina",	status = lafrina_commerce,	color = lafrina_color,	func = lafrinaFreighterCommerce},
+		{name = "Bask",		status = bask_commerce,		color = bask_color,		func = baskFreighterCommerce},
+		{name = "Staunch",	status = staunch_commerce,	color = staunch_color,	func = staunchFreighterCommerce},
+		{name = "Glikton",	status = glikton_commerce,	color = glikton_color,	func = gliktonFreighterCommerce},
+		{name = "Goodall",	status = goodall_commerce,	color = goodall_color,	func = goodallFreighterCommerce},
+	}
+	for i,commerce in ipairs(commerce_regions) do
+		local button_label = commerce.name
+		if commerce.status then
+			button_label = button_label .. " On"
+		else
+			button_label = button_label .. " Off"
+		end
+		if commerce.color ~= nil then
+			if commerce.color then
+				addGMFunction(button_label,commerce.func)
+			end
+		else
+			addGMFunction(button_label,commerce.func)
+		end
+	end
+end
+function addCommerceFreighterEscorts(ship,escort_type,protectee_x,protectee_y,assets)
+	local escort_ship = nil
+	local escort_count = 0
+	ship.escorts = {}
+	for i=1,#escort_type do
+		if random(1,100) < escort_type[i].chance then
+			escort_ship = CpuShip():setTemplate(escort_type[i].type):setCommsScript(""):setCommsFunction(commsShip)
+			setBeamColor(escort_ship)
+			escort_ship:setJumpDrive(true)
+			escort_ship:setFaction(ship:getFaction())
+			escort_count = escort_count + 1
+			escort_ship:setCallSign(string.format("%s E%i",ship:getCallSign(),escort_count))
+			local cs_x, cs_y = vectorFromAngle((i-1)*360/#escort_type,1000)
+			escort_ship:setPosition(protectee_x + cs_x, protectee_y, cs_y)
+			escort_ship:orderDefendTarget(ship)
+			escort_ship.commerce_escort = true
+			table.insert(ship.escorts,escort_ship)
+			table.insert(assets,escort_ship)
+		end
+	end
+end
+function setCommerceFreighterStartPosition(ship)
+	local origin_x, origin_y = ship.commerce_origin:getPosition()
+	local destination_x, destination_y = ship.commerce_target:getPosition()
+	local start_x = (origin_x + destination_x) / 2
+	local start_y = (origin_y + destination_y) / 2
+	local ds_x, ds_y = vectorFromAngle(random(0,360),random(1000,3000))
+	ship:setPosition(start_x + ds_x, start_y + ds_y)
+	ship:orderDock(ship.commerce_target)
+	local protectee_x, protectee_y = ship:getPosition()
+	return protectee_x, protectee_y
+end
+function goodallFreighterCommerce()
+	if goodall_color ~= nil and goodall_color then
+		if goodall_commerce then
+			removeGoodallCommerce()
+		else
+			local freighters_message = "Goodall Commerce Assets:"
+			local region_identifying_station = stationGoodall
+			--Courier
+			local ship = courier()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Courier
+			ship = courier()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Space Sedan
+			ship = spaceSedan()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Space Sedan
+			ship = spaceSedan()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Omnibus
+			ship = omnibus()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Omnibus
+			ship = omnibus()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(goodall_commerce_assets,ship)
+			addGMMessage(freighters_message)
+			goodall_commerce = true
+		end
+	else
+		addGMMessage("Don't try to turn on Goodall commerce without the Goodall region")
+	end
+	freighterCommerce()
+end
+function gliktonFreighterCommerce()
+	if glikton_color ~= nil and glikton_color then
+		if glikton_commerce then
+			removeGliktonCommerce()
+		else
+			local freighters_message = "Glikton Commerce Assets:"
+			local region_identifying_station = stationGlikton
+			--Courier
+			local ship = courier()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Work Wagon
+			ship = workWagon()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Space Sedan
+			ship = spaceSedan()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Omnibus
+			ship = omnibus()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Garbage Freighter 2
+			ship = CpuShip():setTemplate("Garbage Freighter 2")
+			ship:setCommsScript(""):setCommsFunction(commsShip)
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			--Laden Lorry
+			ship = ladenLorry()
+			identifyFreighter(ship,region_identifying_station)
+			regionCommerceDestination(ship,region_identifying_station)
+			setCommerceFreighterStartPosition(ship)
+			freighters_message = string.format("%s\n%s %s, %s %s",freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+			table.insert(glikton_commerce_assets,ship)
+			addGMMessage(freighters_message)
+			glikton_commerce = true
+		end
+	else
+		addGMMessage("Don't try to turn on Glikton commerce without the Glikton region")
+	end
+	freighterCommerce()
+end
+function staunchFreighterCommerce()
+	if staunch_commerce then
+		removeStaunchCommerce()
+	else
+		local staunch_freighters_message = "Staunch Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		setCommerceFreighterStartPosition(ship)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
+		--Space Sedan
+		ship = spaceSedan()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
+		--Omnibus
+		ship = omnibus()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
+		--Garbage Freighter 2
+		local ship = CpuShip():setTemplate("Garbage Freighter 2")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		setCommerceFreighterStartPosition(ship)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		--Laden Lorry
+		ship = ladenLorry()
+		identifyFreighter(ship,stationStaunch)
+		regionCommerceDestination(ship,stationStaunch)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		staunch_freighters_message = string.format("%s\n%s %s, %s %s",staunch_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(staunch_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 75, type = "MT52 Hornet"},
+				{chance = 55, type = "MU52 Hornet"},
+				{chance = 34, type = "Fighter"},
+			},
+			protectee_x, protectee_y, staunch_commerce_assets
+		)
+		addGMMessage(staunch_freighters_message)
+		staunch_commerce = true
+	end
+	freighterCommerce()
+end
+function baskFreighterCommerce()
+	if bask_commerce then
+		removeBaskCommerce()
+	else
+		local bask_freighters_message = "Bask Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
+		--Space Sedan
+		ship = spaceSedan()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
+		--Omnibus
+		ship = omnibus()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
+		--Fuel Freighter 5
+		ship = CpuShip():setTemplate("Fuel Freighter 5")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 37, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
+		--Garbage Freighter 2
+		local ship = CpuShip():setTemplate("Garbage Freighter 2")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		--Service Jonque
+		ship = serviceJonque()
+		identifyFreighter(ship,stationBask)
+		regionCommerceDestination(ship,stationBask)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		bask_freighters_message = string.format("%s\n%s %s, %s %s",bask_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(bask_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 38, type = "MT52 Hornet"},
+				{chance = 21, type = "MU52 Hornet"},
+				{chance = 12, type = "Fighter"},
+			},
+			protectee_x, protectee_y, bask_commerce_assets
+		)
+		addGMMessage(bask_freighters_message)
+		bask_commerce = true
+	end
+	freighterCommerce()
+end
+function tereshFreighterCommerce()
+	if teresh_commerce then
+		removeTereshCommerce()
+	else
+		local teresh_freighters_message = "Teresh Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationTeresh)
+		regionCommerceDestination(ship,stationTeresh)
+		setCommerceFreighterStartPosition(ship)
+		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(teresh_commerce_assets,ship)
+		--Laden Lorry
+		ship = ladenLorry()
+		identifyFreighter(ship,stationTeresh)
+		regionCommerceDestination(ship,stationTeresh)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		teresh_freighters_message = string.format("%s\n%s %s, %s %s",teresh_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(teresh_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 75, type = "MT52 Hornet"},
+				{chance = 55, type = "MU52 Hornet"},
+				{chance = 34, type = "Fighter"},
+			},
+			protectee_x, protectee_y, teresh_commerce_assets
+		)
+		addGMMessage(teresh_freighters_message)
+		teresh_commerce = true
+	end
+	freighterCommerce()
+end
+function lafrinaFreighterCommerce()
+	if lafrina_commerce then
+		removeLafrinaCommerce()
+	else
+		local lafrina_freighters_message = "Lafrina Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationLafrina)
+		regionCommerceDestination(ship,stationLafrina)
+		setCommerceFreighterStartPosition(ship)
+		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(lafrina_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationLafrina)
+		regionCommerceDestination(ship,stationLafrina)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		lafrina_freighters_message = string.format("%s\n%s %s, %s %s",lafrina_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(lafrina_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, lafrina_commerce_assets
+		)
+		addGMMessage(lafrina_freighters_message)
+		lafrina_commerce = true
+	end
+	freighterCommerce()
+end
+function kentarFreighterCommerce()
+	if kentar_commerce then
+		removeKentarCommerce()
+	else
+		local kentar_freighters_message = "Kentar Commerce Assets:"
+		--Courier
+		local ship = courier()
+		identifyFreighter(ship,stationKentar)
+		regionCommerceDestination(ship,stationKentar)
+		setCommerceFreighterStartPosition(ship)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(kentar_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationKentar)
+		regionCommerceDestination(ship,stationKentar)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(kentar_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
+		--Space Sedan
+		ship = spaceSedan()
+		identifyFreighter(ship,stationKentar)
+		regionCommerceDestination(ship,stationKentar)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(kentar_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
+		--Omnibus
+		ship = omnibus()
+		identifyFreighter(ship,stationKentar)
+		regionCommerceDestination(ship,stationKentar)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(kentar_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
+		--Fuel Freighter 5
+		ship = CpuShip():setTemplate("Fuel Freighter 5")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationKentar)
+		regionCommerceDestination(ship,stationKentar)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		kentar_freighters_message = string.format("%s\n%s %s, %s %s",kentar_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(kentar_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 37, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, kentar_commerce_assets
+		)
+		addGMMessage(kentar_freighters_message)
+		kentar_commerce = true
+	end
+	freighterCommerce()
+end
+function icarusFreighterCommerce()
+	if icarus_commerce then
+		removeIcarusCommerce()
+	else
+		local icarus_freighters_message = "Icarus Commerce Assets:"
+		--Garbage Freighter 2
+		local ship = CpuShip():setTemplate("Garbage Freighter 2")
+		ship:setCommsScript(""):setCommsFunction(commsShip)
+		identifyFreighter(ship,stationIcarus)
+		regionCommerceDestination(ship,stationIcarus)
+		setCommerceFreighterStartPosition(ship)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(icarus_commerce_assets,ship)
+		--Courier
+		ship = courier()
+		identifyFreighter(ship,stationIcarus)
+		regionCommerceDestination(ship,stationIcarus)
+		setCommerceFreighterStartPosition(ship)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(icarus_commerce_assets,ship)
+		--Work Wagon
+		ship = workWagon()
+		identifyFreighter(ship,stationIcarus)
+		regionCommerceDestination(ship,stationIcarus)
+		local protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(icarus_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 36, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 23, type = "Fighter"},
+			},
+			protectee_x, protectee_y, icarus_commerce_assets
+		)
+		--Laden Lorry
+		ship = ladenLorry()
+		identifyFreighter(ship,stationIcarus)
+		regionCommerceDestination(ship,stationIcarus)
+		protectee_x, protectee_y = setCommerceFreighterStartPosition(ship)
+		icarus_freighters_message = string.format("%s\n%s %s, %s %s",icarus_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(icarus_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 75, type = "MT52 Hornet"},
+				{chance = 55, type = "MU52 Hornet"},
+				{chance = 34, type = "Fighter"},
+			},
+			protectee_x, protectee_y, icarus_commerce_assets
+		)
+		addGMMessage(icarus_freighters_message)
+		icarus_commerce = true
+	end
+	freighterCommerce()
+end
+function removeGoodallCommerce()
+	for index,ship in ipairs(goodall_commerce_assets) do
+		ship:destroy()
+	end
+	goodall_commerce_assets = {}
+	goodall_commerce = false
+end
+function removeGliktonCommerce()
+	for index,ship in ipairs(glikton_commerce_assets) do
+		ship:destroy()
+	end
+	glikton_commerce_assets = {}
+	glikton_commerce = false
+end
+function removeStaunchCommerce()
+	for index,ship in ipairs(staunch_commerce_assets) do
+		ship:destroy()
+	end
+	staunch_commerce_assets = {}
+	staunch_commerce = false
+end
+function removeBaskCommerce()
+	for index, ship in ipairs(bask_commerce_assets) do
+		ship:destroy()
+	end
+	bask_commerce_assets = {}
+	bask_commerce = false
+end
+function removeTereshCommerce()
+	for index, ship in ipairs(teresh_commerce_assets) do
+		ship:destroy()
+	end
+	teresh_commerce_assets = {}
+	teresh_commerce = false
+end
+function removeLafrinaCommerce()
+	for index, ship in ipairs(lafrina_commerce_assets) do
+		ship:destroy()
+	end
+	lafrina_commerce_assets = {}
+	lafrina_commerce = false
+end
+function removeKentarCommerce()
+	for index, ship in ipairs(kentar_commerce_assets) do
+		ship:destroy()
+	end
+	kentar_commerce_assets = {}
+	kentar_commerce = false
+end
+function removeIcarusCommerce()
+	for index, ship in ipairs(icarus_commerce_assets) do
+		ship:destroy()
+	end
+	icarus_commerce_assets = {}
+	icarus_commerce = false
+end
+function skeletalFreighterCommerce()
+	if skeletal_commerce then
+		for index, ship in ipairs(skeletal_commerce_assets) do
+			ship:destroy()
+		end
+		skeletal_commerce_assets = {}
+		skeletal_commerce = false
+	else
+		local skeletal_freighters_message = "Skeletal Commerce Assets:"
+		--Space Sedan
+		local ship = spaceSedan()
+		identifyFreighter(ship)
+		skeletalDestination(ship)
+		setCommerceFreighterStartPosition(ship)
+		local protectee_x, protectee_y = ship:getPosition()
+		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(skeletal_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 63, type = "MT52 Hornet"},
+				{chance = 38, type = "MU52 Hornet"},
+				{chance = 21, type = "Fighter"},
+			},
+			protectee_x, protectee_y, skeletal_commerce_assets
+		)
+		--Omnibus
+		ship = omnibus()
+		identifyFreighter(ship)
+		skeletalDestination(ship)
+		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = ship:getPosition()
+		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(skeletal_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 47, type = "MT52 Hornet"},
+				{chance = 28, type = "MU52 Hornet"},
+				{chance = 16, type = "Fighter"},
+			},
+			protectee_x, protectee_y, skeletal_commerce_assets
+		)
+		--Service Jonque
+		ship = serviceJonque()
+		identifyFreighter(ship)
+		skeletalDestination(ship)
+		setCommerceFreighterStartPosition(ship)
+		protectee_x, protectee_y = ship:getPosition()
+		skeletal_freighters_message = string.format("%s\n%s %s, %s %s",skeletal_freighters_message,ship:getSectorName(),ship:getTypeName(),ship:getCallSign(),ship:getFaction())
+		table.insert(skeletal_commerce_assets,ship)
+		addCommerceFreighterEscorts(
+			ship,
+			{
+				{chance = 38, type = "MT52 Hornet"},
+				{chance = 21, type = "MU52 Hornet"},
+				{chance = 12, type = "Fighter"},
+			},
+			protectee_x, protectee_y, skeletal_commerce_assets
+		)
+		addGMMessage(skeletal_freighters_message)
+		skeletal_commerce = true
+	end
+	freighterCommerce()
+end
+function identifyFreighter(ship,region_station)
+	local ship_type = ship:getTypeName()
+	local ship_id = nil
+	if ship_type == "Space Sedan" then
+		if space_sedan_names == nil then
+			space_sedan_names = {}
+		end
+		if #space_sedan_names == 0 then
+			space_sedan_names = {
+				{name = "Bangles N Glitter",	faction = "CUF"},
+				{name = "Mauve Mynock",			faction = "Human Navy"},
+				{name = "Tartan Tram",			faction = "TSN"},
+				{name = "Stardust Deluxe",		faction = "Independent"},
+				{name = "Equitable Exit",		faction = "USN"},
+				{name = "Demure Departure",		faction = "Arlenians"},
+				{name = "Slam Door",			faction = "Kraylor"},
+				{name = "Hidey Hole",			faction = "Ktlitans"},
+				{name = "Bespoke Break",		faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(space_sedan_names)
+		ship:setFaction(ship_id.faction):setCallSign(ship_id.name)
+	elseif ship_type == "Omnibus" then
+		if omnibus_names == nil then
+			omnibus_names = {}
+		end
+		if #omnibus_names == 0 then
+			omnibus_names = {
+				{name = "Moya Munge",		faction = "CUF"},
+				{name = "Green Gwaihir",	faction = "Human Navy"},
+				{name = "Metropol",			faction = "TSN"},
+				{name = "Gillig",			faction = "Arlenians"},
+				{name = "Grech",			faction = "USN"},
+				{name = "Kamaz",			faction = "Independent"},
+				{name = "Hunting Hound",	faction = "Kraylor"},
+				{name = "Springing Spider",	faction = "Ktlitans"},
+				{name = "Bandwidth Bus",	faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(omnibus_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Service Jonque" then
+		if service_jonque_names == nil then
+			service_jonque_names = {}
+		end
+		if #service_jonque_names == 0 then
+			service_jonque_names = {
+				{name = "Knapheide",		faction = "CUF"},
+				{name = "Gator",			faction = "Human Navy"},
+				{name = "Parry",			faction = "TSN"},
+				{name = "Stahl",			faction = "Independent"},
+				{name = "Crane",			faction = "USN"},
+				{name = "Moran",			faction = "Arlenians"},
+				{name = "Marabunta",		faction = "Kraylor"},
+				{name = "Caterpillar",		faction = "Ktlitans"},
+				{name = "Red Robot",		faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(service_jonque_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Garbage Freighter 2" then
+		if garbage_2_names == nil then
+			garbage_2_names = {}
+		end
+		if #garbage_2_names == 0 then
+			garbage_2_names = {
+				{name = "Heil",				faction = "CUF"},
+				{name = "Transwest",		faction = "Human Navy"},
+				{name = "Qiufan",			faction = "TSN"},
+				{name = "Garwood",			faction = "Arlenians"},
+				{name = "Hino",				faction = "USN"},
+				{name = "Gareth",			faction = "Independent"},
+				{name = "Vital Vulture",	faction = "Kraylor"},
+				{name = "Mystery Maggot",	faction = "Ktlitans"},
+				{name = "Coy Collector",	faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(garbage_2_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Fuel Freighter 5" then
+		if fuel_5_names == nil then
+			fuel_5_names = {}
+		end
+		if #fuel_5_names == 0 then
+			fuel_5_names = {
+				{name = "Exxon",				faction = "CUF"},
+				{name = "Shell",				faction = "Human Navy"},
+				{name = "Enron",				faction = "TSN"},
+				{name = "WeiChai",				faction = "Independent"},
+				{name = "Bosch",				faction = "USN"},
+				{name = "Nikola",				faction = "Arlenians"},
+				{name = "Carnivorous Canary",	faction = "Kraylor"},
+				{name = "Gnarly Gnat",			faction = "Ktlitans"},
+				{name = "Electrasol",			faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(fuel_5_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Courier" then
+		if courier_names == nil then
+			courier_names = {}
+		end
+		if #courier_names == 0 then
+			courier_names = {
+				{name = "Porsche",			faction = "CUF"},
+				{name = "Razorback",		faction = "Human Navy"},
+				{name = "Orlyonok",			faction = "TSN"},
+				{name = "Benatar",			faction = "Arlenians"},
+				{name = "Jellyfish",		faction = "USN"},
+				{name = "Hecate",			faction = "Independent"},
+				{name = "Crazy Cougar",		faction = "Kraylor"},
+				{name = "Finnicky Flattie",	faction = "Ktlitans"},
+				{name = "Omni-Overclock",	faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(courier_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Work Wagon" then
+		if work_wagon_names == nil then
+			work_wagon_names = {}
+		end
+		if #work_wagon_names == 0 then
+			work_wagon_names = {
+				{name = "Mangled Metal",	faction = "CUF"},
+				{name = "Banshee",			faction = "Human Navy"},
+				{name = "Thing",			faction = "TSN"},
+				{name = "Torque",			faction = "Arlenians"},
+				{name = "Hulk",				faction = "USN"},
+				{name = "Forbid",			faction = "Independent"},
+				{name = "Red Rex",			faction = "Kraylor"},
+				{name = "Dusky Darwin",		faction = "Ktlitans"},
+				{name = "Scarred Steel",	faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(work_wagon_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	elseif ship_type == "Laden Lorry" then
+		if laden_lorry_names == nil then
+			laden_lorry_names = {}
+		end
+		if #laden_lorry_names == 0 then
+			laden_lorry_names = {
+				{name = "Lowboy",			faction = "Arlenians"},
+				{name = "Luton",			faction = "Human Navy"},
+				{name = "Reefer",			faction = "TSN"},
+				{name = "Convoy",			faction = "CUF"},
+				{name = "Hulk",				faction = "USN"},
+				{name = "Atlas",			faction = "Independent"},
+				{name = "Thing Thumb",		faction = "Kraylor"},
+				{name = "Whispy Web",		faction = "Ktlitans"},
+				{name = "Brown Bag",		faction = "Ghosts"},
+			}
+		end
+		ship_id = tableRemoveRandom(laden_lorry_names)
+		ship:setCallSign(ship_id.name):setFaction(ship_id.faction)
+	end
+	if region_station ~= nil then
+		local region_stations = getRegionStations(region_station)
+		local visitable_stations = 0
+		if #region_stations > 0 then
+			for _, station in ipairs(region_stations) do
+				if station ~= nil and station:isValid() and not station:isEnemy(ship) then
+					visitable_stations = visitable_stations + 1
+				end
+			end
+		end
+		if visitable_stations < 2 then
+			ship:setFaction(region_station:getFaction())
+		end
+	end
+end
+function skeletalDestination(ship)
+	local station_pool = {}
+	if #skeleton_stations > 0 then
+		for index, station in ipairs(skeleton_stations) do
+			if station ~= nil and station:isValid() then
+				if not station:isEnemy(ship) then
+					if ship.commerce_target ~= nil then
+						if station ~= ship.commerce_target then
+							table.insert(station_pool,station)
+						end
+					elseif ship.commerce_origin ~= nil then
+						if station ~= ship.commerce_origin then
+							table.insert(station_pool,station)
+						end
+					else
+						table.insert(station_pool,station)
+					end
+				else
+					if commerce_diagnostic then
+						print("station",station:getCallSign(),station:getFaction(),"is an enemy to",ship:getCallSign(),ship:getFaction())
+					end
+				end
+			end
+		end
+	else
+		if commerce_diagnostic then
+			print("skeletal stations is empty")
+		end
+	end
+	ship.commerce_target = tableSelectRandom(station_pool)
+	if ship.commerce_target == nil then
+		if commerce_diagnostic then
+			print("got nothing from station pool, assigning Icarus")
+		end
+		ship.commerce_target = stationIcarus
+		ship:setFaction(stationIcarus:getFaction())
+		if ship.escorts ~= nil then
+			for i,escort_ship in ipairs(ship.escorts) do
+				if escort_ship ~= nil and escort_ship:isValid() then
+					escort_ship:setFaction(stationIcarus:getFaction())
+					setBeamColor(escort_ship)
+				end
+			end
+		end
+	end
+	if ship.commerce_origin == nil then
+		ship.commerce_origin = tableSelectRandom(station_pool)
+		if commerce_diagnostic then
+			if ship.commerce_origin == nil then
+				print("ship commerce origin is nil")
+				if #station_pool > 0 then
+					for index, station in ipairs(station_pool) do
+						print("index:",index,"station:",station:getCallSign())
+					end
+				else
+					print("station pool is empty")
+				end
+			else
+				print("ship commerce origin:",ship.commerce_origin:getCallSign())
+			end
+		end
+		if ship.commerce_origin == nil then
+			ship.commerce_origin = stationIcarus
+		end
+	end
+end
+function getRegionStations(region_station)
+	local region_stations = {}
+	local primary_station = nil
+	if region_station == stationIcarus then
+		region_stations = icarusStations
+		if stationIcarus ~= nil and stationIcarus:isValid() then
+			primary_station = stationIcarus
+		end
+	elseif region_station == stationKentar then
+		region_stations = kentar_stations
+		if stationKentar ~= nil and stationKentar:isValid() then
+			primary_station = stationKentar
+		end
+	elseif region_station == stationLafrina then
+		region_stations = lafrina_stations
+		if stationLafrina ~= nil and stationLafrina:isValid() then
+			primary_station = stationLafrina
+		end
+	elseif region_station == stationTeresh then
+		region_stations = teresh_stations
+		if stationTeresh ~= nil and stationTeresh:isValid() then
+			primary_station = stationTeresh
+		end
+	elseif region_station == stationAstron then
+		--not enough stations to warrant commercial traffic
+		if stationAstron ~= nil and stationAstron:isValid() then
+			primary_station = stationAstron
+		end
+	elseif region_station == stationBask then
+		region_stations = bask_stations
+		if stationBask ~= nil and stationBask:isValid() then
+			primary_station = stationBask
+		end
+	elseif region_station == stationStaunch then
+		region_stations = staunch_stations
+		if stationStaunch ~= nil and stationStaunch:isValid() then
+			primary_station = stationStaunch
+		end
+	elseif region_station == stationGlikton then
+		region_stations = glikton_stations
+		if stationGlikton ~= nil and stationGlikton:isValid() then
+			primary_station = stationGlikton
+		end
+	elseif region_station == stationGoodall then
+		region_stations = goodall_stations
+		if stationGoodall ~= nil and stationGoodall:isValid() then
+			primary_station = stationGoodall
+		end
+	end
+	return region_stations, primary_station
+end
+function regionCommerceDestination(ship,region_station)
+--	print("in region commerce destination:",ship:getCallSign(),region_station:getCallSign())
+	local station_pool = {}
+	local avoid_commerce = {
+		stationKeyhole23, stationHarriet, stationHelena, stationVilairre, stationRespite
+	}
+	local region_stations, primary_station = getRegionStations(region_station)
+	--handle jump corridor better
+	if region_stations ~= nil then
+		if #region_stations > 0 then
+			for index, station in ipairs(region_stations) do
+				if station ~= nil and station:isValid() then
+					if not station:isEnemy(ship) then
+						local avoid = false
+						if ship.commerce_target ~= nil then
+							if station ~= ship.commerce_target then
+								for _, avoid_station in pairs(avoid_commerce) do
+									if station == avoid_station then
+										avoid = true
+										break
+									end
+								end
+								if not avoid then
+									table.insert(station_pool,station)
+								end
+							end
+						elseif ship.commerce_origin ~= nil then
+							if station ~= ship.commerce_origin then
+								for _, avoid_station in pairs(avoid_commerce) do
+									if station == avoid_station then
+										avoid = true
+										break
+									end
+								end
+								if not avoid then
+									table.insert(station_pool,station)
+								end
+							end
+						else
+							for _, avoid_station in pairs(avoid_commerce) do
+								if station == avoid_station then
+									avoid = true
+									break
+								end
+							end
+							if not avoid then
+								table.insert(station_pool,station)
+							end
+						end
+					end
+				end
+			end
+		else
+			if commerce_diagnostic then
+				print("regional stations is empty")
+			end
+		end
+	else
+		if commerce_diagnostic then
+			print("regional stations is nil")
+		end
+	end
+	if primary_station ~= nil then
+		table.insert(station_pool,primary_station)
+	else
+		primary_station = stationIcarus
+	end
+--	print("station pool count:",#station_pool)
+	ship.commerce_target = tableRemoveRandom(station_pool)
+	if ship.commerce_target == nil then
+		if commerce_diagnostic then
+			print("got nothing from station pool, assigning primary station:",primary_station:getCallSign())
+		end
+		ship.commerce_target = primary_station
+		ship:setFaction(primary_station:getFaction())
+		if ship.escorts ~= nil then
+			for i,escort_ship in ipairs(ship.escorts) do
+				if escort_ship ~= nil and escort_ship:isValid() then
+					escort_ship:setFaction(primary_station:getFaction())
+					setBeamColor(escort_ship)
+				end
+			end
+		end
+	end
+	if ship.commerce_origin == nil then
+		ship.commerce_origin = tableRemoveRandom(station_pool)
+		if commerce_diagnostic then
+			if ship.commerce_origin == nil then
+				print("ship commerce origin is nil")
+				if #station_pool > 0 then
+					for index, station in ipairs(station_pool) do
+						print("index:",index,"station:",station:getCallSign())
+					end
+				else
+					print("station pool is empty")
+				end
+			else
+				print("ship commerce origin:",ship.commerce_origin:getCallSign())
+			end
+		end
+		if ship.commerce_origin == nil then
+			ship.commerce_origin = primary_station
+		end
+	end
+end
+--	freighter information for science database
+function addFreighters()
+	local freighter_db = queryScienceDatabase("Ships","Freighter")
+	if freighter_db == nil then
+		local ship_db = queryScienceDatabase("Ships")
+		ship_db:addEntry("Freighter")
+		freighter_db = queryScienceDatabase("Ships","Freighter")
+		freighter_db:setImage("radar/transport.png")
+		freighter_db:setLongDescription("Small, medium and large scale transport ships. These are the working ships that keep commerce going in any sector. They may carry personnel, goods, cargo, equipment, garbage, fuel, research material, etc.")
+	end
+	return freighter_db
+end
+function addFreighter(freighter_type,ship)
+	local freighter_db = addFreighters()
+	if freighter_type ~= nil then
+		if freighter_type == "Space Sedan" then
+			local space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
+			if space_sedan_db == nil then
+				freighter_db:addEntry("Space Sedan")
+				space_sedan_db = queryScienceDatabase("Ships","Freighter","Space Sedan")
+				genericFreighterScienceInfo(space_sedan_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 3"),ship)
+				space_sedan_db:setModelDataName("transport_1_3")
+				space_sedan_db:setLongDescription("The Space Sedan was built around a surplus Personnel Jump Freighter 3. It's designed to provide relatively low cost transportation primarily for people, but there is also a limited amount of cargo space available")
+			end
+		elseif freighter_type == "Omnibus" then
+			local omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
+			if omnibus_db == nil then
+				freighter_db:addEntry("Omnibus")
+				omnibus_db = queryScienceDatabase("Ships","Freighter","Omnibus")
+				genericFreighterScienceInfo(omnibus_db,queryScienceDatabase("Ships","Corvette","Personnel Jump Freighter 5"),ship)
+				omnibus_db:setModelDataName("transport_1_5")
+				omnibus_db:setLongDescription("The Omnibus was designed from the Personnel Jump Freighter 5. It's made to transport large numbers of passengers of various types along with their luggage and any associated cargo")
+			end
+		elseif freighter_type == "Service Jonque" then
+			local service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
+			if service_jonque_db == nil then
+				freighter_db:addEntry("Service Jonque")
+				service_jonque_db = queryScienceDatabase("Ships","Freighter","Service Jonque")
+				genericFreighterScienceInfo(service_jonque_db,queryScienceDatabase("Ships","Corvette","Equipment Jump Freighter 4"),ship)
+				service_jonque_db:setModelDataName("transport_4_4")
+				service_jonque_db:setLongDescription("The Service Jonque is a modified Equipment Jump Freighter 4. It's designed to carry spare parts and equipment as well as the necessary repair personnel to where it's needed to repair stations and ships")
+			end
+		elseif freighter_type == "Courier" then
+			local courier_db = queryScienceDatabase("Ships","Freighter","Courier")
+			if courier_db == nil then
+				freighter_db:addEntry("Courier")
+				courier_db = queryScienceDatabase("Ships","Freighter","Courier")
+				genericFreighterScienceInfo(courier_db,queryScienceDatabase("Ships","Corvette","Personnel Freighter 1"),ship)
+				courier_db:setModelDataName("transport_1_1")
+				courier_db:setLongDescription("The Courier is a souped up Personnel Freighter 1. It's made to deliver people and messages fast. Very fast")
+			end
+		elseif freighter_type == "Work Wagon" then
+			local work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
+			if work_wagon_db == nil then
+				freighter_db:addEntry("Work Wagon")
+				work_wagon_db = queryScienceDatabase("Ships","Freighter","Work Wagon")
+				genericFreighterScienceInfo(work_wagon_db,queryScienceDatabase("Ships","Corvette","Equipment Freighter 2"),ship)
+				work_wagon_db:setModelDataName("transport_4_2")
+				work_wagon_db:setLongDescription("The Work Wagon is a conversion of an Equipment Freighter 2 designed to carry equipment and parts where they are needed for repair or construction.")
+			end
+		elseif freighter_type == "Laden Lorry" then
+			local laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
+			if laden_lorry_db == nil then
+				freighter_db:addEntry("Laden Lorry")
+				laden_lorry_db = queryScienceDatabase("Ships","Freighter","Laden Lorry")
+				genericFreighterScienceInfo(laden_lorry_db,queryScienceDatabase("Ships","Corvette","Goods Freighter 3"),ship)
+				laden_lorry_db:setModelDataName("transport_2_3")
+				laden_lorry_db:setLongDescription("As a side contract, Conversion R Us put together the Laden Lorry from some recently acquired Goods Freighter 3 hulls. The added warp drive makes for a more versatile goods carrying vessel.")
+			end
+		elseif freighter_type == "Physics Research" then
+			local physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
+			if physics_research_db == nil then
+				freighter_db:addEntry("Physics Research")
+				physics_research_db = queryScienceDatabase("Ships","Freighter","Physics Research")
+				genericFreighterScienceInfo(physics_research_db,queryScienceDatabase("Ships","Corvette","Garbage Freighter 3"),ship)
+				physics_research_db:setModelDataName("transport_3_3")
+				physics_research_db:setLongDescription("Conversion R Us cleaned up and converted excess freighter hulls into Physics Research vessels. The reduced weight improved the impulse speed and maneuverability.")
+			end
+		end
+	end
+end
+function genericFreighterScienceInfo(specific_freighter_db,base_db,ship)
+	specific_freighter_db:setImage("radar/transport.png")
+	specific_freighter_db:setKeyValue("Sub-class","Freighter")
+	specific_freighter_db:setKeyValue("Size",base_db:getKeyValue("Size"))
+	local shields = ship:getShieldCount()
+	if shields > 0 then
+		local shield_string = ""
+		for i=1,shields do
+			if shield_string == "" then
+				shield_string = string.format("%i",math.floor(ship:getShieldMax(i-1)))
+			else
+				shield_string = string.format("%s/%i",shield_string,math.floor(ship:getShieldMax(i-1)))
+			end
+		end
+		specific_freighter_db:setKeyValue("Shield",shield_string)
+	end
+	specific_freighter_db:setKeyValue("Hull",string.format("%i",math.floor(ship:getHullMax())))
+	specific_freighter_db:setKeyValue("Move speed",string.format("%.1f u/min",ship:getImpulseMaxSpeed()*60/1000))
+	specific_freighter_db:setKeyValue("Turn speed",string.format("%.1f deg/sec",ship:getRotationMaxSpeed()))
+	if ship:hasJumpDrive() then
+		local base_jump_range = base_db:getKeyValue("Jump range")
+		if base_jump_range ~= nil and base_jump_range ~= "" then
+			specific_freighter_db:setKeyValue("Jump range",base_jump_range)
+		else
+			specific_freighter_db:setKeyValue("Jump range","5 - 50 u")
+		end
+	end
+	if ship:hasWarpDrive() then
+		specific_freighter_db:setKeyValue("Warp Speed",string.format("%.1f u/min",ship:getWarpSpeed()*60/1000))
+	end
+end
+---------------------------------
+--	Tweak Terrain > Explosion  --
+---------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Explosion		F	initialGMFunctions
+-- -Tweak Terrain			F	tweakTerrain
+-- +Max Damage				F	setExplosionDamage
+-- +Effect Size				F	setExplosionSize
+-- +Range					F	setExplosionRange
+-- Type: ?					D	inline
+-- +Linked Beam: ?			D	linkBeam
+-- Explode Object			F	inline
+-- Place Explosion			D	placeExplosion
+function setExplosion()
+	clearGMFunctions()
+	addGMFunction("-Main from Explosion",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("+Max Damage",setExplosionDamage)
+	addGMFunction("+Effect Size",setExplosionSize)
+	addGMFunction("+Range",setExplosionRange)
+	addGMFunction(string.format("Type: %s",explosion_type),function()
+		if explosion_type == "Normal" then
+			explosion_type = "Electric"
+		else
+			explosion_type = "Normal"
+		end
+		setExplosion()
+	end)
+	local button_label = "+Linked Beam"
+	if linked_beam then
+		button_label = string.format("%s: Yes",button_label)
+	else
+		button_label = string.format("%s: No",button_label)
+	end
+	addGMFunction(button_label,linkBeam)
+	addGMFunction("Explode Object",function()
+		local object_list = getGMSelection()
+		if #object_list ~= 1 then
+			addGMMessage("Select one object. No action taken")
+		else
+			local exp_x, exp_y = object_list[1]:getPosition()
+			object_list[1]:destroy()
+			if explosion_type == "Electric" then
+				ElectricExplosionEffect():setPosition(exp_x, exp_y):setSize(explosion_size):setOnRadar(true)				
+			else
+				ExplosionEffect():setPosition(exp_x, exp_y):setSize(explosion_size):setOnRadar(true)
+			end
+			if explosion_damage > 0 then
+				local damage_list = getObjectsInRadius(exp_x, exp_y, explosion_range)
+				if #damage_list > 0 then
+					for i=1,#damage_list do
+						if distance_diagnostic then
+							print("distance_diagnostic 3 damage_list[i]:",damage_list[i],"exp_x:",exp_x,"exp_y:",exp_y,"i:",i)
+						end
+						local dist = distance(damage_list[i], exp_x, exp_y)
+						local applied_damage = explosion_damage
+						if explosion_damage_degredation == "Linear" then
+							applied_damage = (1 - (dist/explosion_range)) * explosion_damage
+						end
+						if explosion_type == "Electric" then
+							damage_list[i]:takeDamage(applied_damage, "emp", exp_x, exp_y)
+						else
+							damage_list[i]:takeDamage(applied_damage, "energy", exp_x, exp_y)
+						end
+					end
+				end
+			end
+		end
+		setExplosion()
+	end)
+	if gm_click_mode == "place explosion" then
+		addGMFunction(">Place Explosion<",placeExplosion)
+	else
+		addGMFunction("Place Explosion",placeExplosion)
+	end
 end
 --	****************************************************************  --
 --	****				Tweak Terrain Update Editor				****  --
@@ -32099,6 +32223,296 @@ function gmClickMineCircle(x,y)
 		end
 	end
 end
+--	****************************************************************  --
+--	****				Tweak Terrain Explosion					****  --
+--	****************************************************************  --
+------------------------------------------
+--	Tweak Terrain > Explosion > Damage  --
+------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Damage		F	initialGMFunctions
+-- -Tweak Terrain			F	tweakTerrain
+-- -Explosion				F	setExplosion
+-- Degradation: ?			D	inline
+-- List of explosion damage options, * marks current damage option
+function setExplosionDamage()
+	clearGMFunctions()
+	addGMFunction("-Main from Damage",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	local min_explosion_damage = 0
+	local max_explosion_damage = 500
+	local button_label = ""
+	addGMFunction(string.format("Degradation: %s",explosion_damage_degredation),function()
+		if explosion_damage_degredation == "None" then
+			explosion_damage_degredation = "Linear"
+		else
+			explosion_damage_degredation = "None"
+		end
+		setExplosionDamage()
+	end)
+	if explosion_damage == min_explosion_damage or explosion_damage == min_explosion_damage + 10 then
+		for i=min_explosion_damage,40,10 do
+			button_label = string.format("Damage: %i",i)
+			if i == explosion_damage then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_damage = i
+				setExplosionDamage()
+			end)
+		end
+	elseif explosion_damage == max_explosion_damage or explosion_damage == max_explosion_damage - 10 then
+		for i=max_explosion_damage - 40,max_explosion_damage,10 do
+			button_label = string.format("Damage: %i",i)
+			if i == explosion_damage then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_damage = i
+				setExplosionDamage()
+			end)
+		end
+	else
+		for i=explosion_damage - 20,explosion_damage + 20,10 do
+			button_label = string.format("Damage: %i",i)
+			if i == explosion_damage then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_damage = i
+				setExplosionDamage()
+			end)
+		end
+	end
+end
+----------------------------------------
+--	Tweak Terrain > Explosion > Size  --
+----------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Size			F	initialGMFunctions
+-- -Tweak Terrain			F	tweakTerrain
+-- -Explosion				F	setExplosion
+-- List of explosion size options, * marks current size
+function setExplosionSize()
+	clearGMFunctions()
+	addGMFunction("-Main from Size",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	local min_explosion_size = 250
+	local max_explosion_size = 5000
+	local button_label = ""
+	if explosion_size == min_explosion_size or explosion_size == min_explosion_size + 250 then
+		for i=min_explosion_size,1250,250 do
+			button_label = string.format("Size: %i",i)
+			if i == explosion_size then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_size = i
+				setExplosionSize()
+			end)
+		end
+	elseif explosion_size == max_explosion_size or explosion_size == max_explosion_size - 250 then
+		for i=max_explosion_size - 1000,max_explosion_size,250 do
+			button_label = string.format("Size: %i",i)
+			if i == explosion_size then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_size = i
+				setExplosionSize()
+			end)
+		end
+	else
+		for i=explosion_size - 500,explosion_size + 500,250 do
+			button_label = string.format("Size: %i",i)
+			if i == explosion_size then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_size = i
+				setExplosionSize()
+			end)
+		end
+	end
+end
+-----------------------------------------
+--	Tweak Terrain > Explosion > Range  --
+-----------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Range			F	initialGMFunctions
+-- -Tweak Terrain			F	tweakTerrain
+-- -Explosion				F	setExplosion
+-- List of explosion range options, * marks current range
+function setExplosionRange()
+	clearGMFunctions()
+	addGMFunction("-Main from Range",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	local min_explosion_range = 250
+	local max_explosion_range = 5000
+	local button_label = ""
+	if explosion_range == min_explosion_range or explosion_range == min_explosion_range + 250 then
+		for i=min_explosion_range,1250,250 do
+			button_label = string.format("Range: %i",i)
+			if i == explosion_range then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_range = i
+				setExplosionRange()
+			end)
+		end
+	elseif explosion_range == max_explosion_range or explosion_range == max_explosion_range - 250 then
+		for i=max_explosion_range - 1000,max_explosion_range,250 do
+			button_label = string.format("Range: %i",i)
+			if i == explosion_range then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_range = i
+				setExplosionRange()
+			end)
+		end
+	else
+		for i=explosion_range - 500,explosion_range + 500,250 do
+			button_label = string.format("Range: %i",i)
+			if i == explosion_range then
+				button_label = button_label .. "*"
+			end
+			addGMFunction(button_label,function()
+				explosion_range = i
+				setExplosionRange()
+			end)
+		end
+	end
+end
+---------------------------------------------
+--	Tweak Terrain > Explosion > Link Beam  --
+---------------------------------------------
+-- Button Text			   FD*	Related Function(s)
+-- -Main from Link Beam		F	initialGMFunctions
+-- -Tweak Terrain			F	tweakTerrain
+-- -Explosion				F	setExplosion
+--		if beam linked...
+-- Unlink Beam				F	inline
+-- +Chg ?					D	inline
+--		else beam not linked...
+-- Link Beam				F	inline
+function linkBeam()
+	clearGMFunctions()
+	addGMFunction("-Main from Link Beam",initialGMFunctions)
+	addGMFunction("-Tweak Terrain",tweakTerrain)
+	addGMFunction("-Explosion",setExplosion)
+	if beam_link_object ~= nil and beam_link_object:isValid() then
+		if linked_beam then
+			addGMFunction("Unlink Beam",function()
+				linked_beam = false
+				beam_link_object = nil
+				setExplosion()
+			end)
+			addGMFunction(string.format("+Chg: ",beam_link_object_name),function()
+				local object_list = getGMSelection()
+				if #object_list ~= 1 then
+					addGMMessage("Select one object. No action taken")
+				else
+					if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
+						beam_link_object_name = object_list[1]:getCallSign()
+					else
+						if ECS then
+							beam_link_object_name = "something" .. object_list[1]:getSectorName()
+						else
+							beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+						end
+					end
+					beam_link_object = object_list[1]
+				end
+				linkBeam()
+			end)
+		end
+	else
+		addGMFunction("Link Beam", function()
+			local object_list = getGMSelection()
+			if #object_list ~= 1 then
+				addGMMessage("Select one object. No action taken")
+			else
+				if object_list[1]:getCallSign() ~= nil and object_list[1]:getCallSign() ~= "" then
+					beam_link_object_name = object_list[1]:getCallSign()
+				else
+					if ECS then
+						beam_link_object_name = "something" .. object_list[1]:getSectorName()
+					else
+						beam_link_object_name = object_list[1].typeName .. object_list[1]:getSectorName()
+					end
+				end
+				beam_link_object = object_list[1]
+				linked_beam = true
+			end
+			linkBeam()
+		end)
+	end
+end
+function placeExplosion()
+	if gm_click_mode == "place explosion" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "place explosion"
+		onGMClick(gmClickPlaceExplosion)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   place explosion\nGM click mode.",prev_mode))
+		end
+	end
+	setExplosion()
+end
+function gmClickPlaceExplosion(x,y)
+	if linked_beam then
+		if beam_link_object ~= nil and beam_link_object:isValid() then
+			local temp_target = VisualAsteroid():setSize(1):setPosition(x,y)
+			BeamEffect():setSource(beam_link_object,0,0,0):setTarget(temp_target,0,0)
+			temp_target:destroy()
+			if explosion_type == "Electric" then
+				ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
+			else
+				ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
+			end
+			applyExplosionDamage(x,y)
+		else
+			addGMMessage("Linked beam source no longer valid. No action taken")
+		end
+	else
+		if explosion_type == "Electric" then
+			ElectricExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)				
+		else
+			ExplosionEffect():setPosition(x, y):setSize(explosion_size):setOnRadar(true)
+		end
+		applyExplosionDamage(x,y)
+	end
+end
+function applyExplosionDamage(x,y)
+	if explosion_damage > 0 then
+		local damage_list = getObjectsInRadius(x, y, explosion_range)
+		if #damage_list > 0 then
+			for i=1,#damage_list do
+				if distance_diagnostic then
+					print("distance_diagnostic 4 damage_list[i]:",damage_list[i],"x:",x,"y:",y,"i:",i)
+				end
+				local dist = distance(damage_list[i], x, y)
+				local applied_damage = explosion_damage
+				if explosion_damage_degredation == "Linear" then
+					applied_damage = (1 - (dist/explosion_range)) * explosion_damage
+				end
+				if explosion_type == "Electric" then
+					damage_list[i]:takeDamage(applied_damage, "emp", x, y)
+				else
+					damage_list[i]:takeDamage(applied_damage, "energy", x, y)
+				end
+			end
+		end
+	end
+end
 --	*												   *  --
 --	**												  **  --
 --	****************************************************  --
@@ -32723,6 +33137,189 @@ function oneOffs()
 	addGMFunction("+Starry",starryOneOff)
 	addGMFunction("+Kosai",kosaiOneOff)
 	addGMFunction("+Xansta",xanstaOneOff)
+end
+-----------------------------
+--	Custom > Gateway/Rifts --
+-----------------------------
+-- Button Text				   FD*	Related Function(s)
+-- -Main from Gateways/Rifts	F	initialGMFunctions
+-- -Custom						F	customButtons
+-- subspace rift				F	inline
+-- Colored subspace rift		F	inline, coloredSubspaceRift
+-- gateway rift					F	inline, coloredSubspaceRift
+-- set gateway exit				F	inline
+-- pending gateway defences		F	inline
+function gatewayRifts()
+	clearGMFunctions()
+	addGMFunction("-Main from Gateway/Rifts",initialGMFunctions)
+	addGMFunction("-Custom",customButtons)
+	addGMFunction("subspace rift",function () onGMClick(function (x,y)
+		local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+		local all_objs = {}
+		local number_in_ring = 20
+		local clockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#clockwise_objs,1,-1 do
+			createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+			update_system:addOwned(clockwise_objs[i],artifact)
+			table.insert(all_objs,clockwise_objs[i])
+		end
+		local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+		for i=#counterclockwise_objs,1,-1 do
+			createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+			update_system:addOwned(counterclockwise_objs[i],artifact)
+			table.insert(all_objs,counterclockwise_objs[i])
+		end
+		local update_data = {
+			all_objs = all_objs,
+			current_radius = 0,
+			max_radius = 3000,
+			max_time = 120,
+			update = function (self, obj, delta)
+				self.current_radius = extraMath.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+				-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+				-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+				for i=#all_objs,1,-1 do
+					update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+				end
+				local x,y=obj:getPosition()
+				local objs = getObjectsInRadius(x,y,self.current_radius)
+				for i=#objs,1,-1 do
+					if isObjectType(objs[i],"PlayerSpaceship") then
+						local player_x,player_y = objs[i]:getPosition()
+						local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
+						setCirclePos(objs[i],x,y,-angle,self.current_radius)
+					end
+				end
+			end,
+			edit = {{name = "max_time", fixedAdjAmount=1}} -- this really should have more edit controls but I'm feeling lazy
+		}
+		update_system:addUpdate(artifact,"subspace rift",update_data)
+	end)end)
+	addGMFunction("Colored Subspace Rift",function ()
+		onGMClick(function (x,y)
+			coloredSubspaceRift(x,y,playerSpawnX,playerSpawnY)
+		end)
+	end)
+	addGMFunction("gateway rift",function () gateway_rift=coloredSubspaceRift(59893,373681) end)
+	addGMFunction("set gateway exit", function ()
+		onGMClick(function (x,y)
+			if (gateway_rift ~= nil and gateway_rift:isValid()) then
+				local update = update_system:getUpdateNamed(gateway_rift,"subspace rift")
+				if update ~= nil then
+					update.destination_x = x
+					update.destination_y = y
+				end
+			end
+		end)
+	end)
+	addGMFunction("pending gateway defences",function ()
+		-- note one of the command bases probably wants to be changed to a science station (no name yet)
+		-- other one to a shipyard?
+		-- mines also kind of want tweaking for them (the rows of 8ish mines) - they arent symmetrical
+		local gateway_x = 59893
+		local gateway_y = 373681
+		local dist = 15000
+		-- note distances could use a little tweaking (talking 100s of units)
+		-- likewise callsigns could use some work to make some matching names
+		local ship = nil
+		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((170 )/360)*math.pi*2)*dist, gateway_y - math.cos(((170 )/360)*math.pi*2)*dist)
+		setBeamColor(ship)
+		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((190 )/360)*math.pi*2)*dist, gateway_y - math.cos(((190 )/360)*math.pi*2)*dist)
+		setBeamColor(ship)
+		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((290 )/360)*math.pi*2)*dist, gateway_y - math.cos(((290 )/360)*math.pi*2)*dist)
+		setBeamColor(ship)
+		ship = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(gateway_x + math.sin(((310 )/360)*math.pi*2)*dist, gateway_y - math.cos(((310 )/360)*math.pi*2)*dist)
+		setBeamColor(ship)
+		dist = 19000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((105 )/360)*math.pi*2)*dist, gateway_y - math.cos(((105 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((145 )/360)*math.pi*2)*dist, gateway_y - math.cos(((145 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((215 )/360)*math.pi*2)*dist, gateway_y - math.cos(((215 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((265 )/360)*math.pi*2)*dist, gateway_y - math.cos(((265 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((335 )/360)*math.pi*2)*dist, gateway_y - math.cos(((335 )/360)*math.pi*2)*dist)
+		dist = 23000
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((15  )/360)*math.pi*2)*dist, gateway_y - math.cos(((15  )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((135 )/360)*math.pi*2)*dist, gateway_y - math.cos(((135 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((225 )/360)*math.pi*2)*dist, gateway_y - math.cos(((225 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((255 )/360)*math.pi*2)*dist, gateway_y - math.cos(((255 )/360)*math.pi*2)*dist)
+		sniperTower("Human Navy"):setPosition(gateway_x + math.sin(((345 )/360)*math.pi*2)*dist, gateway_y - math.cos(((345 )/360)*math.pi*2)*dist)
+	end)
+end
+function coloredSubspaceRift (x,y,destination_x,destination_y)
+	local artifact = Artifact():setPosition(x,y):setCallSign("Subspace rift")
+	local all_objs = {}
+	local number_in_ring = 20
+	local clockwise_objs=createObjectCircle{number = number_in_ring}
+	local a_c = {
+	--	red						green					blue
+	--	start	min	max	time	start	min	max	time	start	min	max	time
+		{	0,	128,255,2,		0,		0,	255,2,		0,		0,	255,2	},
+		{	0,	128,255,4,		0,		32,	255,4,		0,		0,	255,4	},
+		{	0,	128,255,3,		0,		64,	255,3,		0,		0,	255,3	},
+		{	0,	128,255,6,		0,		96,	255,6,		0,		0,	255,6	},
+		{	0,	96, 255,2,		0,		128,255,2,		0,		0,	255,2	},
+		{	0,	64,	255,4,		0,		128,255,4,		0,		0,	255,4	},
+		{	0,	32,	255,3,		0,		128,255,3,		0,		0,	255,3	},
+		{	0,	0,	255,6,		0,		128,255,6,		0,		32,	255,6	},
+		{	0,	0,	255,2,		0,		128,255,2,		0,		64,	255,2	},
+		{	0,	0,	255,4,		0,		128,255,4,		0,		96,	255,4	},
+		{	0,	0,	255,3,		0,		128,255,3,		0,		128,255,3	},
+		{	0,	0,	255,6,		0,		96,	255,6,		0,		128,255,6	},
+		{	0,	0,	255,2,		0,		64,	255,2,		0,		128,255,2	},
+		{	0,	0,	255,4,		0,		0,	255,4,		0,		128,255,4	},
+		{	0,	32,	255,3,		0,		0,	255,3,		0,		128,255,3	},
+		{	0,	64,	255,6,		0,		0,	255,6,		0,		128,255,6	},
+		{	0,	96,	255,2,		0,		0,	255,2,		0,		128,255,2	},
+		{	0,	128,255,4,		0,		0,	255,4,		0,		96,	255,4	},
+		{	0,	128,255,3,		0,		0,	255,3,		0,		64,	255,3	},
+		{	0,	128,255,6,		0,		0,	255,6,		0,		32,	255,6	},
+	}
+	for i=1,#clockwise_objs do
+		if a_c[i] ~= nil then
+			update_system:addArtifactCyclicalColorUpdate(clockwise_objs[i],a_c[i][1],a_c[i][2],a_c[i][3],a_c[i][4],a_c[i][5],a_c[i][6],a_c[i][7],a_c[i][8],a_c[i][9],a_c[i][10],a_c[i][11],a_c[i][12])
+		end
+	end
+--		clockwise_objs[1]:setRadarTraceColor(0,255,0)
+	for i=#clockwise_objs,1,-1 do
+		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),60,x,y,0)
+		update_system:addOwned(clockwise_objs[i],artifact)
+		table.insert(all_objs,clockwise_objs[i])
+	end
+	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#counterclockwise_objs,1,-1 do
+		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-60,x,y,0)
+		update_system:addOwned(counterclockwise_objs[i],artifact)
+		table.insert(all_objs,counterclockwise_objs[i])
+	end
+	local update_data = {
+		all_objs = all_objs,
+		current_radius = 0,
+		max_radius = 3000,
+		max_time = 120,
+		destination_x = destination_x or 0,
+		destination_y = destination_y or 0,
+		update = function (self, obj, delta)
+			self.current_radius = extraMath.clamp(self.current_radius+delta*(self.max_radius/self.max_time),0,self.max_radius)
+			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+			for i=#all_objs,1,-1 do
+				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+			end
+			local x,y=obj:getPosition()
+			local objs = getObjectsInRadius(x,y,self.current_radius)
+			for i=#objs,1,-1 do
+				if isObjectType(objs[i],"PlayerSpaceship") or isObjectType(objs[i],"CpuShip") then
+					objs[i]:setPosition(self.destination_x,self.destination_y)
+				end
+			end
+		end,
+		edit = {
+			{name = "max_time", fixedAdjAmount=1},
+			{name = "destination_x", fixedAdjAmount=20000},
+			{name = "destination_y", fixedAdjAmount=20000}
+		}
+	}
+	update_system:addUpdate(artifact,"subspace rift",update_data)
+	return artifact
 end
 ----------------------------------------------
 --	Custom > Dangerous description grabber  --
@@ -33889,6 +34486,195 @@ function starryChristmas()
 		end
 	end)
 end
+
+--	Christmas stuff
+function carolSpawnSingle(stage,faction)
+	assert(type(stage)=="number",string.format("function carolSpawnSingle expected a number for the first argument, 'stage,' but got a %s instead",type(stage)))
+	assert(stage > 0 and stage <= 12,string.format("the first argument of carolSpawnSingle, 'stage,' must be between 1 and 12 inclusive. %s is invalid",stage))
+	local spawnFun={
+		carolStage1,	
+		carolStage2,
+		carolStage3,
+		carolStage4,
+		carolStage5,
+		carolStage6,
+		carolStage7,
+		carolStage8,
+		carolStage9,
+		carolStage10,
+		carolStage11,
+		carolStage12}
+	return spawnFun[stage](spawnFun)
+end
+function addChristmasArtifact(waypoints)
+	if #waypoints > 3 then
+		-- yuk yuk this probably should be reworked properly, but it works for this for now
+		local update_data = {
+			update = function (self, obj, delta)
+				local desiredDelta=self.desiredSpeed*delta
+				for i=0,10000 do
+					self.current=self.current+self.tickSize
+					if self.current+2>=#self.waypoints then
+						obj:destroy()
+						return
+					end
+					local px,py=obj:getPosition()
+					local x,y=extraMath.CubicInterpolate2DTable(self.waypoints,self.current)
+					if distance(px,py,x,y)>desiredDelta then
+						obj:setPosition(x,y)
+						return
+					end
+				end
+			end,
+			current = 1,
+			desiredSpeed=500,
+			tickSize=0.000001,
+			waypoints = waypoints
+		}
+			local texts={
+				"Threats to stop nightime life suppport and return the station to silence",	--silent night
+				"Religious text containing allusions to Satan's Claws",	
+				"Claims omnipresent observation, regardless of state of consciousness or moral state", --Santa claus is coming to town
+				"Audio message of numerous voices chanting ritualistically together",	--caroling
+				"Broken message threatening to slay the residents of the station",	--
+				"Message containing a threat to deck both crewman Hall and engineer Holly",	--Deck the halls
+				"Discussions about precious metal fashioned into cylindrical devices tuned to harmonious frequencies",	--silver bells
+				"The sound of cacaphonous striking of bulkheads by a small boy",	--little drummer boy
+				"A quest for a supernova by three highly ranked CUF officers",	--we three kings
+				"Monitor communications from supernatural public relations representatives",	--hark the herald angels
+				"Stealthily observe maternal unit interacting with aged seasonal magician",	--I saw mommy kissing Santa Clause
+				"Constrain desire for dentition reconstruction",	--All I want for Christmas is my two front teeth
+				"Matriarch devastated by encounter with lone horned beast with questionable flight qualities",	--grandma got run over by a reindeer
+				"Benign ruler inspects large food cargo set out for consumption",	--good king wenceslas
+				"Sleep induced on males with sunny dispositions",	--god rest ye merry gentlemen
+				"I have the decapitated beast's head with sundry herbs and spices",	--the boar's head carol
+			}
+			local art=Artifact():setDescription(texts[irandom(1,#texts)])
+		update_system:addUpdate(art,"xmas waypoints",update_data)
+	end
+end
+function christmasArtifact()
+	local xmasWaypoints={}
+	clearGMFunctions()
+	onGMClick(function (x,y)
+		if #xmasWaypoints == 0 then
+			table.insert(xmasWaypoints,{x=x,y=y})
+		end
+		table.insert(xmasWaypoints,{x=x,y=y})
+	end)
+	addGMFunction("done",function ()
+		table.insert(xmasWaypoints,xmasWaypoints[#xmasWaypoints])
+		addChristmasArtifact(xmasWaypoints)
+		onGMClick(nil)
+		customButtons()
+	end)
+end
+-- consider single scanning ships
+function carolStage(stage)
+	-- this wants to be merged with subspace rift
+	local x=722333
+	local y=88284
+	local all_objs = {}
+	local number_in_ring = stage*4
+	local clockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#clockwise_objs,1,-1 do
+		createOrbitingObject(clockwise_objs[i],i*(360/number_in_ring),10*stage,x,y,0)
+		table.insert(all_objs,clockwise_objs[i])
+	end
+	local counterclockwise_objs=createObjectCircle{number = number_in_ring}
+	for i=#counterclockwise_objs,1,-1 do
+		createOrbitingObject(counterclockwise_objs[i],i*(360/number_in_ring),-10*stage,x,y,0)
+		table.insert(all_objs,counterclockwise_objs[i])
+	end
+	local update_data = {
+		all_objs = all_objs,
+		current_radius = 0,
+		state = "expanding",
+		yet_to_spawn = stage,
+		update = function (self, obj, delta)
+			local christmas = {
+				["red"] =		{r =	179,	g =	0,		b =	12},	
+				["green"] =		{r =	0,		g =	179,	b =	44},	
+				["gold"] =		{r =	255,	g =	215,	b =	0},		
+				["purple"] =	{r =	148,	g =	0,		b =	211},	
+			}
+			local distributed = {
+				"red",
+				"green",
+				"purple",
+				"green",
+				"red",
+				"gold",
+				"red",
+				"green",
+				"purple",
+				"green",
+				"red",
+				"gold",
+			}
+			local size_per_stage=250
+			local max_radius = stage*size_per_stage
+			if self.state == "expanding" then
+				local max_time = stage*5
+				self.current_radius = self.current_radius+delta*(max_radius/max_time)
+				if self.current_radius >= max_radius then
+					self.state = "compressing"
+				end
+			end
+			if self.state=="compressing" then
+				local max_time = stage*1
+				self.current_radius = self.current_radius-delta*(max_radius/max_time)
+				for i=12,1,-1 do
+					if i<=self.yet_to_spawn and self.current_radius < size_per_stage*i then
+						createObjectCircle{x = x, y = y, number = i, radius = size_per_stage * i-0.5, start_angle = random(0,360), callback=function() return carolSpawnSingle(i,"Human Navy"):orderRoaming():setFaction("Kraylor") end}
+						self.yet_to_spawn = i - 1
+						local start_angle=random(0,360)
+						for j=1,i*4 do
+							local angle=start_angle+((360)/(i*4)*j)
+							local sx,sy=vectorFromAngle(angle,size_per_stage*i)
+							local dx,dy=vectorFromAngle(angle,1)
+							local index = j%12
+							if index == 0 then
+								index = 12
+							end
+							local color = distributed[index]
+							local r = christmas[color].r
+							local g = christmas[color].g
+							local b = christmas[color].b
+							local art=Artifact():setPosition(x+sx,y+sy):setRadarTraceColor(r,g,b)
+--						end
+--						local tmp=createObjectCircle{number = i * 4, radius = size_per_stage * i, start_angle = random(0,360), x=x, y=y}
+--						for j=#tmp,1,-1 do
+--							tmp[j]:setCallSign(i) -- expand out?
+--							local dx,dy=vectorFromAngleNorth
+							update_system:addTimeToLiveUpdate(art,10)
+							update_system:addLinear(art,dx,dy,200)
+						end
+					end
+				end
+				if self.current_radius < 0 then
+					obj:destroy()
+					destroyEEtable(all_objs)
+				end
+			end
+			-- ***techincally*** this is probably wrong - the position of the orbit of the objects is based
+			-- on the previous update, who cares though, but consider this a warning if reusing this code somewhere that matters
+			for i=#all_objs,1,-1 do
+				update_system:getUpdateNamed(all_objs[i],"orbit").distance = self.current_radius
+			end
+			local objs = getObjectsInRadius(x,y,self.current_radius)
+			for i=#objs,1,-1 do
+				if isObjectType(objs[i],"PlayerSpaceship") then
+					local player_x,player_y = objs[i]:getPosition()
+					local angle = (math.atan2(x-player_x,y-player_y)/math.pi*180)+90
+					setCirclePos(objs[i],x,y,-angle,self.current_radius)
+				end
+			end
+		end
+	}
+	update_system:addUpdate(newPhonySpaceObject(),"carol",update_data)
+end
+
 ----------------------------------
 --	Custom > One-Offs > Kosai  --
 ----------------------------------
@@ -46461,6 +47247,7 @@ function update(delta)
 	updateShowMineBlob()
 	expeditedDockingServices()
 	updatePlanetCollisionDetection()
+	updateBlinkArtifact()
 	if staunch_phenomenon ~= nil then
 		updateStaunch(delta)
 	end
@@ -46623,14 +47410,26 @@ function updatePlayerHazardBuoyButton(p)
 		p:addCustomButton("Relay",p.hazard_buoy_button_rel,string.format("Hazard Buoy (%s)",p.hazard_buoys),function()
 			string.format("")
 			local bx, by = p:getPosition()
-			Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+			local a = Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+			a.blink_colors = {
+				{r = 255,	g = 255,	b = 0},	--yellow
+				{r = 255,	g = 0,		b = 0},	--red
+			}
+			a.blink_index = 1
+			table.insert(blinking_artifacts,a)
 			p.hazard_buoys = p.hazard_buoys - 1
 		end)
 		p.hazard_buoy_button_ops = "hazard_buoy_button_ops"
 		p:addCustomButton("Operations",p.hazard_buoy_button_ops,string.format("Hazard Buoy (%s)",p.hazard_buoys),function()
 			string.format("")
 			local bx, by = p:getPosition()
-			Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+			local a = Artifact():setModel("SensorBuoyMKIII"):setPosition(bx,by):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+			a.blink_colors = {
+				{r = 255,	g = 255,	b = 0},	--yellow
+				{r = 255,	g = 0,		b = 0},	--red
+			}
+			a.blink_index = 1
+			table.insert(blinking_artifacts,a)
 			p.hazard_buoys = p.hazard_buoys - 1
 		end)
 	end
@@ -50648,6 +51447,31 @@ function updatePlanetCollisionDetection()
 						obj:takeDamage(planet_bump_damage,"kinetic",planet_x,planet_y)
 					end
 				end
+			end
+		end
+	end
+end
+function updateBlinkArtifact()
+	if #blinking_artifacts > 0 then
+		if getScenarioTime() > blink_artifact_time then
+			local clean_list = true
+			for i,a in ipairs(blinking_artifacts) do
+				if not a:isValid() then
+					blinking_artifacts[i] = blinking_artifacts[#blinking_artifacts]
+					blinking_artifacts[#blinking_artifacts] = nil
+					clean_list = false
+					break
+				end
+			end
+			if clean_list then
+				for i,a in ipairs(blinking_artifacts) do
+					a.blink_index = a.blink_index + 1
+					if a.blink_index > #a.blink_colors then
+						a.blink_index = 1
+					end
+					a:setRadarTraceColor(a.blink_colors[a.blink_index].r,a.blink_colors[a.blink_index].g,a.blink_colors[a.blink_index].b)
+				end
+				blink_artifact_time = getScenarioTime() + 1
 			end
 		end
 	end

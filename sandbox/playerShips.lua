@@ -190,12 +190,12 @@ function setPlayerShipStats()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Headhunter")		--J
-	makePlayerShipActive("Rogue")			--J
-	makePlayerShipActive("Gabble") 			--J 
-	makePlayerShipActive("Narsil")			--W
-	makePlayerShipActive("Jeeves")			--W
-	makePlayerShipActive("Anvil") 			--W 
+	makePlayerShipActive("Levant")			--J
+	makePlayerShipActive("Arwine")			--J
+	makePlayerShipActive("Manxman") 		--J 
+	makePlayerShipActive("Florentine")		--W
+	makePlayerShipActive("Pinwheel")		--W
+	makePlayerShipActive("Grad") 			--W 
 	stock_combat_maneuver = {
 		["Atlantis"] =			{boost = 400, strafe = 250},
 		["Benedict"] =			{boost = 400, strafe = 250},

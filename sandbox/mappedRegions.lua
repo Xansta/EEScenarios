@@ -2353,6 +2353,12 @@ function createIcarusColor()
 		if i == 1 and not mirrorUniverse then
 			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 			dp1Zone:setColor(0,128,0):setLabel("1")
+		elseif i == 3 and not mirrorUniverse then
+			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
+			dp3Zone:setColor(0,128,0):setLabel("3")
+		elseif i == 4 and not mirrorUniverse then
+			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
+			dp4Zone:setColor(0,128,0):setLabel("4")
 		elseif i == 5 and not mirrorUniverse then
 			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
 			dp5Zone:setColor(0,128,0):setLabel("5")
@@ -4735,6 +4741,12 @@ function createIcarusToRiptideWormholeArea()
 	}
 	for i,hb in ipairs(riptide_hazard_buoys) do
 		local a = Artifact():setModel("SensorBuoyMKIII"):setPosition(hb.x,hb.y):setDescription("Hazardous region. Use caution. Do not enter wormhole."):setRadarTraceColor(255,0,0)
+		a.blink_colors = {
+			{r = 255,	g = 0,		b = 0},		--red
+			{r = 255,	g = 255,	b = 0},		--yellow
+		}
+		a.blink_index = 1
+		table.insert(blinking_artifacts,a)
 		table.insert(ret,a)
 	end
 
