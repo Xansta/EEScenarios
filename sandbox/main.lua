@@ -72,7 +72,7 @@ require("sandbox/playerShips.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.5.1"
+	scenario_version = "9.6.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2280,6 +2280,7 @@ function setConstants()
 	mine_radius = 8
 	zone_rectangle_width = 5
 	zone_rectangle_height = 5
+	zone_hex_radius = 5
 	zone_click_type = "rectangle"
 	zone_point_count = 0
 	zone_point_max = 3
@@ -9911,6 +9912,11 @@ function addZoneByClick()
 		button_label = button_label .. "*"
 	end
 	addGMFunction(button_label,setZoneRectangleSize)
+	button_label = string.format("+Hexagon %i",zone_hex_radius)
+	if zone_click_type == "hexagon" then
+		button_label = button_label .. "*"
+	end
+	addGMFunction(button_label,setZoneHexagonSize)
 	button_label = string.format("+Polygon %i",zone_point_max)
 	if zone_click_type == "polygon" then
 		button_label = button_label .. "*"
@@ -9921,6 +9927,13 @@ function addZoneByClick()
 			addGMFunction(">Put Rect Zone<",putRectangleZone)
 		else
 			addGMFunction("Put Rect Zone",putRectangleZone)
+		end
+	end
+	if zone_click_type == "hexagon" then
+		if gm_click_mode == "zone hexagon" then
+			addGMFunction(">Put Hex Zone<",putHexagonZone)
+		else
+			addGMFunction("Put Hex Zone",putHexagonZone)
 		end
 	end
 	if zone_click_type == "polygon" then
@@ -9970,6 +9983,54 @@ function gmClickZoneRectangle(x,y)
 	end
 	table.insert(zone_list,zone)
 	addGMMessage(string.format("Added rectangle zone %s in %s",zone.name,zone.sector_name))
+end
+function putHexagonZone()
+	if gm_click_mode == "zone hexagon" then
+		gm_click_mode = nil
+		onGMClick(nil)
+	else
+		local prev_mode = gm_click_mode
+		gm_click_mode = "zone hexagon"
+		onGMClick(gmClickZoneHexagon)
+		if prev_mode ~= nil then
+			addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   zone hexagon\nGM click mode.",prev_mode))
+		end
+	end
+	addZoneByClick()
+end
+function gmClickZoneHexagon(x,y)
+	local p1x = x + (zone_hex_radius * 1000)
+	local p1y = y
+	local p2x, p2y = vectorFromAngle(150,zone_hex_radius * 1000,true)
+	p2x = p2x + x
+	p2y = p2y + y
+	local p3x, p3y = vectorFromAngle(210,zone_hex_radius * 1000,true)
+	p3x = p3x + x
+	p3y = p3y + y
+	local p4x = x - (zone_hex_radius * 1000)
+	local p4y = y
+	local p5x, p5y = vectorFromAngle(330,zone_hex_radius * 1000,true)
+	p5x = p5x + x
+	p5y = p5y + y
+	local p6x, p6y = vectorFromAngle(30,zone_hex_radius * 1000,true)
+	p6x = p6x + x
+	p6y = p6y + y
+	local zone = Zone():setPoints(p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,p5x,p5y,p6x,p6y)
+	if zone_color ~= "No Color" then
+		zone:setColor(zone_color_list[zone_color].r,zone_color_list[zone_color].g,zone_color_list[zone_color].b)
+	end
+	if hexagon_zone_char_val == nil then
+		hexagon_zone_char_val = 65
+	end
+	zone.name = string.format("Hex %s",string.char(hexagon_zone_char_val))
+	zone:setLabel(string.format("H%s",string.char(hexagon_zone_char_val)))
+	hexagon_zone_char_val = hexagon_zone_char_val + 1
+	zone.sector_name = zone:getSectorName()
+	if zone_list == nil then
+		zone_list = {}
+	end
+	table.insert(zone_list,zone)
+	addGMMessage(string.format("Added hexagon zone %s in %s",zone.name,zone.sector_name))
 end
 function putPolygonZone()
 	if gm_click_mode == "zone polygon" then
@@ -10127,6 +10188,27 @@ function setZoneRectangleSize()
 		addGMFunction(string.format("Shorter %i -> %i",zone_rectangle_height,zone_rectangle_height - 1),function()
 			zone_rectangle_height = zone_rectangle_height - 1
 			setZoneRectangleSize()
+		end)
+	end
+end
+function setZoneHexagonSize()
+	clearGMFunctions()
+	addGMFunction("-Main Frm Hex Size",initialGMFunctions)
+	addGMFunction("-Setup",initialSetUp)
+	addGMFunction("-Zones",changeZones)
+	addGMFunction("-Add Zone",addZone)
+	addGMFunction("-Via Click",addZoneByClick)
+	zone_click_type = "hexagon"
+	if zone_hex_radius < 9 then
+		addGMFunction(string.format("Larger %i -> %i",zone_hex_radius,zone_hex_radius + 1),function()
+			zone_hex_radius = zone_hex_radius + 1
+			setZoneHexagonSize()
+		end)
+	end
+	if zone_hex_radius > 1 then
+		addGMFunction(string.format("Smaller %i -> %i",zone_hex_radius,zone_hex_radius - 1),function()
+			zone_hex_radius = zone_hex_radius - 1
+			setZoneHexagonSize()
 		end)
 	end
 end
