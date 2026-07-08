@@ -1,8 +1,9 @@
 -- Name: Escape
 -- Description: Escape imprisonment and return home. 
 --- Mission consists of one ship with a full crew. Engineer and Science will be busy.
---- Version 5 switches to the max health system, preserves some sensor data in the final phase
---- and uses the place station scenario utility.
+---
+--- Version 5
+---
 --- USN Discord: https://discord.gg/PntGG3a where you can join a game online. There's one every weekend. All experience levels are welcome. 
 -- Type: Replayable Mission
 -- Author: Xansta
@@ -22,13 +23,12 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.0.11"
+	scenario_version = "5.1.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
 	end
-	wfv = "nowhere"		--wolf fence value - used for debugging
 	setSettings()
 	addRepulseToDatabase()
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
@@ -48,10 +48,11 @@ function init()
 	diagnostic = false			
 	GMDiagnosticOn = _("buttonGM", "Turn On Diagnostic")
 	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
-	independentTransportSpawnDelay = 20
+	independent_transport_spawn_time = getScenarioTime() + 20
 	independentTransportList = {}
-	kraylorTransportSpawnDelay = 40
+	kraylor_transport_spawn_time = getScenarioTime() + 40
 	kraylorTransportList = {}
+	kraylor_patrol_time = getScenarioTime() + 60
 	kraylorPatrolSpawnDelay = 60
 	kraylorPatrolList = {}
 	kGroup = 0
@@ -108,29 +109,35 @@ function init()
     Asteroid():setPosition(908696, 148182)
     Asteroid():setPosition(910870, 151302)
 	--Debris
-	junkYardDebrisX = {908020, 910705, 907503}
-	junkYardDebrisY = {150504, 150317, 148005}
-	debrisx, debrisy = pickCoordinate(junkYardDebrisX,junkYardDebrisY)
-	debris1 = Artifact():setPosition(debrisx, debrisy):setModel("ammo_box"):allowPickup(true):setScanningParameters(2,1):onPickUp(function(debris, pGrab) string.format("");pGrab.debris1 = true end)
+	local debris_coordinates = {
+		{x = 908020,	y = 150504},
+		{x = 910705,	y = 150317},
+		{x = 907503,	y = 148005},
+	}
+	local dc = tableRemoveRandom(debris_coordinates)
+	debris1 = Artifact():setPosition(dc.x, dc.y):setModel("ammo_box"):allowPickup(true):setScanningParameters(2,1):onPickUp(function(debris, pGrab) string.format("");pGrab.debris1 = true end)
 	debris1:setDescriptions(_("scienceDescription-debris", "Debris"),_("scienceDescription-debris", "Debris: Various broken ship components. Possibly useful for engine or weapons systems repair"))
-	debrisx, debrisy = pickCoordinate(junkYardDebrisX,junkYardDebrisY)
-	debris2 = Artifact():setPosition(debrisx, debrisy):setModel("ammo_box"):allowPickup(true):setScanningParameters(1,3):onPickUp(function(debris, pGrab) string.format("");pGrab.debris2 = true end)
+	dc = tableRemoveRandom(debris_coordinates)
+	debris2 = Artifact():setPosition(dc.x, dc.y):setModel("ammo_box"):allowPickup(true):setScanningParameters(1,3):onPickUp(function(debris, pGrab) string.format("");pGrab.debris2 = true end)
 	debris2:setDescriptions(_("scienceDescription-debris", "Debris"),_("scienceDescription-debris", "Debris: Various broken ship components. Possibly useful for shield or beam systems repair"))
-	debrisx, debrisy = pickCoordinate(junkYardDebrisX,junkYardDebrisY)
-	debris3 = Artifact():setPosition(debrisx, debrisy):setModel("ammo_box"):allowPickup(true):setScanningParameters(2,1):onPickUp(function(debris, pGrab) string.format("");pGrab.debris3 = true end)
+	dc = tableRemoveRandom(debris_coordinates)
+	debris3 = Artifact():setPosition(dc.x, dc.y):setModel("ammo_box"):allowPickup(true):setScanningParameters(2,1):onPickUp(function(debris, pGrab) string.format("");pGrab.debris3 = true end)
 	debris3:setDescriptions(_("scienceDescription-debris", "Debris"),_("scienceDescription-debris", "Debris: Various broken ship components. Possibly useful for hull or reactor systems repair"))
 	--Signs
-	junkYardSignX = {914126, 905479, 910303}
-	junkYardSignY = {151100, 148728, 147102}
+	local sign_coordinates = {
+		{x = 914126,	y = 151100},
+		{x = 905479,	y = 148728},
+		{x = 910303,	y = 147102},
+	}
 	junkZone = Zone():setPoints(905479, 148728, 906490, 146843, 910303, 147102, 914126, 151100, 912635, 154012, 905801, 151274)
-	signx, signy = pickCoordinate(junkYardSignX, junkYardSignY)
-	Sign1 = Artifact():setPosition(signx, signy):setModel("SensorBuoyMKI"):allowPickup(false):setScanningParameters(1,1)
+	local sc = tableRemoveRandom(sign_coordinates)
+	Sign1 = Artifact():setPosition(sc.x, sc.y):setModel("SensorBuoyMKI"):allowPickup(false):setScanningParameters(1,1)
 	Sign1:setDescriptions(_("scienceDescription-buoy", "Space Message Buoy"),_("scienceDescription-buoy", "Space Message Buoy reading 'Welcome to the Boris Junk Yard and Emporium' in the Kraylor language"))
-	signx, signy = pickCoordinate(junkYardSignX, junkYardSignY)
-	Sign2 = Artifact():setPosition(signx, signy):setModel("SensorBuoyMKI"):allowPickup(false):setScanningParameters(1,1)
+	sc = tableRemoveRandom(sign_coordinates)
+	Sign2 = Artifact():setPosition(sc.x, sc.y):setModel("SensorBuoyMKI"):allowPickup(false):setScanningParameters(1,1)
 	Sign2:setDescriptions(_("scienceDescription-buoy", "Space Message Buoy"),_("scienceDescription-buoy", "Space Message Buoy reading 'Boris Junk Yard: Browse for parts, take home an asteroid for the kids' in the Kraylor language"))
-	signx, signy = pickCoordinate(junkYardSignX, junkYardSignY)
-	Sign3 = Artifact():setPosition(signx, signy):setModel("SensorBuoyMKI"):allowPickup(false):setScanningParameters(1,1)
+	sc = tableRemoveRandom(sign_coordinates)
+	Sign3 = Artifact():setPosition(sc.x, sc.y):setModel("SensorBuoyMKI"):allowPickup(false):setScanningParameters(1,1)
 	Sign3:setDescriptions(_("scienceDescription-buoy", "Space Message Buoy"),_("scienceDescription-buoy", "Space Message Buoy reading 'Boris Junk Yard: Best prices in 20 sectors' in the Kraylor language"))
 	plotSign = billboardUpdate	
 	--Initial player ship
@@ -265,23 +272,6 @@ function tableRemoveRandom(array)
     array[array_item_count] = temp
     return table.remove(array)
 end
-function pickCoordinate(coordinateArrayX,coordinateArrayY)
---pick a coordinate at random from the passed table
---remove selected coordinates and return selected coordinates
-	if #coordinateArrayX > 1 then
-		choice = math.random(1,#coordinateArrayX)
-		rx = coordinateArrayX[choice]
-		ry = coordinateArrayY[choice]
-		table.remove(coordinateArrayX,choice)
-		table.remove(coordinateArrayY,choice)
-	else
-		rx = coordinateArrayX[1]
-		ry = coordinateArrayY[1]
-		table.remove(coordinateArrayX,1)
-		table.remove(coordinateArrayY,1)
-	end
-	return rx, ry
-end
 function setSettings()
 	local enemy_config = {
 		["Easy"] =		{number = .5},
@@ -306,52 +296,6 @@ function addRepulseToDatabase()
 	local size_key = _("scienceDB","Size")
 	local shield_key = _("scienceDB","Shield")
 	local hull_key = _("scienceDB","Hull")
-	--[[
-	if station_db == nil then
-		station_db = ScienceDatabase():setName(station_key)
-		station_db:setLongDescription(_("scienceDB","Stations are places for ships to dock, get repaired and replenished, interact with station personnel, etc. They are like oases, service stations, villages, towns, cities, etc."))
-		local small_station_key = _("scienceDB","Small Station")
-		station_db:addEntry(small_station_key)
-		local small_station_db = queryScienceDatabase(station_key,small_station_key)
-		small_station_db:setLongDescription(_("scienceDB","Stations of this size are often used as research outposts, listening stations, and security checkpoints. Crews turn over frequently in a small station's cramped accommodatations, but they are small enough to look like ships on many long-range sensors, and organized raiders sometimes take advantage of this by placing small stations in nebulae to serve as raiding bases. They are lightly shielded and vulnerable to swarming assaults."))
-		small_station_db:setImage("radar/smallstation.png")
-		small_station_db:setKeyValue(class_key,_("scienceDB","Small"))
-		small_station_db:setKeyValue(size_key,300)
-		small_station_db:setKeyValue(shield_key,300)
-		small_station_db:setKeyValue(hull_key,150)
-		small_station_db:setModelDataName("space_station_4")
-		local medium_station_key = _("scienceDB","Medium Station")
-		station_db:addEntry(medium_station_key)
-		local medium_station_db = queryScienceDatabase(station_key,medium_station_key)
-		medium_station_db:setLongDescription(_("scienceDB","Large enough to accommodate small crews for extended periods of times, stations of this size are often trading posts, refuelling bases, mining operations, and forward military bases. While their shields are strong, concerted attacks by many ships can bring them down quickly."))
-		medium_station_db:setImage("radar/mediumstation.png")
-		medium_station_db:setKeyValue(class_key,_("scienceDB","Medium"))
-		medium_station_db:setKeyValue(size_key,1000)
-		medium_station_db:setKeyValue(shield_key,800)
-		medium_station_db:setKeyValue(hull_key,400)
-		medium_station_db:setModelDataName("space_station_3")
-		local large_station_key = _("scienceDB","Large Station")
-		station_db:addEntry(large_station_key)
-		local large_station_db = queryScienceDatabase(station_key,large_station_key)
-		large_station_db:setLongDescription(_("scienceDB","These spaceborne communities often represent permanent bases in a sector. Stations of this size can be military installations, commercial hubs, deep-space settlements, and small shipyards. Only a concentrated attack can penetrate a large station's shields, and its hull can withstand all but the most powerful weaponry."))
-		large_station_db:setImage("radar/largestation.png")
-		large_station_db:setKeyValue(class_key,_("scienceDB","Large"))
-		large_station_db:setKeyValue(size_key,1300)
-		large_station_db:setKeyValue(shield_key,"1000/1000/1000")
-		large_station_db:setKeyValue(hull_key,500)
-		large_station_db:setModelDataName("space_station_2")
-		local huge_station_key = _("scienceDB","Huge Station")
-		station_db:addEntry(huge_station_key)
-		local huge_station_db = queryScienceDatabase(station_key,huge_station_key)
-		huge_station_db:setLongDescription(_("scienceDB","The size of a sprawling town, stations at this scale represent a faction's center of spaceborne power in a region. They serve many functions at once and represent an extensive investment of time, money, and labor. A huge station's shields and thick hull can keep it intact long enough for reinforcements to arrive, even when faced with an ongoing siege or massive, perfectly coordinated assault."))
-		huge_station_db:setImage("radar/hugestation.png")
-		huge_station_db:setKeyValue(class_key,_("scienceDB","Huge"))
-		huge_station_db:setKeyValue(size_key,1500)
-		huge_station_db:setKeyValue(shield_key,"1200/1200/1200/1200")
-		huge_station_db:setKeyValue(hull_key,800)
-		huge_station_db:setModelDataName("space_station_1")
-	end
-	--]]
 -----------------------------------------------------------------------------------
 --	Template ship category descriptions: text from other shipTemplates... files  --
 -----------------------------------------------------------------------------------
@@ -385,24 +329,6 @@ function addRepulseToDatabase()
 	local subclass_key = _("scienceDB","Sub-class")
 	local move_speed_key = _("scienceDB","Move speed")
 	local turn_speed_key = _("scienceDB","Turn speed")
-	--[[
-	if cruiser_db == nil then
-		frigate_db:addEntry(cruiser_key)
-		cruiser_db = queryScienceDatabase(ships_key,frigate_key,cruiser_key)
-		cruiser_db:setLongDescription(_("scienceDB","Fabricated by: Repulse shipyards. The Cruiser, sometimes known as the Karnack Cruiser Mark 2, is the sucessor to the widly sucesfull mark I Karnack cruiser. This ship has several notable improvements over the original ship, including better armor, slightly improved weaponry and customization by the shipyards. The latter improvement was the most requested feature by several factions once they realized that their old surplus mark I ships were used for less savoury purposes."))
-		cruiser_db:setKeyValue(class_key,frigate_key)
-		cruiser_db:setKeyValue(subclass_key,cruiser_key)
-		cruiser_db:setKeyValue(size_key,"100")
-		cruiser_db:setKeyValue(shield_key,"40/40")
-		cruiser_db:setKeyValue(hull_key,"70")
-		cruiser_db:setKeyValue(move_speed_key,_("scienceDB","3.6 U/min"))	--60
-		cruiser_db:setKeyValue(turn_speed_key,_("scienceDB","6 deg/sec"))
-		cruiser_db:setKeyValue(_("scienceDB","Beam weapon 345:90"),_("scienceDB","Rng:1 Dmg:6 Cyc:6"))
-		cruiser_db:setKeyValue(_("scienceDB","Beam weapon 15:90"),_("scienceDB","Rng:1 Dmg:6 Cyc:6"))
-		cruiser_db:setImage("radar/cruiser.png")
-		cruiser_db:setModelDataName("small_frigate_4")
-	end
-	--]]
 --------------------------
 --	Stock player ships  --
 --------------------------
@@ -478,7 +404,7 @@ function placeRandomAsteroidsAroundPoint(object_type, amount, dist_min, dist_max
         local x = x0 + math.cos(r / 180 * math.pi) * distance
         local y = y0 + math.sin(r / 180 * math.pi) * distance
         local obj = object_type():setPosition(x, y)
-        if obj.typeName == "Asteroid" or obj.typeName == "VisualAsteroid" then
+        if isObjectType(obj,"Asteroid") or isObjectType(obj,"VisualAsteroid") then
 			obj:setSize(random(1,100) + random(1,75) + random(1,75) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20) + random(1,20))
         end
     end
@@ -1395,7 +1321,7 @@ function handleDockedState()
 					setCommsMessage(_("crewFriends-comms", "For the Repulse class? Absolutely. I used to work on those all the time."))
 					playerRepulse:setBeamWeapon(1, 10,-90, 1200.0, 6.0, 5)
 					playerRepulse.beamFix = "done"
-					fixFloodTimer = 30
+					fix_flood_time = getScenarioTime() + 30
 					plot1 = fixFlood
 					addCommsReply(_("crewFriends-comms", "Thanks"), function()
 						setCommsMessage(_("crewFriends-comms", "You're quite welcome. While I was in there, I fixed up your beams so they could function at maximum potential."))
@@ -1583,7 +1509,7 @@ function handleDockedState()
 						local scanned_ships = {}
 						local fully_scanned_ships = {}
 						for i,obj in ipairs(objects) do
-							if obj.typeName == "CpuShip" then
+							if isObjectType(obj,"CpuShip") then
 								if obj:isScannedBy(playerRepulse) then
 									table.insert(scanned_ships,obj)
 								end
@@ -2568,7 +2494,7 @@ function friendlyComms(comms_data)
 		addCommsReply(_("Back"), commsShip)
 	end)
 	for idx, obj in ipairs(comms_target:getObjectsInRange(5000)) do
-		if obj.typeName == "SpaceStation" and not comms_target:isEnemy(obj) then
+		if isObjectType(obj,"SpaceStation") and not comms_target:isEnemy(obj) then
 			addCommsReply(string.format(_("shipAssist-comms", "Dock at %s"), obj:getCallSign()), function()
 				setCommsMessage(string.format(_("shipAssist-comms", "Docking at %s."), obj:getCallSign()));
 				comms_target:orderDock(obj)
@@ -2835,35 +2761,33 @@ function scanRepulse(delta)
 	end
 	if junkRepulse:isValid() then
 		if junkRepulse:isFullyScannedBy(playerFighter) then
-			hintRepulseTimer = random(30,60)
+			hint_repulse_time = getScenarioTime() + random(30,60)
 			plot1 = hintRepulse
 		end
 	end
 end
 function checkForSuffocationOnFighter(delta)
-	if air_low_timer == nil then
+	if air_low_time == nil then
 		if difficulty > 1 then
-			air_low_timer = delta + 60*3
+			air_low_time = getScenarioTime() + 60*3
 		else
-			air_low_timer = delta + 60*5
+			air_low_time = getScenarioTime() + 60*5
 		end
 	end
-	air_low_timer = air_low_timer - delta
-	if air_low_timer < 0 then
-		if suffocation_timer == nil then
-			if difficulty > 1 then
-				suffocation_timer = delta + 60*3
+	if getScenarioTime() > air_low_time then
+		if suffocation_time == nil then
+			if difficulty >1 then
+				suffocation_time = getScenarioTime() + 60*3
 			else
-				suffocation_timer = delta + 60*5
+				suffocation_time = getScenarioTime() + 60*5
 			end
 		end
-		suffocation_timer = suffocation_timer - delta
 		if difficulty == 1 then
 			if early_hint_time == nil then
 				early_hint_time = getScenarioTime() + 250
 			end
 			if getScenarioTime() > early_hint_time then
-				if hintRepulseTimer == nil or hintRepulseTimer > 0 then
+				if hint_repulse_time == nil or getScenarioTime() < hint_repulse_time then
 					if playerFighter.early_hint_msg_eng == nil then
 						playerFighter.early_hint_msg_eng = "early_hint_msg_eng"
 						playerFighter:addCustomMessage("Engineering",playerFighter.early_hint_msg_eng,string.format(_("air-msgEngineer","The Repulse ship %s seems like it's in the best condition. You should ask the science officer to scan it again to check the state of its engines."),junkRepulse:getCallSign()))
@@ -2876,56 +2800,45 @@ function checkForSuffocationOnFighter(delta)
 			end
 		end
 		local suffocation_label = _("airTimer-tabScience&Eng&Eng+&Ops", "Suffocation")
-		local suffocation_label_minutes = math.floor(suffocation_timer / 60)
-		local suffocation_label_seconds = math.floor(suffocation_timer % 60)
+		local suffocation_label_minutes = math.floor((suffocation_time - getScenarioTime()) / 60)
+		local suffocation_label_seconds = math.floor((suffocation_time - getScenarioTime()) % 60)
 		if suffocation_label_minutes <= 0 then
 			suffocation_label = string.format(_("airTimer-tabScience&Eng&Eng+&Ops", "%s %i"),suffocation_label,suffocation_label_seconds)
 		else
 			suffocation_label = string.format(_("airTimer-tabScience&Eng&Eng+&Ops", "%s %i:%.2i"),suffocation_label,suffocation_label_minutes,suffocation_label_seconds)
 		end
-		if playerFighter:hasPlayerAtPosition("Engineering") then
-			if playerFighter.suffocation_message == nil then
-				playerFighter.suffocation_message = "suffocation_message"
-				playerFighter:addCustomMessage("Engineering",playerFighter.suffocation_message,_("air-msgEngineer", "Environmental systems show limited air remaining"))
-			end
-			playerFighter.suffocation_timer = "suffocation_timer"
-			playerFighter:addCustomInfo("Engineering",playerFighter.suffocation_timer,suffocation_label)
+		if playerFighter.suffocation_message == nil then
+			playerFighter.suffocation_message = "suffocation_message"
+			playerFighter:addCustomMessage("Engineering",playerFighter.suffocation_message,_("air-msgEngineer", "Environmental systems show limited air remaining"))
 		end
-		if playerFighter:hasPlayerAtPosition("Engineering+") then
-			if playerFighter.suffocation_message_eng_plus == nil then
-				playerFighter.suffocation_message_eng_plus = "suffocation_message_eng_plus"
-				playerFighter:addCustomMessage("Engineering+",playerFighter.suffocation_message_eng_plus,_("air-msgEngineer+", "Environmental systems show limited air remaining"))
-			end
-			playerFighter.suffocation_timer_eng_plus = "suffocation_timer_eng_plus"
-			playerFighter:addCustomInfo("Engineering+",playerFighter.suffocation_timer_eng_plus,suffocation_label)
+		playerFighter.suffocation_timer = "suffocation_timer"
+		playerFighter:addCustomInfo("Engineering",playerFighter.suffocation_timer,suffocation_label)
+		if playerFighter.suffocation_message_eng_plus == nil then
+			playerFighter.suffocation_message_eng_plus = "suffocation_message_eng_plus"
+			playerFighter:addCustomMessage("Engineering+",playerFighter.suffocation_message_eng_plus,_("air-msgEngineer+", "Environmental systems show limited air remaining"))
 		end
-		if playerFighter:hasPlayerAtPosition("DamageControl") then
-			if playerFighter.suffocation_message_dmg_ctl == nil then
-				playerFighter.suffocation_message_dmg_ctl = "suffocation_message_dmg_ctl"
-				playerFighter:addCustomMessage("DamageControl",playerFighter.suffocation_message_dmg_ctl,_("air-msgDamageControl", "Environmental systems show limited air remaining"))
-			end
-			playerFighter.suffocation_timer_dmg_ctl = "suffocation_timer_dmg_ctl"
-			playerFighter:addCustomInfo("DamageControl",playerFighter.suffocation_timer_dmg_ctl,suffocation_label)
+		playerFighter.suffocation_timer_eng_plus = "suffocation_timer_eng_plus"
+		playerFighter:addCustomInfo("Engineering+",playerFighter.suffocation_timer_eng_plus,suffocation_label)
+		if playerFighter.suffocation_message_dmg_ctl == nil then
+			playerFighter.suffocation_message_dmg_ctl = "suffocation_message_dmg_ctl"
+			playerFighter:addCustomMessage("DamageControl",playerFighter.suffocation_message_dmg_ctl,_("air-msgDamageControl", "Environmental systems show limited air remaining"))
 		end
-		if playerFighter:hasPlayerAtPosition("Science") then
-			if playerFighter.suffocation_message_science == nil then
-				playerFighter.suffocation_message_science = "suffocation_message_science"
-				playerFighter:addCustomMessage("Science",playerFighter.suffocation_message_science,_("air-msgScience", "Environmental systems show limited air remaining"))
-			end
-			playerFighter.suffocation_timer_science = "suffocation_timer_science"
-			playerFighter:addCustomInfo("Science",playerFighter.suffocation_timer_science,suffocation_label)
+		playerFighter.suffocation_timer_dmg_ctl = "suffocation_timer_dmg_ctl"
+		playerFighter:addCustomInfo("DamageControl",playerFighter.suffocation_timer_dmg_ctl,suffocation_label)
+		if playerFighter.suffocation_message_science == nil then
+			playerFighter.suffocation_message_science = "suffocation_message_science"
+			playerFighter:addCustomMessage("Science",playerFighter.suffocation_message_science,_("air-msgScience", "Environmental systems show limited air remaining"))
 		end
-		if playerFighter:hasPlayerAtPosition("Operations") then
-			if playerFighter.suffocation_message_ops == nil then
-				playerFighter.suffocation_message_ops = "suffocation_message_ops"
-				playerFighter:addCustomMessage("Operations",playerFighter.suffocation_message_ops,_("air-msgOperations", "Environmental systems show limited air remaining"))
-			end
-			playerFighter.suffocation_timer_ops = "suffocation_timer_ops"
-			playerFighter:addCustomInfo("Operations",playerFighter.suffocation_timer_ops,suffocation_label)
+		playerFighter.suffocation_timer_science = "suffocation_timer_science"
+		playerFighter:addCustomInfo("Science",playerFighter.suffocation_timer_science,suffocation_label)
+		if playerFighter.suffocation_message_ops == nil then
+			playerFighter.suffocation_message_ops = "suffocation_message_ops"
+			playerFighter:addCustomMessage("Operations",playerFighter.suffocation_message_ops,_("air-msgOperations", "Environmental systems show limited air remaining"))
 		end
-		if suffocation_timer < 0 then
+		playerFighter.suffocation_timer_ops = "suffocation_timer_ops"
+		playerFighter:addCustomInfo("Operations",playerFighter.suffocation_timer_ops,suffocation_label)
+		if getScenarioTime() > suffocation_time then
 			globalMessage(_("defeat-msgMainscreen", "You suffocated while aboard the fighter hulk"))
-			victory("Kraylor")
 			if playerFighter.suffocation_timer ~= nil then
 				playerFighter:removeCustom(playerFighter.suffocation_timer)
 				playerFighter.suffocation_timer = nil
@@ -2946,6 +2859,7 @@ function checkForSuffocationOnFighter(delta)
 				playerFighter:removeCustom(playerFighter.suffocation_timer_ops)
 				playerFighter.suffocation_timer_ops = nil
 			end
+			victory("Kraylor")
 		end
 	end
 end
@@ -2954,8 +2868,7 @@ function hintRepulse(delta)
 	if difficulty >= 1 then
 		plotSuffocate = checkForSuffocationOnFighter
 	end
-	hintRepulseTimer = hintRepulseTimer - delta
-	if hintRepulseTimer < 0 then
+	if getScenarioTime() > hint_repulse_time then
 		if playerFighter:hasPlayerAtPosition("Engineering") then
 			repulseHintMessage = "repulseHintMessage"
 			playerFighter:addCustomMessage("Engineering",repulseHintMessage,string.format(_("transfer-msgEngineer", "Reading through the scan data provided by science, you see that there could be a working jump drive on %s. However, if the crew wishes to transport over there, %s will need to get very close due to the minimal amount of energy remaining in the transporters."),junkRepulse:getCallSign(),playerFighter:getCallSign()))
@@ -3047,7 +2960,7 @@ function repulseTransfer()
 	playerRepulse.debris3 = playerFighter.debris3	--transfer debris record
 	playerFighter:destroy()				--goodbye player fighter
 	playerShipHealth = plunderHealth	--switch player health check function to repulse
-	augmentRepairCrewTimer = 45			--time to repair crew escape
+	augment_repair_crew_time = getScenarioTime() + 45
 	plot1 = augmentRepairCrew
 	playerRepulse:addToShipLog(_("transfer-shipLog", "Welcome aboard the Repulse class ship, rechristened HMS Plunder, currently registered as Independent"),"Magenta")
 	player = playerRepulse
@@ -3055,8 +2968,7 @@ function repulseTransfer()
 end
 function augmentRepairCrew(delta)
 --Former repair crew asks to be rescued to take up their jobs again
-	augmentRepairCrewTimer = augmentRepairCrewTimer - delta
-	if augmentRepairCrewTimer < 0 then
+	if getScenarioTime() > augment_repair_crew_time then
 		brigHailed = brigStation:sendCommsMessage(playerRepulse,_("crewImport-incCall", "Need a repair crew? We used to be posted on that ship. We would be happy to return to our repair duty and get away from these Kraylors. We left the transporters locked on us, but the Kraylors destroyed our remote activator. You should find an activation switch at the weapons console"))
 		if brigHailed then
 			if playerRepulse:hasPlayerAtPosition("Weapons") then
@@ -3072,9 +2984,9 @@ function augmentRepairCrew(delta)
 				end
 			end
 			plot1 = beamDamageReport
-			beamDamageReportTimer = 30
+			beam_damage_report_time = getScenarioTime() + 30
 		end
-		augmentRepairCrewTimer = delta + 30
+		augment_repair_crew_time = getScenarioTime() + 30
 	end
 end
 function returnRepairCrew()
@@ -3089,42 +3001,38 @@ function returnRepairCrew()
 end
 function beamDamageReport(delta)
 --Report on damaged beams on port side, start second plot
-	beamDamageReportTimer = beamDamageReportTimer - delta
-	if beamDamageReportTimer < 0 then
+	if getScenarioTime() > beam_damage_report_time then
 		playerRepulse:addToShipLog(_("crewRepair-shipLog", "Repair crew reports that the port beam weapon emplacement is currently non-functional. No applicable spare parts found aboard"),"Magenta")
 		plot1 = jumpDamageReport
 		plot2 = portBeamEnable
-		jumpDamageReportTimer = 30
+		jump_damage_report_time = getScenarioTime() + 30
 	end
 end
 function jumpDamageReport(delta)
 --Report on damaged jump drive, start third plot
-	jumpDamageReportTimer = jumpDamageReportTimer - delta
-	if jumpDamageReportTimer < 0 then
+	if getScenarioTime() > jump_damage_report_time then
 		if playerRepulse.debris1 then
 			playerRepulse:addToShipLog(_("crewRepair-shipLog", "Repair crew reports the jump drive not operational. However, they may be able to adapt some of the space debris picked up earlier into suitable replacement parts. They are starting the fabrication process now"),"Magenta")
 			plot3 = jumpPartFabrication
-			jumpPartFabricationTimer = 60
+			jump_part_fabrication_time = getScenarioTime() + 60
 		else
 			playerRepulse:addToShipLog(_("crewRepair-shipLog", "Repair crew reports the jump drive inoperative. Additional parts are necessary"),"Magenta")
 			plot3 = jumpPartGathering
 		end
 		plot1 = missileDamageReport
-		missileDamageReportTimer = 30
+		missile_damage_report_time = getScenarioTime() + 30
 	end
 end
 function missileDamageReport(delta)
 --Report on damaged missile systems
-	missileDamageReportTimer = missileDamageReportTimer - delta
-	if missileDamageReportTimer < 0 then
+	if getScenarioTime() > missile_damage_report_time then
 		playerRepulse:addToShipLog(_("crewRepair-shipLog", "Repair crew says the missle weapons systems are not repairable with available components"),"Magenta")
-		hull_damage_report_timer = 80
+		hull_damage_report_time = getScenarioTime() + 80
 		plot1 = hullDamageReport
 	end
 end
 function hullDamageReport(delta)
-	hull_damage_report_timer = hull_damage_report_timer - delta
-	if hull_damage_report_timer < 0 then
+	if getScenarioTime() > hull_damage_report_time then
 		plot1 = damageSummaryReport
 		if playerRepulse.debris3 then
 			playerRepulse:setHull(playerRepulse:getHull()*2)
@@ -3146,8 +3054,7 @@ function damageSummaryReport(delta)
 end
 function fixFlood(delta)
 --trigger: beam repaired 
-	fixFloodTimer = fixFloodTimer - delta
-	if fixFloodTimer < 0 then
+	if getScenarioTime() > fix_flood_time then
 		if missileFixStation == nil then
 			repeat
 				candidate = stationList[math.random(1,#stationList)]
@@ -3155,7 +3062,7 @@ function fixFlood(delta)
 					missileFixStation = candidate
 				end
 			until(missileFixStation ~= nil)
-			fixFloodTimer = delta + 30
+			fix_flood_time = getScenarioTime() + 30
 			return
 		end
 		if missileFixStation ~= nil then
@@ -3171,7 +3078,7 @@ function fixFlood(delta)
 					shieldFixStation = candidate
 				end
 			until(shieldFixStation ~= nil)
-			fixFloodTimer = delta + 30
+			fix_flood_time = getScenarioTime() + 30
 			return
 		end
 		if shieldFixStation ~= nil then
@@ -3187,7 +3094,7 @@ function fixFlood(delta)
 					impulseFixStation = candidate
 				end
 			until(impulseFixStation ~= nil)
-			fixFloodTimer = delta + 30
+			fix_flood_time = getScenarioTime() + 30
 			return
 		end
 		if impulseFixStation ~= nil then
@@ -3203,7 +3110,7 @@ function fixFlood(delta)
 					longRangeFixStation = candidate
 				end
 			until(longRangeFixStation ~= nil)
-			fixFloodTimer = delta + 30
+			fix_flood_time = getScenarioTime() + 30
 			return
 		end
 		if longRangeFixStation ~= nil then
@@ -3219,7 +3126,7 @@ function fixFlood(delta)
 					jumpFixStation = candidate
 				end
 			until(jumpFixStation ~= nil)
-			fixFloodTimer = delta + 30
+			fix_flood_time = getScenarioTime() + 30
 			return
 		end
 		if jumpFixStation ~= nil then
@@ -3235,7 +3142,7 @@ function fixFlood(delta)
 					reactorFixStation = candidate
 				end
 			until(reactorFixStation ~= nil)
-			fixFloodTimer = delta + 30
+			fix_flood_time = getScenarioTime() + 30
 			return
 		end
 		if reactorFixStation ~= nil then
@@ -3254,32 +3161,33 @@ function fixFlood(delta)
 						playerRepulse:addCustomButton("Operations",crewFixButtonMsgOp,_("crewRepairStatut-buttonOperations", "crew fixers"),showCrewFixers)
 					end
 				end
-				harassment_timer = 350
+				harassment_time = getScenarioTime() + 350
 				plot1 = cumulativeHarassment
 			end
 		end
 	end
 end
 function cumulativeHarassment(delta)
-	harassment_timer = harassment_timer - delta
-	if harassment_timer < 0 then
-		local total_health = playerRepulse:getSystemHealth("reactor")
-		total_health = total_health + playerRepulse:getSystemHealth("beamweapons")
-		total_health = total_health + playerRepulse:getSystemHealth("maneuver")
-		total_health = total_health + playerRepulse:getSystemHealth("missilesystem")
-		total_health = total_health + playerRepulse:getSystemHealth("impulse")
-		total_health = total_health + playerRepulse:getSystemHealth("jumpdrive")
-		total_health = total_health + playerRepulse:getSystemHealth("frontshield")
-		total_health = total_health + playerRepulse:getSystemHealth("rearshield")
-		total_health = total_health + playerRepulse:getSystemHealth("warp")
-		total_health = total_health/9
-		local cpx, cpy = playerRepulse:getPosition()
-		local dpx, dpy = vectorFromAngle(random(0,360),playerRepulse:getLongRangeRadarRange()+500)
-		local fleet = spawnEnemies(cpx+dpx,cpy+dpy,total_health,"Exuari")
-		for idx, enemy in ipairs(fleet) do
-			enemy:orderAttack(playerRepulse)
+	if getScenarioTime() > harassment_time then
+		if playerRepulse:getReputationPoints() < 150 then
+			local total_health = playerRepulse:getSystemHealth("reactor")
+			total_health = total_health + playerRepulse:getSystemHealth("beamweapons")
+			total_health = total_health + playerRepulse:getSystemHealth("maneuver")
+			total_health = total_health + playerRepulse:getSystemHealth("missilesystem")
+			total_health = total_health + playerRepulse:getSystemHealth("impulse")
+			total_health = total_health + playerRepulse:getSystemHealth("jumpdrive")
+			total_health = total_health + playerRepulse:getSystemHealth("frontshield")
+			total_health = total_health + playerRepulse:getSystemHealth("rearshield")
+			total_health = total_health + playerRepulse:getSystemHealth("warp")
+			total_health = total_health/9
+			local cpx, cpy = playerRepulse:getPosition()
+			local dpx, dpy = vectorFromAngle(random(0,360),playerRepulse:getLongRangeRadarRange()+500)
+			local fleet = spawnEnemies(cpx+dpx,cpy+dpy,total_health,"Exuari")
+			for idx, enemy in ipairs(fleet) do
+				enemy:orderAttack(playerRepulse)
+			end
 		end
-		harassment_timer = delta + 200 - (difficulty*20)
+		harassment_time = getScenarioTime() + 240 - (difficulty*20)
 	end
 end
 function showCrewFixers()
@@ -3302,7 +3210,7 @@ function showCrewFixers()
 	if not playerRepulse.reactorFix then
 		oMsg = oMsg .. string.format(_("crewRepairStatut-msgRelay&Operations", " Reactor:%s(%s) "),reactorFixStation:getCallSign(),reactorFixStation:getSectorName())
 	end
-	if oMsg == nil then
+	if oMsg == "" then
 		if crewFixButtonMsg ~= nil then
 			playerRepulse:removeCustom(crewFixButtonMsg)
 		end
@@ -3320,13 +3228,12 @@ end
 function portBeamEnable(delta)
 	if playerRepulse:getRepairCrewCount() > 1 then
 		plot2 = suggestBeamFix
-		suggestBeamFixTimer = 70
+		suggest_beam_fix_time = getScenarioTime() + 70
 	end
 end
 function suggestBeamFix(delta)
 --Repair suggestion
-	suggestBeamFixTimer = suggestBeamFixTimer - delta
-	if suggestBeamFixTimer < 0 then
+	if getScenarioTime() > suggest_beam_fix_time then
 		if beamFixStation == nil then
 			repeat
 				candidate = stationList[math.random(1,#stationList)]
@@ -3342,17 +3249,16 @@ end
 function chaseTrigger(delta)
 --Ship gets repaired then chased
 	if plot1 == nil then
-		junkYardDogTimer = 20
+		junk_yard_dog_time = getScenarioTime() + 20
 		plot2 = junkYardDog
 	end
 end
 function junkYardDog(delta)
 --Sic junk yard dog on player ship
-	junkYardDogTimer = junkYardDogTimer - delta
-	if junkYardDogTimer < 0 then
+	if getScenarioTime() > junk_yard_dog_time then
 		if junkZone:isInside(playerRepulse) then
 			if junk_yard_dog ~= nil and junk_yard_dog:isValid() then
-				junkYardDogTimer = delta + 120 - (difficulty*20)
+				junk_yard_dog_time = getScenarioTime() + 120 - (difficulty*20)
 			else
 				if difficulty < 1 then
 					junk_yard_dog = CpuShip():setFaction("Exuari"):setTemplate("Ktlitan Drone"):setPosition(brigx-50,brigy-50):orderAttack(playerRepulse):setRotation(180)
@@ -3363,7 +3269,7 @@ function junkYardDog(delta)
 				end
 			end
 		else
-			borisChaseTimer = 300
+			boris_chase_time = getScenarioTime() + 300
 			plot2 = borisChase
 		end
 		if playerRepulse.junk_yard_dog_warning == nil and junk_yard_dog ~= nil and junk_yard_dog:isValid() then
@@ -3374,9 +3280,8 @@ function junkYardDog(delta)
 	end
 end
 function borisChase(delta)
-	borisChaseTimer = borisChaseTimer - delta
-	if borisChaseTimer < 0 then
-		borisChaseTimer = delta + 300 + random(1,300)
+	if getScenarioTime() > boris_chase_time then
+		boris_chase_time = getScenarioTime() + 300 + random(1,30)
 		if not junkZone:isInside(playerRepulse) then
 			if junkChaser ~= nil and junkChaser:isValid() then
 				if boris_message_log_messages == nil or #boris_message_log_messages == 0 then
@@ -3414,8 +3319,8 @@ function borisChase(delta)
 	end
 end
 function resetBoris(self, instigator)
-	if borisChaseTimer < 300 then
-		borisChaseTimer = 300
+	if boris_chase_time > getScenarioTime() then
+		boris_chase_time = getScenarioTime() + 300
 	end
 	if boris_expiration_messages == nil or #boris_expiration_messages == 0 then
 		boris_expiration_messages = {
@@ -3434,22 +3339,20 @@ end
 function jumpPartGathering(delta)
 	if playerRepulse.debris1 then
 		plot3 = jumpPartRecognition
-		jumpPartRecognitionTimer = 15
+		jump_part_recognition_time = getScenarioTime() + 15
 	end
 end
 function jumpPartRecognition(delta)
 --Identify debris as useful for repair of jump drive
-	jumpPartRecognitionTimer = jumpPartRecognitionTimer - delta
-	if jumpPartRecognitionTimer < 0 then
+	if getScenarioTime() > jump_part_recognition_time then
 		playerRepulse:addToShipLog(_("crewRepair-shipLog", "Repair crew thinks they can use the space debris recently acquired to make repair parts for the jump drive. They are starting the fabrication process now."),"Magenta")
 		plot3 = jumpPartFabrication
-		jumpPartFabricationTimer = 60
+		jump_part_fabrication_time = getScenarioTime() + 60
 	end
 end
 function jumpPartFabrication(delta)
 --Jump drive repairable 
-	jumpPartFabricationTimer = jumpPartFabricationTimer - delta
-	if jumpPartFabricationTimer < 0 then
+	if getScenarioTime() > jump_part_fabrication_time then
 		playerRepulse:addToShipLog(_("crewRepair-shipLog", "Repair crew finished jump drive part fabrication. They believe the jump drive should be functional soon."),"Magenta")
 		playerRepulse:setSystemHealthMax("jumpdrive",.5)
 		plot3 = nil
@@ -3459,12 +3362,75 @@ end
 --	Fourth plot return home  --
 -------------------------------
 function returnHome(delta)
-	for i=1,#friendlyStationList do
-		if friendlyStationList[i] ~= nil and friendlyStationList[i]:isValid() then
-			if playerRepulse:isDocked(friendlyStationList[i]) then
-				globalMessage(_("victory-msgMainscreen","Congratulations! You escaped the Kraylor clutches and returned all your gathered data on the Kraylor to the Human Navy."))
-				victory("Human Navy")
+	for i,friendly_station in ipairs(friendlyStationList) do
+		if friendly_station ~= nil then
+			if friendly_station:isValid() then
+				if playerRepulse:isDocked(friendly_station) then
+					local msg = "Congratulations! You escaped the Kraylor clutches and returned all your gathered data on the Kraylor to the Human Navy."
+					local systems = {
+						["reactor"] =		_("victory-msgMainscreen","Reactor"),
+						["beamweapons"] =	_("victory-msgMainscreen","Beam Weapons"),
+						["missilesystem"] = _("victory-msgMainscreen","Missile System"),
+						["maneuver"] = 		_("victory-msgMainscreen","Maneuver"),
+						["impulse"] =		_("victory-msgMainscreen","Impulse"),
+						["jumpdrive"] =		_("victory-msgMainscreen","Jump Drive"),
+						["frontshield"] =	_("victory-msgMainscreen","Front Shield"),
+						["rearshield"] =	_("victory-msgMainscreen","Rear Shield"),
+					}
+					local unfixed = {}
+					local fixed = {}
+					local damaged = {}
+					for sys,sys_out in pairs(systems) do
+						if playerRepulse:getSystemHealthMax(sys) < 1 then
+							table.insert(unfixed,{sys=sys,sys_out=sys_out,dmg=playerRepulse:getSystemHealthMax(sys)})
+						else
+							if playerRepulse:getSystemHealth(sys) < 1 then
+								table.insert(damaged,{sys=sys,sys_out=sys_out,dmg=playerRepulse:getSystemHealth(sys)})
+							else
+								table.insert(fixed,{sys=sys,sys_out=sys_out})
+							end
+						end
+					end
+					if #unfixed > 0 then
+						msg = string.format(_("victory-msgMainscreen","%s\nThese systems remained severely damaged:\n"),msg)
+						for i,unfix in ipairs(unfixed) do
+							msg = string.format("%s   %s:%i%%",msg,unfix.sys_out,math.floor(unfix.dmg*100))
+						end
+					else
+						msg = string.format(_("victory-msgMainscreen","%s\nSeverely damaged systems were all repaired."),msg)
+					end
+					if #damaged > 0 then
+						msg = string.format(_("victory-msgMainscreen","%s\nThese systems were not fully operational:\n"),msg)
+						for i,damage in ipairs(damaged) do
+							msg = string.format("%s   %s:%i%%",msg,damage.sys_out,math.floor(damage.dmg*100))
+						end
+						if #fixed > 0 then
+							msg = string.format(_("victory-msgMainscreen","%s\nThese systems were fully operational:\n"),msg)
+							for i,fix in ipairs(fixed) do
+								msg = string.format("%s   %s",msg,fix.sys_out)
+							end
+						end
+					else
+						if #unfixed > 0 then
+							msg = string.format(_("victory-msgMainscreen","%s\nThe remaining systems were fully operational."),msg)
+						else
+							msg = string.format(_("victory-msgMainscreen","%s\nAll systems were fully operational."),msg)
+						end
+					end
+					msg = string.format(_("victory-msgMainscreen","%s\nConfiguration:   Enemies:%s   Murphy:%s"),msg,getScenarioSetting("Enemies"),getScenarioSetting("Murphy"))
+					msg = string.format(_("victory-msgMainscreen","%s\nTime spent in mission - %s"),msg,formatTime(getScenarioTime()))
+					globalMessage(msg)
+					victory("Human Navy")
+				end
+			else
+				friendlyStationList[i] = friendlyStationList[#friendlyStationList]
+				friendlyStationList[#friendlyStationList] = nil
+				break
 			end
+		else
+			friendlyStationList[i] = friendlyStationList[#friendlyStationList]
+			friendlyStationList[#friendlyStationList] = nil
+			break
 		end
 	end
 end
@@ -3472,67 +3438,76 @@ end
 --	Kraylor Patrol plot  --
 ---------------------------
 function kraylorPatrol(delta)
-	if kraylorPatrolSpawnDelay > 0 then
-		kraylorPatrolSpawnDelay = kraylorPatrolSpawnDelay - delta
-	end
-	if kraylorPatrolSpawnDelay < 0 then
-		kraylorPatrolSpawnDelay = delta + random(5,15)
-		kgr = {}	--kraylor group reconcile
+	if getScenarioTime() > kraylor_patrol_time then
+		local kgr = {}	--kraylor group reconcile
+		local clean_list = true
 		for kpidx, kpobj in ipairs(kraylorPatrolList) do
 			if kpobj ~= nil and kpobj:isValid() then
 				if kpobj.target ~= nil and kpobj.target:isValid() then
 					if distance(kpobj, kpobj.target) < 1000 then
 						kpobj.target = randomStation(enemyStationList)
-						ktx, kty = kpobj.target:getPosition()
-						kpobj:orderFlyTowards(ktx, kty)
+						if kpobj.target ~= nil then
+							ktx, kty = kpobj.target:getPosition()
+							kpobj:orderFlyTowards(ktx, kty)
+						end
 					end
 				else
 					kpobj.target = randomStation(enemyStationList)
-					ktx, kty = kpobj.target:getPosition()
-					kpobj:orderFlyTowards(ktx, kty)
+					if kpobj.target ~= nil then
+						ktx, kty = kpobj.target:getPosition()
+						kpobj:orderFlyTowards(ktx, kty)
+					end
 				end
 				if junkZone:isInside(kpobj) then
 					ktx, kty = kpobj.target:getPosition()					
 					kpobj:orderFlyTowardsBlind(ktx, kty)
 				end
 				kgr[kpobj.groupID] = true
-			end
-		end
-		kraylorPatrolCount = 0
-		for idx, kgi in ipairs(kgr) do
-			if kgi then
-				kraylorPatrolCount = kraylorPatrolCount + 1
-			end
-		end
-		if playerRepulse ~= nil and playerRepulse:isValid() and playerRepulse:getFaction() == "Human Navy" then
-			kraylorAlerted = true
-			patrolLimit = #enemyStationList * (2 + difficulty)
-		else
-			kraylorAlerted = false
-			patrolLimit = #enemyStationList
-		end
-		if kraylorPatrolCount < patrolLimit then
-			target = nil
-			repeat
-				target = randomStation(enemyStationList)
-			until(target ~= nil)
-			--spawn patrol group
-			tx, ty = target:getPosition()
-			if kraylorAlerted and kraylorPatrolCount/patrolLimit*100 < random(1,100) then
-				nearFriend, rest = nearStations(playerRepulse, friendlyStationList)
-				nfx, nfy = nearFriend:getPosition()
-				plx, ply = playerRepulse:getPosition()
-				patrolGroup = spawnEnemies((nfx+plx)/2,(nfy+ply)/2,random(.8,1.2),"Kraylor")				
 			else
-				dx, dy = vectorFromAngle(random(0,360),random(25000,40000))
-				patrolGroup = spawnEnemies(tx+dx,ty+dy,random(.8,2.2),"Kraylor")
+				kraylorPatrolList[kpidx] = kraylorPatrolList[#kraylorPatrolList]
+				kraylorPatrolList[#kraylorPatrolList] = nil
+				clean_list = false
+				break
 			end
-			kGroup = kGroup + 1
-			for idx, enemy in ipairs(patrolGroup) do
-				enemy:orderFlyTowards(tx, ty)
-				enemy.target = target
-				enemy.groupID = kGroup
-				table.insert(kraylorPatrolList,enemy)
+		end
+		if clean_list then
+			kraylor_patrol_time = getScenarioTime() + random(5,15)
+			kraylorPatrolCount = 0
+			for idx, kgi in ipairs(kgr) do
+				if kgi then
+					kraylorPatrolCount = kraylorPatrolCount + 1
+				end
+			end
+			if playerRepulse ~= nil and playerRepulse:isValid() and playerRepulse:getFaction() == "Human Navy" then
+				kraylorAlerted = true
+				patrolLimit = #enemyStationList * (2 + difficulty)
+			else
+				kraylorAlerted = false
+				patrolLimit = #enemyStationList
+			end
+			if kraylorPatrolCount < patrolLimit then
+				local target = randomStation(enemyStationList)
+				if target ~= nil then
+					--spawn patrol group
+					tx, ty = target:getPosition()
+					local patrol_group = {}
+					if kraylorAlerted and kraylorPatrolCount/patrolLimit*100 < random(1,100) then
+						nearFriend, rest = nearStations(playerRepulse, friendlyStationList)
+						nfx, nfy = nearFriend:getPosition()
+						plx, ply = playerRepulse:getPosition()
+						patrol_group = spawnEnemies((nfx+plx)/2,(nfy+ply)/2,random(.8,1.2),"Kraylor")				
+					else
+						dx, dy = vectorFromAngle(random(0,360),random(25000,40000))
+						patrol_group = spawnEnemies(tx+dx,ty+dy,random(.8,2.2),"Kraylor")
+					end
+					kGroup = kGroup + 1
+					for idx, enemy in ipairs(patrol_group) do
+						enemy:orderFlyTowards(tx, ty)
+						enemy.target = target
+						enemy.groupID = kGroup
+						table.insert(kraylorPatrolList,enemy)
+					end
+				end
 			end
 		end
 	end
@@ -3571,15 +3546,30 @@ end
 --	Transport plot  --
 ----------------------
 function randomStation(randomStations)
-	stationCount = 0
-	for sidx, obj in ipairs(randomStations) do
-		if obj ~= nil and obj:isValid() then
-			stationCount = stationCount + 1
-		else
-			table.remove(randomStations,sidx)
+	local clean_list = true
+	repeat
+		clean_list = true
+		for i,station in ipairs(randomStations) do
+			if station ~= nil then
+				if not station:isValid() then
+					randomStations[i] = randomStations[#randomStations]
+					randomStations[#randomStations] = nil
+					clean_list = false
+					break
+				end
+			else
+				randomStations[i] = randomStations[#randomStations]
+				randomStations[#randomStations] = nil
+				clean_list = false
+				break
+			end
 		end
+	until(clean_list or #randomStations < 1)
+	if #randomStations < 1 then
+		return nil
+	else
+		return randomStations[math.random(1,#randomStations)]
 	end
-	return randomStations[math.random(1,#randomStations)]
 end
 function nearStations(nobj, compareStationList)
 --nobj = named object for comparison purposes
@@ -3599,6 +3589,7 @@ function nearStations(nobj, compareStationList)
 	for ri, obj in ipairs(remainingStations) do
 		if obj:getCallSign() == closest:getCallSign() then
 			table.remove(remainingStations,ri)
+			break
 		end
 	end
 	return closest, remainingStations
@@ -3618,150 +3609,140 @@ function randomNearStation(pool,nobj,partialStationList)
 	return distanceStations[math.random(1,pool)]
 end
 function kraylorTransportPlot(delta)
-	if kraylorTransportSpawnDelay > 0 then
-		kraylorTransportSpawnDelay = kraylorTransportSpawnDelay - delta
-	end
-	if kraylorTransportSpawnDelay < 0 then
-		kraylorTransportSpawnDelay = delta + random(8,20)
-		kraylorTransportCount = 0
-		invalidKraylorTransportCount = 0
+	if getScenarioTime() > kraylor_transport_spawn_time then
+		local clean_list = true
 		for kidx, kobj in ipairs(kraylorTransportList) do
-			if kobj:isValid() then
-				kraylorTransportCount = kraylorTransportCount + 1
-				if kobj.target ~= nil and kobj.target:isValid() then
-					if kobj:isDocked(kobj.target) then
-						if kobj.undock_delay > 0 then
-							kobj.undock_delay = kobj.undock_delay - 1
-						else
-							kobj.target = randomNearStation(math.random(3,7),kobj,enemyStationList)
-							kobj.undock_delay = math.random(1,4)
-							kobj:orderDock(kobj.target)
+			if kobj == nil then
+				kraylorTransportList[kidx] = kraylorTransportList[#kraylorTransportList]
+				kraylorTransportList[#kraylorTransportList] = nil
+				clean_list = false
+				break
+			else
+				if kobj:isValid() then
+					if kobj.target ~= nil and kobj.target:isValid() then
+						if kobj:isDocked(kobj.target) then
+							if kobj.undock_delay > 0 then
+								kobj.undock_delay = kobj.undock_delay - 1
+							else
+								kobj.target = randomNearStation(math.random(3,7),kobj,enemyStationList)
+								kobj.undock_delay = math.random(1,4)
+								kobj:orderDock(kobj.target)
+							end
 						end
+					else
+						kobj.target = randomNearStation(math.random(3,7),kobj,enemyStationList)
+						kobj.undock_delay = math.random(1,4)
+						kobj:orderDock(kobj.target)
 					end
 				else
-					kobj.target = randomNearStation(math.random(3,7),kobj,enemyStationList)
+					kraylorTransportList[kidx] = kraylorTransportList[#kraylorTransportList]
+					kraylorTransportList[#kraylorTransportList] = nil
+					clean_list = false
+					break
+				end
+			end
+		end
+		if clean_list then
+			kraylor_transport_spawn_time = getScenarioTime() + random(8,20)
+			if #kraylorTransportList < #enemyStationList then
+				target = randomStation(enemyStationList)
+				if target ~= nil then
+					rnd = math.random(1,5)
+					if rnd == 1 then
+						name = "Personnel"
+					elseif rnd == 2 then
+						name = "Goods"
+					elseif rnd == 3 then
+						name = "Garbage"
+					elseif rnd == 4 then
+						name = "Equipment"
+					else
+						name = "Fuel"
+					end
+					if random(1,100) < 30 then
+						name = string.format("%s Jump Freighter %d", name, irandom(3, 5))
+					else
+						name = string.format("%s Freighter %d", name, irandom(1, 5))
+					end
+					kobj = CpuShip():setTemplate(name):setFaction('Kraylor'):setCommsScript(""):setCommsFunction(commsShip)
+					kobj.target = target
 					kobj.undock_delay = math.random(1,4)
 					kobj:orderDock(kobj.target)
-				end
-			else
-				invalidKraylorTransportCount = invalidKraylorTransportCount + 1
-			end
-		end
-		if invalidKraylorTransportCount > 0 then
-			kraylorTransportCount = 0
-			tempTransportList = {}
-			for idx, kobj in ipairs(kraylorTransportList) do
-				if kobj ~= nil and kobj:isValid() then
-					table.insert(tempTransportList,kobj)
-					kraylorTransportCount = kraylorTransportCount + 1
+					kx, ky = kobj.target:getPosition()
+					xd, yd = vectorFromAngle(random(0, 360), random(25000, 40000))
+					kobj:setPosition(kx + xd, ky + yd)
+					table.insert(kraylorTransportList,kobj)
 				end
 			end
-			kraylorTransportList = tempTransportList
-		end
-		if kraylorTransportCount < #enemyStationList then
-			target = nil
-			repeat
-				target = randomStation(enemyStationList)
-			until(target ~= nil and target:isValid())
-			rnd = math.random(1,5)
-			if rnd == 1 then
-				name = "Personnel"
-			elseif rnd == 2 then
-				name = "Goods"
-			elseif rnd == 3 then
-				name = "Garbage"
-			elseif rnd == 4 then
-				name = "Equipment"
-			else
-				name = "Fuel"
-			end
-			if random(1,100) < 30 then
-				name = string.format("%s Jump Freighter %d", name, irandom(3, 5))
-			else
-				name = string.format("%s Freighter %d", name, irandom(1, 5))
-			end
-			kobj = CpuShip():setTemplate(name):setFaction('Kraylor'):setCommsScript(""):setCommsFunction(commsShip)
-			kobj.target = target
-			kobj.undock_delay = math.random(1,4)
-			kobj:orderDock(kobj.target)
-			kx, ky = kobj.target:getPosition()
-			xd, yd = vectorFromAngle(random(0, 360), random(25000, 40000))
-			kobj:setPosition(kx + xd, ky + yd)
-			table.insert(kraylorTransportList,kobj)
 		end
 	end
 end
 function independentTransportPlot(delta)
-	if independentTransportSpawnDelay > 0 then
-		independentTransportSpawnDelay = independentTransportSpawnDelay - delta
-	end
-	if independentTransportSpawnDelay < 0 then
-		independentTransportSpawnDelay = delta + random(10,30)
-		independentTransportCount = 0
-		invalidIndependentTransportCount = 0
+	if getScenarioTime() > independent_transport_spawn_time then
+		local clean_list = true
 		for tidx, obj in ipairs(independentTransportList) do
-			if obj:isValid() then
-				independentTransportCount = independentTransportCount + 1
-				if obj.target ~= nil and obj.target:isValid() then
-					if obj:isDocked(obj.target) then
-						if obj.undock_delay > 0 then
-							obj.undock_delay = obj.undock_delay - 1
-						else
-							obj.target = randomNearStation(math.random(4,8),obj,stationList)
-							obj.undock_delay = math.random(1,4)
-							obj:orderDock(obj.target)
+			if obj == nil then
+				independentTransportList[tidx] = independentTransportList[#independentTransportList]
+				independentTransportList[#independentTransportList] = nil
+				clean_list = false
+				break
+			else
+				if obj:isValid() then
+					if obj.target ~= nil and obj.target:isValid() then
+						if obj:isDocked(obj.target) then
+							if obj.undock_delay > 0 then
+								obj.undock_delay = obj.undock_delay - 1
+							else
+								obj.target = randomNearStation(math.random(4,8),obj,stationList)
+								obj.undock_delay = math.random(1,4)
+								obj:orderDock(obj.target)
+							end
 						end
+					else
+						obj.target = randomNearStation(math.random(4,8),obj,stationList)
+						obj.undock_delay = math.random(1,4)
+						obj:orderDock(obj.target)
 					end
 				else
-					obj.target = randomNearStation(math.random(4,8),obj,stationList)
-					obj.undock_delay = math.random(1,4)
+					independentTransportList[tidx] = independentTransportList[#independentTransportList]
+					independentTransportList[#independentTransportList] = nil
+					clean_list = false
+					break
+				end
+			end
+		end
+		if clean_list then
+			independent_transport_spawn_time = getScenarioTime() + random(10,30)
+			if #independentTransportList < #stationList then
+				target = randomStation(stationList)	
+				if target ~= nil then			
+					rnd = irandom(1,5)
+					if rnd == 1 then
+						name = "Personnel"
+					elseif rnd == 2 then
+						name = "Goods"
+					elseif rnd == 3 then
+						name = "Garbage"
+					elseif rnd == 4 then
+						name = "Equipment"
+					else
+						name = "Fuel"
+					end
+					if irandom(1,100) < 30 then
+						name = string.format("%s Jump Freighter %d", name, irandom(3, 5))
+					else
+						name = string.format("%s Freighter %d", name, irandom(1, 5))
+					end
+					obj = CpuShip():setTemplate(name):setFaction('Independent'):setCommsScript(""):setCommsFunction(commsShip)
+					obj.target = target
+					obj.undock_delay = irandom(1,4)
 					obj:orderDock(obj.target)
-				end
-			else
-				invalidIndependentTransportCount = invalidIndependentTransportCount + 1
-			end
-		end
-		if invalidIndependentTransportCount > 0 then
-			independentTransportCount = 0
-			tempTransportList = {}
-			for idx, obj in ipairs(independentTransportList) do
-				if obj ~= nil and obj:isValid() then
-					table.insert(independentTransportList,obj)
-					independentTransportCount = independentTransportCount + 1
+					x, y = obj.target:getPosition()
+					xd, yd = vectorFromAngle(random(0, 360), random(25000, 40000))
+					obj:setPosition(x + xd, y + yd)
+					table.insert(independentTransportList, obj)
 				end
 			end
-			independentTransportList = tempTransportList
-		end
-		if independentTransportCount < #stationList then
-			target = nil
-			repeat
-				target = randomStation(stationList)				
-			until(target ~= nil and target:isValid())
-			rnd = irandom(1,5)
-			if rnd == 1 then
-				name = "Personnel"
-			elseif rnd == 2 then
-				name = "Goods"
-			elseif rnd == 3 then
-				name = "Garbage"
-			elseif rnd == 4 then
-				name = "Equipment"
-			else
-				name = "Fuel"
-			end
-			if irandom(1,100) < 30 then
-				name = string.format("%s Jump Freighter %d", name, irandom(3, 5))
-			else
-				name = string.format("%s Freighter %d", name, irandom(1, 5))
-			end
-			obj = CpuShip():setTemplate(name):setFaction('Independent'):setCommsScript(""):setCommsFunction(commsShip)
-			obj.target = target
-			obj.undock_delay = irandom(1,4)
-			obj:orderDock(obj.target)
-			x, y = obj.target:getPosition()
-			xd, yd = vectorFromAngle(random(0, 360), random(25000, 40000))
-			obj:setPosition(x + xd, y + yd)
-			table.insert(independentTransportList, obj)
 		end
 	end
 end
@@ -3801,13 +3782,12 @@ function billboardUpdate(delta)
 	if signsScanned >= 3 then
 		junkZone:setLabel(_("ZoneLabelDescription-junk", "Boris Junk Yard"))
 		junkZone.color = "purple"
-		flashTimer = 5
+		flash_time = getScenarioTime() + 5
 		plotSign = billboardFlash
 	end
 end
 function billboardFlash(delta)
-	flashTimer = flashTimer - delta
-	if flashTimer < 0 then
+	if getScenarioTime() > flash_time then
 		if junkZone.color == "purple" then
 			junkZone:setColor(255,165,0)
 			junkZone.color = "orange"
@@ -3815,7 +3795,7 @@ function billboardFlash(delta)
 			junkZone:setColor(128,0,128)
 			junkZone.color = "purple"
 		end
-		flashTimer = delta + 5
+		flash_time = getScenarioTime() + 5
 	end
 end
 ------------------------
@@ -3873,7 +3853,6 @@ function plunderHealth(delta)
 	end
 end
 function update(delta)
-	--print("Update: Orbits")
 	bobsx, bobsy = vectorFromAngle(stationWig.angle,3000)
 	stationWig:setPosition(bwx+bobsx,bwy+bobsy):setRotation(stationWig.angle)
 	stationWig.angle = stationWig.angle + .02
@@ -3884,15 +3863,40 @@ function update(delta)
 		plotSuffocate(delta)
 	end
 	if plot1 ~= nil then
+		--covers these plots:
+		--	While on Scrag:
+		--		Scan for and find the Repulse in the junk yard
+		--		Hint about using the Repulse and its jump drive to escape
+		--		Message to get close enough to hug the Repulse in order to transfer to Repulse
+		--	While on Repulse:
+		--		Message from prisoners that they were the repair crew, button to retrieve them
+		--		Beam damage report message, start plot 2
+		--		Message that jump damaged beyond repair, need parts, start plot 3
+		--		Message that the missiles can't be fixed with parts on hand
+		--		Message that some of the gathered debris was used to patch up the hull
+		--		Message that the crew have fixed as much as they can. 
+		--			Reminder that the goal is to get back to the Human Navy
+		--		Once beams are fixed, messages arrive about other places to get fixes
+		--		Once all the messages come in, there's a continuous (every 4 minutes) 
+		--			spawning of Exuari with orders to attack the player. The healthier 
+		--			the player gets, the stronger the Exuari get
 		plot1(delta)
 	end
 	if plot2 ~= nil then
+		--covers these plots:
+		--	Enable port beam weapon
+		--	Junk yard dog chase
 		plot2(delta)
 	end
 	if plot3 ~= nil then
+		--covers these plots:
+		--	Jump part gathering
+		--	Jump part fabrication
+		--	Trigger missile damage report
 		plot3(delta)
 	end
 	if plot4 ~= nil then
+		--covers the return of the player to the Human Navy IFF
 		plot4(delta)
 	end
 	shipHealth(delta)		--ship health (player and junk yard)
