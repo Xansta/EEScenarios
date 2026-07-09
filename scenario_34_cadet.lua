@@ -1,11 +1,17 @@
 -- Name: Cadet Patrol
--- Description: One player ship, full of cadets freshly graduated from the academy assigned to patrol duty
----
---- Beginner's mission. Player can save and restore if they can remember the key. Runs 1 - 2 hours.
----
---- Version 1 Feb 2025
+-- Description: One Phobos class player ship, full of fresh academy graduates assigned to patrol duty.
+--- Beginner's mission. Player can save and restore if they can remember their key. The terrain differs each time the scenario runs.
+--- Duration: 1 - 2 hours
 ---
 --- USN Discord: https://discord.gg/PntGG3a where you can join a game online. There's usually one every weekend. All experience levels are welcome. 
+---
+--- Voice actors:
+--- Andrew "Snow" Kenny
+--- Bart K7AAY
+--- SANTAtheGREY
+--- Xansta
+---
+--- Version 1 Mar 2025
 -- Type: Basic
 -- Author: Xansta
 require("utils.lua")
@@ -16,7 +22,7 @@ require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Cadet Patrol    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -45,6 +51,22 @@ function init()
 	player:setWeaponTubeDirection(3,180):setWeaponTubeExclusiveFor(3,"Mine")
 	player:setWeaponStorageMax("Nuke",0):setWeaponStorage("Nuke",0)
 	player:setWeaponStorageMax("EMP", 0):setWeaponStorage("EMP", 0)
+	local tube_count = player:getWeaponTubeCount()
+	if tube_count > 0 then
+		player.tube_size = ""
+		for i=1,tube_count do
+			local tube_size = player:getTubeSize(i-1)
+			if tube_size == "small" then
+				player.tube_size = player.tube_size .. "S"
+			end
+			if tube_size == "medium" then
+				player.tube_size = player.tube_size .. "M"
+			end
+			if tube_size == "large" then
+				player.tube_size = player.tube_size .. "L"
+			end
+		end
+	end
 	missions = {
 		{
 			level =		0,		
@@ -1736,7 +1758,7 @@ function sensorJammer(x,y)
 	sensor_jammer.jam_impact_units = sensor_jammer_power_units
 	return sensor_jammer
 end
---	storage
+--	Storage
 function clearStore()
 	local i = 1
 	while(store:get(i) ~= "") do
@@ -1910,7 +1932,7 @@ function decryptShip(success,ship_key)
 		setCommsMessage(string.format(_("crypto-comms","No ship stored with encryption key %s"),ship_key))
 	end
 end
---	communication
+--	Communication
 function scenarioMissionsUndocked()
 	if not player:getCanDock() then
 		addCommsReply(_("station-comms","Request permission to dock"),function()
@@ -2193,7 +2215,7 @@ function availableForComms(p)
 	end
 	return true
 end
---	spawning
+--	Spawning
 function getTemplatePool(max_strength)
 	local function getStrengthSort(tbl, sortFunction)
 		local keys = {}
@@ -2300,7 +2322,7 @@ function spawnRandomArmed(x, y, enemy_strength, template_pool)
 	end
 	while enemy_strength > 0 do
 		local selected_template = template_pool[math.random(1,#template_pool)]
-		print("selected template:",selected_template)
+--		print("selected template:",selected_template)
 		local ship = ship_template[selected_template].create(fleetSpawnFaction,selected_template)
 		ship:setCallSign(generateCallSign(fleet_prefix))
 		ship:orderRoaming()
@@ -2311,7 +2333,7 @@ function spawnRandomArmed(x, y, enemy_strength, template_pool)
 	end
 	return enemyList
 end
---	missions
+--	Missions
 function nonCombatMissions(m)
 	if player.level == 11 then
 		if player.get_cargo_message == nil then
@@ -2771,4 +2793,12 @@ function update(delta)
 	buildDefensePlatforms()
 	cleanUpMessages()
 	handleVoiceQueue()
+	if player.tube_size ~= nil then
+		local tube_size_banner = string.format("%s tubes: %s",player:getCallSign(),player.tube_size)
+		if #player.tube_size == 1 then
+			tube_size_banner = string.format("%s tube: %s",player:getCallSign(),player.tube_size)
+		end
+		player:addCustomInfo("Weapons","tube_sizes_wea",tube_size_banner)
+		player:addCustomInfo("Tactical","tube_sizes_tac",tube_size_banner)
+	end
 end
