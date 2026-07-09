@@ -48,7 +48,7 @@ require("generate_call_sign_scenario_utility.lua")
 require("comms_scenario_utility.lua")
 
 function init()
-	scenario_version = "1.0.7"
+	scenario_version = "1.0.9"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Surf's Up!    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -1391,7 +1391,7 @@ function asteroidStorm()
 	if #storm_asteroids > 0 then
 		for i,asteroid in ipairs(storm_asteroids) do
 			if asteroid ~= nil and asteroid:isValid() then
-				if asteroid.typeName == "Asteroid" then
+				if isObjectType(asteroid,"Asteroid") then
 					real = real + 1
 				else
 					visual = visual + 1
@@ -1694,6 +1694,7 @@ function update(delta)
 	    improvedStationService(p)
 	    checkZones(p,delta)
 	    nameBanner(p)
+	    updatePlayerInventoryButtonUtility(p)
     end
     randomTransports()
     -- Show countdown, spawn wave
@@ -1715,7 +1716,7 @@ function update(delta)
     for i, enemy in ipairs(enemy_list) do
         if enemy ~= nil and enemy:isValid() then
             enemy_count = enemy_count + 1
-            if enemy.typeName == "SpaceStation" or enemy:getTypeName() == "Defense platform" then
+            if isObjectType(enemy,"SpaceStation") or enemy:getTypeName() == "Defense platform" then
             	enemy_base_count = enemy_base_count + 1
             else
             	if enemy:getOrder() == "Idle" or enemy:getOrder() == "Defend Location" then
