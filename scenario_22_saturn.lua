@@ -21,12 +21,14 @@
 -- Rings[Fast]: Asteroids orbit in rings quickly
 -- Rings[Blazing]: Asteroids orbit in rings very quickly
 -- Setting[Inbound]: Configures how much time is given for the inbound mission. Default is 7 minutes
+-- Inbound[15]: Fifteen minutes are given for the inbound mission
 -- Inbound[10]: Ten minutes are given for the inbound mission
 -- Inbound[7|Default]: Seven minutes are given for the inbound mission
 -- Inbound[5]: Five minutes are given for the inbound mission
 -- Inbound[3]: Three minutes are given for the inbound mission
 -- Inbound[2]: Two minutes are given for the inbound mission
 -- Setting[Outbound]: Configures how much time is given for the outbound mission. Default is 5 minutes
+-- Outbound[15]: Fifteen minutes are given for the outbound mission
 -- Outbound[10]: Ten minutes are given for the outbound mission
 -- Outbound[7]: Seven minutes are given for the outbound mission
 -- Outbound[5|Default]: Five minutes are given for the outbound mission
@@ -41,9 +43,9 @@ require("comms_scenario_utility.lua")
 
 --	Initialization
 function init()
-	scenario_version = "1.0.3"
+	scenario_version = "1.0.5"
 	ee_version = "2024.12.08"
-	print(string.format("    ----    Scenario: Saturn Frogger    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
+	print(string.format("    ----    Scenario: Rings of Saturn    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
 		print("Lua version:",_VERSION)
 	end
@@ -438,6 +440,7 @@ function setVariations()
 	}
 	enemy_power =	enemy_config[getScenarioSetting("Enemies")].number
 	local inbound_config = {
+		["15"] =	{number = 15*60,	},
 		["10"] =	{number = 10*60,	},
 		["7"] =		{number = 7*60,		},
 		["5"] =		{number = 5*60,		},
@@ -446,6 +449,7 @@ function setVariations()
 	}
 	frogger_in_timer = inbound_config[getScenarioSetting("Inbound")].number
 	local outbound_config = {
+		["15"] =	{number = 15*60,	},
 		["10"] =	{number = 10*60,	},
 		["7"] =		{number = 7*60,		},
 		["5"] =		{number = 5*60,		},
@@ -978,6 +982,11 @@ function froggerOut()
 		local messages_index = #messages
 		for i,p in ipairs(getActivePlayerShips()) do
 			table.insert(messages[messages_index].list,p)
+			p:removeCustom(p.decontamination_banner_timer_hlm)
+			p:removeCustom(p.decontamination_banner_timer_tac)
+			p:removeCustom(p.decontamination_banner_timer_wea)
+			p:removeCustom(p.decontamination_banner_timer_rel)
+			p:removeCustom(p.decontamination_banner_timer_ops)
 		end
 		primary_orders = string.format(_("orders-comms","Protect station %s."),titan_station:getCallSign())
 		local t_x, t_y = titan_station:getPosition()
