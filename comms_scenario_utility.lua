@@ -4908,6 +4908,9 @@ function transportAndCargoMissions()
 					string.format(_("station-comms","This transportation mission is worth %s reputation."),comms_target.transport_mission.reward),
 				}
 				local out = string.format("%s %s",tableSelectRandom(transport_info),tableSelectRandom(transport_reputation_info))
+				if comms_source:isEnemy(comms_target.transport_mission.destination:getFaction()) then
+					out = string.format(_("station-comms","%s This mission may be hard to complete since the %s are enemies."),out,comms_target.transport_mission.destination:getFaction())
+				end
 				setCommsMessage(out)
 				local transport_agree_prompts = {
 					string.format(_("station-comms","Agree to transport %s to %s station %s"),comms_target.transport_mission.character.name,comms_target.transport_mission.destination:getFaction(),comms_target.transport_mission.destination_name),
