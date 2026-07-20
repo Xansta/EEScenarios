@@ -26,7 +26,7 @@ require("place_station_scenario_utility.lua")
 require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Déjà vu    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -263,6 +263,39 @@ function setConstants()
 		["Work Wagon"] =					600,
 		["WX-Lindworm"] =					100,
 		["WZ-Lindworm"] =					100,
+	}
+	beam_range_losses = {
+		{name = "Lo",	val = .8,	desc = "May slightly reduce beam range"},			
+		{name = "Md",	val = .7,	desc = "May reduce beam range"},					
+		{name = "Hi",	val = .6,	desc = "May significantly reduce beam range"},		
+		{name = "Sv",	val = .5,	desc = "May severely reduce beam range"},			
+	}
+	beam_range_gains = {
+		{name = "Lo",	val = 1.1,	desc = "May slightly increase beam range"},				
+		{name = "Md",	val = 1.25,	desc = "May increase beam range"},						
+		{name = "Hi",	val = 1.4,	desc = "May significantly increase beam range"},		
+	}
+	shield_losses = {
+		{name = "Lo",	val = .99999,	desc = "May cause low rates of shield charge loss"},	
+		{name = "Md",	val = .99995,	desc = "May cause shield charge loss"},					
+		{name = "Hi",	val = .9999,	desc = "May cause high rates of shield charge loss"},	
+		{name = "Sv",	val = .999,		desc = "May cause severe rates of shield charge loss"},	
+	}
+	shield_gains = {
+		{name = "Lo",	val = 1.000005,	desc = "May slightly increase shield charge"},		
+		{name = "Md",	val = 1.00005,	desc = "May increase shield charge"},				
+		{name = "Hi",	val = 1.0005,	desc = "May significantly increase shield charge"},	
+	}
+	coolant_losses = {
+		{name = "Lo",	val = .99999,	desc = "May cause low level coolant leakage"},			--easy
+		{name = "Md",	val = .99995,	desc = "May cause coolant leakage"},					--normal
+		{name = "Hi",	val = .9999,	desc = "May cause high rates of coolant leakage"},		--hard
+		{name = "Sv",	val = .999,		desc = "May cause severe rates of coolant leakage"},	--quixotic
+	}
+	coolant_gains = {
+		{name = "Lo",	val = .0001,	desc = "May gain low amounts of coolant"},		--hard
+		{name = "Md",	val = .001,		desc = "May gain coolant"},						--normal
+		{name = "Hi",	val = .01,		desc = "May gain high amounts of coolant"},		--easy
 	}
 end
 function setGlobals()
@@ -781,7 +814,7 @@ function constructFixedArea()
 	table.insert(fixed_asteroids,Asteroid():setPosition(60156, 30469):setSize(118))
 	table.insert(fixed_asteroids,Asteroid():setPosition(18490, 41146):setSize(117))
 	table.insert(fixed_asteroids,Asteroid():setPosition(18490, 41146):setSize(116))
-	local asteroid_scan_tiers = {	--complex = bars, depth = windows
+	local scan_tiers = {	--complex = bars, depth = windows
 		{complex = 1,	depth = 1},
 		{complex = 2,	depth = 1},
 		{complex = 3,	depth = 1},
@@ -853,7 +886,7 @@ function constructFixedArea()
 			["iron"] = math.random(1,190)/10,
 		}
     	a:setDescriptions(unscanned_description,scanned_description)
-    	local tier = tableSelectRandom(asteroid_scan_tiers)
+    	local tier = tableSelectRandom(scan_tiers)
     	a:setScanningParameters(tier.complex,tier.depth)
 	end
 	--	field forming ghost eye
@@ -943,8 +976,50 @@ function constructFixedArea()
 	table.insert(fixed_nebulae,Nebula():setPosition(62760, 56771))
 	table.insert(fixed_nebulae,Nebula():setPosition(34635, 48958))
 	anomalous_nebulae = {}
+	nebula_pool = {}
 	for i,n in ipairs(fixed_nebulae) do
-		table.insert(anomalous_nebulae,n)
+		table.insert(nebula_pool,n)
+	end
+	local anomalous_nebula_types = {
+		"-C",	--lose coolant
+		"+C",	--gain coolant
+		"-BR",	--lose beam range
+		"+BR",	--gain beam range
+		"-SC",	--lose shield charge
+		"+SC",	--gain shield charge
+	}
+	for i,name in ipairs(anomalous_nebula_types) do
+		local neb = tableRemoveRandom(nebula_pool)
+		neb.name = name
+		if name == "-SC" then
+			local sl = tableSelectRandom(shield_losses)
+			neb.shield_loss = sl.val
+			neb.scanned_desc = sl.desc
+		elseif name == "+SC" then
+			local sg = tableSelectRandom(shield_gains)
+			neb.shield_gain = sg.val
+			neb.scanned_desc = sg.desc
+		elseif name == "-BR" then
+			local bl = tableSelectRandom(beam_range_losses)
+			neb.beam_range_loss = bl.val
+			neb.scanned_desc = bl.desc
+		elseif name == "+BR" then
+			local bg = tableSelectRandom(beam_range_gains)
+			neb.beam_range_gain = bg.val
+			neb.scanned_desc = bg.desc
+		elseif name == "-C" then
+			local cl = tableSelectRandom(coolant_losses)
+			neb.coolant_loss = cl.val
+			neb.scanned_desc = cl.desc
+		elseif name == "+C" then
+			local cg = tableSelectRandom(coolant_gains)
+			neb.coolant_gain = cg.val
+			neb.scanned_desc = cg.desc
+		end
+		neb:setDescriptions("Anomalous nebula",neb.scanned_desc)
+    	local tier = tableSelectRandom(scan_tiers)
+    	neb:setScanningParameters(tier.complex,tier.depth)
+		table.insert(anomalous_nebulae,neb)
 	end
 	table.insert(fixed_nebulae,Nebula():setPosition(45313, 58333))	--Kraylor
 	table.insert(fixed_nebulae,Nebula():setPosition(61979, 41667))	--Bug
@@ -1515,6 +1590,297 @@ function updatePlayerStarHeat(delta,p)
 		end
 	end
 end
+function updatePlayerInNebula(delta,p)
+	local inside_gain_coolant_nebula = false
+	local inside_lose_beam_range_nebula = false
+	local inside_gain_beam_range_nebula = false
+	local gain_coolant_nebulae = {}
+	local lose_beam_range_nebulae = {}
+	local gain_beam_range_nebulae = {}
+	local obj_list = p:getObjectsInRange(5100)
+	if #anomalous_nebulae > 0 then 
+		for i,obj in ipairs(obj_list) do
+			if isObjectType(obj,"Nebula") then
+				for j,neb in ipairs(anomalous_nebulae) do
+					if neb.name ~= nil and neb == obj then
+						if distance(p,neb) <= 5000 then
+							if neb.name == "-C" then
+								p:setMaxCoolant(p:getMaxCoolant()*neb.coolant_loss)
+								if p:getMaxCoolant() > 30 and random(1,100) <= 13 then
+									local engine_choice = math.random(1,3)
+									local adverse_effect = .995
+									if engine_choice == 1 then
+										p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverse_effect)
+									elseif engine_choice == 2 then
+										if p:hasWarpDrive() then
+											p:setSystemHealth("warp",p:getSystemHealth("warp")*adverse_effect)
+										end
+									else
+										if p:hasJumpDrive() then
+											p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverse_effect)
+										end
+									end
+								end
+							end
+							if neb.name == "+C" then
+								inside_gain_coolant_nebula = true
+								table.insert(gain_coolant_nebulae,neb)
+							end
+							if neb.name == "-BR" then
+								inside_lose_beam_range_nebula = true
+								table.insert(lose_beam_range_nebulae,neb)
+							end
+							if neb.name == "+BR" then
+								inside_gain_beam_range_nebula = true
+								table.insert(gain_beam_range_nebulae,neb)
+							end
+							if neb.name == "-SC" then
+								if p:getShieldCount() > 0 then
+									local charge_loss_cap = p:getShieldMax(0)*0.1
+									local adjusted_shield = p:getShieldLevel(0)*neb.shield_loss
+									if adjusted_shield > charge_loss_cap then
+										if p:getShieldCount() == 1 then
+											p:setShields(adjusted_shield)
+										else
+											p:setShields(adjusted_shield,p:getShieldLevel(1))
+										end
+									end
+									if p:getShieldCount() > 1 then
+										charge_loss_cap = p:getShieldMax(1)*0.1
+										adjusted_shield = p:getShieldLevel(1)*neb.shield_loss
+										if adjusted_shield > charge_loss_cap then
+											p:setShields(p:getShieldLevel(0),adjusted_shield)
+										end
+									end
+								end
+							end
+							if neb.name == "+SC" then
+								if p:getShieldCount() > 0 then
+									local charge_gain_cap = p:getShieldMax(0)*1.25
+									local adjusted_shield = p:getShieldLevel(0)*neb.shield_gain
+									if adjusted_shield < charge_gain_cap then
+										if p:getShieldCount() == 1 then
+											p:setShields(adjusted_shield)
+										else
+											p:setShields(adjusted_shield,p:getShieldLevel(1))
+										end
+									end
+									if p:getShieldCount() > 1 then
+										charge_gain_cap = p:getShieldMax(1)*1.25
+										adjusted_shield = p:getShieldLevel(1)*neb.shield_gain
+										if adjusted_shield < charge_gain_cap then
+											p:setShields(p:getShieldLevel(0),adjusted_shield)
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	if inside_gain_coolant_nebula then
+		if p.get_coolant then
+			if p.coolant_trigger then
+				updateCoolantGivenPlayer(p,delta,gain_coolant_nebulae)
+			end
+		else
+			if p:hasPlayerAtPosition("Engineering") then
+				p.get_coolant_button = "get_coolant_button"
+				p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",function() 
+					string.format("")
+					getCoolantGivenPlayer(p) 
+				end, 24)
+				p.get_coolant = true
+			end
+			if p:hasPlayerAtPosition("Engineering+") then
+				p.get_coolant_button_plus = "get_coolant_button_plus"
+				p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",function() 
+					string.format("")
+					getCoolantGivenPlayer(p) 
+				end, 24)
+				p.get_coolant = true
+			end
+		end
+	else
+		p.get_coolant = false
+		p.coolant_trigger = false
+		p.configure_coolant_timer = nil
+		p.deploy_coolant_timer = nil
+		if p:hasPlayerAtPosition("Engineering") then
+			if p.get_coolant_button ~= nil then
+				p:removeCustom(p.get_coolant_button)
+				p.get_coolant_button = nil
+			end
+			if p.gather_coolant ~= nil then
+				p:removeCustom(p.gather_coolant)
+				p.gather_coolant = nil
+			end
+		end
+		if p:hasPlayerAtPosition("Engineering+") then
+			if p.get_coolant_button_plus ~= nil then
+				p:removeCustom(p.get_coolant_button_plus)
+				p.get_coolant_button_plus = nil
+			end
+			if p.gather_coolant_plus ~= nil then
+				p:removeCustom(p.gather_coolant_plus)
+				p.gather_coolant_plus = nil
+			end
+		end
+	end
+	local range_differential = 1
+	if inside_lose_beam_range_nebula and inside_gain_beam_range_nebula then
+		if p.normal_beam_range == nil then
+			p.normal_beam_range = {}
+			for i=0,15 do
+				if p:getBeamWeaponRange(i) > 1 then
+					p.normal_beam_range[i] = p:getBeamWeaponRange(i)
+				end
+			end
+		end
+		for i,neb in ipairs(lose_beam_range_nebulae) do
+			if neb.beam_range_loss ~= nil then
+				range_differential = math.min(range_differential,neb.beam_range_loss)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+				p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i]*range_differential,cyc,dmg)
+			end
+		end
+		range_differential = 1
+		for i,neb in ipairs(gain_beam_range_nebulae) do
+			if neb.beam_range_gain ~= nil then
+				range_differential = math.max(range_differential,neb.beam_range_gain)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+				p:setBeamWeapon(i,arc,dir,rng*range_differential,cyc,dmg)
+			end
+		end
+	elseif inside_lose_beam_range_nebula then
+		if p.normal_beam_range == nil then
+			p.normal_beam_range = {}
+			for i=0,15 do
+				if p:getBeamWeaponRange(i) > 1 then
+					p.normal_beam_range[i] = p:getBeamWeaponRange(i)
+				end
+			end
+		end
+		for i,neb in ipairs(lose_beam_range_nebulae) do
+			if neb.beam_range_loss ~= nil then
+				range_differential = math.min(range_differential,neb.beam_range_loss)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+				p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i]*range_differential,cyc,dmg)
+			end
+		end
+	elseif inside_gain_beam_range_nebula then
+		if p.normal_beam_range == nil then
+			p.normal_beam_range = {}
+			for i=0,15 do
+				if p:getBeamWeaponRange(i) > 1 then
+					p.normal_beam_range[i] = p:getBeamWeaponRange(i)
+				end
+			end
+		end
+		for i,neb in ipairs(gain_beam_range_nebulae) do
+			if neb.beam_range_gain ~= nil then
+				range_differential = math.max(range_differential,neb.beam_range_gain)
+			end
+		end
+		for i=0,15 do
+			local rng = p:getBeamWeaponRange(i)
+			if rng > 1 then
+				local arc = p:getBeamWeaponArc(i)
+				local dir = p:getBeamWeaponDirection(i)
+				local cyc = p:getBeamWeaponCycleTime(i)
+				local dmg = p:getBeamWeaponDamage(i)
+				p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i]*range_differential,cyc,dmg)
+			end
+		end
+	else
+		if p.normal_beam_range ~= nil then
+			for i=0,15 do
+				local rng = p:getBeamWeaponRange(i)
+				if rng > 1 then
+					local arc = p:getBeamWeaponArc(i)
+					local dir = p:getBeamWeaponDirection(i)
+					local cyc = p:getBeamWeaponCycleTime(i)
+					local dmg = p:getBeamWeaponDamage(i)
+					p:setBeamWeapon(i,arc,dir,p.normal_beam_range[i],cyc,dmg)
+				end
+			end
+			p.normal_beam_range = nil
+		end
+	end
+end
+function updateCoolantGivenPlayer(p, delta, gain_coolant_nebulae)
+	if p.configure_coolant_timer == nil then
+		p.configure_coolant_timer = delta + 5
+	end
+	p.configure_coolant_timer = p.configure_coolant_timer - delta
+	if p.configure_coolant_timer < 0 then
+		if p.deploy_coolant_timer == nil then
+			p.deploy_coolant_timer = delta + 5
+		end
+		p.deploy_coolant_timer = p.deploy_coolant_timer - delta
+		if p.deploy_coolant_timer < 0 then
+			gather_coolant_status = "Gathering Coolant"
+			local player_coolant_gain = 0
+			for c,neb in ipairs(gain_coolant_nebulae) do
+				player_coolant_gain = math.max(player_coolant_gain,neb.coolant_gain)
+			end
+			p:setMaxCoolant(p:getMaxCoolant() + player_coolant_gain)
+			if p:getMaxCoolant() > 30 and random(1,100) <= 13 then
+				local engine_choice = math.random(1,3)
+				local adverse_effect = .995
+				if engine_choice == 1 then
+					p:setSystemHealth("impulse",p:getSystemHealth("impulse")*adverse_effect)
+				elseif engine_choice == 2 then
+					if p:hasWarpDrive() then
+						p:setSystemHealth("warp",p:getSystemHealth("warp")*adverse_effect)
+					end
+				else
+					if p:hasJumpDrive() then
+						p:setSystemHealth("jumpdrive",p:getSystemHealth("jumpdrive")*adverse_effect)
+					end
+				end
+			end
+		else
+			gather_coolant_status = string.format("Deploying Collectors %i",math.ceil(p.deploy_coolant_timer - delta))
+		end
+	else
+		gather_coolant_status = string.format("Configuring Collectors %i",math.ceil(p.configure_coolant_timer - delta))
+	end
+	if p:hasPlayerAtPosition("Engineering") then
+		p.gather_coolant = "gather_coolant"
+		p:addCustomInfo("Engineering",p.gather_coolant,gather_coolant_status, 5)
+	end
+	if p:hasPlayerAtPosition("Engineering+") then
+		p.gather_coolant_plus = "gather_coolant_plus"
+		p:addCustomInfo("Engineering",p.gather_coolant_plus,gather_coolant_status, 5)
+	end
+end
 function updateOrbitingPlatforms()
 	for i,dp in ipairs(orbiting_platforms) do
 		if dp ~= nil and dp:isValid() then
@@ -1876,6 +2242,7 @@ function update(delta)
 		updatePlayerIFFFailureCheck(p)
 		updatePlayerShipNameBanner(p)
 		updatePlayerStarHeat(delta,p)
+		updatePlayerInNebula(delta,p)
 		if p.released_from_patrol_duty then
 			released_count = released_count + 1
 		end
