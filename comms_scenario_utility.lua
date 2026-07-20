@@ -4545,6 +4545,9 @@ function stationTalk()
 				stationHistory()
 			end
 		end
+		if scenarioStationTalk ~= nil and type(scenarioStationTalk) == "function" then
+			knowledge_count = knowledge_count + scenarioStationTalk()
+		end
 		if knowledge_count == 0 then
 			local lack_of_knowledge_response = {
 				_("station-comms","I have no additional knowledge."),
@@ -4908,7 +4911,7 @@ function transportAndCargoMissions()
 					string.format(_("station-comms","This transportation mission is worth %s reputation."),comms_target.transport_mission.reward),
 				}
 				local out = string.format("%s %s",tableSelectRandom(transport_info),tableSelectRandom(transport_reputation_info))
-				if comms_source:isEnemy(comms_target.transport_mission.destination:getFaction()) then
+				if comms_source:isEnemy(comms_target.transport_mission.destination) then
 					out = string.format(_("station-comms","%s This mission may be hard to complete since the %s are enemies."),out,comms_target.transport_mission.destination:getFaction())
 				end
 				setCommsMessage(out)
