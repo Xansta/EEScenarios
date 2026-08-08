@@ -58,6 +58,9 @@
 --					return true
 --				end
 --			end
+--		commsEnemyStation - if your scenario needs the players to actually communicate 
+--			with an enemy station. This function defines how that communication occurs.
+--			Normally, there's no response when attempting to contact an enemy faction station.
 --	Booleans to set outside of this utility to control this utility. Default is false
 --		fixed_ordnance_cost - sets the price for ordnance to fixed values. Default (false) 
 --			is to set ordnance to range appropriate random values.
@@ -201,7 +204,12 @@ function commsStation()
     	setPlayers()
     end
     if comms_source:isEnemy(comms_target) then
-        return false
+    	if commsEnemyStation ~= nil then
+    		commsEnemyStation()
+    		return true
+    	else
+	        return false
+	    end
     end
 	local no_relay_panic_responses = {
 		_("station-comms","No communication officers available due to station emergency."),
@@ -4718,104 +4726,121 @@ function transportAndCargoMissions()
 			comms_source.transport_mission = nil
 		end
 	else	--player ship transport mission is nil
-		if comms_target.transport_mission == nil then
-			mission_character = tableRemoveRandom(characters)	--character_names
-			local mission_target = nil
-			local reward = 0
-			if mission_character ~= nil then
-				mission_type = random(1,100)
-				local destination_pool = {}
-				local clean_list = true
-				repeat
-					clean_list = true
-					for i,station in ipairs(inner_stations) do
-						if station ~= nil then
-							if not station:isValid() then
+		if not comms_target.transport_mission_restricted then
+			if comms_target.transport_mission == nil then
+				mission_character = tableRemoveRandom(characters)	--character_names
+				local mission_target = nil
+				local reward = 0
+				if mission_character ~= nil then
+					mission_type = random(1,100)
+					local destination_pool = {}
+					local clean_list = true
+					repeat
+						clean_list = true
+						for i,station in ipairs(inner_stations) do
+							if station ~= nil then
+								if not station:isValid() then
+									inner_stations[i] = inner_stations[#inner_stations]
+									inner_stations[#inner_stations] = nil
+									clean_list = false
+									break
+								end
+							else
 								inner_stations[i] = inner_stations[#inner_stations]
 								inner_stations[#inner_stations] = nil
 								clean_list = false
 								break
 							end
-						else
-							inner_stations[i] = inner_stations[#inner_stations]
-							inner_stations[#inner_stations] = nil
-							clean_list = false
-							break
 						end
-					end
-				until(clean_list)
-				repeat
-					clean_list = true
-					for i,station in ipairs(outer_stations) do
-						if station ~= nil then
-							if not station:isValid() then
+					until(clean_list)
+					repeat
+						clean_list = true
+						for i,station in ipairs(outer_stations) do
+							if station ~= nil then
+								if not station:isValid() then
+									outer_stations[i] = outer_stations[#outer_stations]
+									outer_stations[#outer_stations] = nil
+									clean_list = false
+									break
+								end
+							else
 								outer_stations[i] = outer_stations[#outer_stations]
 								outer_stations[#outer_stations] = nil
 								clean_list = false
 								break
 							end
-						else
-							outer_stations[i] = outer_stations[#outer_stations]
-							outer_stations[#outer_stations] = nil
-							clean_list = false
-							break
 						end
-					end
-				until(clean_list)
-				repeat
-					clean_list = true
-					for i,station in ipairs(friendly_spike_stations) do
-						if station ~= nil then
-							if not station:isValid() then
+					until(clean_list)
+					repeat
+						clean_list = true
+						for i,station in ipairs(friendly_spike_stations) do
+							if station ~= nil then
+								if not station:isValid() then
+									friendly_spike_stations[i] = friendly_spike_stations[#friendly_spike_stations]
+									friendly_spike_stations[#friendly_spike_stations] = nil
+									clean_list = false
+									break
+								end
+							else
 								friendly_spike_stations[i] = friendly_spike_stations[#friendly_spike_stations]
 								friendly_spike_stations[#friendly_spike_stations] = nil
 								clean_list = false
 								break
 							end
-						else
-							friendly_spike_stations[i] = friendly_spike_stations[#friendly_spike_stations]
-							friendly_spike_stations[#friendly_spike_stations] = nil
-							clean_list = false
-							break
 						end
-					end
-				until(clean_list)				
-				if mission_type < 20 then
-					for _, station in ipairs(inner_stations) do
-						if station ~= nil and station:isValid() and station ~= comms_target then
-							table.insert(destination_pool,station)
+					until(clean_list)				
+					if mission_type < 20 then
+						for _, station in ipairs(inner_stations) do
+							if station ~= nil and station:isValid() and station ~= comms_target then
+								table.insert(destination_pool,station)
+							end
 						end
-					end
-					mission_target = tableRemoveRandom(destination_pool)
-					if mission_target ~= nil then
-						reward = 40
-						if mission_target:isFriendly(comms_source) then
-							reward = 30
+						mission_target = tableRemoveRandom(destination_pool)
+						if mission_target ~= nil then
+							reward = 40
+							if mission_target:isFriendly(comms_source) then
+								reward = 30
+							end
+							comms_target.transport_mission = {
+								["destination"] = mission_target,
+								["destination_name"] = mission_target:getCallSign(),
+								["reward"] = reward,
+								["character"] = mission_character,
+							}
 						end
-						comms_target.transport_mission = {
-							["destination"] = mission_target,
-							["destination_name"] = mission_target:getCallSign(),
-							["reward"] = reward,
-							["character"] = mission_character,
-						}
-					end
-				elseif mission_type < 50 then
-					for _, station in ipairs(outer_stations) do
-						if station ~= nil and station:isValid() and station ~= comms_target and comms_source:isFriendly(station) then
-							table.insert(destination_pool,station)
-						end
-					end
-					mission_target = tableRemoveRandom(destination_pool)
-					if mission_target ~= nil then
-						comms_target.transport_mission = {
-							["destination"] = mission_target,
-							["destination_name"] = mission_target:getCallSign(),
-							["reward"] = 40,
-							["character"] = mission_character,
-						}
-					else
+					elseif mission_type < 50 then
 						for _, station in ipairs(outer_stations) do
-							if station ~= nil and station:isValid() and station ~= comms_target and not comms_source:isEnemy(station) then
+							if station ~= nil and station:isValid() and station ~= comms_target and comms_source:isFriendly(station) then
+								table.insert(destination_pool,station)
+							end
+						end
+						mission_target = tableRemoveRandom(destination_pool)
+						if mission_target ~= nil then
+							comms_target.transport_mission = {
+								["destination"] = mission_target,
+								["destination_name"] = mission_target:getCallSign(),
+								["reward"] = 40,
+								["character"] = mission_character,
+							}
+						else
+							for _, station in ipairs(outer_stations) do
+								if station ~= nil and station:isValid() and station ~= comms_target and not comms_source:isEnemy(station) then
+									table.insert(destination_pool,station)
+								end
+							end
+							mission_target = tableRemoveRandom(destination_pool)
+							if mission_target ~= nil then
+								comms_target.transport_mission = {
+									["destination"] = mission_target,
+									["destination_name"] = mission_target:getCallSign(),
+									["reward"] = 50,
+									["character"] = mission_character,
+								}
+							end
+						end
+					elseif mission_type < 75 then
+						for _, station in ipairs(outer_stations) do
+							if station ~= nil and station:isValid() and station ~= comms_target and not comms_source:isFriendly(station) and not comms_source:isEnemy(station) then
 								table.insert(destination_pool,station)
 							end
 						end
@@ -4828,65 +4853,50 @@ function transportAndCargoMissions()
 								["character"] = mission_character,
 							}
 						end
-					end
-				elseif mission_type < 75 then
-					for _, station in ipairs(outer_stations) do
-						if station ~= nil and station:isValid() and station ~= comms_target and not comms_source:isFriendly(station) and not comms_source:isEnemy(station) then
-							table.insert(destination_pool,station)
-						end
-					end
-					mission_target = tableRemoveRandom(destination_pool)
-					if mission_target ~= nil then
-						comms_target.transport_mission = {
-							["destination"] = mission_target,
-							["destination_name"] = mission_target:getCallSign(),
-							["reward"] = 50,
-							["character"] = mission_character,
-						}
-					end
-				else
-					for _, station in ipairs(friendly_spike_stations) do
-						if station ~= nil and station:isValid() and station ~= comms_target then
-							table.insert(destination_pool,station)
-						end
-					end
-					mission_target = tableRemoveRandom(destination_pool)
-					if mission_target ~= nil then
-						comms_target.transport_mission = {
-							["destination"] = mission_target,
-							["destination_name"] = mission_target:getCallSign(),
-							["reward"] = 60,
-							["character"] = mission_character,
-						}
 					else
-						for _, station in ipairs(outer_stations) do
-							if station ~= nil and station:isValid() and station ~= comms_target and not comms_source:isEnemy(station) then
+						for _, station in ipairs(friendly_spike_stations) do
+							if station ~= nil and station:isValid() and station ~= comms_target then
 								table.insert(destination_pool,station)
 							end
 						end
 						mission_target = tableRemoveRandom(destination_pool)
 						if mission_target ~= nil then
-							reward = 50
-							if mission_target:isFriendly(comms_source) then
-								reward = 40
-							end
 							comms_target.transport_mission = {
 								["destination"] = mission_target,
 								["destination_name"] = mission_target:getCallSign(),
-								["reward"] = reward,
+								["reward"] = 60,
 								["character"] = mission_character,
 							}
+						else
+							for _, station in ipairs(outer_stations) do
+								if station ~= nil and station:isValid() and station ~= comms_target and not comms_source:isEnemy(station) then
+									table.insert(destination_pool,station)
+								end
+							end
+							mission_target = tableRemoveRandom(destination_pool)
+							if mission_target ~= nil then
+								reward = 50
+								if mission_target:isFriendly(comms_source) then
+									reward = 40
+								end
+								comms_target.transport_mission = {
+									["destination"] = mission_target,
+									["destination_name"] = mission_target:getCallSign(),
+									["reward"] = reward,
+									["character"] = mission_character,
+								}
+							end
 						end
 					end
 				end
-			end
-		else	--station transport mission not nil
-			if not comms_target.transport_mission.destination:isValid() then
-				if comms_target.residents == nil then
-					comms_target.residents = {}
+			else	--station transport mission not nil
+				if not comms_target.transport_mission.destination:isValid() then
+					if comms_target.residents == nil then
+						comms_target.residents = {}
+					end
+					table.insert(comms_target.residents,comms_target.transport_mission.character)
+					comms_target.transport_mission = nil
 				end
-				table.insert(comms_target.residents,comms_target.transport_mission.character)
-				comms_target.transport_mission = nil
 			end
 		end
 		if comms_target.transport_mission ~= nil then
