@@ -26,7 +26,7 @@ require("place_station_scenario_utility.lua")
 require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 function init()
-	scenario_version = "1.0.2"
+	scenario_version = "1.0.3"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Déjà vu    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -45,6 +45,7 @@ function mainGMButtons()
 	addGMFunction("+Spawn Ship(s)",spawnGMShips)
 end
 function setConstants()
+	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
 	sensor_impact = 1	--normal is 1
 	strip_transports = {
 		"Independent",
@@ -241,6 +242,7 @@ function setConstants()
 		["Ryder"] =							2000,
 		["Sentinel"] =						600,
 		["Service Jonque"] =				800,
+		["Shepherd"] =						100,
 		["Shooter"] =						100,
 		["Sloop"] =							200,
 		["Sniper Tower"] =					800,
@@ -721,6 +723,49 @@ function constructFixedArea()
 	table.insert(self_defending_stations,station_asteroids_k_near_u)
 	station_asteroids_b_near_c = placeStation(62007, 39194,"Sinister","Ktlitans","Small Station")
 	table.insert(self_defending_stations,station_asteroids_b_near_c)
+	--	make sure friendly stations have missiles
+	local friendlies = {station_large_USN,station_huge_CUF,station_med_TSN,station_headquarters}
+	local cost = {
+		["Homing"] =	math.random(1,5),
+		["HVLI"] =		math.random(1,4),
+		["Mine"] =		math.random(2,8),
+		["EMP"] =		math.random(8,12),
+		["Nuke"] =		math.random(12,18),
+	}
+	for j,missile in ipairs(missile_types) do
+		local available = false
+		for i,station in ipairs(friendlies) do
+			if station.comms_data.weapon_available[missile] then
+				available = true
+				break
+			end
+		end
+		if not available then
+			local selected_station = tableSelectRandom(friendlies)
+			selected_station.comms_data.weapon_available[missile] = true
+			if selected_station.comms_data.weapon_cost == nil then
+				selected_station.comms_data.weapon_cost = {}
+			end
+			selected_station.comms_data.weapon_cost[missile] = cost[missile]
+		end
+	end
+	for i,station in ipairs(friendlies) do
+		local no_missiles = true
+		for j,missile in ipairs(missile_types) do
+			if station.comms_data.weapon_available[missile] then
+				no_missiles = false
+				break
+			end
+		end
+		if no_missiles then
+			local selected_missile = tableSelectRandom(missile_types)
+			station.comms_data.weapon_available[selected_missile] = true
+			if station.comms_data.weapon_cost == nil then
+				station.comms_data.weapon_cost = {}
+			end
+			station.comms_data.weapon_cost[selected_missile] = cost[selected_missile]
+		end
+	end
 	--	station ghost eye
 	station_eye_ghost = placeStation(-92065, -91965,"History","Ghosts","Medium Station")
 	station_eye_ghost.transport_mission_restricted = true
@@ -2628,6 +2673,7 @@ function scenarioMissions()
 	option_count = option_count + showStripResearch()
 	option_count = option_count + getResearchContainer()
 	option_count = option_count + deliverResearchContainers()
+	option_count = option_count + upgradeMissileCapacity()
 	return option_count
 end
 function scenarioStationTalk()
@@ -2871,6 +2917,68 @@ function transportGhostVIP()
 					comms_source.goods["tritanium"] = comms_source.goods["tritanium"] + 2
 				end
 				IFF_fail_time = getScenarioTime() + random(1,3)
+			end)
+		end
+	end
+	return option_count
+end
+function upgradeMissileCapacity()
+	local option_count = 0
+	if comms_target == station_asteroids_i_near_h and not comms_source.missile_capacity_upgrade then
+		if comms_source.destroy_agressive_kraylor_station_mission or comms_source.destroy_agressive_ktlitan_station_mission then
+			option_count = 1
+			addCommsReply("Upgrade missile storage capacity",function()
+				if comms_target.missile_capacity_upgrade_good == nil then
+					local good_pool = {}
+					for i,station in ipairs(inner_stations) do
+						if station ~= nil and station:isValid() and station ~= comms_target then
+							if station.comms_data.goods ~= nil then
+								for good,details in pairs(station.comms_data.goods) do
+									if good ~= "food" and good ~= "medicine" then
+										if details.quantity > 0 then
+											if comms_target.comms_data.goods ~= nil then
+												local good_is_here = false
+												for good_here,details_here in pairs(comms_target.comms_data.goods) do
+													if good == good_here then
+														good_is_here = true
+														break
+													end
+												end
+												if not good_is_here then
+													table.insert(good_pool,good)
+												end
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+					comms_target.missile_capacity_upgrade_good = tableSelectRandom(good_pool)
+				end
+				setCommsMessage(string.format("We can upgrade your missile storage capacity if you provide us with %s",comms_target.missile_capacity_upgrade_good))
+				addCommsReply("Get missile capacity upgrade",function()
+					if comms_source.goods ~= nil and comms_source.goods[comms_target.missile_capacity_upgrade_good] ~= nil and comms_source.goods[comms_target.missile_capacity_upgrade_good] > 0 then
+						local increase = {
+							["Homing"] = 4,
+							["HVLI"] = 4,
+							["Mine"] = 3,
+							["EMP"] = 2,
+							["Nuke"] = 2,
+						}
+						for i,missile in ipairs(missile_types) do
+							if comms_source:getWeaponStorageMax(missile) > 0 then
+								comms_source:setWeaponStorageMax(missile, comms_source:getWeaponStorageMax(missile) + increase[missile])
+							end
+						end
+						comms_source.missile_capacity_upgrade = true
+						comms_source.goods[comms_target.missile_capacity_upgrade_good] = comms_source.goods[comms_target.missile_capacity_upgrade_good] - 1
+						comms_source.cargo = comms_source.cargo + 1
+						setCommsMessage("Your ship can now store more missiles")
+					else
+						setCommsMessage(string.format("You don't have any %s in your ship inventory",comms_target.missile_capacity_upgrade_good))
+					end
+				end)
 			end)
 		end
 	end
@@ -3612,6 +3720,50 @@ function updatePlayerInNebula(delta,p)
 		end
 	end
 end
+function updatePlayerStripGuideArtifact(p)
+	local sgx, sgy = vectorFromAngle(random(10,170),12000,true)
+	sgx = sgx + expanse_x
+	sgy = sgy + expanse_y
+	local sga = Artifact():setPosition(sgx,sgy):setModel("SensorBuoyMKII")
+	sga:setDescriptions("Automated data gathering device","Guide to stations in The Strip")
+	sga:setScanningParameters(1,1):allowPickup(true)
+	sga:onPickUp(addGuideButton)
+end
+function addGuideButton(self,p)
+	string.format("")
+	p.guide_button_rel = "guide_button_rel"
+	p:addCustomButton("Relay",p.guide_button_rel,"Station Guide",function()
+		string.format("")
+		local out = stripGuide(p)
+		p.station_guide_rel = "station_guide_rel"
+		p:addCustomMessage("Relay",p.station_guide_rel,out)
+	end)
+	p.guide_button_ops = "guide_button_ops"
+	p:addCustomButton("Operations",p.guide_button_ops,"Station Guide",function()
+		string.format("")
+		local out = stripGuide(p)
+		p.station_guide_ops = "station_guide_ops"
+		p:addCustomMessage("Operations",p.station_guide_ops,out)
+	end)
+end
+function stripGuide(p)
+	local station_details = {}
+	local px, py = p:getPosition()
+	for i,station in ipairs(expansion_stations) do
+		if station ~= nil and station:isValid() then
+			local sx, sy = station:getPosition()
+			table.insert(station_details,{sector=station:getSectorName(),name=station:getCallSign(),faction=station:getFaction(),dist=distance(px,py,sx,sy),bear=angleHeading(px,py,sx,sy)})
+		end
+	end
+	table.sort(station_details,function(a,b)
+		return a.dist < b.dist
+	end)
+	local out = "Sector Name Faction Distance Bearing"
+	for i,station in ipairs(station_details) do
+		out = string.format("%s\n%s %s %s %.1fU %.1f",out,station.sector,station.name,station.faction,station.dist/1000,station.bear)
+	end
+	return out
+end
 function updateCoolantGivenPlayer(p, delta, gain_coolant_nebulae)
 	if p.configure_coolant_timer == nil then
 		p.configure_coolant_timer = delta + 5
@@ -3656,7 +3808,7 @@ function updateCoolantGivenPlayer(p, delta, gain_coolant_nebulae)
 	end
 	if p:hasPlayerAtPosition("Engineering+") then
 		p.gather_coolant_plus = "gather_coolant_plus"
-		p:addCustomInfo("Engineering",p.gather_coolant_plus,gather_coolant_status, 5)
+		p:addCustomInfo("Engineering+",p.gather_coolant_plus,gather_coolant_status, 5)
 	end
 end
 function getCoolantGivenPlayer(p)
@@ -3769,6 +3921,58 @@ function updatePlayerLongRangeSensors(delta,p)
 	end
 	impact_range = math.max(p:getShortRangeRadarRange(),impact_range + probe_scan_boost_impact)
 	p:setLongRangeRadarRange(impact_range)
+end
+function improvedStationService(p)
+	if p.instant_energy ~= nil then
+		if #p.instant_energy > 0 then
+			for i,station in ipairs(p.instant_energy) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setEnergyLevel(p:getEnergyLevelMax())
+					end
+				else
+					p.instant_energy[i] = p.instant_energy[#p.instant_energy]
+					p.instant_energy[#p.instant_energy] = nil
+					break
+				end
+			end
+		else
+			p.instant_energy = nil
+		end
+	end
+	if p.instant_hull ~= nil then
+		if #p.instant_hull > 0 then
+			for i,station in ipairs(p.instant_hull) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setHull(p:getHullMax())
+					end
+				else
+					p.instant_hull[i] = p.instant_hull[#p.instant_hull]
+					p.instant_hull[#p.instant_hull] = nil
+					break
+				end
+			end
+		else
+			p.instant_hull = nil
+		end
+	end
+	if p.instant_probes ~= nil then
+		if #p.instant_probes > 0 then
+			for i,station in ipairs(p.instant_probes) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setScanProbeCount(p:getMaxScanProbeCount())
+					end
+				else
+					p.instant_probes[i] = p.instant_probes[#p.instant_probes]
+					p.instant_probes[#p.instant_probes] = nil
+				end
+			end
+		else
+			p.instant_probes = nil
+		end
+	end
 end
 function updateOrbitingPlatforms()
 	for i,dp in ipairs(orbiting_platforms) do
@@ -4403,6 +4607,7 @@ function update(delta)
 				ship:setFaction("Exuari"):orderDefendLocation(expanse_x,expanse_y)
 				table.insert(exuari_bandits,ship)
 			end
+			updatePlayerStripGuideArtifact(p)
 		end
 	end
 	local plague_count = 0		--how many players took on the plague mission
@@ -4412,11 +4617,13 @@ function update(delta)
 		end
 		updatePlayerTrackPatrolPoint(p)
 		updatePlayerInitialPatrolMissionMessage(p)
+		updatePlayerInventoryButtonUtility(p)
 		updatePlayerIFFFailureCheck(p)
 		updatePlayerShipNameBanner(p)
 		updatePlayerStarHeat(delta,p)
 		updatePlayerInNebula(delta,p)
 		updatePlayerLongRangeSensors(delta,p)
+		improvedStationService(p)
 	end
 	if plague_count < #getActivePlayerShips() then
 		if #patrol_points < 4 then

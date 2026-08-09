@@ -8263,6 +8263,69 @@ function sellGoodsToStation()
 	end
 	addCommsReply(_("Back"), commsStation)
 end
+function tradeGoodsWithStation()
+	local trade_goods_prompt = {
+		_("trade-comms","Which one of these goods would you like to trade?"),
+		_("trade-comms","Which one would you like to trade?"),
+		_("trade-comms","Make an offer."),
+		_("trade-comms","What do you want to trade?"),
+	}
+	setCommsMessage(tableSelectRandom(trade_goods_prompt))
+	if comms_target.comms_data.trade ~= nil then
+		for trade_good, trade_bool in pairs(comms_target.comms_data.trade) do
+			if comms_source.goods ~= nil then
+				if comms_source.goods[trade_good] ~= nil then
+					if comms_source.goods[trade_good] > 0 then
+						for good, good_data in pairs(comms_target.comms_data.goods) do
+							if good_data.quantity > 0 then
+								addCommsReply(string.format(_("trade-comms","Trade %s for %s"),good_desc[trade_good],good_desc[good]),function()
+									if not comms_source:isDocked(comms_target) then
+										local stay_docked_to_trade = {
+											"You need to stay docked for that action.",
+											"You need to stay docked to trade.",
+											string.format("You must stay docked long enough for a trade between %s and %s to be completed.",comms_source:getCallSign(),comms_target:getCallSign()),
+											string.format("You undocked before %s could complete the trade you wanted.",comms_target:getCallSign()),
+										}
+										setCommsMessage(tableSelectRandom(stay_docked_to_trade))
+										return
+									end
+									if good_data.quantity < 1 then
+										local insufficient_station_inventory = {
+											"Insufficient station inventory",
+											"Not enough inventory on the station",
+											string.format("%s does not have enough inventory",comms_target:getCallSign()),
+											string.format("Not enough inventory on %s",comms_target:getCallSign()),
+										}
+										setCommsMessage(tableSelectRandom(insufficient_station_inventory))
+									else
+										good_data.quantity = good_data.quantity - 1
+										if comms_source.goods[good] == nil then
+											comms_source.goods[good] = 0
+										end
+										comms_source.goods[good] = comms_source.goods[good] + 1
+										comms_source.goods[trade_good] = comms_source.goods[trade_good] - 1
+										local trade_confirmation = {
+											string.format("Traded a %s for a %s",good_desc[trade_good],good_desc[good]),
+											string.format("You traded one %s for one %s",good_desc[trade_good],good_desc[good]),
+											string.format("%s agreed to trade a %s for a %s",comms_target:getCallSign(),good_desc[trade_good],good_desc[good]),
+											string.format("You successfully traded a %s for a %s",good_desc[trade_good],good_desc[good]),
+										}
+										setCommsMessage(tableSelectRandom(trade_confirmation))
+										comms_target.comms_data.friendlyness = math.min(100,comms_target.comms_data.friendlyness + random(2,5))
+									end
+									addCommsReply(_("trade-comms","Back to trade options"), tradeGoodsWithStation)
+									addCommsReply(_("trade-comms","Back to commercial options"),goodsCommerce)
+									addCommsReply("Back to interactive relay officer",interactiveDockedStationCommsMeat)
+									addCommsReply(_("Back to station communication"), commsStation)
+								end)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
 function jettisonGoodsFromShip()
 	local jettison_prompt = {
 		_("trade-comms","What should be jettisoned?"),
