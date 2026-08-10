@@ -330,6 +330,14 @@ function setConstants()
 		{name = "Md",	val = .001,		desc = "May gain coolant"},						--normal
 		{name = "Hi",	val = .01,		desc = "May gain high amounts of coolant"},		--easy
 	}
+	scan_tiers = {	--complex = bars, depth = windows
+		{complex = 1,	depth = 1},
+		{complex = 2,	depth = 1},
+		{complex = 3,	depth = 1},
+		{complex = 1,	depth = 2},
+		{complex = 2,	depth = 2},
+		{complex = 1,	depth = 3},
+	}
 end
 function setGlobals()
 	primary_orders = "Patrol friendly stations"
@@ -687,6 +695,7 @@ function constructFixedArea()
 	station_headquarters = placeStation(-2865, 10417,"Pop Sci Fi","Human Navy","Large Station")
 	station_headquarters:setShortRangeRadarRange(15000)
 	station_headquarters.transport_mission_restricted = true
+	station_headquarters.lrs_5u_upgrade = true
 	table.insert(inner_stations,station_headquarters)
 	station_asteroids_i_near_h = placeStation(-7889, 27185,"Generic","Independent","Small Station")
 	table.insert(self_defending_stations,station_asteroids_i_near_h)
@@ -699,6 +708,7 @@ function constructFixedArea()
 	station_med_TSN = placeStation(43846, -21746,"Spec Sci Fi","TSN","Medium Station")
 	station_med_TSN:setShortRangeRadarRange(10000)
 	station_med_TSN.transport_mission_restricted = true
+	station_med_TSN.lrs_5u_upgrade = true
 	table.insert(inner_stations,station_med_TSN)
 	if station_med_TSN.comms_data.buy == nil then
 		station_med_TSN.comms_data.buy = {}
@@ -706,9 +716,11 @@ function constructFixedArea()
 	station_med_TSN.comms_data.buy.tritanium = math.random(70,90)
 	station_asteroids_i_near_t = placeStation(49310, -12572,"Generic","Independent","Small Station")
 	table.insert(self_defending_stations,station_asteroids_i_near_t)
+	station_asteroids_i_near_t.lrs_5u_upgrade = true
 	table.insert(inner_stations,station_asteroids_i_near_t)
 	station_asteroids_g_far_t = placeStation(65477, -9885,"Science","Ghosts","Small Station")
 	station_asteroids_g_far_t.transport_mission_restricted = true
+	station_asteroids_g_far_t.lrs_5u_upgrade = true
 	table.insert(self_defending_stations,station_asteroids_g_far_t)
 	--	stations between large USN station and huge CUF station
 	station_large_USN = placeStation(20914, 43695,"Pop Sci Fi","USN","Large Station")
@@ -769,6 +781,7 @@ function constructFixedArea()
 	--	station ghost eye
 	station_eye_ghost = placeStation(-92065, -91965,"History","Ghosts","Medium Station")
 	station_eye_ghost.transport_mission_restricted = true
+	station_eye_ghost.lrs_5u_upgrade = true
 	--	aggressive Kraylor
 	station_aggressive_kraylor = placeStation(196329, 106410,"Sinister","Kraylor","Medium Station")
 	kraylor_defenders = {}
@@ -986,27 +999,19 @@ function constructFixedArea()
 	table.insert(fixed_asteroids,Asteroid():setPosition(60156, 30469):setSize(118))
 	table.insert(fixed_asteroids,Asteroid():setPosition(18490, 41146):setSize(117))
 	table.insert(fixed_asteroids,Asteroid():setPosition(18490, 41146):setSize(116))
-	local scan_tiers = {	--complex = bars, depth = windows
-		{complex = 1,	depth = 1},
-		{complex = 2,	depth = 1},
-		{complex = 3,	depth = 1},
-		{complex = 1,	depth = 2},
-		{complex = 2,	depth = 2},
-		{complex = 1,	depth = 3},
-	}
 	research_asteroids = {}
 	for i,a in ipairs(fixed_asteroids) do
 		table.insert(research_asteroids,a)
 		local unscanned_description = ""
 		if random(0,100) < 65 then
 			unscanned_description = _("scienceDescription-asteroid", "Structure: solid")
-			a.structure = "solid"
+			a.structure = _("scienceDescription-asteroid","solid")
 		elseif random(0,100) < 70 then
 			unscanned_description = _("scienceDescription-asteroid", "Structure: rubble")
-			a.structure = "rubble"
+			a.structure = _("scienceDescription-asteroid","rubble")
 		else
 			unscanned_description = _("scienceDescription-asteroid", "Structure: binary")
-			a.structure = "binary"
+			a.structure = _("scienceDescription-asteroid","binary")
 		end
 		local bits = {
 			{name = "osmium",		presence = 2},
@@ -1313,6 +1318,9 @@ function constructDynamicArea()
 				if faction == "Human Navy" then
 					station_research_delivery = placed_station
 				end
+				if faction == "Independent" then
+					placed_station.lrs_5u_upgrade = true
+				end
 			end
 		end
 		psx, psy = vectorFromAngle(expanse_angle + 90,40000,true)
@@ -1342,6 +1350,9 @@ function constructDynamicArea()
 				table.insert(expansion_space,{obj=placed_station,dist=station_spacing[station_type].touch,shape="circle"})
 				table.insert(expansion_stations,placed_station)
 				table.insert(self_defending_stations,placed_station)
+				if faction == "USN" then
+					placed_station.lrs_5u_upgrade = true
+				end
 			end
 		end
 		psx, psy = vectorFromAngle(expanse_angle - 90,40000,true)
@@ -2054,18 +2065,42 @@ function placeNebula(placement_area)
 		eo_x, eo_y = findClearSpot(area.space,area.shape,area.center_x,area.center_y,area.width,area.height,area.angle,2000)
 	end
 	if eo_x ~= nil then
+		local anomalous_nebula_types = {
+			"-C",	--lose coolant
+			"+C",	--gain coolant
+			"-BR",	--lose beam range
+			"+BR",	--gain beam range
+			"-SC",	--lose shield charge
+			"+SC",	--gain shield charge
+		}
 		local neb = Nebula():setPosition(eo_x, eo_y)
+		local name = ""
+		if random(1,100) < 28 then
+			name = tableSelectRandom(anomalous_nebula_types)
+			neb.name = name
+			setAnomalousNebula(neb,name)
+		end
 		table.insert(area.space,{obj=neb,dist=1500,shape="circle"})
 		if random(1,100) < 77 then
 			local n_angle = random(0,360)
 			local n_x, n_y = vectorFromAngle(n_angle,random(5000,10000))
 			local neb2 = Nebula():setPosition(eo_x + n_x, eo_y + n_y)
+			if random(1,100) < 28 then
+				name = tableSelectRandom(anomalous_nebula_types)
+				neb2.name = name
+				setAnomalousNebula(neb2,name)
+			end
 			if random(1,100) < 37 then
 				local n2_angle = (n_angle + random(120,240)) % 360
 				n_x, n_y = vectorFromAngle(n2_angle,random(5000,10000))
 				eo_x = eo_x + n_x
 				eo_y = eo_y + n_y
 				local neb3 = Nebula():setPosition(eo_x, eo_y)
+				if random(1,100) < 28 then
+					name = tableSelectRandom(anomalous_nebula_types)
+					neb3.name = name
+					setAnomalousNebula(neb3,name)
+				end
 				if random(1,100) < 22 then
 					local n3_angle = (n2_angle + random(120,240)) % 360
 					n_x, n_y = vectorFromAngle(n3_angle,random(5000,10000))
@@ -2078,6 +2113,37 @@ function placeNebula(placement_area)
 		placeAsteroid(placement_area)
 		return false
 	end
+end
+function setAnomalousNebula(neb,name)
+	if name == "-SC" then
+		local sl = tableSelectRandom(shield_losses)
+		neb.shield_loss = sl.val
+		neb.scanned_desc = sl.desc
+	elseif name == "+SC" then
+		local sg = tableSelectRandom(shield_gains)
+		neb.shield_gain = sg.val
+		neb.scanned_desc = sg.desc
+	elseif name == "-BR" then
+		local bl = tableSelectRandom(beam_range_losses)
+		neb.beam_range_loss = bl.val
+		neb.scanned_desc = bl.desc
+	elseif name == "+BR" then
+		local bg = tableSelectRandom(beam_range_gains)
+		neb.beam_range_gain = bg.val
+		neb.scanned_desc = bg.desc
+	elseif name == "-C" then
+		local cl = tableSelectRandom(coolant_losses)
+		neb.coolant_loss = cl.val
+		neb.scanned_desc = cl.desc
+	elseif name == "+C" then
+		local cg = tableSelectRandom(coolant_gains)
+		neb.coolant_gain = cg.val
+		neb.scanned_desc = cg.desc
+	end
+	neb:setDescriptions("Anomalous nebula",neb.scanned_desc)
+	local tier = tableSelectRandom(scan_tiers)
+	neb:setScanningParameters(tier.complex,tier.depth)
+	table.insert(anomalous_nebulae,neb)
 end
 function placeMine(placement_area)
 	local area = placement_areas[placement_area]
@@ -2551,11 +2617,11 @@ function getCurrentOrders()
 		setOptionalOrders()
 		local player_primary_orders = primary_orders
 		if uniform_plague_mission_fully_accepted then
-			primary_orders = "Gather research from stations in The Strip"
+			primary_orders = _("orders-comms","Gather research from stations in The Strip")
 			player_primary_orders = primary_orders
 		else
 			if comms_source.uniform_plague_mission then
-				player_primary_orders = "Gather research from stations in The Strip"
+				player_primary_orders = _("orders-comms","Gather research from stations in The Strip")
 			end
 		end
 		ordMsg = player_primary_orders .. "\n" .. optional_orders
@@ -2619,40 +2685,40 @@ function setOptionalOrders()
 	end
 	if comms_source.rock_research and not rock_research_complete then
 		if comms_source.asteroid_data_cache then
-			optional_orders = string.format("%s\nReturn data cache from Jessi Alcott's missing asteroid.",optional_orders)
+			optional_orders = string.format(_("orders-comms","%s\nReturn data cache from Jessi Alcott's missing asteroid."),optional_orders)
 		else
-			optional_orders = string.format("%s\nFind Jessi Alcott's asteroid. Asteroids scanned so far: %i.",optional_orders,scanned_asteroid_count)
+			optional_orders = string.format(_("orders-comms","%s\nFind Jessi Alcott's asteroid. Asteroids scanned so far: %i."),optional_orders,scanned_asteroid_count)
 		end
 	end
 	if comms_source:getFaction() == "TSN" and not comms_source.completed_ghosts_transport_mission then
 		if station_eye_ghost:isValid() then
-			optional_orders = string.format("%s\nDeliver the Ghosts scientist to station %s in %s.",optional_orders,station_eye_ghost:getCallSign(),station_eye_ghost:getSectorName())
+			optional_orders = string.format(_("orders-comms","%s\nDeliver the Ghosts scientist to station %s in %s."),optional_orders,station_eye_ghost:getCallSign(),station_eye_ghost:getSectorName())
 		end
 	end
 	if comms_source.delivered_ghost_VIP and not comms_source.completed_ghosts_transport_mission then
-		optional_orders = string.format("%s\nDeliver tritanium to station %s.",optional_orders,station_med_TSN:getCallSign())
+		optional_orders = string.format(_("orders-comms","%s\nDeliver tritanium to station %s."),optional_orders,station_med_TSN:getCallSign())
 	end
 	if comms_source.destroy_agressive_kraylor_station_mission then
 		if station_aggressive_kraylor:isValid() then
 			if comms_source.destroy_agressive_ktlitan_station_mission then
 				if station_aggressive_ktlitans:isValid() then
-					optional_orders = string.format("%s\nDestroy aggressive Kraylor and Ktlitan stations.",optional_orders)
+					optional_orders = string.format(_("orders-comms","%s\nDestroy aggressive Kraylor and Ktlitan stations."),optional_orders)
 				else
-					optional_orders = string.format("%s\nDestroy aggressive Kraylor station.",optional_orders)
+					optional_orders = string.format(_("orders-comms","%s\nDestroy aggressive Kraylor station."),optional_orders)
 				end
 			else
-				optional_orders = string.format("%s\nDestroy aggressive Kraylor station.",optional_orders)
+				optional_orders = string.format(_("orders-comms","%s\nDestroy aggressive Kraylor station."),optional_orders)
 			end
 		else
 			if comms_source.destroy_agressive_ktlitan_station_mission then
 				if station_aggressive_ktlitans:isValid() then
-					optional_orders = string.format("%s\nDestroy aggressive Ktlitan station.",optional_orders)
+					optional_orders = string.format(_("orders-comms","%s\nDestroy aggressive Ktlitan station."),optional_orders)
 				end
 			end
 		end
 	elseif comms_source.destroy_agressive_ktlitan_station_mission then
 		if station_aggressive_ktlitans:isValid() then
-			optional_orders = string.format("%s\nDestroy aggressive Ktlitan station.",optional_orders)
+			optional_orders = string.format(_("orders-comms","%s\nDestroy aggressive Ktlitan station."),optional_orders)
 		end
 	end
 end
@@ -2660,6 +2726,7 @@ function scenarioMissionsUndocked()
 	showPatrolCircuitStatus()
 	rockResearch()
 	showStripResearch()
+	addCommsReply(_("Back"), commsStation)
 end
 function scenarioMissions()
 	local option_count = 0
@@ -2674,20 +2741,21 @@ function scenarioMissions()
 	option_count = option_count + getResearchContainer()
 	option_count = option_count + deliverResearchContainers()
 	option_count = option_count + upgradeMissileCapacity()
+	option_count = option_count + upgradeLongRangeSensors()
 	return option_count
 end
 function scenarioStationTalk()
 	local knowledge_count = 0
 	if comms_target == station_large_USN or comms_target == station_huge_CUF then
 		local scenario_station_talk_prompts = {
-			"Why are you in a nebula?",
-			"Why build a station in a nebula?",
-			"Is there a reason you're in a nebula?",
-			"Why hide your station in a nebula?",
+			_("stationInformation-comms","Why are you in a nebula?"),
+			_("stationInformation-comms","Why build a station in a nebula?"),
+			_("stationInformation-comms","Is there a reason you're in a nebula?"),
+			_("stationInformation-comms","Why hide your station in a nebula?"),
 		}
 		knowledge_count = knowledge_count + 1
 		addCommsReply(tableSelectRandom(scenario_station_talk_prompts), function()
-			setCommsMessage("The scientists that were part of the station when it was built noticed that some of the nebula around here had unusual properties. Part of the reason for setting up here was to study those properties. Nebulae block sensors as your science officer can tell you. From a ship, you need to use a probe to run scans on a nebula. We built specialized sensors into this station to facilitate nebula research. This nebula no longer exhibits those unusual properties, but other nebulae around here might.")
+			setCommsMessage(_("stationInformation-comms","The scientists that were part of the station when it was built noticed that some of the nebula around here had unusual properties. Part of the reason for setting up here was to study those properties. Nebulae block sensors as your science officer can tell you. From a ship, you need to use a probe to run scans on a nebula. We built specialized sensors into this station to facilitate nebula research. This nebula no longer exhibits those unusual properties, but other nebulae around here might."))
 			addCommsReply(_("Back"), commsStation)
 		end)
 	end
@@ -2720,7 +2788,7 @@ function verifyAsteroid()
 				iridium == target_asteroid.iridium and
 				olivine == target_asteroid.olivine and
 				iron == target_asteroid.iron then
-				setCommsMessage("You found it! I have uncloaked my data storage cache. Please go retrieve it for me.")
+				setCommsMessage(_("asteroidSearch-comms","You found it! I have uncloaked my data storage cache. Please go retrieve it for me."))
 				if asteroid_data_cache == nil then
 					local x, y = target_asteroid:getPosition()
 					local rad = target_asteroid:getSize()
@@ -2732,36 +2800,36 @@ function verifyAsteroid()
 					end)
 				end
 			else
-				setCommsMessage("Your data does not match my notes. You'll need to keep looking")
+				setCommsMessage(_("asteroidSearch-comms","Your data does not match my notes. You'll need to keep looking"))
 			end
 		else
-			setCommsMessage("Your data does not match my notes. You'll need to keep looking")
+			setCommsMessage(_("asteroidSearch-comms","Your data does not match my notes. You'll need to keep looking"))
 			pickTargetAsteroid()
 		end
 	end
 end
 function traceDigits(trace_element,percentage)
-	setCommsMessage(string.format("Provide the 10's digit for %s. For example, if there was 23.5%% %s, the 10's digit would be 2.",trace_element,trace_element))
+	setCommsMessage(string.format(_("digits-comms","Provide the 10's digit for %s. For example, if there was 23.5%% %s, the 10's digit would be 2."),trace_element,trace_element))
 	for i=0,9 do
-		addCommsReply(string.format("10's digit %i",i),function()
-			setCommsMessage(string.format("Provide the 1's digit for %s. For example, if there was 23.5%% %s, the 1's digit would be 3.",trace_element,trace_element))
+		addCommsReply(string.format(_("digits-comms","10's digit %i"),i),function()
+			setCommsMessage(string.format(_("digits-comms","Provide the 1's digit for %s. For example, if there was 23.5%% %s, the 1's digit would be 3."),trace_element,trace_element))
 			for j=0,9 do
-				addCommsReply(string.format("1's digit %i",j),function()
-					setCommsMessage(string.format("Provide one digit after the decimal point for %s. For example, if there was 23.5%% %s, the digit would be 5.",trace_element,trace_element))
+				addCommsReply(string.format(_("digits-comms","1's digit %i"),j),function()
+					setCommsMessage(string.format(_("digits-comms","Provide one digit after the decimal point for %s. For example, if there was 23.5%% %s, the digit would be 5."),trace_element,trace_element))
 					for k=0,9 do
-						addCommsReply(string.format("after decimal digit %i",k),function()
+						addCommsReply(string.format(_("digits-comms","after decimal digit %i"),k),function()
 							print(string.format("%s: %.1f",trace_element,i*10 + j + k/10))
 							percentage = i*10 + j + k/10
-							if trace_element == "osmium" then
+							if trace_element == _("digits-comms","osmium") then
 								osmium = percentage
-							elseif trace_element == "iridium" then
+							elseif trace_element == _("digits-comms","iridium") then
 								iridium = percentage
-							elseif trace_element == "olivine" then
+							elseif trace_element == _("digits-comms","olivine") then
 								olivine = percentage
-							elseif trace_element == "iron" then
+							elseif trace_element == _("digits-comms","iron") then
 								iron = percentage
 							end
-							setCommsMessage(string.format("That's %.1f%% for %s. Let's get data for another element.",percentage,trace_element))
+							setCommsMessage(string.format(_("digits-comms","That's %.1f%% for %s. Let's get data for another element."),percentage,trace_element))
 							verifyAsteroid()
 						end)
 					end
@@ -2775,43 +2843,46 @@ function rockResearch()
 	if comms_target == station_headquarters then
 		if comms_source.rock_research and not rock_research_complete then
 			option_count = option_count + 1
-			addCommsReply("Contact Jessi Alcott regarding her missing asteroid",function()
+			addCommsReply(_("asteroidSearch-comms","Contact Jessi Alcott regarding her missing asteroid"),function()
 				if comms_source.asteroid_data_cache then
-					setCommsMessage("[Jessi] Did you get my asteroid data cache?")
+					setCommsMessage(_("asteroidSearch-comms","[Jessi] Did you get my asteroid data cache?"))
 					if comms_source:isDocked(comms_target) then
-						addCommsReply("Yes. It is being delivered now",function()
+						addCommsReply(_("asteroidSearch-comms","Yes. It is being delivered now"),function()
 							rock_research_complete = true
 							comms_source:addReputationPoints(100)
-							setCommsMessage("[Jessi] Thanks! You are truly stellar representatives of the Human Navy.")
+							setCommsMessage(_("asteroidSearch-comms","[Jessi] Thanks! You are truly stellar representatives of the Human Navy."))
 						end)
 					else
-						addCommsReply("Yes. We'll bring it to you soon",function()
-							setCommsMessage("[Jessi] Oh goody!")
+						addCommsReply(_("asteroidSearch-comms","Yes. We'll bring it to you soon"),function()
+							setCommsMessage(_("asteroidSearch-comms","[Jessi] Oh goody!"))
 						end)
 					end
 				else
-					setCommsMessage("[Jessi] Have you found my missing asteroid?")
-					addCommsReply("Not yet. Need asteroid details",function()
-						setCommsMessage("I would be happy to provide those.")
-						addCommsReply("Composition",function()
-							setCommsMessage("The asteroid I'm looking for is composed of the following: osmium, iridium, olivine, iron, and rock")
-							addCommsReply("We found an asteroid of that composition",function()
-								setCommsMessage("Good. Let's verify the trace elements of the asteroid you've found against my notes.")
+					setCommsMessage(_("asteroidSearch-comms","[Jessi] Have you found my missing asteroid?"))
+					addCommsReply(_("asteroidSearch-comms","Not yet. Need asteroid details"),function()
+						setCommsMessage(_("asteroidSearch-comms","I would be happy to provide those."))
+						addCommsReply(_("asteroidSearch-comms","Composition"),function()
+							setCommsMessage(_("asteroidSearch-comms","The asteroid I'm looking for is composed of the following: osmium, iridium, olivine, iron, and rock"))
+							addCommsReply(_("asteroidSearch-comms","We found an asteroid of that composition"),function()
+								setCommsMessage(_("asteroidSearch-comms","Good. Let's verify the trace elements of the asteroid you've found against my notes."))
 								osmium = 0
 								iridium = 0
 								olivine = 0
 								iron = 0
 								verifyAsteroid()
 							end)
+							addCommsReply(_("Back"), commsStation)
 						end)
 						if scanned_asteroid_count > 5 and asteroid_structure ~= nil then
-							addCommsReply("Structure",function()
-								setCommsMessage(string.format("The structure of the asteroid I'm looking for is %s",asteroid_structure))
+							addCommsReply(_("asteroidSearch-comms","Structure"),function()
+								setCommsMessage(string.format(_("asteroidSearch-comms","The structure of the asteroid I'm looking for is %s"),asteroid_structure))
+								addCommsReply(_("Back"), commsStation)
 							end)
 						end
 						if scanned_asteroid_count > 10 and target_asteroid_sector ~= nil then
-							addCommsReply("Sector",function()
-								setCommsMessage(string.format("The asteroid is in sector %s.",target_asteroid_sector))
+							addCommsReply(_("asteroidSearch-comms","Sector"),function()
+								setCommsMessage(string.format(_("asteroidSearch-comms","The asteroid is in sector %s."),target_asteroid_sector))
+								addCommsReply(_("Back"), commsStation)
 							end)
 						end
 					end)
@@ -2819,11 +2890,40 @@ function rockResearch()
 			end)
 		elseif not rock_research_complete then
 			option_count = option_count + 1
-			addCommsReply("Find missing asteroid",function()
-				setCommsMessage("Jessi Alcott has been researching asteroids in the area. Unfortunately, she left behind the bulk of her research on the asteroid that most interests her. She says the asteroid has traces of osmium and iridium. To help her out, you'll need to scan asteroids for ones that match her criteria. Contact her here to confirm any potential asteroid you might find.")
+			addCommsReply(_("asteroidSearch-comms","Find missing asteroid"),function()
+				setCommsMessage(_("asteroidSearch-comms","Jessi Alcott has been researching asteroids in the area. Unfortunately, she left behind the bulk of her research on the asteroid that most interests her. She says the asteroid has traces of osmium and iridium. To help her out, you'll need to scan asteroids for ones that match her criteria. Contact her here to confirm any potential asteroid you might find."))
 				comms_source.rock_research = true 
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
+	end
+	return option_count
+end
+function upgradeLongRangeSensors()
+	local option_count = 0
+	if comms_source.lrs_5u_upgrade == nil then
+		comms_source.lrs_5u_upgrade = {}
+	end
+	local got_lrs_upgrade = false
+	for i,station in ipairs(comms_source.lrs_5u_upgrade) do
+		if station == comms_target then
+			got_lrs_upgrade = true
+		end
+	end
+	if comms_source.rock_research and not got_lrs_upgrade and comms_target.lrs_5u_upgrade then
+		option_count = 1
+		local lrs_cost = (#comms_source.lrs_5u_upgrade * 5) + 5
+		addCommsReply(string.format(_("LRSUpgrade-comms","Get 5U long range sensor range upgrade (%i rep)"),lrs_cost),function()
+			if comms_source:takeReputationPoints(lrs_cost) then
+				comms_source:setLongRangeRadarRange(comms_source:getLongRangeRadarRange() + 5000)
+				comms_source.normal_long_range_radar = comms_source.normal_long_range_radar + 5000
+				setCommsMessage(_("LRSUpgrade-comms","Your long range sensor range has been increased by 5 units"))
+				table.insert(comms_source.lrs_5u_upgrade,comms_target)
+			else
+				setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+			end
+			addCommsReply(_("Back"), commsStation)
+		end)
 	end
 	return option_count
 end
@@ -2833,41 +2933,44 @@ function transportGhostVIP()
 		if comms_source:getFaction() == "Human Navy" then
 			if station_asteroids_g_far_t:isValid() and station_eye_ghost:isValid() and not station_asteroids_g_far_t.ghost_VIP_enroute then
 				option_count = option_count + 1
-				addCommsReply("Transport Ghosts scientist",function()
-					setCommsMessage(string.format("There's a ghost scientist on station %s needing transportation to station %s. In exchange, %s will provide tritanium which we (station %s) need. In order to complete the mission, your ship will need to become part of the TSN for the duration of the mission. If you accept, we will update your IFF from Human Navy to TSN.\n\nDo you accept the mission?",station_asteroids_g_far_t:getCallSign(),station_eye_ghost:getCallSign(),station_eye_ghost:getCallSign(),comms_target:getCallSign()))
-					addCommsReply("Accept mission",function()
+				addCommsReply(_("transportGhost-comms","Transport Ghosts scientist"),function()
+					setCommsMessage(string.format(_("transportGhost-comms","There's a ghost scientist on station %s needing transportation to station %s. In exchange, %s will provide tritanium which we (station %s) need. In order to complete the mission, your ship will need to become part of the TSN for the duration of the mission. If you accept, we will update your IFF from Human Navy to TSN.\n\nDo you accept the mission?"),station_asteroids_g_far_t:getCallSign(),station_eye_ghost:getCallSign(),station_eye_ghost:getCallSign(),comms_target:getCallSign()))
+					addCommsReply(_("transportGhost-comms","Accept mission"),function()
 						if station_asteroids_g_far_t:isValid() then
 							if station_eye_ghost:isValid() then
 								comms_source:setFaction("TSN")
-								setCommsMessage(string.format("You are now part of the Terran Stellar Navy (TSN). IFF updated.\nThe Ghost scientist is on station %s in sector %s. He needs to be delivered to station %s in sector %s.",station_asteroids_g_far_t:getCallSign(),station_asteroids_g_far_t:getSectorName(),station_eye_ghost:getCallSign(),station_eye_ghost:getSectorName()))
+								setCommsMessage(string.format(_("transportGhost-comms","You are now part of the Terran Stellar Navy (TSN). IFF updated.\nThe Ghost scientist is on station %s in sector %s. He needs to be delivered to station %s in sector %s."),station_asteroids_g_far_t:getCallSign(),station_asteroids_g_far_t:getSectorName(),station_eye_ghost:getCallSign(),station_eye_ghost:getSectorName()))
 							else
-								setCommsMessage("Unfortunately, the tritanium supplying station is no longer with us, so the mission is no longer available.")
+								setCommsMessage(_("transportGhost-comms","Unfortunately, the tritanium supplying station is no longer with us, so the mission is no longer available."))
 							end
 						else
-							setCommsMessage("Unfortunately, the station with the ghost scientist is no longer with us, so the mission is no longer available.")
+							setCommsMessage(_("transportGhost-comms","Unfortunately, the station with the ghost scientist is no longer with us, so the mission is no longer available."))
 						end
+						addCommsReply(_("Back"), commsStation)
 					end)
-					addCommsReply("Decline mission",commsStation)
+					addCommsReply(_("transportGhost-comms","Decline mission"),commsStation)
 				end)
 			end
 			if comms_source.delivered_ghost_VIP and not comms_source.completed_ghosts_transport_mission then
 				if comms_source.goods["tritanium"] > 0 then
 					option_count = option_count + 1
-					addCommsReply(string.format("Deliver tritanium to %s",comms_target:getCallSign()),function()
+					addCommsReply(string.format(_("transportGhost-comms","Deliver tritanium to %s"),comms_target:getCallSign()),function()
 						comms_source.cargo = comms_source.cargo + 1
 						comms_source.goods["tritanium"] = comms_source.goods["tritanium"] - 1
 						comms_source:setFaction("Human Navy")
 						comms_source:addReputationPoints(80)
 						comms_source.completed_ghosts_transport_mission = true
-						setCommsMessage(string.format("You have completed the mission to transport the Ghosts scientist and retrieve tritanium mission."))
+						setCommsMessage(string.format(_("transportGhost-comms","You have completed the mission to transport the Ghosts scientist and retrieve tritanium mission.")))
+						addCommsReply(_("Back"), commsStation)
 					end)
 				end
 			end
 		elseif comms_source:getFaction() == "TSN" then
 			option_count = option_count + 1
-			addCommsReply("Abandon transport Ghosts scientist mission",function()
+			addCommsReply(_("transportGhost-comms","Abandon transport Ghosts scientist mission"),function()
 				comms_source:setFaction("Human Navy")
-				setCommsMessage("You have returned to the service of the Human Navy. IFF updated")
+				setCommsMessage(_("transportGhost-comms","You have returned to the service of the Human Navy. IFF updated"))
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -2875,28 +2978,29 @@ function transportGhostVIP()
 		if station_eye_ghost:isValid() then
 			if not station_asteroids_g_far_t.ghost_VIP_enroute then
 				option_count = option_count + 1
-				addCommsReply("Get Ghosts scientist",function()
+				addCommsReply(_("transportGhost-comms","Get Ghosts scientist"),function()
 					comms_source.ghost_VIP = true
 					comms_target.ghost_VIP_enroute = true
-					setCommsMessage(string.format("The ghost scientist has boarded %s. He needs to be taken to %s in sector %s",comms_source:getCallSign(),station_eye_ghost:getCallSign(),station_eye_ghost:getSectorName()))
+					setCommsMessage(string.format(_("transportGhost-comms","The ghost scientist has boarded %s. He needs to be taken to %s in sector %s"),comms_source:getCallSign(),station_eye_ghost:getCallSign(),station_eye_ghost:getSectorName()))
+					addCommsReply(_("Back"), commsStation)
 				end)
 			else
-				setCommsMessage("The Ghosts scientist has already left, so the mission is no longer available.")
+				setCommsMessage(_("transportGhost-comms","The Ghosts scientist has already left, so the mission is no longer available."))
 			end
 		else
-			setCommsMessage("Unfortunately, the tritanium supplying station is no longer with us, so the mission is no longer available.")
+			setCommsMessage(_("transportGhost-comms","Unfortunately, the tritanium supplying station is no longer with us, so the mission is no longer available."))
 		end
 	end
 	if comms_target == station_eye_ghost then
 		if comms_source.ghost_VIP then
 			option_count = option_count + 1
-			addCommsReply("Deliver Ghosts scientist",function()
+			addCommsReply(_("transportGhost-comms","Deliver Ghosts scientist"),function()
 				comms_source.ghost_VIP = false
 				comms_source.delivered_ghost_VIP = true
 				if comms_source.cargo < 1 then
-					setCommsMessage("Ghosts scientist has been delivered. There is not enough room in your cargo hold for tritanium.")
+					setCommsMessage(_("transportGhost-comms","Ghosts scientist has been delivered. There is not enough room in your cargo hold for tritanium."))
 				elseif comms_source.cargo < 2 then
-					setCommsMessage("Ghosts scientist has been delivered. One tritanium loaded in your cargo hold.")
+					setCommsMessage(_("transportGhost-comms","Ghosts scientist has been delivered. One tritanium loaded in your cargo hold."))
 					comms_source.cargo = comms_source.cargo - 1
 					if comms_source.goods == nil then
 						comms_source.goods = {}
@@ -2906,7 +3010,7 @@ function transportGhostVIP()
 					end
 					comms_source.goods["tritanium"] = comms_source.goods["tritanium"] + 1
 				else
-					setCommsMessage("Ghosts scientist has been delivered. Two tritanium loaded in your cargo hold, one for the mission and an extra in gratitude.")
+					setCommsMessage(_("transportGhost-comms","Ghosts scientist has been delivered. Two tritanium loaded in your cargo hold, one for the mission and an extra in gratitude."))
 					comms_source.cargo = comms_source.cargo - 2
 					if comms_source.goods == nil then
 						comms_source.goods = {}
@@ -2917,6 +3021,7 @@ function transportGhostVIP()
 					comms_source.goods["tritanium"] = comms_source.goods["tritanium"] + 2
 				end
 				IFF_fail_time = getScenarioTime() + random(1,3)
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -2927,7 +3032,7 @@ function upgradeMissileCapacity()
 	if comms_target == station_asteroids_i_near_h and not comms_source.missile_capacity_upgrade then
 		if comms_source.destroy_agressive_kraylor_station_mission or comms_source.destroy_agressive_ktlitan_station_mission then
 			option_count = 1
-			addCommsReply("Upgrade missile storage capacity",function()
+			addCommsReply(_("upgradeMissileCapacity-comms","Upgrade missile storage capacity"),function()
 				if comms_target.missile_capacity_upgrade_good == nil then
 					local good_pool = {}
 					for i,station in ipairs(inner_stations) do
@@ -2956,8 +3061,8 @@ function upgradeMissileCapacity()
 					end
 					comms_target.missile_capacity_upgrade_good = tableSelectRandom(good_pool)
 				end
-				setCommsMessage(string.format("We can upgrade your missile storage capacity if you provide us with %s",comms_target.missile_capacity_upgrade_good))
-				addCommsReply("Get missile capacity upgrade",function()
+				setCommsMessage(string.format(_("upgradeMissileCapacity-comms","We can upgrade your missile storage capacity if you provide us with %s"),comms_target.missile_capacity_upgrade_good))
+				addCommsReply(_("upgradeMissileCapacity-comms","Get missile capacity upgrade"),function()
 					if comms_source.goods ~= nil and comms_source.goods[comms_target.missile_capacity_upgrade_good] ~= nil and comms_source.goods[comms_target.missile_capacity_upgrade_good] > 0 then
 						local increase = {
 							["Homing"] = 4,
@@ -2974,11 +3079,13 @@ function upgradeMissileCapacity()
 						comms_source.missile_capacity_upgrade = true
 						comms_source.goods[comms_target.missile_capacity_upgrade_good] = comms_source.goods[comms_target.missile_capacity_upgrade_good] - 1
 						comms_source.cargo = comms_source.cargo + 1
-						setCommsMessage("Your ship can now store more missiles")
+						setCommsMessage(_("upgradeMissileCapacity-comms","Your ship can now store more missiles"))
 					else
-						setCommsMessage(string.format("You don't have any %s in your ship inventory",comms_target.missile_capacity_upgrade_good))
+						setCommsMessage(string.format(_("upgradeMissileCapacity-comms","You don't have any %s in your ship inventory"),comms_target.missile_capacity_upgrade_good))
 					end
+					addCommsReply(_("Back"), commsStation)
 				end)
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -2989,12 +3096,13 @@ function destroyAggressiveKraylorStation()
 	if comms_target == station_huge_CUF then
 		if station_aggressive_kraylor:isValid() and not comms_source.destroy_agressive_kraylor_station_mission then
 			option_count = option_count + 1
-			addCommsReply("Destroy aggressive Kraylor station",function()
+			addCommsReply(_("destroyAggressiveStation-comms","Destroy aggressive Kraylor station"),function()
 				local ox, oy = comms_target:getPosition()
 				local dx, dy = station_aggressive_kraylor:getPosition()
 				local bearing = math.floor(angleHeading(ox, oy, dx, dy))
-				setCommsMessage(string.format("The Kraylor have sent several attacking forces here. Judging from their attack vector, they have a station on bearing %i. Your mission is to destroy that station. Our enhanced sensors don't show anything, so the station must be over 100 units away.",bearing))
+				setCommsMessage(string.format(_("destroyAggressiveStation-comms","The Kraylor have sent several attacking forces here. Judging from their attack vector, they have a station on bearing %i. Your mission is to destroy that station. Our enhanced sensors don't show anything, so the station must be over 100 units away."),bearing))
 				comms_source.destroy_agressive_kraylor_station_mission = true
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -3005,12 +3113,13 @@ function destroyAggressiveKtlitanStation()
 	if comms_target == station_large_USN then
 		if station_aggressive_ktlitans:isValid() and not comms_source.destroy_agressive_ktlitan_station_mission then
 			option_count = option_count + 1
-			addCommsReply("Destroy aggressive Ktlitan station",function()
+			addCommsReply(_("destroyAggressiveStation-comms","Destroy aggressive Ktlitan station"),function()
 				local ox, oy = comms_target:getPosition()
 				local dx, dy = station_aggressive_ktlitans:getPosition()
 				local bearing = math.floor(angleHeading(ox, oy, dx, dy))
-				setCommsMessage(string.format("The Ktlitans have sent several attacking forces here. Judging from their attack vector, they have a station on bearing %i. Your mission is to destroy that station. Our enhanced sensors don't show anything, so the station must be over 100 units away.",bearing))
+				setCommsMessage(string.format(_("destroyAggressiveStation-comms","The Ktlitans have sent several attacking forces here. Judging from their attack vector, they have a station on bearing %i. Your mission is to destroy that station. Our enhanced sensors don't show anything, so the station must be over 100 units away."),bearing))
 				comms_source.destroy_agressive_ktlitan_station_mission = true
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -3033,8 +3142,8 @@ function showStripResearch()
 	end
 	if may_show_research then
 		option_count = 1
-		addCommsReply("Report on plague research mission",function()
-			setCommsMessage("Report added to ship log")
+		addCommsReply(_("stripResearch-comms","Report on plague research mission"),function()
+			setCommsMessage(_("stripResearch-comms","Report added to ship log"))
 			if station_research_delivery ~= nil and station_research_delivery:isValid() then
 				if station_research_delivery.containers == nil then
 					station_research_delivery.containers = {
@@ -3056,16 +3165,16 @@ function showStripResearch()
 						end
 					end
 				end
-				comms_source:addToShipLog(string.format("Research delivered to station %s in %s:",station_research_delivery:getCallSign(),station_research_delivery:getSectorName()),"Yellow")
+				comms_source:addToShipLog(string.format(_("stripResearch-comms","Research delivered to station %s in %s:"),station_research_delivery:getCallSign(),station_research_delivery:getSectorName()),"Yellow")
 				comms_source:addToShipLog(delivered,"Green")
 				local remaining = ""
 				for i,faction in ipairs(faction_sources) do
 					remaining = string.format("%s   %s",remaining,faction)
 				end
-				comms_source:addToShipLog("Research remaining to be delivered:","Yellow")
+				comms_source:addToShipLog(_("stripResearch-comms","Research remaining to be delivered:"),"Yellow")
 				comms_source:addToShipLog(remaining,"Red")
 				for i,p in ipairs(getActivePlayerShips()) do
-					comms_source:addToShipLog(string.format("Research aboard %s:",p:getCallSign()),"Yellow")
+					comms_source:addToShipLog(string.format(_("stripResearch-comms","Research aboard %s:"),p:getCallSign()),"Yellow")
 					if p.containers ~= nil and #p.containers > 0 then
 						local aboard = ""
 						for j,c in ipairs(p.containers) do
@@ -3073,10 +3182,11 @@ function showStripResearch()
 						end
 						comms_source:addToShipLog(aboard,"95,158,160")
 					else
-						comms_source:addToShipLog("   None","95,158,160")
+						comms_source:addToShipLog(_("stripResearch-comms","   None"),"95,158,160")
 					end
 				end
 			end
+			addCommsReply(_("Back"), commsStation)
 		end)
 	end
 	return option_count
@@ -3086,27 +3196,28 @@ function showPatrolCircuitStatus()
 	if not comms_source.uniform_plague_mission then
 		if comms_target == station_headquarters or comms_target == station_med_TSN or comms_target == station_large_USN or comms_target == station_huge_CUF then
 			option_count = option_count + 1
-			addCommsReply("Show my patrol circuit status",function()
-				local out = string.format("Circuits completed by %s: %i",comms_source:getCallSign(),comms_source.patrol_circuits)
+			addCommsReply(_("patrolStatus-comms","Show my patrol circuit status"),function()
+				local out = string.format(_("patrolStatus-comms","Circuits completed by %s: %i"),comms_source:getCallSign(),comms_source.patrol_circuits)
 				if #comms_source.patrol_points > 0 then
-					out = string.format("%s\nStations visited on current circuit:",out)
+					out = string.format(_("patrolStatus-comms","%s\nStations visited on current circuit:"),out)
 					for i,station in ipairs(comms_source.patrol_points) do
 						if station:isValid() then
 							out = string.format("%s   %s",out,station:getCallSign())
 						else
-							out = string.format("%s   unknown (destroyed)",out)
+							out = string.format(_("patrolStatus-comms","%s   unknown (destroyed)"),out)
 						end
 					end
 				else
-					out = string.format("%s\nNo stations yet visited on current circuit",out)
+					out = string.format(_("patrolStatus-comms","%s\nNo stations yet visited on current circuit"),out)
 				end
-				out = string.format("%s\nFull circuit:",out)
+				out = string.format(_("patrolStatus-comms","%s\nFull circuit:"),out)
 				for i,station in ipairs(patrol_points) do
 					if station:isValid() then
 						out = string.format("%s   %s",out,station:getCallSign())
 					end
 				end
 				setCommsMessage(out)
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -3156,12 +3267,13 @@ function getResearchContainer()
 				end
 				if not transit then
 					option_count = 1
-					addCommsReply(string.format("Get research and samples for %s",comms_target:getFaction()),function()
-						setCommsMessage(string.format("Research and samples obtained for %s",comms_target:getFaction()))
+					addCommsReply(string.format(_("getResearch-comms","Get research and samples for %s"),comms_target:getFaction()),function()
+						setCommsMessage(string.format(_("getResearch-comms","Research and samples obtained for %s"),comms_target:getFaction()))
 						if comms_source.containers == nil then
 							comms_source.containers = {}
 						end
 						table.insert(comms_source.containers,comms_target:getFaction())
+						addCommsReply(_("Back"), commsStation)
 					end)
 				end
 			end
@@ -3174,7 +3286,7 @@ function deliverResearchContainers()
 	if comms_source.containers ~= nil and #comms_source.containers > 0 then
 		if comms_target == station_research_delivery then
 			option_count = 1
-			addCommsReply("Deliver research containers",function()
+			addCommsReply(_("deliverResearch-comms","Deliver research containers"),function()
 				local delivered = {}
 				if comms_target.containers == nil then
 					comms_target.containers = {}
@@ -3195,18 +3307,19 @@ function deliverResearchContainers()
 					end
 				end
 				if #delivered > 0 then
-					local out = "Delivered research for faction"
+					local out = _("deliverResearch-comms","Delivered research for faction")
 					if #delivered > 1 then
-						out = "Delivered research for factions"
+						out = _("deliverResearch-comms","Delivered research for factions")
 					end
 					for i,f in ipairs(delivered) do
 						out = string.format("%s\n   %s",out,f)
 					end
 					setCommsMessage(out)
 				else
-					setCommsMessage("Research already obtained for factions delivered. No new faction research delivered.")
+					setCommsMessage(_("deliverResearch-comms","Research already obtained for factions delivered. No new faction research delivered."))
 				end
 				comms_source.containers = {}
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -3218,13 +3331,14 @@ function wormholeGuide()
 		if comms_target == station_asteroids_a_far_h then
 			if station_asteroids_a_far_h.wormhole_guide  and not comms_source.wormhole_guide then
 				option_count = 1
-				addCommsReply("Install wormhole guide (50 reputation)",function()
+				addCommsReply(_("wormholeGuide-comms","Install wormhole guide (50 reputation)"),function()
 					if comms_source:takeReputationPoints(50) then
 						comms_source.wormhole_guide = true
-						setCommsMessage("Wormhole guide installed")
+						setCommsMessage(_("wormholeGuide-comms","Wormhole guide installed"))
 					else
-						setCommsMessage("Insufficient reputation")
+						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 					end
+					addCommsReply(_("Back"), commsStation)
 				end)
 			end
 		end
@@ -3236,32 +3350,34 @@ function uniformPlague()
 	if comms_target == station_headquarters then
 		if station_headquarters.uniform_plague_mission and not comms_source.uniform_plague_mission then
 			option_count = 1
-			addCommsReply("Plague Research",function()
-				local out = string.format("You destroyed the aggressive enemy stations in this region. With %i reputation out of a goal of %i reputation, you have completed %i%% of your primary mission goal.",math.floor(comms_source:getReputationPoints()),reputation_goal,math.floor(comms_source:getReputationPoints()/reputation_goal*100))
-				out = string.format("%s Some kind of plague has affected all factions in a number of regions around the galaxy. The only region that seems to be immune is known as The Strip. Scientists in all factions in The Strip have agreed to pool their research to find out why this plague is so pervasive and how it might be stopped.",out)
-				out = string.format("%s If you accept this mission, it would supercede your reputation based mission.",out)
+			addCommsReply(_("plagueResearch-comms","Plague Research"),function()
+				local out = string.format(_("plagueResearch-comms","You destroyed the aggressive enemy stations in this region. With %i reputation out of a goal of %i reputation, you have completed %i%% of your primary mission goal."),math.floor(comms_source:getReputationPoints()),reputation_goal,math.floor(comms_source:getReputationPoints()/reputation_goal*100))
+				out = string.format(_("plagueResearch-comms","%s Some kind of plague has affected all factions in a number of regions around the galaxy. The only region that seems to be immune is known as The Strip. Scientists in all factions in The Strip have agreed to pool their research to find out why this plague is so pervasive and how it might be stopped."),out)
+				out = string.format(_("plagueResearch-comms","%s If you accept this mission, it would supercede your reputation based mission, making the scenario last even longer."),out)
 				if #getActivePlayerShips() > 1 then
-					out = string.format("%s All player ships would need to accept this plague research mission.",out)
+					out = string.format(_("plagueResearch-comms","%s All player ships would need to accept this plague research mission."),out)
 				end
 				setCommsMessage(out)
-				addCommsReply("Accept Plague Research Mission",function()
+				addCommsReply(_("plagueResearch-comms","Accept Plague Research Mission"),function()
 					comms_source.uniform_plague_mission = true
-					local out = string.format("The quickest way to The Strip is through the wormhole in sector %s.",wormhole_to_expanse:getSectorName())
-					out = string.format("%s Be careful when traversing the wormhole. Ship systems have been known to be damaged. Raising shields helps. Also, Exuari ships prey on anyone coming through the wormhole.",out)
+					local out = string.format(_("plagueResearch-comms","The quickest way to The Strip is through the wormhole in sector %s."),wormhole_to_expanse:getSectorName())
+					out = string.format(_("plagueResearch-comms","%s Be careful when traversing the wormhole. Ship systems have been known to be damaged. Raising shields helps. Also, Exuari ships prey on anyone coming through the wormhole."),out)
 					if station_asteroids_a_far_h ~= nil and station_asteroids_a_far_h:isValid() then
-						out = string.format("%s The Arlenians on station %s in sector %s can install a wormhole guidance system to prevent most of the system damage.",out,station_asteroids_a_far_h:getCallSign(),station_asteroids_a_far_h:getSectorName())
+						out = string.format(_("plagueResearch-comms","%s The Arlenians on station %s in sector %s can install a wormhole guidance system to prevent most of the system damage."),out,station_asteroids_a_far_h:getCallSign(),station_asteroids_a_far_h:getSectorName())
 					end
 					setCommsMessage(out)
-					addCommsReply("What do we do in The Strip?",function()
-						setCommsMessage(string.format("Dock at a station from each faction. Collect any research and related samples they have completed. Deliver research and samples to station %s in sector %s",station_research_delivery:getCallSign(),station_research_delivery:getSectorName()))
-						addCommsReply("What about enemy factions?",function()
-							setCommsMessage("You have been equipped with standardized research containers. Contact the enemy faction station scientist. Launch the research container. They will load the container and return it to you. You'll need to retrieve it. The military leaders may be unaware of this cooperative research effort, so you may have to retrieve the research under fire.")
-							addCommsReply(string.format("Should we worry about station %s",station_research_delivery:getCallSign()),function()
-								setCommsMessage(string.format("Yes. If %s is destroyed, the mission is a failure. The same is true of the research stations: if they get destroyed before you retrieve the research, the mission is a failure.",station_research_delivery:getCallSign()))
+					addCommsReply(_("plagueResearch-comms","What do we do in The Strip?"),function()
+						setCommsMessage(string.format(_("plagueResearch-comms","Dock at a station from each faction. Collect any research and related samples they have completed. Deliver research and samples to station %s in sector %s"),station_research_delivery:getCallSign(),station_research_delivery:getSectorName()))
+						addCommsReply(_("plagueResearch-comms","What about enemy factions?"),function()
+							setCommsMessage(_("plagueResearch-comms","You have been equipped with standardized research containers. Contact the enemy faction station scientist. Launch the research container. They will load the container and return it to you. You'll need to retrieve it. The military leaders may be unaware of this cooperative research effort, so you may have to retrieve the research under fire."))
+							addCommsReply(string.format(_("plagueResearch-comms","Should we worry about station %s"),station_research_delivery:getCallSign()),function()
+								setCommsMessage(string.format(_("plagueResearch-comms","Yes. If %s is destroyed, the mission is a failure. The same is true of the research stations: if they get destroyed before you retrieve the research, the mission is a failure."),station_research_delivery:getCallSign()))
+								addCommsReply(_("Back"), commsStation)
 							end)
 						end)
 					end)
 				end)
+				addCommsReply(_("Back"), commsStation)
 			end)
 		end
 	end
@@ -3270,35 +3386,35 @@ end
 function commsEnemyStation()
 	if distance(comms_source,comms_target) < 5000 then
 		if comms_target.container_status == nil then
-			setCommsMessage("Ready to receive research container.")
-			addCommsReply("Launch container",function()
+			setCommsMessage(_("enemy-comms","Ready to receive research container."))
+			addCommsReply(_("enemy-comms","Launch container"),function()
 				createContainer()
-				setCommsMessage("Container launched")
+				setCommsMessage(_("enemy-comms","Container launched"))
 			end)
 		elseif comms_target.container_status == "in transit to station" then
-			setCommsMessage(string.format("Research container is in transit to station %s",comms_target:getCallSign()))
+			setCommsMessage(string.format(_("enemy-comms","Research container is in transit to station %s"),comms_target:getCallSign()))
 		elseif comms_target.container_status == "being loaded" then
-			setCommsMessage(string.format("Research container arrived at station %s and is being loaded with data and samples.",comms_target:getCallSign()))
+			setCommsMessage(string.format(_("enemy-comms","Research container arrived at station %s and is being loaded with data and samples."),comms_target:getCallSign()))
 		elseif comms_target.container_status == "returning to ship" then
-			setCommsMessage(string.format("Research container with samples and data in transit from station %s to original launch point.",comms_target:getCallSign()))
+			setCommsMessage(string.format(_("enemy-comms","Research container with samples and data in transit from station %s to original launch point."),comms_target:getCallSign()))
 		elseif comms_target.container_status == "awaiting retrieval" then
-			setCommsMessage(string.format("Research container from station %s with data and samples awaiting retrieval at original launch point.",comms_target:getCallSign()))
+			setCommsMessage(string.format(_("enemy-comms","Research container from station %s with data and samples awaiting retrieval at original launch point."),comms_target:getCallSign()))
 		elseif comms_target.container_status == "retrieved" then
-			setCommsMessage("Research container has been retrieved")
-			addCommsReply("Data lost. We need another copy.",function()
-				setCommsMessage("Ready to receive another research container.")
-				addCommsReply("Launch another container (50 reputation)",function()
+			setCommsMessage(_("enemy-comms","Research container has been retrieved"))
+			addCommsReply(_("enemy-comms","Data lost. We need another copy."),function()
+				setCommsMessage(_("enemy-comms","Ready to receive another research container."))
+				addCommsReply(_("enemy-comms","Launch another container (50 reputation)"),function()
 					if comms_source:takeReputationPoints(50) then
 						createContainer()
-						setCommsMessage("Container launched")
+						setCommsMessage(_("enemy-comms","Container launched"))
 					else
-						setCommsMessage("Insufficient reputation")
+						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
 					end
 				end)
 			end)
 		end
 	else
-		setCommsMessage(string.format("Scientist on station %s will only connect communications if ship is within 5 units",comms_target:getCallSign()))
+		setCommsMessage(string.format(_("enemy-comms","Scientist on station %s will only connect communications if ship is within 5 units"),comms_target:getCallSign()))
 	end
 end
 function createContainer()
@@ -3314,7 +3430,7 @@ function createContainer()
 	a.destination_y = destination_y
 	a.angle = angleHeading(origin_x, origin_y, destination_x, destination_y)
 --	print("container angle:",a.angle)
-	a:setDescriptions("Research collection container","Research collection container in transit to station")
+	a:setDescriptions(_("scienceDescription-researchContainer","Research collection container"),_("scienceDescription-researchContainer","Research collection container in transit to station"))
 	a:setScanningParameters(1,1)
 	a.blink_colors = {
 		{r = 0,		g = 255,	b = 0},		--green
@@ -3341,6 +3457,7 @@ function retrieveContainer(self,p)
 		p.containers = {}
 	end
 	table.insert(p.containers,self.faction)
+	p:addToShipLog(string.format(_("researchContainer-shipLog","%s research container retrieved"),self.faction),"White")
 end
 --	update related functions
 function updatePlayerTrackPatrolPoint(p)
@@ -3378,9 +3495,9 @@ function updatePlayerInitialPatrolMissionMessage(p)
 	if getScenarioTime() > initial_message_time then
 		if not p.initialPatrolMissionMessage then
 			if availableForComms(p) then
-				station_headquarters:sendCommsMessage(p,string.format("Your orders, %s:\nPatrol these friendly stations:\n%s %s\n%s %s\n%s %s\n%s %s\nYou need to dock with each one for the patrol circuit to be marked as complete. As you patrol, destroy enemies, and/or complete missions, your reputation will increase. Your goal is to get %i or more reputation.",p:getCallSign(),station_headquarters:getFaction(),station_headquarters:getCallSign(),station_med_TSN:getFaction(),station_med_TSN:getCallSign(),station_large_USN:getFaction(),station_large_USN:getCallSign(),station_huge_CUF:getFaction(),station_huge_CUF:getCallSign(),reputation_goal))
+				station_headquarters:sendCommsMessage(p,string.format(_("orders-comms","Your orders, %s:\nPatrol these friendly stations:\n%s %s\n%s %s\n%s %s\n%s %s\nYou need to dock with each one for the patrol circuit to be marked as complete. As you patrol, destroy enemies, and/or complete missions, your reputation will increase. Your goal is to get %i or more reputation."),p:getCallSign(),station_headquarters:getFaction(),station_headquarters:getCallSign(),station_med_TSN:getFaction(),station_med_TSN:getCallSign(),station_large_USN:getFaction(),station_large_USN:getCallSign(),station_huge_CUF:getFaction(),station_huge_CUF:getCallSign(),reputation_goal))
 				p.initialPatrolMissionMessage = true
-				primary_orders = string.format("Patrol friendly stations %s, %s, %s, and %s. Gather %s reputation.",station_headquarters:getCallSign(),station_med_TSN:getCallSign(),station_large_USN:getCallSign(),station_huge_CUF:getCallSign(),reputation_goal)
+				primary_orders = string.format(_("orders-comms","Patrol friendly stations %s, %s, %s, and %s. Gather %s reputation."),station_headquarters:getCallSign(),station_med_TSN:getCallSign(),station_large_USN:getCallSign(),station_huge_CUF:getCallSign(),reputation_goal)
 			end
 		end
 	end
@@ -3430,7 +3547,7 @@ function updatePlayerIFFFailureCheck(p)
 	if IFF_fail_message_time ~= nil then
 		if p.IFF_fail then
 			if getScenarioTime() > IFF_fail_message_time then
-				p:addToShipLog(string.format("The IFF change to TSN has failed. %s has reverted to Human Navy",p:getCallSign()),"Red")
+				p:addToShipLog(string.format(_("IFF-shipLog","The IFF change to TSN has failed. %s has reverted to Human Navy"),p:getCallSign()),"Red")
 				IFF_fail_message_time = nil
 			end
 		end
@@ -3438,13 +3555,13 @@ function updatePlayerIFFFailureCheck(p)
 end
 function updatePlayerShipNameBanner(p)
 	p.ship_name_banner_hlm = "ship_name_banner_hlm"
-	p:addCustomInfo("Helms",p.ship_name_banner_hlm,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),1)
+	p:addCustomInfo("Helms",p.ship_name_banner_hlm,string.format(_("nameHelm-tab","%s %s in %s"),p:getFaction(),p:getCallSign(),p:getSectorName()),1)
 	p.ship_name_banner_rel = "ship_name_banner_rel"
-	p:addCustomInfo("Relay",p.ship_name_banner_rel,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),1)
+	p:addCustomInfo("Relay",p.ship_name_banner_rel,string.format(_("nameRelay-tab","%s %s in %s"),p:getFaction(),p:getCallSign(),p:getSectorName()),1)
 	p.ship_name_banner_tac = "ship_name_banner_tac"
-	p:addCustomInfo("Tactical",p.ship_name_banner_tac,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),1)
+	p:addCustomInfo("Tactical",p.ship_name_banner_tac,string.format(_("nameTactical-tab","%s %s in %s"),p:getFaction(),p:getCallSign(),p:getSectorName()),1)
 	p.ship_name_banner_ops = "ship_name_banner_ops"
-	p:addCustomInfo("Operations",p.ship_name_banner_ops,string.format("%s %s in %s",p:getFaction(),p:getCallSign(),p:getSectorName()),1)
+	p:addCustomInfo("Operations",p.ship_name_banner_ops,string.format(_("nameOps-tab","%s %s in %s"),p:getFaction(),p:getCallSign(),p:getSectorName()),1)
 end
 function updatePlayerStarHeat(delta,p)
 	if p:isValid() then
@@ -3574,7 +3691,7 @@ function updatePlayerInNebula(delta,p)
 		else
 			if p:hasPlayerAtPosition("Engineering") then
 				p.get_coolant_button = "get_coolant_button"
-				p:addCustomButton("Engineering",p.get_coolant_button,"Get Coolant",function() 
+				p:addCustomButton("Engineering",p.get_coolant_button,_("coolantEng-button","Get Coolant"),function() 
 					string.format("")
 					getCoolantGivenPlayer(p) 
 				end, 24)
@@ -3582,7 +3699,7 @@ function updatePlayerInNebula(delta,p)
 			end
 			if p:hasPlayerAtPosition("Engineering+") then
 				p.get_coolant_button_plus = "get_coolant_button_plus"
-				p:addCustomButton("Engineering+",p.get_coolant_button_plus,"Get Coolant",function() 
+				p:addCustomButton("Engineering+",p.get_coolant_button_plus,_("coolantEng-button","Get Coolant"),function() 
 					string.format("")
 					getCoolantGivenPlayer(p) 
 				end, 24)
@@ -3725,21 +3842,21 @@ function updatePlayerStripGuideArtifact(p)
 	sgx = sgx + expanse_x
 	sgy = sgy + expanse_y
 	local sga = Artifact():setPosition(sgx,sgy):setModel("SensorBuoyMKII")
-	sga:setDescriptions("Automated data gathering device","Guide to stations in The Strip")
+	sga:setDescriptions(_("scienceDescription-stripGuide","Automated data gathering device"),_("scienceDescription-stripGuide","Guide to stations in The Strip"))
 	sga:setScanningParameters(1,1):allowPickup(true)
 	sga:onPickUp(addGuideButton)
 end
 function addGuideButton(self,p)
 	string.format("")
 	p.guide_button_rel = "guide_button_rel"
-	p:addCustomButton("Relay",p.guide_button_rel,"Station Guide",function()
+	p:addCustomButton("Relay",p.guide_button_rel,_("stripGuide-button","Station Guide"),function()
 		string.format("")
 		local out = stripGuide(p)
 		p.station_guide_rel = "station_guide_rel"
 		p:addCustomMessage("Relay",p.station_guide_rel,out)
 	end)
 	p.guide_button_ops = "guide_button_ops"
-	p:addCustomButton("Operations",p.guide_button_ops,"Station Guide",function()
+	p:addCustomButton("Operations",p.guide_button_ops,_("stripGuide-button","Station Guide"),function()
 		string.format("")
 		local out = stripGuide(p)
 		p.station_guide_ops = "station_guide_ops"
@@ -3758,9 +3875,9 @@ function stripGuide(p)
 	table.sort(station_details,function(a,b)
 		return a.dist < b.dist
 	end)
-	local out = "Sector Name Faction Distance Bearing"
+	local out = _("stripGuide-msgRelay&Operations","Stations in The Strip:\n\nSector Name Faction Distance Bearing")
 	for i,station in ipairs(station_details) do
-		out = string.format("%s\n%s %s %s %.1fU %.1f",out,station.sector,station.name,station.faction,station.dist/1000,station.bear)
+		out = string.format("%s\n%s   %s   %s   %.1fU   %.1f",out,station.sector,station.name,station.faction,station.dist/1000,station.bear)
 	end
 	return out
 end
@@ -3775,7 +3892,7 @@ function updateCoolantGivenPlayer(p, delta, gain_coolant_nebulae)
 		end
 		p.deploy_coolant_timer = p.deploy_coolant_timer - delta
 		if p.deploy_coolant_timer < 0 then
-			gather_coolant_status = "Gathering Coolant"
+			gather_coolant_status = _("coolant-tabEngineer","Gathering Coolant")
 			local player_coolant_gain = 0
 			for c,neb in ipairs(gain_coolant_nebulae) do
 				player_coolant_gain = math.max(player_coolant_gain,neb.coolant_gain)
@@ -3797,10 +3914,10 @@ function updateCoolantGivenPlayer(p, delta, gain_coolant_nebulae)
 				end
 			end
 		else
-			gather_coolant_status = string.format("Deploying Collectors %i",math.ceil(p.deploy_coolant_timer - delta))
+			gather_coolant_status = string.format(_("coolant-tabEngineer","Deploying Collectors %i"),math.ceil(p.deploy_coolant_timer - delta))
 		end
 	else
-		gather_coolant_status = string.format("Configuring Collectors %i",math.ceil(p.configure_coolant_timer - delta))
+		gather_coolant_status = string.format(_("coolant-tabEngineer","Configuring Collectors %i"),math.ceil(p.configure_coolant_timer - delta))
 	end
 	if p:hasPlayerAtPosition("Engineering") then
 		p.gather_coolant = "gather_coolant"
@@ -4264,13 +4381,13 @@ function pickTargetAsteroid()
 			target_asteroid.iridium = target_asteroid_notes.iridium
 			target_asteroid.olivine = target_asteroid_notes.olivine
 			target_asteroid.iron = target_asteroid_notes.iron
-			local scanned_desc = string.format("Structure: %s",target_asteroid.structure)
+			local scanned_desc = string.format(_("scienceDescription-searchAsteroid","Structure: %s"),target_asteroid.structure)
 			local unscanned_desc = scanned_desc
-			scanned_desc = string.format("%s\nosmium:%.1f",scanned_desc,target_asteroid.osmium)
-			scanned_desc = string.format("%s\niridium:%.1f",scanned_desc,target_asteroid.iridium)
-			scanned_desc = string.format("%s\nolivine:%.1f",scanned_desc,target_asteroid.olivine)
-			scanned_desc = string.format("%s\niron:%.1f",scanned_desc,target_asteroid.iron)
-			scanned_desc = string.format("%s\nrock:remainder",scanned_desc)
+			scanned_desc = string.format(_("scienceDescription-searchAsteroid","%s\nosmium:%.1f"),scanned_desc,target_asteroid.osmium)
+			scanned_desc = string.format(_("scienceDescription-searchAsteroid","%s\niridium:%.1f"),scanned_desc,target_asteroid.iridium)
+			scanned_desc = string.format(_("scienceDescription-searchAsteroid","%s\nolivine:%.1f"),scanned_desc,target_asteroid.olivine)
+			scanned_desc = string.format(_("scienceDescription-searchAsteroid","%s\niron:%.1f"),scanned_desc,target_asteroid.iron)
+			scanned_desc = string.format(_("scienceDescription-searchAsteroid","%s\nrock:remainder"),scanned_desc)
 			target_asteroid:setDescriptions(unscanned_desc,scanned_desc)
 			target_asteroid_sector = target_asteroid:getSectorName()
 		else
@@ -4287,13 +4404,17 @@ function updateAsteroidResearch()
 	end
 	if scanned_asteroid_count > 5 then
 		if asteroid_structure == nil then
-			structures = {"binary","rubble","solid"}
+			structures = {
+				_("searchAsteroid-comms","binary"),
+				_("searchAsteroid-comms","rubble"),
+				_("searchAsteroid-comms","solid"),
+			}
 			asteroid_structure = tableSelectRandom(structures)
 			for i,p in ipairs(getActivePlayerShips()) do
 				if p.rock_research then
 					if not p.structure_message then
 						if availableForComms(p) then
-							station_headquarters:sendCommsMessage(p,string.format("[Jessi Alcott] I just remembered that the structure of the asteroid I'm interested in is %s",asteroid_structure))
+							station_headquarters:sendCommsMessage(p,string.format(_("searchAsteroid-comms","[Jessi Alcott] I just remembered that the structure of the asteroid I'm interested in is %s"),asteroid_structure))
 							p.structure_message = true
 						end
 					end
@@ -4326,7 +4447,7 @@ function updateUniformPlague()
 			local accepted = true
 			for i,p in ipairs(getActivePlayerShips()) do
 				if not p.uniform_plague_mission_notification_message and availableForComms(p) then
-					station_headquarters:sendCommsMessage(p,string.format("An alternative mission has come to our attention. Contact the dispatch office on station %s for details.",station_headquarters:getCallSign()))
+					station_headquarters:sendCommsMessage(p,string.format(_("plagueResearch-comms","An alternative mission has come to our attention. Contact the dispatch office on station %s for details."),station_headquarters:getCallSign()))
 					p.uniform_plague_mission_notification_message = true
 					station_headquarters.uniform_plague_mission = true
 				end
@@ -4384,7 +4505,7 @@ function updateResearchContainers()
 				if getScenarioTime() > a.arrival_time then
 					if a.container_status == "in transit to station" then
 						a.container_status = "being loaded"
-						a:setDescriptions("Research collection container","Research collection container being loaded")
+						a:setDescriptions(_("scienceDescription-researchContainer","Research collection container"),_("scienceDescription-researchContainer","Research collection container being loaded"))
 						if a.station:isValid() then
 							a.station.container_status = "being loaded"
 						else
@@ -4393,7 +4514,7 @@ function updateResearchContainers()
 						a.arrival_time = getScenarioTime() + 60
 					elseif a.container_status == "being loaded" then
 						a.container_status = "returning to ship"
-						a:setDescriptions("Research collection container","Research collection container returning to ship")
+						a:setDescriptions(_("scienceDescription-researchContainer","Research collection container"),_("scienceDescription-researchContainer","Research collection container returning to ship"))
 						if a.station:isValid() then
 							a.station.container_status = "returning to ship"
 						end
@@ -4402,7 +4523,7 @@ function updateResearchContainers()
 						a:allowPickup(true)
 					elseif a.container_status == "returning to ship" then
 						a.container_status = "awaiting retrieval"
-						a:setDescriptions("Research collection container","Research collection container awaiting retrieval")
+						a:setDescriptions(_("scienceDescription-researchContainer","Research collection container"),_("scienceDescription-researchContainer","Research collection container awaiting retrieval"))
 						if a.station:isValid() then
 							a.station.container_status = "awaiting retrieval"
 						end
@@ -4420,7 +4541,6 @@ function updateResearchContainers()
 						new_x = new_x + a.origin_x
 						new_y = new_y + a.origin_y
 						a:setPosition(new_x, new_y)
---						print("To station. clock:",getScenarioTime(),"launch:",a.launch_time,"elapsed:",elapsed_time,"travel:",a.travel_time,"progress%:",travel_progress,"distance:",travel_distance,"angle:",a.angle,"x,y:",new_x, new_y)
 					elseif a.container_status == "returning to ship" then
 						local elapsed_time = getScenarioTime() - a.launch_time
 						local travel_progress = elapsed_time/a.travel_time
@@ -4429,7 +4549,6 @@ function updateResearchContainers()
 						new_x = new_x + a.destination_x
 						new_y = new_y + a.destination_y
 						a:setPosition(new_x, new_y)
---						print("To ship. clock:",getScenarioTime(),"launch:",a.launch_time,"elapsed:",elapsed_time,"travel:",a.travel_time,"progress%:",travel_progress,"distance:",travel_distance,"angle:",a.angle,"x,y:",new_x, new_y)
 					end
 				end
 			end
@@ -4489,7 +4608,7 @@ function update(delta)
 			local mission_failure = false
 			if station_research_delivery == nil or not station_research_delivery:isValid() then
 				mission_failure = true
-				mission_failure_reason = "the research delivery station was destroyed"
+				mission_failure_reason = _("plagueDefeat-msgMainscreen","the research delivery station was destroyed")
 			end
 			if not mission_failure then
 				local remaining_station_factions = {}
@@ -4546,16 +4665,16 @@ function update(delta)
 							end
 							if #destroyed_station_factions > 0 then
 								mission_failure = true
-								mission_failure_reason = string.format("all %s faction stations were destroyed before research was collected",destroyed_station_factions[1])
+								mission_failure_reason = string.format(_("plagueDefeat-msgMainscreen","all %s faction stations were destroyed before research was collected"),destroyed_station_factions[1])
 							end
 						end
 					end
 				end
 			end
 			if mission_failure then
-				local out = string.format("Mission failed because %s.",mission_failure_reason)
-				out = string.format("%s\nGoal: Deliver research   Final reputation: %s",out,getPlayerShip(-1):getReputationPoints())
-				out = string.format("%s\nEnemies: %s   Time spent in mission: %s",out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
+				local out = string.format(_("plagueDefeat-msgMainscreen","Mission failed because %s."),mission_failure_reason)
+				out = string.format(_("plagueDefeat-msgMainscreen","%s\nGoal: Deliver research   Final reputation: %s"),out,getPlayerShip(-1):getReputationPoints())
+				out = string.format(_("plagueDefeat-msgMainscreen","%s\nEnemies: %s   Time spent in mission: %s"),out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
 				globalMessage(out)
 				victory("Exuari")
 			end
@@ -4575,17 +4694,17 @@ function update(delta)
 				end
 			end
 			if #faction_sources == 0 then
-				local out = "Research from all factions was gathered and delivered.\nGalactic civilization has been saved from probable extinction."
-				out = string.format("%s\nGoal: Deliver research   Final reputation: %s",out,getPlayerShip(-1):getReputationPoints())
-				out = string.format("%s\nEnemies: %s   Time spent in mission: %s",out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
+				local out = _("plagueVictory-msgMainscreen","Research from all factions was gathered and delivered.\nGalactic civilization has been saved from probable extinction.")
+				out = string.format(_("plagueVictory-msgMainscreen","%s\nGoal: Deliver research   Final reputation: %s"),out,getPlayerShip(-1):getReputationPoints())
+				out = string.format(_("plagueVictory-msgMainscreen","%s\nEnemies: %s   Time spent in mission: %s"),out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
 				globalMessage(out)
 				victory("Human Navy")
 			end
 		else
 			if p:getReputationPoints() >= reputation_goal and not uniform_plague_mission_fully_accepted then
-				local out = "You met your reputation goal"
-				out = string.format("%s\nGoal: %s   Final reputation: %s",out,reputation_goal,getPlayerShip(-1):getReputationPoints())
-				out = string.format("%s\nEnemies: %s   Time spent in mission: %s",out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
+				local out = _("reputationVictory-msgMainscreen","You met your reputation goal")
+				out = string.format(_("reputationVictory-msgMainscreen","%s\nGoal: %s   Final reputation: %s"),out,reputation_goal,getPlayerShip(-1):getReputationPoints())
+				out = string.format(_("reputationVictory-msgMainscreen","%s\nEnemies: %s   Time spent in mission: %s"),out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
 				globalMessage(out)
 				victory("Human Navy")
 			end
@@ -4627,9 +4746,9 @@ function update(delta)
 	end
 	if plague_count < #getActivePlayerShips() then
 		if #patrol_points < 4 then
-			local out = "One of the stations on your patrol was destroyed"
-			out = string.format("%s\nGoal: %s   Final reputation: %s",out,reputation_goal,getPlayerShip(-1):getReputationPoints())
-			out = string.format("%s\nEnemies: %s   Time spent in mission: %s",out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
+			local out = _("patrolDefeat-msgMainscreen","One of the stations on your patrol was destroyed")
+			out = string.format(_("patrolDefeat-msgMainscreen","%s\nGoal: %s   Final reputation: %s"),out,reputation_goal,getPlayerShip(-1):getReputationPoints())
+			out = string.format(_("patrolDefeat-msgMainscreen","%s\nEnemies: %s   Time spent in mission: %s"),out,getScenarioSetting("Enemies"),formatTime(getScenarioTime()))
 			globalMessage(out)
 			victory("Exuari")
 		end
