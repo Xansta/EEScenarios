@@ -1,11 +1,13 @@
 -- Name: Dodge
--- Description: Single player ship of type Repulse. Suggest Science and Relay vs. Operations due to Relay's view. Goal: save as many as possible. Limited bases. Diverse factions
+-- Description: Single player ship of type Repulse. Suggest Science and Relay vs. Operations due to Relay's view if short on crew. 
+---
+--- Goal: Save as many as possible. Limited bases. Diverse factions. Details develop over the course of the scenario.
 --- 
---- Designed to be short, challenging and different each time. Players scored between 0 and 100 based on how many survivors and their faction: friendlies are worth more than neutrals which are worth more than enemies. Score determines final rank: Admirals score > 90. Cadets score <= 30.
+--- Designed to be short, challenging and different each time. Players receive a score between 0 and 100 based on how many survivors and their faction: friendlies are worth more than neutrals which are worth more than enemies. Score determines final rank: Admirals score > 90. Cadets score <= 30.
 ---
 --- Duration: 30 minutes
 ---
---- Version 0
+--- Version 1
 -- Type: Replayable Mission
 -- Setting[Enemies]: Configures strength and/or number of enemies in this scenario
 -- Enemies[Easy]: Fewer or weaker enemies
@@ -52,9 +54,14 @@ require("place_station_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "0.2.1"
-	print(string.format("     -----     Scenario: Dodge     -----     Version %s     -----",scenario_version))
-	print(_VERSION)
+	scenario_version = "1.0.0"
+	scenario_name = "Dodge"
+	getScriptStorage():set("scenario_name", scenario_name)
+	ee_version = "2024.12.08"
+	print(string.format("     -----     Scenario: %s     -----     Version %s     -----     Tested with EE version %s",scenario_name,scenario_version,ee_version))
+	if _VERSION ~= nil then
+		print("Lua version:",_VERSION)
+	end
 	patrol_maintenance_diagnostic = false
 	expedition_maintenance_diagnostic = false
 	task_maintenance_diagnostic = false
@@ -181,6 +188,7 @@ function setConstants()
 	center_x = 909000 + c_x
 	center_y = 151000 + c_y
 	primary_orders = _("orders-comms","Protect and save the civilian population who live on space stations.")
+	plotSW = stationWarning
 	plotCI = cargoInventory
 	plotH = healthCheck				--Damage to ship can kill repair crew members
 	healthCheckTimerInterval = 8
@@ -5895,6 +5903,25 @@ function getFriendStatus()
         return "neutral"
     end
 end
+function stationWarning(delta)
+	if devouring_black_holes ~= nil then
+		for i,bh in ipairs(devouring_black_holes) do
+			if bh ~= nil and bh:isValid() then
+				for j,station in ipairs(station_list) do
+					if station ~= nil and station:isValid() then
+						if distance(bh,station) < 30000 then
+							if plotSW ~= nil then
+								local p = getPlayerShip(-1)
+								station:sendCommsMessage(p,"There's a black hole in motion close to us!\nWe are in danger of being crushed by a black hole!\nMarauding black holes!\nHas the galaxy gone crazy?")
+								plotSW = nil
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
 ------------------------
 -- Ship communication --
 ------------------------
@@ -10497,6 +10524,9 @@ function updateInner(delta)
 		end
 		local total_start = residents["friend"] + residents["neutral"] + residents["enemy"]
 		local msg = string.format(_("msgMainscreen","Survivors:   %i/%i(%i%%)    Score:%i   Rank:%s"),survivor_count["total"]["total"],total_start,math.floor(survivor_count["total"]["total"]/total_start*100),math.floor(score*100),rank)
+		if control_stage > 0 then
+			msg = string.format(_("msgMainscreen","Control device access tiers completed: %i\n%s"),control_stage,msg)
+		end
 		globalMessage(msg)
 		setBanner(msg)
 		local consoles = {"Helms", "Weapons", "Engineering", "Science", "Relay", "Tactical", "Engineering+", "Operations", "Single", "DamageControl", "PowerManagement", "Database", "AltRelay", "CommsOnly", "ShipLog"}
@@ -10559,6 +10589,9 @@ function updateInner(delta)
 	end
 	if plotContinuum ~= nil then
 		plotContinuum(delta)
+	end
+	if plotSW ~= nil then
+		plotSW(delta)
 	end
 end
 function playerDestroyed()
