@@ -190,8 +190,8 @@ function setPlayerShipStats()
 	addPlayerShip("Wesson",		"Chavez",		createPlayerShipWesson		,"J")
 	addPlayerShip("Wiggy",		"Gull",			createPlayerShipWiggy		,"J")
 	addPlayerShip("Yorik",		"Rook",			createPlayerShipYorik		,"J")
-	makePlayerShipActive("Levant")			--J
-	makePlayerShipActive("Arwine")			--J
+	makePlayerShipActive("Cobra")			--J
+	makePlayerShipActive("Outcast")			--J
 	makePlayerShipActive("Manxman") 		--J 
 	makePlayerShipActive("Florentine")		--W
 	makePlayerShipActive("Pinwheel")		--W

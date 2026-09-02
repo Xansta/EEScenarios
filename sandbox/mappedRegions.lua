@@ -2353,15 +2353,12 @@ function createIcarusColor()
 		if i == 1 and not mirrorUniverse then
 			dp1Zone = squareZone(icx+dpx,icy+dpy,"idp1")
 			dp1Zone:setColor(0,128,0):setLabel("1")
-		elseif i == 3 and not mirrorUniverse then
-			dp3Zone = squareZone(icx+dpx,icy+dpy,"idp3")
-			dp3Zone:setColor(0,128,0):setLabel("3")
+		elseif i == 2 and not mirrorUniverse then
+			dp2Zone = squareZone(icx+dpx,icy+dpy,"idp2")
+			dp2Zone:setColor(0,128,0):setLabel("2")
 		elseif i == 4 and not mirrorUniverse then
 			dp4Zone = squareZone(icx+dpx,icy+dpy,"idp4")
 			dp4Zone:setColor(0,128,0):setLabel("4")
-		elseif i == 5 and not mirrorUniverse then
-			dp5Zone = squareZone(icx+dpx,icy+dpy,"idp5")
-			dp5Zone:setColor(0,128,0):setLabel("5")
 		else		
 			local dp = CpuShip():setTemplate("Defense platform"):setFaction("Human Navy"):setPosition(icx+dpx,icy+dpy):setScannedByFaction("Human Navy",true):setCallSign(string.format("IDP%i",i)):setDescription(string.format("Icarus defense platform %i",i)):orderRoaming()
 			setBeamColor(dp)
