@@ -72,7 +72,7 @@ require("sandbox/playerShips.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.6.2"
+	scenario_version = "9.7.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -3231,6 +3231,7 @@ function fiddleWithArtifacts()
 	clearGMFunctions()
 	addGMFunction("-Main from Artifacts",initialGMFunctions)
 	addGMFunction("+Drop Point",dropPoint)
+	addGMFunction("+Hazard Buoy",hazardBuoy)
 	addGMFunction("+Scan Clue",scanClue)
 	addGMFunction("+Sensor Jammer",sensorJammer)
 	local object_list = getGMSelection()
@@ -20793,6 +20794,55 @@ function dropPoint()
 	addGMFunction("+Attach to NPS",attachArtifact)
 	addGMFunction("+Detach",detachArtifact)
 	addGMFunction("Artifact To Pod",artifactToPod)
+end
+function hazardBuoy()
+	clearGMFunctions()
+	addGMFunction("-Main from hazard buoy",initialGMFunctions)
+	addGMFunction(string.format("+%s",drop_point_location),function()
+		set_drop_point_location_caller = hazardBuoy
+		setDropPointLocation()
+	end)
+	if gm_click_mode == "hazard buoy" then
+		addGMFunction(">Hazard Buoy<",placeHazardBuoy)
+	else
+		addGMFunction("Hazard Buoy",placeHazardBuoy)
+	end
+end
+function placeHazardBuoy()
+	if drop_point_location == "At Click" then
+		if gm_click_mode == "hazard buoy" then
+			gm_click_mode = nil
+			onGMClick(nil)
+		else
+			local prev_mode = gm_click_mode
+			gm_click_mode = "hazard buoy"
+			onGMClick(gmClickHazardBuoy)
+			if prev_mode ~= nil then
+				addGMMessage(string.format("Cancelled current GM Click mode\n   %s\nIn favor of\n   hazard buoy\nGM click mode.",prev_mode))
+			end
+		end
+		hazardBuoy()
+	elseif drop_point_location == "Associated" then
+		addGMMessage("Buoys only use the At Click mode. Switching to At Click mode")
+		hazardBuoy()
+	elseif drop_point_location == "Near To" then
+		addGMMessage("Buoys only use the At Click mode. Switching to At Click mode")
+		hazardBuoy()
+	end
+end
+function gmClickHazardBuoy(x,y)
+	hazardBuoyCreation(x,y,0,0)
+end
+function hazardBuoyCreation(originx, originy, vectorx, vectory)
+	string.format("")
+	local hb = Artifact():setPosition(originx+vectorx,originy+vectory):setModel("SensorBuoyMKIII"):setDescription("Hazardous region. Use caution."):setRadarTraceColor(255,0,0)
+	hb.blink_colors = {
+		{r = 255,	g = 255,	b = 0},	--yellow
+		{r = 255,	g = 0,		b = 0},	--red
+	}
+	hb.blink_index = 1
+	table.insert(blinking_artifacts,hb)
+	return hb
 end
 -----------------------------
 --	Artifacts > Scan Clue  --
