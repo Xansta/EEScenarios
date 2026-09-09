@@ -54,7 +54,7 @@ require("place_station_scenario_utility.lua")
 -- Initialization --
 --------------------
 function init()
-	scenario_version = "1.0.0"
+	scenario_version = "1.0.1"
 	scenario_name = "Dodge"
 	getScriptStorage():set("scenario_name", scenario_name)
 	ee_version = "2024.12.08"
@@ -737,6 +737,7 @@ function constructEnvironment()
 	table.insert(place_space,{obj=p,dist=100,shape="circle"})
 --	Determine angles
 	gross_angle = random(0,360)
+	print("Gross angle:",gross_angle)
 	invert_angle = (gross_angle + 180) % 360
 	place_arc = 50
 	gross_angle_start = gross_angle - place_arc/2
@@ -2538,6 +2539,8 @@ function establishDevouringBlackHoles()
 			end
 			local bh = BlackHole():setPosition(spawn_x, spawn_y)
 			bh.travel_angle = travel_angle
+			bh.s_x = s_x
+			bh.s_y = s_y
 			bh.name = tableRemoveRandom(devouring_black_hole_names)
 			table.insert(devouring_black_holes,bh)
 		end
@@ -3788,7 +3791,37 @@ function updateDevouringBlackHoles(delta)
 			if bh ~= nil and bh:isValid() then
 				local d_x, d_y = vectorFromAngleNorth(bh.travel_angle,200000/1200*delta)
 				local c_x, c_y = bh:getPosition()
-				bh:setPosition(c_x + d_x, c_y + d_y)
+				if distance(c_x, c_y, bh.s_x, bh.s_y) < 100 then
+					devouring_black_holes[bh_index] = devouring_black_holes[#devouring_black_holes]
+					devouring_black_holes[#devouring_black_holes] = nil
+					if conflict_park == nil then
+						conflict_park = 0
+					end
+					conflict_park = conflict_park + 1
+					local park_x, park_y = vectorFromAngle(gross_angle,300000 + (10000*conflict_park),true)
+					local halt_x, halt_y = bh:getPosition()
+					if (gross_angle > 45 and gross_angle < 135) or (gross_angle > 235 and gross_angle < 315) then
+						bh:setPosition(park_x + halt_x, park_y + halt_y + 20000)
+					else
+						bh:setPosition(park_x + halt_x + 20000, park_y + halt_y)
+					end
+					break
+				else
+					bh:setPosition(c_x + d_x, c_y + d_y)
+					for nbh_index, nbh in ipairs(devouring_black_holes) do
+						if nbh ~= nil and nbh:isValid() then
+							if bh ~= nbh then
+								if distance(bh,nbh) < 10000 then
+									local nbh_x, nbh_y = nbh:getPosition()
+									local push_angle = angleHeading(c_x + d_x, c_y + d_y, nbh_x, nbh_y)
+									local push_x, push_y = vectorFromAngle(push_angle,10000,true)
+									nbh:setPosition(c_x + d_x + push_x, c_y + d_y + push_y)
+									nbh.travel_angle = angleHeading(nbh.s_x,nbh.s_y,c_x + d_x + push_x,c_y + d_y + push_y)
+								end
+							end
+						end
+					end
+				end
 			else
 				devouring_black_holes[bh_index] = devouring_black_holes[#devouring_black_holes]
 				devouring_black_holes[#devouring_black_holes] = nil
