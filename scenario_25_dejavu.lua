@@ -12,21 +12,17 @@
 -- Enemies[Hard]: More or stronger enemies
 -- Enemies[Extreme]: Much stronger, many more enemies
 -- Enemies[Quixotic]: Insanely strong and/or inordinately large numbers of enemies
--- Setting[ReputationGoal]: Sets the reputation goal to win the game. Default 500 runs about an hour
+-- Setting[ReputationGoal]: Sets the reputation goal to win the game. Default 800 runs 1 - 2 hours
 -- ReputationGoal[400]: Accumulate 400 reputation points to win
 -- ReputationGoal[800|Default]: Accumulate 800 reputation points to win
 -- ReputationGoal[1200]: Accumulate 1200 reputation points to win
 -- ReputationGoal[1600]: Accumulate 1600 reputation points to win
-
---	Fixed neighborhood with some simple missions
---		Plan for several non-linear missions that multiple player ships can accomplish
---	Randomized exterior regions for subsequent missions
 require("utils.lua")
 require("place_station_scenario_utility.lua")
 require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 function init()
-	scenario_version = "1.0.3"
+	scenario_version = "1.0.5"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Déjà vu    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -42,7 +38,7 @@ function init()
 end
 function mainGMButtons()
 	clearGMFunctions()
-	addGMFunction("+Spawn Ship(s)",spawnGMShips)
+	addGMFunction(_("buttonGM","+Spawn Ship(s)"),spawnGMShips)
 end
 function setConstants()
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
@@ -340,7 +336,7 @@ function setConstants()
 	}
 end
 function setGlobals()
-	primary_orders = "Patrol friendly stations"
+	primary_orders = _("orders-comms","Patrol friendly stations")
 	complete_faction_sources = {
 		"Human Navy",
 		"Kraylor",
@@ -365,6 +361,10 @@ function setGlobals()
 	station_general_information = true
 	stations_support_transport_missions = true
 	stations_support_cargo_missions = true
+	include_major_systems_repair_in_status = true
+	include_minor_systems_repair_in_status = true
+	include_goods_for_sale_in_status = true
+	include_goods_wanted_in_status = true
 	outer_stations = {}
 	friendly_spike_stations = {}
 	relative_strength = 1
@@ -691,18 +691,22 @@ function constructFixedArea()
 	}
 	self_defending_stations = {}
 	inner_stations = {}
+	fixed_stations = {}
 	--	Stations near headquarters
 	station_headquarters = placeStation(-2865, 10417,"Pop Sci Fi","Human Navy","Large Station")
 	station_headquarters:setShortRangeRadarRange(15000)
 	station_headquarters.transport_mission_restricted = true
 	station_headquarters.lrs_5u_upgrade = true
 	table.insert(inner_stations,station_headquarters)
+	table.insert(fixed_stations,station_headquarters)
 	station_asteroids_i_near_h = placeStation(-7889, 27185,"Generic","Independent","Small Station")
 	table.insert(self_defending_stations,station_asteroids_i_near_h)
 	table.insert(inner_stations,station_asteroids_i_near_h)
+	table.insert(fixed_stations,station_asteroids_i_near_h)
 	station_asteroids_a_far_h = placeStation(850, 37137,"History","Arlenians","Small Station")
 	station_asteroids_a_far_h.transport_mission_restricted = true
 	table.insert(inner_stations,station_asteroids_a_far_h)
+	table.insert(fixed_stations,station_asteroids_a_far_h)
 	table.insert(self_defending_stations,station_asteroids_a_far_h)
 	--	stations near medium TSN station
 	station_med_TSN = placeStation(43846, -21746,"Spec Sci Fi","TSN","Medium Station")
@@ -710,31 +714,39 @@ function constructFixedArea()
 	station_med_TSN.transport_mission_restricted = true
 	station_med_TSN.lrs_5u_upgrade = true
 	table.insert(inner_stations,station_med_TSN)
+	table.insert(fixed_stations,station_med_TSN)
 	if station_med_TSN.comms_data.buy == nil then
 		station_med_TSN.comms_data.buy = {}
 	end
 	station_med_TSN.comms_data.buy.tritanium = math.random(70,90)
 	station_asteroids_i_near_t = placeStation(49310, -12572,"Generic","Independent","Small Station")
 	table.insert(self_defending_stations,station_asteroids_i_near_t)
+	table.insert(fixed_stations,station_asteroids_i_near_t)
 	station_asteroids_i_near_t.lrs_5u_upgrade = true
 	table.insert(inner_stations,station_asteroids_i_near_t)
+	table.insert(fixed_stations,station_asteroids_i_near_t)
 	station_asteroids_g_far_t = placeStation(65477, -9885,"Science","Ghosts","Small Station")
 	station_asteroids_g_far_t.transport_mission_restricted = true
 	station_asteroids_g_far_t.lrs_5u_upgrade = true
 	table.insert(self_defending_stations,station_asteroids_g_far_t)
+	table.insert(fixed_stations,station_asteroids_g_far_t)
 	--	stations between large USN station and huge CUF station
 	station_large_USN = placeStation(20914, 43695,"Pop Sci Fi","USN","Large Station")
 	station_large_USN:setShortRangeRadarRange(15000)
 	station_large_USN.transport_mission_restricted = true
 	table.insert(inner_stations,station_large_USN)
+	table.insert(fixed_stations,station_large_USN)
 	station_huge_CUF = placeStation(76019, 22159,"RandomHumanNeutral","CUF","Huge Station")
 	station_huge_CUF:setShortRangeRadarRange(20000)
 	station_huge_CUF.transport_mission_restricted = true
 	table.insert(inner_stations,station_huge_CUF)
+	table.insert(fixed_stations,station_huge_CUF)
 	station_asteroids_k_near_u = placeStation(46761, 56462,"Sinister","Kraylor","Small Station")
 	table.insert(self_defending_stations,station_asteroids_k_near_u)
+	table.insert(fixed_stations,station_asteroids_k_near_u)
 	station_asteroids_b_near_c = placeStation(62007, 39194,"Sinister","Ktlitans","Small Station")
 	table.insert(self_defending_stations,station_asteroids_b_near_c)
+	table.insert(fixed_stations,station_asteroids_b_near_c)
 	--	make sure friendly stations have missiles
 	local friendlies = {station_large_USN,station_huge_CUF,station_med_TSN,station_headquarters}
 	local cost = {
@@ -782,6 +794,7 @@ function constructFixedArea()
 	station_eye_ghost = placeStation(-92065, -91965,"History","Ghosts","Medium Station")
 	station_eye_ghost.transport_mission_restricted = true
 	station_eye_ghost.lrs_5u_upgrade = true
+	table.insert(fixed_stations,station_eye_ghost)
 	--	aggressive Kraylor
 	station_aggressive_kraylor = placeStation(196329, 106410,"Sinister","Kraylor","Medium Station")
 	kraylor_defenders = {}
@@ -789,6 +802,7 @@ function constructFixedArea()
     table.insert(kraylor_defenders,CpuShip():setFaction("Kraylor"):setTemplate("Adder MK5"):setPosition(199624, 103215):orderDefendTarget(station_aggressive_kraylor))
     table.insert(kraylor_defenders,CpuShip():setFaction("Kraylor"):setTemplate("Adder MK5"):setPosition(192090, 104649):orderDefendTarget(station_aggressive_kraylor))
     table.insert(kraylor_defenders,CpuShip():setFaction("Kraylor"):setTemplate("Adder MK5"):setPosition(193736, 110198):orderDefendTarget(station_aggressive_kraylor))
+	table.insert(fixed_stations,station_aggressive_kraylor)
    	local sx, sy = station_aggressive_kraylor:getPosition()
    	orbiting_platforms = {}    
     for i=1,4 do
@@ -803,6 +817,7 @@ function constructFixedArea()
     kraylor_attackers = {}
     --	aggressive Ktlitans
     station_aggressive_ktlitans = placeStation(137995, 154587,"Sinister","Ktlitans","Medium Station")
+	table.insert(fixed_stations,station_aggressive_ktlitans)
     ktlitan_defenders = {}
     table.insert(ktlitan_defenders,CpuShip():setFaction("Ktlitans"):setTemplate("Dagger"):setPosition(142014, 154615):orderDefendTarget(station_aggressive_ktlitans))
     table.insert(ktlitan_defenders,CpuShip():setFaction("Ktlitans"):setTemplate("Dagger"):setPosition(139524, 150867):orderDefendTarget(station_aggressive_ktlitans))
@@ -1042,7 +1057,7 @@ function constructFixedArea()
 				a[component] = math.random(1,upper*10)/10
 				a.composition = a.composition + a[component]
 				if a.composition >= 100 then
-					scanned_description = string.format("%s\n%s:remainder",scanned_description,component)
+					scanned_description = string.format(_("scienceDescription-asteroid","%s\n%s:remainder"),scanned_description,component)
 					break
 				else
 					scanned_description = string.format("%s\n%s:%.1f%%",scanned_description,component,a[component])
@@ -1051,10 +1066,10 @@ function constructFixedArea()
 		end
 		if a.composition > 0 then
 			if a.composition < 100 then
-				scanned_description = string.format("%s\nrock:remainder",scanned_description)
+				scanned_description = string.format(_("scienceDescription-asteroid","%s\nrock:remainder"),scanned_description)
 			end
 		else
-			scanned_description = string.format("%s\njust rock",scanned_description)
+			scanned_description = string.format(_("scienceDescription-asteroid","%s\njust rock"),scanned_description)
 		end
 		target_asteroid_notes = {
 			["osmium"] = math.random(1,20)/10,
@@ -2763,22 +2778,22 @@ function scenarioStationTalk()
 end
 function verifyAsteroid()
 	if osmium == 0 then
-		addCommsReply("osmium",function()
+		addCommsReply(_("asteroidSearch-comms","osmium"),function()
 			traceDigits("osmium",osmium)
 		end)
 	end
 	if iridium == 0 then
-		addCommsReply("iridium",function()
+		addCommsReply(_("asteroidSearch-comms","iridium"),function()
 			traceDigits("iridium",iridium)
 		end)
 	end
 	if olivine == 0 then
-		addCommsReply("olivine",function()
+		addCommsReply(_("asteroidSearch-comms","olivine"),function()
 			traceDigits("olivine",olivine)
 		end)
 	end
 	if iron == 0 then
-		addCommsReply("iron",function()
+		addCommsReply(_("asteroidSearch-comms","iron"),function()
 			traceDigits("iron",iron)
 		end)
 	end
@@ -2915,6 +2930,9 @@ function upgradeLongRangeSensors()
 		local lrs_cost = (#comms_source.lrs_5u_upgrade * 5) + 5
 		addCommsReply(string.format(_("LRSUpgrade-comms","Get 5U long range sensor range upgrade (%i rep)"),lrs_cost),function()
 			if comms_source:takeReputationPoints(lrs_cost) then
+				if comms_source.normal_long_range_radar == nil then
+					comms_source.normal_long_range_radar = comms_source:getLongRangeRadarRange()
+				end
 				comms_source:setLongRangeRadarRange(comms_source:getLongRangeRadarRange() + 5000)
 				comms_source.normal_long_range_radar = comms_source.normal_long_range_radar + 5000
 				setCommsMessage(_("LRSUpgrade-comms","Your long range sensor range has been increased by 5 units"))
@@ -3384,37 +3402,46 @@ function uniformPlague()
 	return option_count
 end
 function commsEnemyStation()
-	if distance(comms_source,comms_target) < 5000 then
-		if comms_target.container_status == nil then
-			setCommsMessage(_("enemy-comms","Ready to receive research container."))
-			addCommsReply(_("enemy-comms","Launch container"),function()
-				createContainer()
-				setCommsMessage(_("enemy-comms","Container launched"))
-			end)
-		elseif comms_target.container_status == "in transit to station" then
-			setCommsMessage(string.format(_("enemy-comms","Research container is in transit to station %s"),comms_target:getCallSign()))
-		elseif comms_target.container_status == "being loaded" then
-			setCommsMessage(string.format(_("enemy-comms","Research container arrived at station %s and is being loaded with data and samples."),comms_target:getCallSign()))
-		elseif comms_target.container_status == "returning to ship" then
-			setCommsMessage(string.format(_("enemy-comms","Research container with samples and data in transit from station %s to original launch point."),comms_target:getCallSign()))
-		elseif comms_target.container_status == "awaiting retrieval" then
-			setCommsMessage(string.format(_("enemy-comms","Research container from station %s with data and samples awaiting retrieval at original launch point."),comms_target:getCallSign()))
-		elseif comms_target.container_status == "retrieved" then
-			setCommsMessage(_("enemy-comms","Research container has been retrieved"))
-			addCommsReply(_("enemy-comms","Data lost. We need another copy."),function()
-				setCommsMessage(_("enemy-comms","Ready to receive another research container."))
-				addCommsReply(_("enemy-comms","Launch another container (50 reputation)"),function()
-					if comms_source:takeReputationPoints(50) then
-						createContainer()
-						setCommsMessage(_("enemy-comms","Container launched"))
-					else
-						setCommsMessage(_("needRep-comms", "Insufficient reputation"))
-					end
-				end)
-			end)
+	local fixed_station = false
+	for i,station in ipairs(fixed_stations) do
+		if station:isValid() and comms_target == station then
+			fixed_station = true
+			break
 		end
-	else
-		setCommsMessage(string.format(_("enemy-comms","Scientist on station %s will only connect communications if ship is within 5 units"),comms_target:getCallSign()))
+	end
+	if not fixed_station then
+		if distance(comms_source,comms_target) < 5000 then
+			if comms_target.container_status == nil then
+				setCommsMessage(_("enemy-comms","Ready to receive research container."))
+				addCommsReply(_("enemy-comms","Launch container"),function()
+					createContainer()
+					setCommsMessage(_("enemy-comms","Container launched"))
+				end)
+			elseif comms_target.container_status == "in transit to station" then
+				setCommsMessage(string.format(_("enemy-comms","Research container is in transit to station %s"),comms_target:getCallSign()))
+			elseif comms_target.container_status == "being loaded" then
+				setCommsMessage(string.format(_("enemy-comms","Research container arrived at station %s and is being loaded with data and samples."),comms_target:getCallSign()))
+			elseif comms_target.container_status == "returning to ship" then
+				setCommsMessage(string.format(_("enemy-comms","Research container with samples and data in transit from station %s to original launch point."),comms_target:getCallSign()))
+			elseif comms_target.container_status == "awaiting retrieval" then
+				setCommsMessage(string.format(_("enemy-comms","Research container from station %s with data and samples awaiting retrieval at original launch point."),comms_target:getCallSign()))
+			elseif comms_target.container_status == "retrieved" then
+				setCommsMessage(_("enemy-comms","Research container has been retrieved"))
+				addCommsReply(_("enemy-comms","Data lost. We need another copy."),function()
+					setCommsMessage(_("enemy-comms","Ready to receive another research container."))
+					addCommsReply(_("enemy-comms","Launch another container (50 reputation)"),function()
+						if comms_source:takeReputationPoints(50) then
+							createContainer()
+							setCommsMessage(_("enemy-comms","Container launched"))
+						else
+							setCommsMessage(_("needRep-comms", "Insufficient reputation"))
+						end
+					end)
+				end)
+			end
+		else
+			setCommsMessage(string.format(_("enemy-comms","Scientist on station %s will only connect communications if ship is within 5 units"),comms_target:getCallSign()))
+		end
 	end
 end
 function createContainer()
