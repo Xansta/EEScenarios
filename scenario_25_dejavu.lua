@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 function init()
-	scenario_version = "1.0.5"
+	scenario_version = "1.0.6"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Déjà vu    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2351,6 +2351,9 @@ function randomTransportType()
 	return CpuShip():setTemplate(string.format("%s %s %i",tableSelectRandom(transport_type),freighter_engine,freighter_size)):setCommsScript(""):setCommsFunction(commsShip), freighter_size
 end
 function maintainTransports()
+	if transport_list == nil or #transport_list < 1 then
+		return
+	end
 	local clean_list = true
 	for i,transport in ipairs(transport_list) do
 		if transport ~= nil then
