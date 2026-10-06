@@ -30,7 +30,7 @@ require("utils.lua")
 --	Initialization  --
 -- **************** --
 function init()
-	scenario_version = "1.2.1"
+	scenario_version = "1.3.1"
 	ee_version = "2024.12.08"
 	scenario_name = "Treasure Race"
 	print(string.format("    ----    Scenario: %s    ----    Version %s    ----    Tested with EE version %s    ----",scenario_name,scenario_version,ee_version))
@@ -5359,6 +5359,59 @@ function handleDockedState()
 		oMsg = oMsg .. "\nForgive us if we seem a little distracted. We are carefully monitoring the enemies nearby."
 	end
 	setCommsMessage(oMsg)
+	if comms_target:isFriendly(comms_source) then
+		if ctd.got_sensor_upgrade == nil then
+			ctd.got_sensor_upgrade = {}
+		end
+		if not ctd.got_sensor_upgrade[comms_source] then
+			addCommsReply("Increase range of long range sensors",function()
+				if comms_source.sensor_upgrade_rep_count == nil then
+					comms_source.sensor_upgrade_rep_count = 1
+				end
+				setCommsMessage("We can increase the range of your ship's long range sensors by five units.\nHow would you like to increase the range of your ship's long range sensors?")
+				addCommsReply(string.format("Spend %s reputation",comms_source.sensor_upgrade_rep_count*10),function()
+				    if not comms_source:isDocked(comms_target) then 
+						setCommsMessage("You need to stay docked for that action.")
+					else
+						if comms_source:takeReputationPoints(comms_source.sensor_upgrade_rep_count*10) then
+							comms_source:setLongRangeRadarRange(comms_source:getLongRangeRadarRange() + 5000)
+							comms_source.sensor_upgrade_rep_count = comms_source.sensor_upgrade_rep_count + 1
+							setCommsMessage("The range of your long range sensors has been increased by five units")
+							ctd.got_sensor_upgrade[comms_source] = true
+						else
+							setCommsMessage("Insufficient reputation")
+						end
+					end
+				end)
+				addCommsReply("Reduce battery capacity by 50",function()
+				    if not comms_source:isDocked(comms_target) then 
+						setCommsMessage("You need to stay docked for that action.")
+					else
+						if comms_source:getEnergyLevelMax() <= 100 then
+							setCommsMessage("Insufficient spare battery capacity")
+						else
+							comms_source:setEnergyLevelMax(comms_source:getEnergyLevelMax() - 50)
+							comms_source:setLongRangeRadarRange(comms_source:getLongRangeRadarRange() + 5000)
+							ctd.got_sensor_upgrade[comms_source] = true
+							setCommsMessage("The range of your long range sensors has been increased by five units")
+						end
+					end
+				end)
+				addCommsReply("Reduce maximum impulse speed by five percent",function()
+				    if not comms_source:isDocked(comms_target) then 
+						setCommsMessage("You need to stay docked for that action.")
+					else
+						local forward, reverse = comms_source:getImpulseMaxSpeed()
+						comms_source:setImpulseMaxSpeed(forward*.95,reverse*.95)
+						comms_source:setLongRangeRadarRange(comms_source:getLongRangeRadarRange() + 5000)
+						ctd.got_sensor_upgrade[comms_source] = true
+						setCommsMessage("The range of your long range sensors has been increased by five units")
+					end
+				end)
+				addCommsReply("Back", commsStation)
+			end)
+		end
+	end
 	if collection_criteria.foxtrot ~= nil and foxtrot_treasure:isScannedBy(comms_source) then
 		foxtrotReadings()
 	end
