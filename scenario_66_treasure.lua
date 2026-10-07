@@ -30,7 +30,7 @@ require("utils.lua")
 --	Initialization  --
 -- **************** --
 function init()
-	scenario_version = "1.3.1"
+	scenario_version = "1.3.2"
 	ee_version = "2024.12.08"
 	scenario_name = "Treasure Race"
 	print(string.format("    ----    Scenario: %s    ----    Version %s    ----    Tested with EE version %s    ----",scenario_name,scenario_version,ee_version))
@@ -2035,8 +2035,8 @@ function setNormalConstants()
 	postPauseBuild1 = buildNormalTerrain
 	postPauseBuild2 = buildNormalUpgrades
 	postPauseBuild3 = buildNormalArtifacts
-	treasure_clue_time = getScenarioTime() + game_length / 6
-	treasure_scan_clue_time = getScenarioTime() + game_length / 10
+	treasure_clue_time = getScenarioTime() + game_length / 6	--final:6
+	treasure_scan_clue_time = getScenarioTime() + game_length / 10	--final:10
 	complete_sector = "M25"
 	complete_sector_x = 410000
 	complete_sector_y = 150000
@@ -2707,7 +2707,7 @@ function treasureClue(p)
 					},
 					{confidence = 95},
 				}
-				local qi = math.max(treasure_scan_clue,3)
+				local qi = math.min(treasure_scan_clue,3)
 				local report_bearing = bearing
 				local report_distance = math.floor(closest_treasure_distance/1000)
 				if q_scan[qi].blur ~= nil then
@@ -2752,11 +2752,11 @@ function treasureClue(p)
 					end
 				end
 				table.insert(p.treasure_clue_list, {
-					clue = string.format("%s sector %s mark %i",clue_fragment,p:getSectorName(),mark),
+					clue = string.format("%s sector %s mark %i; confidence: %s%%",clue_fragment,p:getSectorName(),mark,q_scan[qi].confidence),
 					treasure = closest_treasure,
 					clue_type = "quantum scan",
 				})
-				p:addToShipLog(string.format("%s your current location",clue_fragment),"Magenta")
+				p:addToShipLog(string.format("%s your current location; confidence: %s%%",clue_fragment,q_scan[qi].confidence),"Magenta")
 			end
 		end
 	end	
@@ -5359,7 +5359,7 @@ function handleDockedState()
 		oMsg = oMsg .. "\nForgive us if we seem a little distracted. We are carefully monitoring the enemies nearby."
 	end
 	setCommsMessage(oMsg)
-	if comms_target:isFriendly(comms_source) then
+	if not comms_target:isEnemy(comms_source) then
 		if ctd.got_sensor_upgrade == nil then
 			ctd.got_sensor_upgrade = {}
 		end
