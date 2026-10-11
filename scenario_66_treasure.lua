@@ -30,7 +30,7 @@ require("utils.lua")
 --	Initialization  --
 -- **************** --
 function init()
-	scenario_version = "1.3.2"
+	scenario_version = "1.3.3"
 	ee_version = "2024.12.08"
 	scenario_name = "Treasure Race"
 	print(string.format("    ----    Scenario: %s    ----    Version %s    ----    Tested with EE version %s    ----",scenario_name,scenario_version,ee_version))
@@ -548,14 +548,14 @@ function setConstants()
 	signature.upgrade[upgrade_signature] = random(.15,.85)
 --	print(string.format("Treasure: grav: %.1f, elec: %.1f, bio: %.1f",signature.treasure.grav,signature.treasure.elec,signature.treasure.bio))
 --	print(string.format("Upgrade: grav: %.1f, elec: %.1f, bio: %.1f",signature.upgrade.grav,signature.upgrade.elec,signature.upgrade.bio))
-	control_code_usage = "fixed"	--valid values: none, fixed or random
+	control_code_usage = "none"	--valid values: none, fixed or random
 	fixed_control_code = {	--All control codes must be upper case or they will not work
 		["Calamity"]	=	"BLOCKADE555",
 		["Damocles"]	=	"CROSSFIELD345",
 		["Endeavor"]	=	"ARCTIC777",
 		["Glitter"]		=	"TRACTOR432",
 		["Hyperion"]	=	"VOYAGER987",
-		["Liberty"]		=	"AVENGER123",
+		["Onyx"]		=	"AVENGER123",
 		["Prismatic"]	=	"NEBULA789",
 		["Raven"]		=	"VORTEX234",
 		["Satsuma"]		=	"SCANNER678",
@@ -5383,7 +5383,7 @@ function handleDockedState()
 						end
 					end
 				end)
-				addCommsReply("Reduce battery capacity by 50",function()
+				addCommsReply(string.format("Reduce battery capacity by 50 from %i",math.floor(comms_source:getEnergyLevelMax())),function()
 				    if not comms_source:isDocked(comms_target) then 
 						setCommsMessage("You need to stay docked for that action.")
 					else
@@ -5871,7 +5871,7 @@ function foxtrotReadings()
 				setCommsMessage("Now we need the bio-neural reading:")
 				for bio_neural=0,9 do
 					addCommsReply(bio_neural,function()
-						setCommsMessage("And what is the chorno-anomalous reading?")
+						setCommsMessage("And what is the chrono-anomalous reading?")
 						for chrono_anomalous=0,9 do
 							addCommsReply(chrono_anomalous,function()
 								if foxtrot_treasure.electro_mechanical == electro_mechanical and
