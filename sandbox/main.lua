@@ -72,7 +72,7 @@ require("sandbox/playerShips.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.7.1"
+	scenario_version = "9.8.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -288,6 +288,51 @@ function setConstants()
 		"jumpdrive",
 		"frontshield",
 		"rearshield",
+	}
+	zone_weapon_actions = {
+		{action = "Drain shields",		color = "Orange Red",		dmg =	.999,	rng =	.99},
+		{action = "Drain power",		color = "Orange Red",		dmg =	.999,	rng =	.99},
+		{action = "Dmg shield gen",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"frontshield","rearshield"}},
+		{action = "Dmg engines",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Dmg FTL",			color = "Red",				dmg =	.999,	rng =	.99,	systems = {"warp","jumpdrive"}},
+		{action = "Dmg weapons",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"beamweapons","missilesystem"}},
+		{action = "Dmg maneuver",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"maneuver"}},
+		{action = "Dmg reactor",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"reactor"}},
+		{action = "Dmg front shield",	color = "Red",				dmg =	.999,	rng =	.99,	systems = {"frontshield"}},
+		{action = "Dmg rear shield",	color = "Red",				dmg =	.999,	rng =	.99,	systems = {"rearshield"}},
+		{action = "Dmg impulse",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"impulse"}},
+		{action = "Dmg warp",			color = "Red",				dmg =	.999,	rng =	.99,	systems = {"warp"}},
+		{action = "Dmg jump",			color = "Red",				dmg =	.999,	rng =	.99,	systems = {"jumpdrive"}},
+		{action = "Dmg beam weapons",	color = "Red",				dmg =	.999,	rng =	.99,	systems = {"beamweapons"}},
+		{action = "Dmg missiles",		color = "Red",				dmg =	.999,	rng =	.99,	systems = {"missilesystem"}},
+		{action = "Heat shields",		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"frontshield","rearshield"}},
+		{action = "Heat engines",		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"impulse","warp","jumpdrive"}},
+		{action = "Heat FTL",			color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"warp","jumpdrive"}},
+		{action = "Heat weapons",		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"beamweapons","missilesystem"}},
+		{action = "Heat maneuver",		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"maneuver"}},
+		{action = "Heat reactor", 		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"reactor"}},
+		{action = "Heat front shield",	color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"frontshield"}},
+		{action = "Heat rear shield",	color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"rearshield"}},
+		{action = "Heat impulse",		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"impulse"}},
+		{action = "Heat warp",			color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"warp"}},
+		{action = "Heat jump",			color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"jumpdrive"}},
+		{action = "Heat beam weapons",	color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"beamweapons"}},
+		{action = "Heat missiles",		color = "Firebrick Red",	heat =	.001,	rng =	.01,	systems = {"missilesystem"}},
+	}
+	fighter_ai_templates = {
+		["MT52 Hornet"] = true,
+		["MU52 Hornet"] = true,
+		["MV52 Hornet"] = true,
+		["MT55 Hornet"] = true,
+		["MU55 Hornet"] = true,
+		["Dagger"] = true,
+		["Gunner"] = true,
+		["Ktlitan Fighter"] = true,
+		["K2 Fighter"] = true,
+		["K3 Fighter"] = true,
+		["Fighter"] = true,
+		["Shepherd"] = true,
+		["Touchy"] = true,
 	}
 	zone_actions = {
 		{action = "Drain shields",		color = "Orange Red",		dmg =	.999},
@@ -14149,6 +14194,13 @@ function addEnhancementToScienceDatabase(enhancement_type)
 			cyber_attack_db = queryScienceDatabase("Ships","Enhancements","Cyber Attack")
 			cyber_attack_db:setLongDescription("If a ship is equipped with Cyber Attack, it can hack various systems on your ship. When assessing this capability the integer portion of the number represents the interval between attacks in seconds. The fractional portion of the number represents the chance of success.")
 		end
+	elseif enhancement_type == "Quantum Field" then
+		local quantum_field_db = queryScienceDatabase("Ships","Enhancements","Quantum Field")
+		if quantum_field_db == nil then
+			enhancement_db:addEntry("Quantum Field")
+			quantum_field_db = queryScienceDatabase("Ships","Enhancements","Quantum Field")
+			quantum_field_db:setLongDescription("If a ship is equipped with Quantum Field, it can drop an invisible field that adversely impacts ship systems. The systems impacted and the degree of impact varies. Your ship systems will put up a colored area on Science and Relay as soon as the field is identified.")
+		end
 	end
 end
 function setShipEnhancement(ship)
@@ -14208,6 +14260,12 @@ function setShipEnhancement(ship)
 			table.insert(cyber_attack_ships,ship)
 			table.insert(enhancements,string.format("Cyber Attack. Factor %s.%s",ship.cyber_attack_interval,ship.cyber_attack_factor))
 			addEnhancementToScienceDatabase("Cyber Attack")
+		end
+		if random(1,1000) < ship_template[template_name].strength * ship_enhancement_factor 
+			and fighter_ai_templates[template_name] then
+			ship.zone_weapon = true
+			table.insert(enhancements,"Quantum Field")
+			addEnhancementToScienceDatabase("Quantum Field")
 		end
 	end
 	if #enhancements > 0 then
@@ -18935,6 +18993,20 @@ function selectSpecialWeapons()
 		button_label = string.format("+Cyber I%i F%i",special_ship.cyber_attack_interval,special_ship.cyber_attack_factor)
 	end
 	addGMFunction(button_label,setCyberAttack)
+	button_label = "Quantum Field"
+	if special_ship.zone_weapon then
+		button_label = string.format("%s*",button_label)
+	end
+	addGMFunction(button_label,function()
+		if special_ship.zone_weapon then
+			special_ship.zone_weapon = false
+		else
+			special_ship.zone_weapon = true
+			setSpecialDescription(special_ship)
+			addEnhancementToScienceDatabase("Quantum Field")
+		end
+		selectSpecialWeapons()
+	end)
 end
 function selectSpecial()
 	clearGMFunctions()
@@ -19755,6 +19827,13 @@ function setSpecialDescription(ship)
 			special_description = string.format("Cyber Attack %i.%i.",ship.cyber_attack_interval,ship.cyber_attack_factor)
 		else
 			special_description = string.format("%s Cyber Attack %i.%i.",special_description,ship.cyber_attack_interval,ship.cyber_attack_factor)
+		end
+	end
+	if ship.zone_weapon ~= nil then
+		if special_description == "" then
+			special_description = "Quantum Field."
+		else
+			special_description = string.format("%s Quantum Field.",special_description)
 		end
 	end
 	if special_description == "" then
@@ -25851,6 +25930,7 @@ function stationManipulation()
 	addGMFunction("+Station Goods",stationGoods)
 	addGMFunction("+Station Probes",stationProbes)
 	addGMFunction("+Station Ordnance",stationOrdnance)
+	addGMFunction("+Station Comms",dynamicStationComms)
 end
 ---------------------------------
 --	Tweak Terrain > Minefield  --
@@ -31552,7 +31632,9 @@ function stationOrdnance()
 		end
 	end
 end
-
+function dynamicStationComms()
+	addGMMessage("Not implemented yet")
+end
 ---------------------------------------------------------------------------
 --	Tweak Terrain > Station manipulation > Station probes > Fast probes  --
 ---------------------------------------------------------------------------
@@ -47036,6 +47118,7 @@ function update(delta)
 	update_system:update(delta)
 	local players = getActivePlayerShips()
 	local zone_actions_pending = true
+	local zone_weapon_actions_pending = true
 	for pidx, p in ipairs(players) do
 		if p ~= nil and p:isValid() then
 			if updateDiagnostic then print("update: valid player: adjust spawn point") end
@@ -47145,6 +47228,10 @@ function update(delta)
 			if zone_actions_pending then
 				zone_actions_pending = updatePlayerZoneActions(p)
 			end
+			if zone_weapon_actions_pending then
+				zone_weapon_actions_pending = updatePlayerZoneWeapon(p)
+			end
+			updatePlayerDropZoneWeapon(p)
 			if updateDiagnostic then print("update: end of player loop") end
 		end	--player loop
 	end
@@ -47604,6 +47691,252 @@ function updatePlayerRendezvousPoints(p)
 				end
 			end
 		end
+	end
+end
+function updatePlayerDropZoneWeapon(p)
+	local px, py = p:getPosition()
+	local objects = getObjectsInRadius(px,py,5000)
+	for i,obj in ipairs(objects) do
+		if isObjectType(obj,"CpuShip") and obj:isEnemy(p) then
+			if obj.zone_weapon then
+				if obj.zone_weapon_time == nil then
+					obj.zone_weapon_time = getScenarioTime() + 5
+				end
+				if getScenarioTime() > obj.zone_weapon_time then
+					obj.zone_weapon_time = nil
+					if obj.chasers == nil then
+						obj.chasers = {}
+					end
+					if obj.chasers[p] == nil then
+						obj.chasers[p] = distance(obj,p)
+					else
+						if distance(obj,p) > obj.chasers[p] then
+							--check roughly same bearing and player behind
+							local p_head = p:getHeading()
+							local obj_head = obj:getHeading()
+							if math.abs((p_head + 360) - (obj_head + 360)) < 10 then
+								local chase_head = angleHeading(p,obj)
+								if math.abs((p_head + 360) - (chase_head + 360)) < 90 then
+									--drop weapon
+									zp = {}
+									local ox, oy = obj:getPosition()
+									for j=1,90 do
+										local x, y = vectorFromAngle(j*4,1000,true)
+										x = x + ox
+										y = y + oy
+										table.insert(zp,{x=x,y=y})
+									end
+									local z = Zone()
+									z.center_x = ox
+									z.center_y = oy
+									z.radius = 1000
+									z.expire_time = getScenarioTime() + 300	--final:300, 10 is for testing
+									z:setPoints(
+										zp[1].x, zp[1].y,
+										zp[2].x, zp[2].y,
+										zp[3].x, zp[3].y,
+										zp[4].x, zp[4].y,
+										zp[5].x, zp[5].y,
+										zp[6].x, zp[6].y,
+										zp[7].x, zp[7].y,
+										zp[8].x, zp[8].y,
+										zp[9].x, zp[9].y,
+										zp[10].x, zp[10].y,
+										zp[11].x, zp[11].y,
+										zp[12].x, zp[12].y,
+										zp[13].x, zp[13].y,
+										zp[14].x, zp[14].y,
+										zp[15].x, zp[15].y,
+										zp[16].x, zp[16].y,
+										zp[17].x, zp[17].y,
+										zp[18].x, zp[18].y,
+										zp[19].x, zp[19].y,
+										zp[20].x, zp[20].y,
+										zp[21].x, zp[21].y,
+										zp[22].x, zp[22].y,
+										zp[23].x, zp[23].y,
+										zp[24].x, zp[24].y,
+										zp[25].x, zp[25].y,
+										zp[26].x, zp[26].y,
+										zp[27].x, zp[27].y,
+										zp[28].x, zp[28].y,
+										zp[29].x, zp[29].y,
+										zp[30].x, zp[30].y,
+										zp[31].x, zp[31].y,
+										zp[32].x, zp[32].y,
+										zp[33].x, zp[33].y,
+										zp[34].x, zp[34].y,
+										zp[35].x, zp[35].y,
+										zp[36].x, zp[36].y,
+										zp[37].x, zp[37].y,
+										zp[38].x, zp[38].y,
+										zp[39].x, zp[39].y,
+										zp[40].x, zp[40].y,
+										zp[41].x, zp[41].y,
+										zp[42].x, zp[42].y,
+										zp[43].x, zp[43].y,
+										zp[44].x, zp[44].y,
+										zp[45].x, zp[45].y,
+										zp[46].x, zp[46].y,
+										zp[47].x, zp[47].y,
+										zp[48].x, zp[48].y,
+										zp[49].x, zp[49].y,
+										zp[50].x, zp[50].y,
+										zp[51].x, zp[51].y,
+										zp[52].x, zp[52].y,
+										zp[53].x, zp[53].y,
+										zp[54].x, zp[54].y,
+										zp[55].x, zp[55].y,
+										zp[56].x, zp[56].y,
+										zp[57].x, zp[57].y,
+										zp[58].x, zp[58].y,
+										zp[59].x, zp[59].y,
+										zp[60].x, zp[60].y,
+										zp[61].x, zp[61].y,
+										zp[62].x, zp[62].y,
+										zp[63].x, zp[63].y,
+										zp[64].x, zp[64].y,
+										zp[65].x, zp[65].y,
+										zp[66].x, zp[66].y,
+										zp[67].x, zp[67].y,
+										zp[68].x, zp[68].y,
+										zp[69].x, zp[69].y,
+										zp[70].x, zp[70].y,
+										zp[71].x, zp[71].y,
+										zp[72].x, zp[72].y,
+										zp[73].x, zp[73].y,
+										zp[74].x, zp[74].y,
+										zp[75].x, zp[75].y,
+										zp[76].x, zp[76].y,
+										zp[77].x, zp[77].y,
+										zp[78].x, zp[78].y,
+										zp[79].x, zp[79].y,
+										zp[80].x, zp[80].y,
+										zp[81].x, zp[81].y,
+										zp[82].x, zp[82].y,
+										zp[83].x, zp[83].y,
+										zp[84].x, zp[84].y,
+										zp[85].x, zp[85].y,
+										zp[86].x, zp[86].y,
+										zp[87].x, zp[87].y,
+										zp[88].x, zp[88].y,
+										zp[89].x, zp[89].y,
+										zp[90].x, zp[90].y
+									)
+									--add action(s)
+									local action_pool = {}
+									for j,action in ipairs(zone_weapon_actions) do
+										table.insert(action_pool,action)
+									end
+									local action_count = math.random(1,5)
+									z.actions = {}
+									for j=1,action_count do
+										local action = tableRemoveRandom(action_pool)
+										local dmg = action.dmg
+										local heat = action.heat
+										if dmg ~= nil then
+											dmg = random(action.rng,dmg)
+										end
+										if heat ~= nil then
+											heat = random(heat,action.rng)
+										end
+										-- set zone color
+										local color_pool = {}
+										for color_name,rgb in pairs(zone_color_list) do
+											if color_name ~= "No Color" then
+												table.insert(color_pool,color_name)
+											end
+										end
+										local zc = tableSelectRandom(color_pool)
+										table.insert(z.actions,{action=action.action,dmg=dmg,heat=heat,systems=action.systems,color=zc})
+									end
+									if zone_weapons == nil then
+										zone_weapons = {}
+									end
+									table.insert(zone_weapons,z)
+								end
+							end
+						end
+						obj.chasers[p] = distance(obj,p)
+					end
+				end
+			end
+		end
+	end
+end
+function updatePlayerZoneWeapon(p)
+	if zone_weapons == nil or #zone_weapons < 1 then
+		return false
+	else
+		local zone_with_action = false
+		for i,z in ipairs(zone_weapons) do
+			if getScenarioTime() > z.expire_time then
+				zone_weapons[i] = zone_weapons[#zone_weapons]
+				zone_weapons[#zone_weapons] = nil
+				z:destroy()
+				break
+			end
+			if z.actions ~= nil and #z.actions > 0 then
+				if z.center_x ~= nil then
+					zone_with_action = true
+					if z.radius == nil then
+						z.radius = 1000
+					end
+					if distance(p,z.center_x,z.center_y) < z.radius then
+						if z.visible == nil then
+							z.visible = false
+						end
+						if not z.visible then
+							if z.visible_time == nil then
+								z.visible_time = getScenarioTime() + 5
+							end
+							if getScenarioTime() > z.visible_time then
+								z.visible = true
+								local color = z.actions[1].color
+								z:setColor(zone_color_list[color].r,zone_color_list[color].g,zone_color_list[color].b)
+							end
+						end
+						for j,a in ipairs(z.actions) do
+							if a.systems == nil then
+								if a.action == "Drain shields" then
+									if p:getShieldCount() == 1 then
+										p:setShields(p:getShieldLevel(0)*a.dmg)
+									else
+										if random(1,100) <= 50 then
+											p:setShields(p:getShieldLevel(0)*a.dmg,p:getShieldLevel(1))
+										else
+											p:setShields(p:getShieldLevel(0),p:getShieldLevel(1)*a.dmg)
+										end
+									end
+								elseif a.action == "Drain power" then
+									p:setEnergy(p:getEnergy()*a.dmg)
+								end
+							else
+								local system_pool = {}
+								for k,system in ipairs(a.systems) do
+									if p:hasSystem(system) then
+										table.insert(system_pool,system)
+									end
+								end
+								local selected_system = tableSelectRandom(system_pool)
+								if selected_system ~= nil then
+									if a.dmg == nil then	--not dmg, must be heat
+										p:setSystemHeat(selected_system,p:getSystemHeat(selected_system) + a.heat)
+									else	--dmg
+										if p:getSystemHealth(selected_system) > 0 then
+											p:setSystemHealth(selected_system,p:getSystemHealth(selected_system)*a.dmg)
+										else
+											p:setSystemHealth(selected_system,p:getSystemHealth(selected_system) - (1 - a.dmg))
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		return zone_with_action
 	end
 end
 function updatePlayerZoneActions(p)

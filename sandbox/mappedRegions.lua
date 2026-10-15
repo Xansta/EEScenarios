@@ -6785,7 +6785,7 @@ function createKentarStations()
 	station_names[stationKatanga:getCallSign()] = {stationKatanga:getSectorName(), stationKatanga}
 	table.insert(stations,stationKatanga)
 	--Keyhole-23 T15
-	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
+	stationKeyhole23 = SpaceStation():setTemplate("Small Station"):setFaction("Human Navy"):setCallSign("Keyhole-23.2"):setPosition(213600,290000):setDescription("Gravitational lensing spy satellite"):setCommsScript(""):setCommsFunction(commsStation)
     stationKeyhole23:setShortRangeRadarRange(6500)
 	stationKeyhole23.total_time = 0
     if random(1,100) <= 67 then tradeLuxury = true else tradeLuxury = false end

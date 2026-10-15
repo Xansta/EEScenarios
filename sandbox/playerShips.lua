@@ -193,7 +193,7 @@ function setPlayerShipStats()
 	makePlayerShipActive("Cobra")			--J
 	makePlayerShipActive("Outcast")			--J
 	makePlayerShipActive("Manxman") 		--J 
-	makePlayerShipActive("Florentine")		--W
+	makePlayerShipActive("Guinevere")		--W
 	makePlayerShipActive("Pinwheel")		--W
 	makePlayerShipActive("Grad") 			--W 
 	stock_combat_maneuver = {
