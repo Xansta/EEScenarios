@@ -72,7 +72,7 @@ require("sandbox/playerShips.lua")
 --	scenario also needs border_defend_station.lua
 function init()
 	print("Empty Epsilon version: ",getEEVersion())
-	scenario_version = "9.8.1"
+	scenario_version = "9.9.1"
 	ee_version = "2024.12.08"
 	print(string.format("   ---   Scenario: Sandbox   ---   Version %s   ---   Tested with EE version %s   ---",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -6509,6 +6509,71 @@ function addWaypoint()
 		addGMFunction(">Add Waypoint<",clickForWaypoint)
 	else
 		addGMFunction("Add Waypoint",clickForWaypoint)
+	end
+	addGMFunction("+Show Waypoints",showWaypoints)
+end
+function showWaypoints()
+	clearGMFunctions()
+	addGMFunction("-Main From Waypoint",initialGMFunctions)
+	addGMFunction("-Tweak Player",tweakPlayerShip)
+	addGMFunction("-Tweak Relay",tweakRelay)
+	addGMFunction("-Waypoint",addWaypoint)
+	for i,p in ipairs(getActivePlayerShips()) do
+		if p:getWaypointCount() > 0 then
+			addGMFunction(string.format("+%s",p:getCallSign()),function()
+				clearGMFunctions()
+				addGMFunction("-Show Waypoints",showWaypoints)
+				for n=1,p:getWaypointCount() do
+					addGMFunction(string.format("WP %i in %s",n,getSectorName(p:getWaypoint(n))),function()
+						if show_gm_waypoint_zones == nil then
+							show_gm_waypoint_zones = {}
+						end
+						local wx, wy = p:getWaypoint(n)
+						local z = Zone():setPoints(
+							wx - 10000, wy - 10000,
+							wx + 10000, wy - 10000,
+							wx + 10000, wy + 10000,
+							wx - 10000, wy + 10000
+						)
+						z.wx = wx
+						z.wy = wy
+						z.size = 9000
+						z.time = getScenarioTime() + .1
+						table.insert(show_gm_waypoint_zones,z)
+					end)
+				end
+			end)
+		end
+	end
+end
+function updateShowWaypointToGM()
+	if show_gm_waypoint_zones ~= nil and #show_gm_waypoint_zones > 0 then
+		for i,z in ipairs(show_gm_waypoint_zones) do
+			if getScenarioTime() > z.time then
+				if z.size > 0 then
+					local wx = z.wx
+					local wy = z.wy
+					local size = z.size
+					local zn = Zone():setPoints(
+						wx - size, wy - size,
+						wx + size, wy - size,
+						wx + size, wy + size,
+						wx - size, wy + size
+					)
+					zn.wx = wx
+					zn.wy = wy
+					zn.size = size - 1000
+					zn.time = getScenarioTime() + .1
+					show_gm_waypoint_zones[i] = zn
+					z:destroy()
+				else
+					show_gm_waypoint_zones[i] = show_gm_waypoint_zones[#show_gm_waypoint_zones]
+					show_gm_waypoint_zones[#show_gm_waypoint_zones] = nil
+					z:destroy()
+					break
+				end
+			end
+		end
 	end
 end
 function clickForWaypoint()
@@ -47474,6 +47539,7 @@ function update(delta)
 		podFloat()
 	end
 	cleanUpDropPoints()
+	updateShowWaypointToGM()
 --	cleanUpPodPrepButtons()
 	if updateDiagnostic then print("update: end of update function") end
 end
