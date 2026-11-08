@@ -30,7 +30,7 @@ require("utils.lua")
 --	Initialization  --
 -- **************** --
 function init()
-	scenario_version = "1.3.3"
+	scenario_version = "1.3.4"
 	ee_version = "2024.12.08"
 	scenario_name = "Treasure Race"
 	print(string.format("    ----    Scenario: %s    ----    Version %s    ----    Tested with EE version %s    ----",scenario_name,scenario_version,ee_version))
@@ -8296,7 +8296,7 @@ function gatherStats(final_score)
 				if p.antisocial == "retrieved" then
 					score_list[p:getCallSign()].rank = score_list[p:getCallSign()].rank + 10
 				end
-				if score_list[p:getCallSign()].rank >= 11 and primaryStation:isDocked(p) then
+				if score_list[p:getCallSign()].rank >= 11 and p:isdocked(primaryStation) then
 					score_list[p:getCallSign()].rank = score_list[p:getCallSign()].rank + 100
 				end
 			elseif game_variation == "Explorer" then
@@ -8306,7 +8306,7 @@ function gatherStats(final_score)
 				if p.foxtrot == "provided" then
 					score_list[p:getCallSign()].rank = score_list[p:getCallSign()].rank + 10
 				end
-				if score_list[p:getCallSign()].rank >= 21 and primaryStation:isDocked(p) then
+				if score_list[p:getCallSign()].rank >= 21 and p:isDocked(primaryStation) then
 					score_list[p:getCallSign()].rank = score_list[p:getCallSign()].rank + 100
 				end
 			end
