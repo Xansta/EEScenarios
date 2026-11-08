@@ -23,7 +23,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.1.1"
+	scenario_version = "5.2.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -45,6 +45,36 @@ function init()
 	commonGoods = {"food","medicine","nickel","platinum","gold","dilithium","tritanium","luxury","cobalt","impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	componentGoods = {"impulse","warp","shield","tractor","repulsor","beam","optic","robotic","filament","transporter","sensor","communication","autodoc","lifter","android","nanites","software","circuit","battery"}
 	mineralGoods = {"nickel","platinum","gold","dilithium","tritanium","cobalt"}
+	good_desc = {
+		["food"] =			_("trade-comms","food"),
+		["medicine"] =		_("trade-comms","medicine"),
+		["luxury"] =		_("trade-comms","luxury"),
+		["cobalt"] =		_("trade-comms","cobalt"),
+		["dilithium"] =		_("trade-comms","dilithium"),
+		["gold"] =			_("trade-comms","gold"),
+		["nickel"] =		_("trade-comms","nickel"),
+		["platinum"] =		_("trade-comms","platinum"),
+		["tritanium"] =		_("trade-comms","tritanium"),
+		["autodoc"] =		_("trade-comms","autodoc"),
+		["android"] =		_("trade-comms","android"),
+		["battery"] =		_("trade-comms","battery"),
+		["beam"] =			_("trade-comms","beam"),
+		["circuit"] =		_("trade-comms","circuit"),
+		["communication"] =	_("trade-comms","communication"),
+		["filament"] =		_("trade-comms","filament"),
+		["impulse"] =		_("trade-comms","impulse"),
+		["lifter"] =		_("trade-comms","lifter"),
+		["nanites"] =		_("trade-comms","nanites"),
+		["optic"] =			_("trade-comms","optic"),
+		["repulsor"] =		_("trade-comms","repulsor"),
+		["robotic"] =		_("trade-comms","robotic"),
+		["sensor"] =		_("trade-comms","sensor"),
+		["shield"] =		_("trade-comms","shield"),
+		["software"] =		_("trade-comms","software"),
+		["tractor"] =		_("trade-comms","tractor"),
+		["transporter"] =	_("trade-comms","transporter"),
+		["warp"] =			_("trade-comms","warp"),
+	}
 	diagnostic = false			
 	GMDiagnosticOn = _("buttonGM", "Turn On Diagnostic")
 	addGMFunction(GMDiagnosticOn,turnOnDiagnostic)
@@ -2309,6 +2339,54 @@ function getFriendStatus()
         return "neutral"
     end
 end
+function updatePlayerInventoryButtonUtility(p)
+	local good_count = 0
+	if p.goods ~= nil then
+		for good, good_quantity in pairs(p.goods) do
+			good_count = good_count + good_quantity
+		end
+	end
+	if good_count > 0 then
+		p.inventory_button_rel = "inventory_button_rel"
+		p:addCustomButton("Relay",p.inventory_button_rel,_("inventory-buttonRelay","Inventory"),function() 
+			string.format("")
+			local out = playerShipCargoInventory(p)
+			p.inventory_message_rel = "inventory_message_rel"
+			p:addCustomMessage("Relay",p.inventory_message_rel,out)
+		end,23)
+		p.inventory_button_ops = "inventory_button_ops"
+		p:addCustomButton("Operations",p.inventory_button_ops,_("inventory-buttonOperations","Inventory"),function() 
+			string.format("")
+			local out = playerShipCargoInventory(p)
+			p.inventory_message_ops = "inventory_message_ops"
+			p:addCustomMessage("Operations",p.inventory_message_ops,out)
+		end,23)
+	else
+		if p.inventory_button_rel ~= nil then
+			p:removeCustom(p.inventory_button_rel)
+			p.inventory_button_rel = nil
+		end
+		if p.inventory_button_ops ~= nil then
+			p:removeCustom(p.inventory_button_ops)
+			p.inventory_button_ops = nil
+		end
+	end
+end
+function playerShipCargoInventory(p)
+	local out = string.format(_("msgRelay","%s Current cargo:"),p:getCallSign())
+	local good_count = 0
+	if p.goods ~= nil then
+		for good, good_quantity in pairs(p.goods) do
+			good_count = good_count + good_quantity
+			out = string.format("%s\n     %s: %i",out,good_desc[good],good_quantity)
+		end
+	end
+	if good_count < 1 then
+		out = string.format(_("msgRelay","%s\n     Empty"),out)
+	end
+	out = string.format(_("msgRelay","%s\nAvailable space: %i"),out,p.cargo)
+	return out
+end
 --------------------------
 --	Ship communication  --
 --------------------------
@@ -3149,17 +3227,13 @@ function fixFlood(delta)
 			if reactorFixStationMessage == nil then
 				playerRepulse:addToShipLog(string.format(_("crewFriends-shipLog", "[Manuel (repair crew member)] The reactor could use some tuning. My cousin can fix us up. He does work on reactors on %s"),reactorFixStation:getCallSign()),"Magenta")
 				reactorFixStationMessage = "sent"
-				if playerRepulse:hasPlayerAtPosition("Relay") then
-					if crewFixButtonMsg == nil then
-						crewFixButtonMsg = "crewFixButtonMsg"
-						playerRepulse:addCustomButton("Relay",crewFixButtonMsg,_("crewRepairStatut-buttonRelay", "crew fixers"),showCrewFixers)
-					end
+				if crewFixButtonMsg == nil then
+					crewFixButtonMsg = "crewFixButtonMsg"
+					playerRepulse:addCustomButton("Relay",crewFixButtonMsg,_("crewRepairStatut-buttonRelay", "crew fixers"),showCrewFixers)
 				end
-				if playerRepulse:hasPlayerAtPosition("Operations") then
-					if crewFixButtonMsgOp == nil then
-						crewFixButtonMsgOp = "crewFixButtonMsgOp"
-						playerRepulse:addCustomButton("Operations",crewFixButtonMsgOp,_("crewRepairStatut-buttonOperations", "crew fixers"),showCrewFixers)
-					end
+				if crewFixButtonMsgOp == nil then
+					crewFixButtonMsgOp = "crewFixButtonMsgOp"
+					playerRepulse:addCustomButton("Operations",crewFixButtonMsgOp,_("crewRepairStatut-buttonOperations", "crew fixers"),showCrewFixers)
 				end
 				harassment_time = getScenarioTime() + 350
 				plot1 = cumulativeHarassment
@@ -3905,5 +3979,9 @@ function update(delta)
 	kraylorPatrol(delta)
 	if plotSign ~= nil then
 		plotSign(delta)
+	end
+	for i,p in ipairs(getActivePlayerShips()) do
+		updatePlayerInventoryButtonUtility(p)
+		playerShipCargoInventory(p)
 	end
 end
