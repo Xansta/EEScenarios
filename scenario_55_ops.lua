@@ -34,10 +34,10 @@
 -- Reputation[Major Hero]: 100 reputation - you're well known by nearly everyone as a force for good
 -- Reputation[Super Hero]: 200 reputation - everyone knows you and relies on you for help
 -- Setting[Transfer]: Time delay interval for player ship transfer activities
--- Transfer[Short]: 5 second interval
--- Transfer[Medium|Default]: 8 second interval
--- Transfer[Long]: 12 second interval
--- Transfer[Restful]: 17 second interval
+-- Transfer[Short]: 8 second interval
+-- Transfer[Medium|Default]: 12 second interval
+-- Transfer[Long]: 16 second interval
+-- Transfer[Restful]: 20 second interval
 
 require("utils.lua")
 require("place_station_scenario_utility.lua")
@@ -47,7 +47,7 @@ require("comms_scenario_utility.lua")
 
 --	Initialization
 function init()
-	scenario_version = "0.0.3"
+	scenario_version = "0.0.4"
 	scenario_name = "Operations"
 	getScriptStorage():set("scenario_name", scenario_name)
 	ee_version = "2024.12.08"
@@ -64,6 +64,20 @@ end
 function setConstants()
 	relative_strength = 1
 	max_repeat_loop = 100
+	voice_clips = {
+		["DeliveryShipArrived"] =	1.5,
+		["FleetDestroyedDock"] =	3.023,
+		["GetGoods"] =				21.792,
+		["HomeDestroyed"] =			4,	
+		["IntroduceFlavia"] =		26.195,	
+		["KraylorBearing"] =		10.501,
+		["KraylorDestroyed"] =		2.054,	
+		["OpeningInstructions"] =	19.179,	
+		["PlayersDestroyed"] =		1.856,	
+		["TransferToAtlantis"] =	13.455,	
+		["TransferToFlavia"] =		2.689,	
+		["TransferToPhobos"] =		19.836,	
+	}
 	ordnance_types = {"Homing", "Nuke", "Mine", "EMP", "HVLI"}
 	system_types = {"reactor","beamweapons","missilesystem","maneuver","impulse","warp","jumpdrive","frontshield","rearshield"}
 	missile_types = {'Homing', 'Nuke', 'Mine', 'EMP', 'HVLI'}
@@ -356,6 +370,9 @@ function setGlobals()
 	sensor_impact = 1
 	player_respawns = false
 	player_respawn_max = 0
+	server_voices = true
+	voice_queue = {}
+	voice_played = {}
 	deployed_player_count = 0
 	deployed_players = {}
 	player_ship_stats = {	
@@ -977,10 +994,10 @@ function setVariations()
 	}
 	reputation_start_amount = reputation_config[getScenarioSetting("Reputation")]
 	local transfer_config = {
-		["Short"] =		5,
-		["Medium"] =	8,
-		["Long"] =		12,
-		["Restful"] =	17,
+		["Short"] =		8,
+		["Medium"] =	12,
+		["Long"] =		16,
+		["Restful"] =	20,
 	}
 	transfer_interval = transfer_config[getScenarioSetting("Transfer")]
 end
@@ -2318,6 +2335,7 @@ function startInitialMission()
 		p:addToShipLog(string.format(_("goal-shipLog","You have been recalled from your recent battle with Kraylor at the perimeter. Their action consisted of two battle groups. Your patrol group destroyed the first Kraylor group. The second Kraylor group destroyed our other perimeter patrol. They threaten station %s in sector %s."),home_station:getCallSign(),home_station:getSectorName()),"Magenta")
 		p:addToShipLog(string.format(_("goal-shipLog","Defend your home station, %s from the rapidly approaching Kraylor."),home_station:getCallSign()),"Magenta")
 	end
+	playVoice("OpeningInstructions")
 	missionMaintenance = defendHomeStationFromFighters
 end
 function defendHomeStationFromFighters()
@@ -2333,6 +2351,7 @@ function defendHomeStationFromFighters()
 		for i,p in ipairs(getActivePlayerShips()) do
 			p:addToShipLog(string.format(_("goal-shipLog","Kraylor fighter fleet destroyed. Dock with %s"),home_station:getCallSign()),"Magenta")
 		end
+		playVoice("FleetDestroyedDock")
 		missionMaintenance = dockAfterFightersDestroyed
 		primary_orders = string.format(_("orders-comms","Dock with station %s"),home_station:getCallSign())
 	end
@@ -2347,6 +2366,10 @@ function dockAfterFightersDestroyed()
 				goods_retrieval_message = string.format(_("goal-shipLog","Since the Kraylor have increased their attacks, we'd like to install defense platforms around station %s. We have most of what we need, but we're missing some components and/or materials. There are some Independent stations around here that have what we need or have what we can adapt to get those platforms built. You need to get those goods. The Kraylor will try to stop you."),home_station:getCallSign())
 				p:addToShipLog(goods_retrieval_message,"Magenta")
 			end
+		end
+		if get_good_voice_message == nil then
+			playVoice("GetGoods")
+			get_good_voice_message = "sent"
 		end
 		if docked_station == nil or docked_station ~= home_station then
 			all_docked = false
@@ -2451,6 +2474,8 @@ function transferToFlavia()
 			for i,p in ipairs(getActivePlayerShips()) do
 				p:addToShipLog(string.format(_("goal-shipLog","Delivery ship, %s has arrived."),jump_delivery:getCallSign()),"Magenta")
 			end
+			playVoice("DeliveryShipArrived")
+			getPlayerShip(-1):addReputationPoints(50)
 			flavia_delivered = true
 		end
 	end
@@ -2583,7 +2608,12 @@ function flaviaGoods()
 				if #getActivePlayerShips() > 1 then
 					p:addToShipLog(_("goal-shipLog","You may want to go together to pick up goods since the Kraylor will try to prevent you from getting the goods. Fighting as a group is usually more effective than fighting individually. Be careful not to shoot each other with your missile weapons."),"Magenta")
 				end
+				if transfer_to_flavia_voice_message == nil then
+	 				playVoice("TransferToFlavia")
+	 				transfer_to_flavia_voice_message = "sent"
+	 			end
 			end
+			playVoice("IntroduceFlavia")
 			primary_orders = _("goal-shipLog","Gather goods:")
 			for i,mission_good in ipairs(mission_goods) do
 				if difficulty > 1 then
@@ -2664,8 +2694,9 @@ function flaviaGoodsDelivered()
 	if post_goods_retrieval_message == nil then
 		post_goods_retrieval_message = "sent"
 		for i,p in ipairs(getActivePlayerShips()) do
-			p:addToShipLog(string.format(_("goal-shipLog","The resources to build defense platforms has been obtained. We will start construction immediately. We detect more Kraylor coming. We have requisitioned Phobos class ships for you to use to defend station %s. The Flavia P. Falcon is not designed for station defense. Dock to facilitate transfer."),home_station:getCallSign()),"Magenta")
+			p:addToShipLog(string.format(_("goal-shipLog","The resources to build defense platforms have been obtained. We will start construction immediately. We detect more Kraylor coming. We have requisitioned Phobos class ships for you to use to defend station %s. The Flavia P. Falcon is not designed for station defense. Dock to facilitate transfer."),home_station:getCallSign()),"Magenta")
 		end
+		playVoice("TransferToPhobos")
 	end
 	local all_docked = true
 	for i,p in ipairs(getActivePlayerShips()) do
@@ -2772,6 +2803,11 @@ function transferToPhobos()
 			for i,p in ipairs(getActivePlayerShips()) do
 				p:addToShipLog(string.format(_("goal-shipLog","Delivery ship, %s has arrived."),jump_delivery:getCallSign()),"Magenta")
 			end
+			if voice_played["DeliveryShipArrived"] then
+				voice_played["DeliveryShipArrived"] = false
+			end
+			playVoice("DeliveryShipArrived")
+			getPlayerShip(-1):addReputationPoints(50)
 			phobos_delivered = true
 		end
 	end
@@ -2915,6 +2951,10 @@ function phobosDefendHome()
 			for i,p in ipairs(getActivePlayerShips()) do
 				p:addToShipLog(string.format(_("goal-shipLog","Kraylor fighter fleet destroyed. Dock with %s"),home_station:getCallSign()),"Magenta")
 			end
+			if voice_played["FleetDestroyedDock"] then
+				voice_played["FleetDestroyedDock"] = false
+			end
+			playVoice("FleetDestroyedDock")
 			missionMaintenance = dockAfterSecondFighterWave
 			primary_orders = string.format(_("orders-comms","Dock with station %s"),home_station:getCallSign())
 		end
@@ -2980,6 +3020,10 @@ function dockAfterSecondFighterWave()
 				p.defend_station_message = "sent"
 				bearing_message = string.format(_("goal-shipLog","You will find Kraylor station %s on bearing %.1f from station %s. We expect the defense platforms to protect %s, but it's still a good idea to destroy Kraylor that are heading for %s."),target_station:getCallSign(),kraylor_heading,home_station:getCallSign(),home_station:getCallSign(),home_station:getCallSign())
 				p:addToShipLog(bearing_message,"Magenta")
+				if kraylor_bearing_voice_message == nil then
+					playVoice("KraylorBearing")
+					kraylor_bearing_voice_message = "sent"
+				end
 			end
 		end
 		if docked_station == nil or docked_station ~= home_station then
@@ -3019,6 +3063,7 @@ function dockAfterSecondFighterWave()
 		for i,p in ipairs(getActivePlayerShips()) do
 			p:addToShipLog(string.format(_("goal-shipLog","We need to take the battle to the Kraylor. To that end, we have requested Atlantis class ships for you to hunt down the Kraylor station. Dock with %s to facilitate transfer from the Phobos class to the Atlantis class ship."),home_station:getCallSign()),"Magenta")
 		end
+		playVoice("TransferToAtlantis")
 	end
 end
 function transferToAtlantis()
@@ -3091,6 +3136,14 @@ function transferToAtlantis()
 			for i,p in ipairs(getActivePlayerShips()) do
 				p:addToShipLog(string.format(_("goal-shipLog","Delivery ship, %s has arrived."),jump_delivery:getCallSign()),"Magenta")
 			end
+			if voice_played["DeliveryShipArrived"] then
+				voice_played["DeliveryShipArrived"] = false
+			end
+			if voice_played["DeliveryShipArrived"] then
+				voice_played["DeliveryShipArrived"] = false
+			end
+			playVoice("DeliveryShipArrived")
+			getPlayerShip(-1):addReputationPoints(50)
 			atlantis_delivered = true
 		end
 	end
@@ -4007,6 +4060,82 @@ function updateSAUVButton(p)
 		end
 	end
 end
+function improvedStationService(p)
+	if p.instant_energy ~= nil then
+		if #p.instant_energy > 0 then
+			for i,station in ipairs(p.instant_energy) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setEnergyLevel(p:getEnergyLevelMax())
+					end
+				else
+					p.instant_energy[i] = p.instant_energy[#p.instant_energy]
+					p.instant_energy[#p.instant_energy] = nil
+					break
+				end
+			end
+		else
+			p.instant_energy = nil
+		end
+	end
+	if p.instant_hull ~= nil then
+		if #p.instant_hull > 0 then
+			for i,station in ipairs(p.instant_hull) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setHull(p:getHullMax())
+					end
+				else
+					p.instant_hull[i] = p.instant_hull[#p.instant_hull]
+					p.instant_hull[#p.instant_hull] = nil
+					break
+				end
+			end
+		else
+			p.instant_hull = nil
+		end
+	end
+	if p.instant_probes ~= nil then
+		if #p.instant_probes > 0 then
+			for i,station in ipairs(p.instant_probes) do
+				if station:isValid() then
+					if p:isDocked(station) then
+						p:setScanProbeCount(p:getMaxScanProbeCount())
+					end
+				else
+					p.instant_probes[i] = p.instant_probes[#p.instant_probes]
+					p.instant_probes[#p.instant_probes] = nil
+				end
+			end
+		else
+			p.instant_probes = nil
+		end
+	end
+end
+function handleVoiceQueue()
+	if #voice_queue > 0 then
+		if voice_play_time == nil then
+			playSoundFile(string.format("audio/scenario/55/sa_55_ops_%s.ogg",voice_queue[1]))
+			if voice_clips[voice_queue[1]] == nil then
+				print("In the voice clips list,",voice_queue[1],"comes up as nil. Setting play gap to 20")
+				voice_play_time = getScenarioTime() + 20
+			else
+				voice_play_time = getScenarioTime() + voice_clips[voice_queue[1]] + 1
+			end
+			table.remove(voice_queue,1)
+		elseif getScenarioTime() > voice_play_time then
+			voice_play_time = nil
+		end
+	end
+end
+function playVoice(clip)
+	if server_voices then
+		if not voice_played[clip] then
+			table.insert(voice_queue,clip)
+			voice_played[clip] = true
+		end
+	end
+end
 --	General
 function update(delta)
 	if delta == 0 then
@@ -4023,6 +4152,7 @@ function update(delta)
 	end
 	for i,p in ipairs(getActivePlayerShips()) do
 		updatePlayerLongRangeSensors(delta,p)
+		improvedStationService(p)
 		updateSAUVButton(p)
 		local name_banner = string.format(_("nameSector-tabRelay&Ops&Helm&Tactical","%s in %s"),p:getCallSign(),p:getSectorName())
 		p.name_banner_rel = "name_banner_rel"
@@ -4034,6 +4164,7 @@ function update(delta)
 		p.name_banner_tac = "name_banner_tac"
 		p:addCustomInfo("Tactical",p.name_banner_tac,name_banner,1)
 	end
+	handleVoiceQueue()
 	if home_station ~= nil and home_station:isValid() then
 		if missionMaintenance ~= nil then
 			missionMaintenance()
@@ -4044,16 +4175,19 @@ function update(delta)
 	else
 		local msg = finalStats()
 		globalMessage(string.format(_("msgMainscreen","You did not protect your home station.\n%s"),msg))
+		playVoice("HomeDestroyed")
 		victory("Kraylor")
 	end
 	if #getActivePlayerShips() < 1 then
 		local msg = finalStats()
 		globalMessage(string.format(_("msgMainscreen","All player ships destroyed.\n%s"),msg))
+		playVoice("PlayersDestroyed")
 		victory("Kraylor")
 	end
 	if not target_station:isValid() and missionMaintenance == atlantisAttackKraylorStation then
 		local msg = finalStats()
 		globalMessage(string.format(_("msgMainscreen","Kraylor station destroyed.\n%s"),msg))
+		playVoice("KraylorDestroyed")
 		victory("Human Navy")
 	end
 	if mother_returnees ~= nil then
