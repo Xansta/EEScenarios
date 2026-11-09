@@ -23,7 +23,7 @@ require("place_station_scenario_utility.lua")
 --	Initialization routines  --
 -------------------------------
 function init()
-	scenario_version = "5.2.1"
+	scenario_version = "5.2.2"
 	ee_version = "2024.12.08"
 	print(string.format("    ----     Scenario: Escape    ----     Version %s    ----    Tested with EE version %s",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -3047,7 +3047,7 @@ end
 function augmentRepairCrew(delta)
 --Former repair crew asks to be rescued to take up their jobs again
 	if getScenarioTime() > augment_repair_crew_time then
-		brigHailed = brigStation:sendCommsMessage(playerRepulse,_("crewImport-incCall", "Need a repair crew? We used to be posted on that ship. We would be happy to return to our repair duty and get away from these Kraylors. We left the transporters locked on us, but the Kraylors destroyed our remote activator. You should find an activation switch at the weapons console"))
+		brigHailed = brigStation:sendCommsMessage(playerRepulse,_("crewImport-incCall", "Need a repair crew? We used to be posted on that ship. We would be happy to return to our repair duty and get away from these Kraylors. We left the transporters locked on us, but the Kraylors destroyed our remote activator. You should find an activation switch at the weapons console.\n\nBe careful fixing up your ship. Boris keeps track of the damage remotely. He might get curious if a ship starts getting healthier quickly."))
 		if brigHailed then
 			if playerRepulse:hasPlayerAtPosition("Weapons") then
 				if retrieveRepairCrewButton == nil then
