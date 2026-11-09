@@ -30,7 +30,7 @@ require("utils.lua")
 --	Initialization  --
 -- **************** --
 function init()
-	scenario_version = "1.3.4"
+	scenario_version = "1.3.5"
 	ee_version = "2024.12.08"
 	scenario_name = "Treasure Race"
 	print(string.format("    ----    Scenario: %s    ----    Version %s    ----    Tested with EE version %s    ----",scenario_name,scenario_version,ee_version))
@@ -3297,7 +3297,7 @@ function setExplorerConstants()
 	postPauseBuild3 = buildExplorerShyPlanetarySystem
 	broadcast_messages = {
 		["Introduction"] = {
-			long_text = "Welcome to the Treasure Race\n\nBe the first to gather up three treasures\n\nA number of anomalies have been discovered and observerd in the area. We'll call them treasures. They turn out to have potentially powerful properties. Unfortunately, the information about these treasures has become public and now several ships are all looking for these treasures. We gave you the best ships we could find, but they don't have faster than light engines. There are lots of upgrades nearby including faster engines. You should look for the engine upgrades. The first treasure can also be found nearby. Fame, glory, respect and promotion will go to the first space ship that can get these treasures. Good luck.",
+			long_text = "Welcome to the Treasure Race\n\nBe the first to gather up three treasures\n\nSeveral anomalies have been discovered and observerd in the area. We'll call them treasures. They turn out to have potentially powerful properties. Unfortunately, the information about these treasures has become public and now several ships are all looking for these treasures. We gave you the best ships we could find, but they don't have faster than light engines. There are lots of upgrades nearby including faster engines. You should look for the engine upgrades. Be sure you have a Relay or Strategic Map officer because of the expanded map option, not just an Operations officer. The first treasure can also be found nearby. Fame, glory, respect and promotion will go to the first space ship that can get these treasures. Good luck.",
 			short_text = "Be the first to gather and return three treasures",
 			count = 0,
 		},
@@ -3863,7 +3863,16 @@ function collectAlpha(p)
 					local mp = getPlayerShip(pidx)
 					if mp ~= nil and mp:isValid() then
 						mp:addToShipLog(string.format("[%s] Intelligence indicates that Exuari plan to attack. They've got some kind of jump technology that lets them send ships to a remote destination without installing a jump drive on the ship. As a protective counter measure, we are initiating continuous evasive jump protocol around the perimeter",primaryStation:getCallSign()),"Magenta")
+						mp:addToShipLog(string.format("[%s] We have installed an informational banner to keep you informed about our current location",primaryStation:getCallSign()),"Magenta")
 					end
+				end
+			else
+				local primary_location = string.format("%s is in %s",primaryStation:getCallSign(),primaryStation:getSectorName())
+				for i,p in ipairs(getActivePlayerShips()) do
+					p.primary_station_sector_banner_rel = "primary_station_sector_banner_rel"
+					p:addCustomInfo("Relay",p.primary_station_sector_banner_rel,primary_location)
+					p.primary_station_sector_banner_ops = "primary_station_sector_banner_ops"
+					p:addCustomInfo("Operations",p.primary_station_sector_banner_ops,primary_location)
 				end
 			end
 		end
