@@ -56,7 +56,7 @@ require("spawn_ships_scenario_utility.lua")
 require("control_code_scenario_utility.lua")
 
 function init()
-	scenario_version = "2.0.12"
+	scenario_version = "2.1.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Unwanted Visitors    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -4809,15 +4809,15 @@ function handleUndockedState()
 			if ctd.goodsKnowledge == nil then
 				ctd.goodsKnowledge = {}
 				local knowledgeCount = 0
-				local knowledgeMax = 10
+				local knowledgeMax = 15
 				for i=1,#humanStationList do
 					local station = humanStationList[i]
-					if station ~= nil and station:isValid() then
-						local brainCheckChance = 60
+					if station ~= nil and station:isValid() and station ~= comms_target then
+						local brainCheckChance = 80
 						if distance(comms_target,station) > 75000 then
-							brainCheckChance = 20
+							brainCheckChance = 30
 						end
-						for good, goodData in pairs(ctd.goods) do
+						for good, goodData in pairs(station.comms_target.goods) do
 							if random(1,100) <= brainCheckChance then
 								local stationCallSign = station:getCallSign()
 								local stationSector = station:getSectorName()
@@ -4992,56 +4992,6 @@ function getServiceCost(service)
 -- Return the number of reputation points that a specified service costs for
 -- the current player.
     return math.ceil(comms_data.service_cost[service])
-end
-function fillStationBrains()
-	comms_target.goodsKnowledge = {}
-	comms_target.goodsKnowledgeSector = {}
-	comms_target.goodsKnowledgeType = {}
-	comms_target.goodsKnowledgeTrade = {}
-	local knowledgeCount = 0
-	local knowledgeMax = 10
-	for sti=1,#humanStationList do
-		if humanStationList[sti] ~= nil and humanStationList[sti]:isValid() then
-			if distance(comms_target,humanStationList[sti]) < 75000 then
-				brainCheck = 3
-			else
-				brainCheck = 1
-			end
-			for gi=1,#goods[humanStationList[sti]] do
-				if random(1,10) <= brainCheck then
-					table.insert(comms_target.goodsKnowledge,humanStationList[sti]:getCallSign())
-					table.insert(comms_target.goodsKnowledgeSector,humanStationList[sti]:getSectorName())
-					table.insert(comms_target.goodsKnowledgeType,goods[humanStationList[sti]][gi][1])
-					tradeString = ""
-					stationTrades = false
-					if tradeMedicine[humanStationList[sti]] ~= nil then
-						tradeString = _("trade-comms"," and will trade it for medicine")
-						stationTrades = true
-					end
-					if tradeFood[humanStationList[sti]] ~= nil then
-						if stationTrades then
-							tradeString = tradeString .. _("trade-comms"," or food")
-						else
-							tradeString = tradeString .. _("trade-comms"," and will trade it for food")
-							stationTrades = true
-						end
-					end
-					if tradeLuxury[humanStationList[sti]] ~= nil then
-						if stationTrades then
-							tradeString = tradeString .. _("trade-comms"," or luxury")
-						else
-							tradeString = tradeString .. _("trade-comms"," and will trade it for luxury")
-						end
-					end
-					table.insert(comms_target.goodsKnowledgeTrade,tradeString)
-					knowledgeCount = knowledgeCount + 1
-					if knowledgeCount >= knowledgeMax then
-						return
-					end
-				end
-			end
-		end
-	end
 end
 function getFriendStatus()
     if comms_source:isFriendly(comms_target) then
