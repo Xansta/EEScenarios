@@ -22,7 +22,7 @@ require("place_station_scenario_utility.lua")
 require("comms_scenario_utility.lua")
 require("spawn_ships_scenario_utility.lua")
 function init()
-	scenario_version = "1.0.6"
+	scenario_version = "1.1.1"
 	ee_version = "2024.12.08"
 	print(string.format("    ----    Scenario: Déjà vu    ----    Version %s    ----    Tested with EE version %s    ----",scenario_version,ee_version))
 	if _VERSION ~= nil then
@@ -2889,6 +2889,10 @@ function rockResearch()
 								iron = 0
 								verifyAsteroid()
 							end)
+							addCommsReply(_("asteroidSearch-comms","We have not found one like that yet"),function()
+								setCommsMessage("Let me know when you do")
+								addCommsReply(_("Back"), commsStation)
+							end)
 							addCommsReply(_("Back"), commsStation)
 						end)
 						if scanned_asteroid_count > 5 and asteroid_structure ~= nil then
@@ -4768,6 +4772,7 @@ function update(delta)
 		updatePlayerInitialPatrolMissionMessage(p)
 		updatePlayerInventoryButtonUtility(p)
 		updatePlayerIFFFailureCheck(p)
+		playerShipCargoInventory(p)
 		updatePlayerShipNameBanner(p)
 		updatePlayerStarHeat(delta,p)
 		updatePlayerInNebula(delta,p)
